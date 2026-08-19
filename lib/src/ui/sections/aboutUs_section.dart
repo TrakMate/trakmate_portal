@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
@@ -13,6 +15,66 @@ class AboutusSection extends StatefulWidget {
 }
 
 class _AboutusSectionState extends State<AboutusSection> {
+  late final PageController _certPageController;
+  Timer? _certAutoScrollTimer;
+  static const int _visibleCertCount = 4;
+  static const int _certLoopMultiplier = 5000;
+
+  final List<_CertData> _certs = const [
+    _CertData(
+      logo: 'icons/iso.svg',
+      code: '9001:2015',
+      label: 'Quality Management',
+    ),
+    _CertData(
+      logo: 'icons/iso.svg',
+      code: '14001:2015',
+      label: 'Environmental Management',
+    ),
+    _CertData(
+      logo: 'icons/iso.svg',
+      code: '45001:2018',
+      label: 'Occupational Health & Safety',
+    ),
+    _CertData(logo: 'icons/ce.svg', code: '', label: 'CE Certified'),
+    _CertData(
+      logo: 'icons/ais.svg',
+      code: 'AIS 140',
+      label: 'Vehicle Tracking & Telematics',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _certPageController = PageController(
+      viewportFraction: 1 / _visibleCertCount,
+      initialPage: _certs.length * _certLoopMultiplier,
+    );
+    _startCertAutoScroll();
+  }
+
+  @override
+  void dispose() {
+    _certAutoScrollTimer?.cancel();
+    _certPageController.dispose();
+    super.dispose();
+  }
+
+  void _startCertAutoScroll() {
+    _certAutoScrollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _goToNextCertPage();
+    });
+  }
+
+  void _goToNextCertPage() {
+    if (!_certPageController.hasClients) return;
+    _certPageController.nextPage(
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.linear,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -145,71 +207,23 @@ class _AboutusSectionState extends State<AboutusSection> {
 
           SizedBox(height: 25),
 
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: Column(
-              children: [
-                Text(
-                  "Meet Our Leadership",
-                  style: GoogleFonts.manrope(
-                    color: tBlue,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+          _ourTeamSection(),
 
-                const SizedBox(height: 5),
+          SizedBox(height: 25),
 
-                Text(
-                  "Experienced Leaders. Inspired Vision.",
-                  style: GoogleFonts.manrope(
-                    color: tBlack,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: _buildInfrastructureSection(),
+          ),
 
-                const SizedBox(height: 10),
+          SizedBox(height: 35),
 
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: buildTeamCard(
-                        image: "images/img2.jpg",
-                        name: "NL Srinivas",
-                        designation: "Co-Founder & CEO",
-                      ),
-                    ),
-
-                    const SizedBox(width: 30),
-
-                    Expanded(
-                      child: buildTeamCard(
-                        image: "images/img1.jpg",
-                        name: "M Pramod",
-                        designation: "Co-Founder & COO",
-                      ),
-                    ),
-
-                    const SizedBox(width: 30),
-
-                    Expanded(
-                      child: buildTeamCard(
-                        image: "images/img2.jpg",
-                        name: "S Srinivasa",
-                        designation: "Co-Founder & CTO",
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: _buildCertificationsSection(),
           ),
 
           SizedBox(height: 40),
-
           FooterSection(),
         ],
       ),
@@ -681,60 +695,135 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
-  Widget buildTeamCard({
+  Widget _ourTeamSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Meet Our Leadership",
+                  style: GoogleFonts.manrope(
+                    color: tBlack,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w700,
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: 75,
+                  height: 2,
+                  decoration: BoxDecoration(color: tOrange1),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Our diverse team of engineers, designers, developers and industry experts work together to deliver exceptional solutions and exceed expectations.",
+                  style: GoogleFonts.manrope(
+                    fontSize: 12,
+                    color: tBlack,
+                    height: 1.35,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 15),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 80),
+
+          Expanded(
+            flex: 4,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: buildTeamProfileCard(
+                    image: "images/img2.jpg",
+                    name: "NL Srinivas",
+                    designation: "Co-Founder & CEO",
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: buildTeamProfileCard(
+                    image: "images/img1.jpg",
+                    name: "M Pramod",
+                    designation: "Co-Founder & COO",
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: buildTeamProfileCard(
+                    image: "images/img2.jpg",
+                    name: "S Srinivasa",
+                    designation: "Co-Founder & CTO",
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTeamProfileCard({
     required String image,
     required String name,
     required String designation,
   }) {
     return Container(
-      width: 220,
+      width: 280,
       decoration: BoxDecoration(
         color: tWhite,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tBlue1.withOpacity(0.15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: tBlack.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Image Section
             SizedBox(
-              height: 220,
+              height: 150,
               width: double.infinity,
               child: Image.asset(image, fit: BoxFit.cover),
             ),
-
-            // Name & Designation Section
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              color: tWhite,
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Column(
                 children: [
                   Text(
                     name,
                     textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.manrope(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: tBlack,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 3),
                   Text(
                     designation,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.manrope(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: tOrange1,
                     ),
@@ -747,4 +836,337 @@ class _AboutusSectionState extends State<AboutusSection> {
       ),
     );
   }
+
+  Widget _buildCertificationsSection() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: tBlue.withOpacity(0.15),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Certifications & Partnership",
+                  style: GoogleFonts.manrope(
+                    color: tBlack,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "We adhere to global standards to ensure quality, safety and environmental responsibility.",
+                  style: GoogleFonts.manrope(
+                    color: tBlue3,
+                    fontSize: 13,
+                    // fontWeight: FontWeight.w400,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          _certDivider(),
+
+          Expanded(
+            flex: 5,
+            child: SizedBox(
+              height: 100,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final itemWidth = constraints.maxWidth / _visibleCertCount;
+                  return PageView.builder(
+                    controller: _certPageController,
+                    padEnds: false,
+                    onPageChanged: (index) {},
+                    itemBuilder: (context, index) {
+                      final cert = _certs[index % _certs.length];
+                      return SizedBox(
+                        width: itemWidth,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: buildCertificationCard(
+                                logo: cert.logo,
+                                code: cert.code,
+                                label: cert.label,
+                              ),
+                            ),
+                            _certDivider(),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildCertificationCard({
+    required String logo,
+    required String code,
+    required String label,
+  }) {
+    final bool isSvg = logo.toLowerCase().endsWith('.svg');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // SvgPicture.asset(logo, height: 42),
+        isSvg
+            ? SvgPicture.asset(logo, height: 42)
+            : Image.asset(logo, height: 42, fit: BoxFit.contain),
+        const SizedBox(height: 10),
+        if (code.isNotEmpty) ...[
+          Text(
+            code,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              color: tBlue3,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+        ],
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.manrope(
+            color: tBlue3,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _certDivider() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      width: 1,
+      height: 70,
+      color: tBlack1.withOpacity(0.1),
+    );
+  }
+
+  Widget _buildInfrastructureSection() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: _buildInfrastructureCard()),
+        const SizedBox(width: 25),
+        Expanded(child: _buildProductionFacilityCard()),
+      ],
+    );
+  }
+
+  Widget _buildInfrastructureCard() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tBlue2, tBlue3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 9,
+            child: SizedBox(
+              height: 260,
+              child: Image.asset(
+                'images/infrastructure.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 11,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Infrastructure',
+                    style: GoogleFonts.manrope(
+                      color: tWhite,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Our state-of-the-art infrastructure is built to support innovation, collaboration and high-performance engineering.',
+                    style: GoogleFonts.manrope(
+                      color: tWhite.withOpacity(0.75),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  _buildFeatureItem('Modern Offices', textColor: tWhite),
+                  _buildFeatureItem('Advanced R&D Labs', textColor: tWhite),
+                  _buildFeatureItem(
+                    'Design & Development Centers',
+                    textColor: tWhite,
+                  ),
+                  _buildFeatureItem(
+                    'Collaborative Workspaces',
+                    textColor: tWhite,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductionFacilityCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: tBlue1.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 11,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Production Facility',
+                    style: GoogleFonts.manrope(
+                      color: tBlack,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Our in-house manufacturing facility ensures precision, quality and scalability.',
+                    style: GoogleFonts.manrope(
+                      color: tBlue3,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  _buildFeatureItem(
+                    'SMT & PCB Assembly Lines',
+                    textColor: tBlack,
+                  ),
+                  _buildFeatureItem(
+                    'Product Assembly Lines',
+                    textColor: tBlack,
+                  ),
+                  _buildFeatureItem(
+                    'Testing & Validation Labs',
+                    textColor: tBlack,
+                  ),
+                  _buildFeatureItem(
+                    'Quality Control Systems',
+                    textColor: tBlack,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 9,
+            child: SizedBox(
+              height: 265,
+              child: Image.asset(
+                'images/production_facilities.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(String text, {required Color textColor}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 16,
+            height: 16,
+            margin: const EdgeInsets.only(top: 1),
+            decoration: const BoxDecoration(
+              color: tOrange1,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check, size: 10, color: Colors.white),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.manrope(
+                color: textColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CertData {
+  final String logo;
+  final String code;
+  final String label;
+
+  const _CertData({
+    required this.logo,
+    required this.code,
+    required this.label,
+  });
 }

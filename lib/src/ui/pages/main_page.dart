@@ -44,8 +44,20 @@ class _MainPageState extends State<MainPage> {
             child: IndexedStack(
               index: selectedIndex,
               children: [
-                HomeSection(),
-                SolutionsSection(),
+                HomeSection(
+                  onNavigate: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                ),
+                SolutionsSection(
+                  onNavigate: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                ),
                 EngineeringSection(),
                 ManufacturingSection(),
                 ProductsSection(),

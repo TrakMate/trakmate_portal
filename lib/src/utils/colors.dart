@@ -214,3 +214,7 @@ const primary = Color(0xff2F6BFF);
 const secondary = Color(0xff4AA3FF);
 
 const border = Color(0xff1B2940);
+
+const newbadge = Color(0xFF16A34A);
+
+const ipbadge = Color(0xFF9333EA);

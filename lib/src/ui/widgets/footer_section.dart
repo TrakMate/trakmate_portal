@@ -83,7 +83,7 @@ class FooterSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Contact Us",
+                      "Get in Touch",
                       style: GoogleFonts.manrope(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -93,10 +93,23 @@ class FooterSection extends StatelessWidget {
                     const SizedBox(height: 15),
 
                     _contact("icons/mail.svg", "info@trakmate.co.in"),
+
                     const SizedBox(height: 10),
-                    _contact("icons/call.svg", "+91 80 41532112"),
+
+                    _contact(
+                      "icons/call.svg",
+                      "+91 80 41532112\n+91 99 00450640",
+                    ),
+
                     const SizedBox(height: 10),
-                    _contact("icons/location.svg", "Bengaluru, India"),
+
+                    _contact(
+                      "icons/location.svg",
+                      "#1A, 3rd Cross, Raghavendra Extension,\n"
+                          "Opp. of MEI, Off Tumkur Road,\n"
+                          "Yeswanthapura, Bangalore - 560022,\n"
+                          "Karnataka, India",
+                    ),
 
                     const SizedBox(height: 15),
 
@@ -254,6 +267,7 @@ class FooterSection extends StatelessWidget {
 
   Widget _contact(String iconPath, String text) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SvgPicture.asset(
           iconPath,
@@ -262,11 +276,14 @@ class FooterSection extends StatelessWidget {
           color: tWhite.withOpacity(0.7),
         ),
         const SizedBox(width: 10),
-        Text(
-          text,
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            color: tWhite.withOpacity(0.7),
+
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tWhite.withOpacity(0.7),
+            ),
           ),
         ),
       ],
