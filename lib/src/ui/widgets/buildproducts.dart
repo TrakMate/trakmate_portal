@@ -29,7 +29,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/trackx4G.png',
       badge: '4G',
       badgeColor: tBlue3,
-      title: 'TMD024 / TMD004',
+      title: 'TMD024',
       subtitle: 'Advanced GPS Tracker',
       category: 'Trackers',
       description:
@@ -83,7 +83,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/trackx4G.png',
       badge: null,
       badgeColor: null,
-      title: 'TMD500 / TMD520-TMD510',
+      title: 'TMD500',
       subtitle: 'Smart IoT Sensor',
       category: 'Sensors',
       description:
@@ -101,7 +101,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/trackx4G.png',
       badge: 'IP67',
       badgeColor: ipbadge,
-      title: 'TMD320 / TMD310',
+      title: 'TMD320',
       subtitle: 'Vehicle Diagnostics',
       category: 'Trackers',
       description:

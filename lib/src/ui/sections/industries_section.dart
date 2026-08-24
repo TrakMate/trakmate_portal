@@ -9,11 +9,12 @@ class IndustriesSection extends StatelessWidget {
 
   static const String _heroImage = 'assets/images/company.jpg';
 
-  // INDUSTRIES\
+  // INDUSTRIES
   static const List<_IndustryData> _industries = [
     _IndustryData(
       icon: Icons.directions_car_filled_outlined,
       title: 'Automotive',
+      image: 'assets/images/automotive.jpg',
       tag: 'CONNECTED MOBILITY',
       description:
           'Connected vehicle electronics, telematics and intelligent systems that make mobility safer, smarter and more efficient.',
@@ -22,6 +23,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.electric_car_outlined,
       title: 'Electric Mobility',
+      image: 'assets/images/electric_mobility.jpg',
       tag: 'EV TECHNOLOGY',
       description:
           'Technology for the EV ecosystem including battery intelligence, vehicle connectivity, monitoring and energy-aware systems.',
@@ -30,6 +32,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.local_shipping_outlined,
       title: 'Fleet & Logistics',
+      image: 'assets/images/fleet_logistics.jpg',
       tag: 'FLEET INTELLIGENCE',
       description:
           'Real-time visibility, vehicle health, route intelligence and operational insights for modern transport and logistics fleets.',
@@ -38,6 +41,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.factory_outlined,
       title: 'Industrial',
+      image: 'assets/images/industrial.jpg',
       tag: 'SMART OPERATIONS',
       description:
           'Connected industrial solutions that improve equipment visibility, process efficiency, predictive insights and uptime.',
@@ -46,6 +50,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.location_city_outlined,
       title: 'Smart Cities',
+      image: 'assets/images/smartcity.jpg',
       tag: 'URBAN CONNECTIVITY',
       description:
           'IoT-driven infrastructure solutions designed to improve mobility, monitoring, resource utilisation and urban services.',
@@ -54,6 +59,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.agriculture_outlined,
       title: 'Agriculture',
+      image: 'assets/images/agriculture.jpg',
       tag: 'SMART FARMING',
       description:
           'Connected sensing and monitoring solutions that help agricultural operations make better decisions with real-time data.',
@@ -62,6 +68,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.health_and_safety_outlined,
       title: 'Healthcare',
+      image: 'assets/images/healthcare.png',
       tag: 'CONNECTED CARE',
       description:
           'Reliable connected-device technologies for monitoring, asset visibility and smarter healthcare operations.',
@@ -70,6 +77,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.inventory_2_outlined,
       title: 'Supply Chain',
+      image: 'assets/images/supplychain.png',
       tag: 'ASSET VISIBILITY',
       description:
           'Track critical assets and shipments with connected technology that brings transparency across the supply chain.',
@@ -78,6 +86,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.storefront_outlined,
       title: 'Retail',
+      image: 'assets/images/retail1.png',
       tag: 'SMART RETAIL',
       description:
           'Technology that helps retailers connect assets, monitor operations and create more responsive customer experiences.',
@@ -86,6 +95,7 @@ class IndustriesSection extends StatelessWidget {
     _IndustryData(
       icon: Icons.bolt_outlined,
       title: 'Energy',
+      image: 'assets/images/energy.png',
       tag: 'ENERGY INTELLIGENCE',
       description:
           'Connected monitoring and management solutions supporting efficient, reliable and data-driven energy operations.',
@@ -94,7 +104,6 @@ class IndustriesSection extends StatelessWidget {
   ];
 
   // VALUE ITEMS
-
   static const List<_ValueItemData> _values = [
     _ValueItemData(
       icon: Icons.architecture_outlined,
@@ -151,7 +160,9 @@ class IndustriesSection extends StatelessWidget {
     );
   }
 
-  // HERO
+  // =========================================================
+  // HERO SECTION
+  // =========================================================
 
   Widget _buildHeroSection() {
     return Container(
@@ -159,7 +170,7 @@ class IndustriesSection extends StatelessWidget {
       height: 400,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [tBlue3, tBlue2],
+          colors: [tBlue2, tBlue3],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -191,9 +202,9 @@ class IndustriesSection extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       style: GoogleFonts.manrope(
-                        fontSize: 48,
+                        fontSize: 44,
                         fontWeight: FontWeight.w600,
-                        height: 1.15,
+                        height: 1.13,
                         color: tWhite,
                       ),
                       children: [
@@ -202,7 +213,7 @@ class IndustriesSection extends StatelessWidget {
                           text: 'for a Better Tomorrow',
                           style: TextStyle(
                             color: tOrange1,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -217,7 +228,7 @@ class IndustriesSection extends StatelessWidget {
                         fontSize: 13,
                         height: 1.55,
                         fontWeight: FontWeight.w400,
-                        color: tWhite,
+                        color: tWhite.withOpacity(0.82),
                       ),
                     ),
                   ),
@@ -231,7 +242,6 @@ class IndustriesSection extends StatelessWidget {
                           'Expertise',
                         ),
                       ),
-                      // _buildHeroDivider(),
                       Expanded(
                         child: _buildHeroFeature(
                           Icons.settings_suggest_outlined,
@@ -239,7 +249,6 @@ class IndustriesSection extends StatelessWidget {
                           'Solutions',
                         ),
                       ),
-                      // _buildHeroDivider(),
                       Expanded(
                         child: _buildHeroFeature(
                           Icons.auto_graph_outlined,
@@ -247,7 +256,6 @@ class IndustriesSection extends StatelessWidget {
                           'Efficiency',
                         ),
                       ),
-                      // _buildHeroDivider(),
                       Expanded(
                         child: _buildHeroFeature(
                           Icons.verified_user_outlined,
@@ -296,15 +304,6 @@ class IndustriesSection extends StatelessWidget {
     );
   }
 
-  // Widget _buildHeroDivider() {
-  //   return Container(
-  //     width: 1,
-  //     height: 48,
-  //     margin: const EdgeInsets.symmetric(horizontal: 10),
-  //     color: tWhite.withOpacity(0.18),
-  //   );
-  // }
-
   Widget _buildHeroVisual() {
     return ClipRect(
       child: Stack(
@@ -339,50 +338,6 @@ class IndustriesSection extends StatelessWidget {
               ),
             ),
           ),
-          // Container(
-          //   decoration: BoxDecoration(
-          //     gradient: LinearGradient(
-          //       colors: [Colors.transparent, tBlue3.withOpacity(0.25)],
-          //       begin: Alignment.topCenter,
-          //       end: Alignment.bottomCenter,
-          //     ),
-          //   ),
-          // ),
-          // Positioned(
-          //   top: 22,
-          //   left: 82,
-          //   child: _buildHeroNode(Icons.directions_car_outlined),
-          // ),
-          // Positioned(
-          //   top: 8,
-          //   left: 180,
-          //   child: _buildHeroNode(Icons.eco_outlined),
-          // ),
-          // Positioned(
-          //   top: 30,
-          //   right: 112,
-          //   child: _buildHeroNode(Icons.precision_manufacturing_outlined),
-          // ),
-          // Positioned(
-          //   top: 118,
-          //   left: 24,
-          //   child: _buildHeroNode(Icons.local_shipping_outlined),
-          // ),
-          // Positioned(
-          //   top: 105,
-          //   right: 30,
-          //   child: _buildHeroNode(Icons.favorite_border_outlined),
-          // ),
-          // Positioned(
-          //   bottom: 72,
-          //   right: 22,
-          //   child: _buildHeroNode(Icons.storefront_outlined),
-          // ),
-          // Positioned(
-          //   bottom: 30,
-          //   left: 105,
-          //   child: _buildHeroNode(Icons.factory_outlined),
-          // ),
         ],
       ),
     );
@@ -402,7 +357,9 @@ class IndustriesSection extends StatelessWidget {
     );
   }
 
+  // =========================================================
   // INDUSTRIES SECTION
+  // =========================================================
 
   Widget _buildIndustriesSection() {
     return Padding(
@@ -435,6 +392,7 @@ class IndustriesSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -449,7 +407,9 @@ class IndustriesSection extends StatelessWidget {
               Expanded(child: _buildIndustryCard(_industries[4], 4)),
             ],
           ),
+
           const SizedBox(height: 18),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -473,7 +433,9 @@ class IndustriesSection extends StatelessWidget {
     return _IndustryHoverCard(data: data, index: index);
   }
 
-  // WHY CHOOSE US
+  // =========================================================
+  // VALUE SECTION
+  // =========================================================
 
   Widget _buildValueSection() {
     return Padding(
@@ -517,6 +479,7 @@ class IndustriesSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 35),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -527,7 +490,9 @@ class IndustriesSection extends StatelessWidget {
                 Expanded(child: _buildValueItem(_values[2])),
               ],
             ),
+
             const SizedBox(height: 30),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -590,7 +555,9 @@ class IndustriesSection extends StatelessWidget {
     );
   }
 
+  // =========================================================
   // COMMON
+  // =========================================================
 
   Widget _sectionEyebrow(String text, {bool light = false}) {
     return Text(
@@ -605,7 +572,9 @@ class IndustriesSection extends StatelessWidget {
   }
 }
 
+// =========================================================
 // INDUSTRY CARD
+// =========================================================
 
 class _IndustryHoverCard extends StatefulWidget {
   final _IndustryData data;
@@ -623,28 +592,40 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
   @override
   Widget build(BuildContext context) {
     final data = widget.data;
+
     final bool isOddCard = widget.index.isEven;
+
+    // Each card keeps its own original color.
+    // NO color swapping on hover.
     final Color topColor = isOddCard ? tBlue3 : tOrange1;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+
       onEnter: (_) {
         setState(() {
           _hovered = true;
         });
       },
+
       onExit: (_) {
         setState(() {
           _hovered = false;
         });
       },
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
+
         curve: Curves.easeOut,
+
         transform: Matrix4.translationValues(0, _hovered ? -5 : 0, 0),
+
         decoration: BoxDecoration(
           color: tWhite,
+
           borderRadius: BorderRadius.circular(16),
+
           border: Border.all(
             color:
                 _hovered
@@ -652,6 +633,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                     : tBlack1.withOpacity(0.08),
             width: _hovered ? 1.2 : 1,
           ),
+
           boxShadow: [
             BoxShadow(
               color:
@@ -663,108 +645,165 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(height: 7, color: topColor),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(17, 17, 17, 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          width: 47,
-                          height: 47,
-                          decoration: BoxDecoration(
-                            color:
-                                _hovered ? tOrange1 : tBlue3.withOpacity(0.09),
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          child: Icon(
-                            data.icon,
-                            color: _hovered ? tWhite : tBlue3,
-                            size: 24,
-                          ),
+
+        clipBehavior: Clip.antiAlias,
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            // =================================================
+            // IMAGE
+            // =================================================
+            SizedBox(
+              width: double.infinity,
+              height: 175,
+
+              child: Stack(
+                clipBehavior: Clip.none,
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    data.image,
+                    fit: BoxFit.cover,
+
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: tBlue3.withOpacity(0.08),
+
+                        alignment: Alignment.center,
+
+                        child: Icon(
+                          data.icon,
+                          size: 42,
+                          color: tBlue3.withOpacity(0.55),
                         ),
-                        const Spacer(),
-                        Icon(
-                          Icons.arrow_outward_rounded,
-                          size: 18,
-                          color: _hovered ? tOrange1 : tBlack.withOpacity(0.25),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 17),
-                    Text(
-                      data.tag,
-                      style: GoogleFonts.manrope(
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w800,
-                        color: tOrange1,
-                        letterSpacing: 0.9,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      data.title,
-                      style: GoogleFonts.manrope(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: tBlack,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      data.description,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
-                        fontSize: 10.5,
-                        height: 1.5,
-                        fontWeight: FontWeight.w500,
-                        color: tBlack.withOpacity(0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 13),
-                    Row(
-                      children: [
-                        Text(
-                          'Explore Industry',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: _hovered ? tOrange1 : tBlue3,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        AnimatedPadding(
-                          duration: const Duration(milliseconds: 180),
-                          padding: EdgeInsets.only(left: _hovered ? 3 : 0),
-                          child: Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 13,
-                            color: _hovered ? tOrange1 : tBlue3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            // =================================================
+            // INFORMATION
+            // =================================================
+            Stack(
+              clipBehavior: Clip.none,
+
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(17, 34, 17, 18),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.tag,
+                        style: GoogleFonts.manrope(
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w800,
+                          color: tOrange1,
+                          letterSpacing: 0.9,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      Text(
+                        data.title,
+                        style: GoogleFonts.manrope(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: tBlack,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        data.description,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.manrope(
+                          fontSize: 10.5,
+                          height: 1.5,
+                          fontWeight: FontWeight.w500,
+                          color: tBlack.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // =================================================
+                // ICON
+                //
+                // NORMAL:
+                //   Background = same original color at 60%
+                //   Icon       = 60%
+                //
+                // HOVER:
+                //   Background = same original color at 100%
+                //   Icon       = 100%
+                //
+                // NO COLOR SWAPPING
+                // =================================================
+                Positioned(
+                  top: -25,
+                  left: 17,
+
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+
+                    curve: Curves.easeOut,
+
+                    width: 50,
+                    height: 50,
+
+                    decoration: BoxDecoration(
+                      // Same color in both states.
+                      //
+                      // Only opacity changes.
+                      color: topColor.withOpacity(_hovered ? 1.0 : 0.80),
+
+                      borderRadius: BorderRadius.circular(13),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: tBlack.withOpacity(_hovered ? 0.16 : 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 180),
+
+                      curve: Curves.easeOut,
+
+                      // Icon opacity:
+                      // Normal = 60%
+                      // Hover  = 100%
+                      opacity: _hovered ? 1.0 : 0.60,
+
+                      child: Icon(data.icon, color: tWhite, size: 25),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+// =========================================================
 // DATA MODELS
+// =========================================================
 
 class _IndustryData {
   final IconData icon;
@@ -772,6 +811,7 @@ class _IndustryData {
   final String tag;
   final String description;
   final Color accent;
+  final String image;
 
   const _IndustryData({
     required this.icon,
@@ -779,6 +819,7 @@ class _IndustryData {
     required this.tag,
     required this.description,
     required this.accent,
+    required this.image,
   });
 }
 

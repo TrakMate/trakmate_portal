@@ -161,7 +161,7 @@ class _HomeSectionState extends State<HomeSection> {
 
   void _startAutoSlide() {
     _autoSlideTimer?.cancel();
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (!mounted) return;
       _currentVirtualPage++;
       _pageController.animateToPage(
