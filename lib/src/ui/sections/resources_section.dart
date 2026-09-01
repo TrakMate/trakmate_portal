@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../widgets/footer_section.dart';
+import 'package:svg_flutter/svg_flutter.dart';
 
 import '../../utils/colors.dart';
+import '../widgets/footer_section.dart';
+
+// import '../pages/blog.dart';
+// import '../pages/case_studies.dart';
+// import '../pages/documentation.dart';
+// import '../pages/faq.dart';
+// import '../pages/whitepapers.dart';
+// import '../pages/webinar.dart';
 
 class ResourcesSection extends StatefulWidget {
-  const ResourcesSection({super.key});
+  final ValueChanged<int>? onNavigate;
+
+  const ResourcesSection({super.key, this.onNavigate});
 
   @override
   State<ResourcesSection> createState() => _ResourcesSectionState();
 }
 
 class _ResourcesSectionState extends State<ResourcesSection> {
+  // ============================================================
+  // POPULAR RESOURCES
+  // ============================================================
+
   final List<_ResourceCardData> _popularResources = const [
     _ResourceCardData(
       type: 'BLOG',
@@ -22,20 +35,18 @@ class _ResourcesSectionState extends State<ResourcesSection> {
       action: 'Read More',
       image: 'images/future_iot.png',
       icon: Icons.article_outlined,
-      accent: newbadge,
+      accent: tOrange1,
     ),
-
     _ResourceCardData(
       type: 'WHITEPAPER',
       title: 'Building Secure IoT Solutions: A Comprehensive Guide',
       description:
           'Best practices for designing, building and securing IoT solutions.',
-      action: 'Download Now',
+      action: 'Explore Now',
       image: 'images/secure_iot.png',
       icon: Icons.description_outlined,
-      accent: ipbadge,
+      accent: tBlue3,
     ),
-
     _ResourceCardData(
       type: 'CASE STUDY',
       title: 'How We Helped a Logistics Company Improve Efficiency by 30%',
@@ -44,9 +55,8 @@ class _ResourcesSectionState extends State<ResourcesSection> {
       action: 'View Case Study',
       image: 'images/casestudy.png',
       icon: Icons.local_shipping_outlined,
-      accent: tBlue3,
+      accent: tBlue2,
     ),
-
     _ResourceCardData(
       type: 'WEBINAR',
       title: 'IoT & AI: Driving Smarter Operations',
@@ -57,7 +67,6 @@ class _ResourcesSectionState extends State<ResourcesSection> {
       icon: Icons.ondemand_video_outlined,
       accent: tOrange1,
     ),
-
     _ResourceCardData(
       type: 'DOCUMENTATION',
       title: 'MA IoT Platform Developer Guide',
@@ -66,9 +75,13 @@ class _ResourcesSectionState extends State<ResourcesSection> {
       action: 'View Docs',
       image: 'images/documentation.png',
       icon: Icons.menu_book_outlined,
-      accent: tBlue2,
+      accent: tBlue3,
     ),
   ];
+
+  // ============================================================
+  // RESOURCE CATEGORIES
+  // ============================================================
 
   final List<_ResourceCategoryData> _categories = const [
     _ResourceCategoryData(
@@ -103,33 +116,38 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     ),
   ];
 
+  // ============================================================
+  // LATEST ARTICLES
+  // ============================================================
+
   final List<_LatestArticleData> _latestArticles = const [
     _LatestArticleData(
       title: 'Smart Cities and IoT: Building a Connected Future',
       description:
           'How IoT technologies are enabling smarter infrastructure, better services and sustainable urban living.',
       date: 'May 06, 2024',
-      image: 'assets/icons/city.svg',
+      image: 'icons/city.svg',
     ),
     _LatestArticleData(
       title: 'IoT Security: 7 Best Practices to Protect Your Devices',
       description:
           'Security is critical in IoT. Discover practical steps to safeguard your devices, data and users.',
       date: 'Apr 22, 2024',
-      image: 'assets/icons/secured.svg',
+      image: 'icons/secured.svg',
     ),
     _LatestArticleData(
       title: 'Industrial IoT: Improving Productivity and Efficiency',
       description:
           'How IoT solutions help manufacturers reduce downtime, optimize operations and increase ROI.',
       date: 'Apr 10, 2024',
-      image: 'assets/icons/industry.svg',
+      image: 'icons/industry.svg',
     ),
   ];
 
   int _selectedResource = 0;
 
   final TextEditingController _searchController = TextEditingController();
+
   String _searchQuery = '';
   String _selectedType = 'All Resources';
 
@@ -139,6 +157,10 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     super.dispose();
   }
 
+  // ============================================================
+  // FILTER
+  // ============================================================
+
   List<_ResourceCardData> get _filteredResources {
     final query = _searchQuery.trim().toLowerCase();
 
@@ -147,15 +169,23 @@ class _ResourcesSectionState extends State<ResourcesSection> {
           _selectedType == 'All Resources' ||
           resource.type.toLowerCase() == _selectedType.toLowerCase();
 
-      if (!matchesType) return false;
-      if (query.isEmpty) return true;
+      if (!matchesType) {
+        return false;
+      }
+
+      if (query.isEmpty) {
+        return true;
+      }
 
       return resource.title.toLowerCase().contains(query) ||
           resource.description.toLowerCase().contains(query) ||
-          resource.type.toLowerCase().contains(query) ||
-          resource.action.toLowerCase().contains(query);
+          resource.type.toLowerCase().contains(query);
     }).toList();
   }
+
+  // ============================================================
+  // SEARCH
+  // ============================================================
 
   void _performSearch() {
     setState(() {
@@ -170,6 +200,379 @@ class _ResourcesSectionState extends State<ResourcesSection> {
       _selectedType = 'All Resources';
     });
   }
+
+  // ============================================================
+  // BLOG POPUP
+  // ============================================================
+
+  void _showBlogPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: tBlack.withOpacity(0.55),
+      builder: (context) {
+        return _buildPopupDialog(
+          icon: Icons.article_outlined,
+          iconColor: tOrange1,
+          type: 'BLOG',
+          title: 'The Future of IoT',
+          child: Text(
+            '''
+This is placeholder blog content.
+
+You can add your complete blog article here later.
+
+Add multiple paragraphs, headings, explanations, images, links or any other content you want.
+
+The popup will automatically increase its height according to the amount of content you add.
+
+You do not need to manually change the height.
+
+You can continue adding more text here whenever you are ready.
+''',
+            style: GoogleFonts.manrope(
+              fontSize: 11.5,
+              height: 1.55,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.62),
+            ),
+          ),
+          footerText: 'Add your blog information here later.',
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // WHITEPAPER POPUP
+  // ============================================================
+
+  void _showWhitepaperPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: tBlack.withOpacity(0.55),
+      builder: (context) {
+        return _buildPopupDialog(
+          icon: Icons.description_outlined,
+          iconColor: tBlue3,
+          type: 'WHITEPAPER',
+          title: 'Building Secure IoT Solutions',
+          child: Text(
+            '''
+This is placeholder whitepaper content.
+
+You can add the complete whitepaper information here later.
+
+Add your introduction, research findings, technical information, security practices, diagrams, recommendations and other content.
+
+You can add as many paragraphs as required.
+
+The popup height will automatically adjust according to your content.
+
+If the content becomes very long, the popup will become scrollable instead of overflowing.
+''',
+            style: GoogleFonts.manrope(
+              fontSize: 11.5,
+              height: 1.55,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.62),
+            ),
+          ),
+          footerText: 'Add your whitepaper information here later.',
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // CASE STUDY POPUP
+  // ============================================================
+
+  void _showCaseStudyPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: tBlack.withOpacity(0.55),
+      builder: (context) {
+        return _buildPopupDialog(
+          icon: Icons.local_shipping_outlined,
+          iconColor: tBlue2,
+          type: 'CASE STUDY',
+          title: 'Logistics Efficiency Case Study',
+          child: Text(
+            '''
+This is placeholder case study content.
+
+You can add the complete customer case study here.
+
+Add the customer background, business challenge, solution approach, implementation process, technologies used and project results.
+
+You can also add measurable improvements, performance statistics and customer feedback.
+
+Add as much information as required.
+
+The popup will automatically extend vertically as you add more content.
+''',
+            style: GoogleFonts.manrope(
+              fontSize: 11.5,
+              height: 1.55,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.62),
+            ),
+          ),
+          footerText: 'Add customer results and project information here.',
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // WEBINAR POPUP
+  // ============================================================
+
+  void _showWebinarPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: tBlack.withOpacity(0.55),
+      builder: (context) {
+        return _buildPopupDialog(
+          icon: Icons.ondemand_video_outlined,
+          iconColor: tOrange1,
+          type: 'WEBINAR',
+          title: 'IoT & AI: Driving Smarter Operations',
+          child: Text(
+            '''
+This is placeholder webinar content.
+
+You can add your webinar information here later.
+
+Add the webinar introduction, speaker information, topics covered, date, time, agenda and other details.
+
+You can also place a video player or registration section here later.
+
+Add as much content as you need.
+
+The popup automatically grows according to the content and becomes scrollable if it reaches the maximum screen height.
+''',
+            style: GoogleFonts.manrope(
+              fontSize: 11.5,
+              height: 1.55,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.62),
+            ),
+          ),
+          footerText: 'Add your webinar details or video here.',
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // DOCUMENTATION POPUP
+  // ============================================================
+
+  void _showDocumentationPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: tBlack.withOpacity(0.55),
+      builder: (context) {
+        return _buildPopupDialog(
+          icon: Icons.menu_book_outlined,
+          iconColor: tBlue3,
+          type: 'DOCUMENTATION',
+          title: 'MA IoT Platform Developer Guide',
+          child: Text(
+            '''
+This is placeholder documentation content.
+
+You can add your complete developer documentation here later.
+
+Add API references, setup instructions, integration steps, code examples, configuration information, technical specifications and other developer resources.
+
+You can keep adding more sections and paragraphs.
+
+The popup will automatically increase in height as you add content.
+
+Very large content will automatically become scrollable.
+''',
+            style: GoogleFonts.manrope(
+              fontSize: 11.5,
+              height: 1.55,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.62),
+            ),
+          ),
+          footerText: 'Add developer documentation and API information here.',
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // POPUP CONTAINER
+  // ============================================================
+
+  Widget _buildPopupDialog({
+    required IconData icon,
+    required Color iconColor,
+    required String type,
+    required String title,
+    required Widget child,
+    required String footerText,
+  }) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(20),
+      child: FractionallySizedBox(
+        widthFactor: 0.25,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(25),
+              decoration: BoxDecoration(
+                color: tWhite.withOpacity(0.97),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: iconColor.withOpacity(0.15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: tBlack.withOpacity(0.20),
+                    blurRadius: 30,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: iconColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                        child: Icon(icon, color: iconColor, size: 22),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: GoogleFonts.manrope(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: tBlue2,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 5),
+
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 30,
+                          minHeight: 30,
+                        ),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: tBlack.withOpacity(0.55),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Text(
+                    type,
+                    style: GoogleFonts.manrope(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: tOrange1,
+                      letterSpacing: 1,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  child,
+
+                  const SizedBox(height: 20),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: tBlue3.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      footerText,
+                      style: GoogleFonts.manrope(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: tBlue3,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // POPULAR RESOURCE ACTION
+  // ============================================================
+
+  void _handleResourceAction(String type) {
+    switch (type) {
+      case 'BLOG':
+        _showBlogPopup();
+        break;
+
+      case 'WHITEPAPER':
+        _showWhitepaperPopup();
+        break;
+
+      case 'CASE STUDY':
+        _showCaseStudyPopup();
+        break;
+
+      case 'WEBINAR':
+        _showWebinarPopup();
+        break;
+
+      case 'DOCUMENTATION':
+        _showDocumentationPopup();
+        break;
+    }
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +617,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     );
   }
 
+  // ============================================================
   // HERO
+  // ============================================================
 
   Widget _buildHero() {
     return SizedBox(
@@ -224,455 +629,168 @@ class _ResourcesSectionState extends State<ResourcesSection> {
         children: [
           Container(
             width: double.infinity,
-            height: 444,
+            height: 400,
             decoration: BoxDecoration(
               gradient: LinearGradient(
+                colors: [tBlue2, tBlue3],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [tBlue2, tBlue3],
               ),
             ),
-          ),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'RESOURCES',
+                        style: GoogleFonts.manrope(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: tOrange1,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
 
-          Positioned(
-            right: -80,
-            top: -40,
-            child: Container(
-              width: 520,
-              height: 520,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [tBlue3.withOpacity(0.18), Colors.transparent],
-                ),
-              ),
-            ),
-          ),
+                      const SizedBox(height: 20),
 
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: 90,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, tBlack.withOpacity(0.18)],
-                ),
-              ),
-            ),
-          ),
+                      RichText(
+                        text: TextSpan(
+                          style: GoogleFonts.manrope(
+                            fontSize: 48,
+                            fontWeight: FontWeight.w600,
+                            height: 1.15,
+                            color: tWhite,
+                          ),
+                          children: [
+                            const TextSpan(text: 'Knowledge. Insights.\n'),
+                            TextSpan(
+                              text: 'Growth.',
+                              style: TextStyle(
+                                color: tOrange1,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(46, 35, 46, 42),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Row(
-                  children: [
-                    Expanded(flex: 5, child: _buildHeroContent()),
+                      const SizedBox(height: 20),
 
-                    const SizedBox(width: 38),
+                      Text(
+                        'Explore our resources to stay informed, solve challenges and accelerate your IoT and digital transformation journey.',
+                        style: GoogleFonts.manrope(
+                          fontSize: 13,
+                          color: tWhite,
+                          fontWeight: FontWeight.w400,
+                          height: 1.5,
+                        ),
+                      ),
 
-                    Expanded(flex: 5, child: _buildHeroVisual()),
-                  ],
-                );
-              },
-            ),
-          ),
+                      const SizedBox(height: 35),
 
-          Positioned(left: 44, right: 44, bottom: 0, child: _buildSearchBar()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeroContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(
-          'RESOURCES',
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: tOrange1,
-            letterSpacing: 1.1,
-          ),
-        ),
-
-        const SizedBox(height: 14),
-
-        RichText(
-          text: TextSpan(
-            style: GoogleFonts.manrope(
-              fontSize: 48,
-              fontWeight: FontWeight.w600,
-              height: 1.08,
-              color: tWhite,
-            ),
-            children: [
-              const TextSpan(text: 'Knowledge. Insights.\n'),
-              TextSpan(
-                text: 'Growth.',
-                style: TextStyle(color: tOrange1, fontWeight: FontWeight.w800),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 18),
-
-        Text(
-          'Explore our resources to stay informed, solve challenges and accelerate your IoT and digital transformation journey.',
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: tWhite,
-            height: 1.55,
-          ),
-        ),
-
-        const SizedBox(height: 27),
-
-        Wrap(
-          spacing: 26,
-          runSpacing: 18,
-          children: [
-            _buildHeroResourceType(Icons.article_outlined, 'Blog'),
-            _buildHeroResourceType(
-              Icons.business_center_outlined,
-              'Case Studies',
-            ),
-            _buildHeroResourceType(Icons.description_outlined, 'Whitepapers'),
-            _buildHeroResourceType(Icons.co_present_outlined, 'Webinars'),
-            _buildHeroResourceType(
-              Icons.library_books_outlined,
-              'Documentation',
-            ),
-            _buildHeroResourceType(Icons.help_outline_rounded, 'FAQs'),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeroResourceType(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          width: 35,
-          height: 35,
-          decoration: BoxDecoration(
-            border: Border.all(color: tOrange1.withOpacity(0.75)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 18, color: tOrange1),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: GoogleFonts.manrope(
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            color: tWhite.withOpacity(0.82),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeroVisual() {
-    return Container(
-      height: 300,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: tBlue3.withOpacity(0.15),
-            blurRadius: 35,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'images/company.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: tBlue2,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.auto_awesome_outlined,
-                    size: 70,
-                    color: tWhite.withOpacity(0.22),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [tBlue2.withOpacity(0.20), tBlue2.withOpacity(0.52)],
-                ),
-              ),
-            ),
-          ),
-
-          Center(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 350),
-              width: 210,
-              height: 130,
-              decoration: BoxDecoration(
-                color: tWhite.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: tWhite.withOpacity(0.15)),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.laptop_mac_rounded,
-                    size: 52,
-                    color: tWhite.withOpacity(0.85),
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    'TRAKMATE',
-                    style: GoogleFonts.manrope(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: tWhite,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Positioned(
-          //   top: 25,
-          //   right: 28,
-          //   child: _buildFloatingHeroIcon(Icons.cloud_download_outlined),
-          // ),
-
-          // Positioned(
-          //   bottom: 25,
-          //   left: 28,
-          //   child: _buildFloatingHeroIcon(Icons.analytics_outlined),
-          // ),
-
-          // Positioned(
-          //   bottom: 42,
-          //   right: 38,
-          //   child: _buildFloatingHeroIcon(Icons.menu_book_outlined),
-          // ),
-        ],
-      ),
-    );
-  }
-
-  // SEARCH
-
-  Widget _buildSearchBar() {
-    return Container(
-      height: 74,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [tBlue2, tBlue3]),
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: tBlue3.withOpacity(0.65)),
-        boxShadow: [
-          BoxShadow(
-            color: tBlack.withOpacity(0.18),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.search_rounded, size: 31, color: tOrange1),
-
-          const SizedBox(width: 15),
-
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Find the right resource',
-                style: GoogleFonts.manrope(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w800,
-                  color: tWhite,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Search by topic, keyword or resource type.',
-                style: GoogleFonts.manrope(
-                  fontSize: 9.5,
-                  color: tWhite.withOpacity(0.60),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(width: 30),
-
-          Expanded(
-            child: Container(
-              height: 42,
-              decoration: BoxDecoration(
-                color: tWhite,
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: TextField(
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value.trim();
-                  });
-                },
-                onSubmitted: (_) => _performSearch(),
-                style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
-                decoration: InputDecoration(
-                  hintText: 'Search resources...',
-                  hintStyle: GoogleFonts.manrope(
-                    fontSize: 11,
-                    color: tBlack.withOpacity(0.40),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  border: InputBorder.none,
-                  suffixIcon:
-                      _searchController.text.isEmpty
-                          ? null
-                          : IconButton(
-                            tooltip: 'Clear search',
-                            onPressed: _clearSearch,
-                            icon: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: tBlack.withOpacity(0.45),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildResourceHeaderIntroCard(
+                              icon: 'icons/innovation.svg',
+                              title: 'Expert Insights',
+                              description:
+                                  'Industry knowledge and practical insights',
                             ),
                           ),
-                ),
-              ),
-            ),
-          ),
 
-          const SizedBox(width: 8),
+                          const SizedBox(width: 12),
 
-          PopupMenuButton<String>(
-            tooltip: 'Filter resources',
-            onSelected: (value) {
-              setState(() {
-                _selectedType = value;
-              });
-            },
-            itemBuilder: (context) {
-              const types = [
-                'All Resources',
-                'BLOG',
-                'WHITEPAPER',
-                'CASE STUDY',
-                'WEBINAR',
-                'DOCUMENTATION',
-              ];
+                          Expanded(
+                            child: _buildResourceHeaderIntroCard(
+                              icon: 'icons/secured.svg',
+                              title: 'Trusted Knowledge',
+                              description:
+                                  'Reliable information for smarter decisions',
+                            ),
+                          ),
 
-              return types
-                  .map(
-                    (type) => PopupMenuItem<String>(
-                      value: type,
-                      child: Row(
-                        children: [
-                          if (_selectedType == type)
-                            Icon(Icons.check_rounded, size: 16, color: tBlue3)
-                          else
-                            const SizedBox(width: 16),
-                          const SizedBox(width: 8),
-                          Text(
-                            type == 'All Resources' ? type : type.toTitleCase(),
-                            style: GoogleFonts.manrope(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: tBlack.withOpacity(0.72),
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: _buildResourceHeaderIntroCard(
+                              icon: 'icons/future.svg',
+                              title: 'Future-Ready',
+                              description:
+                                  'Stay ahead with emerging technology trends',
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: _buildResourceHeaderIntroCard(
+                              icon: 'icons/globe.svg',
+                              title: 'All in One Place',
+                              description:
+                                  'Guides, case studies, webinars and more',
                             ),
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 40),
+
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    height: 340,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: tBlack.withOpacity(0.25),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                  )
-                  .toList();
-            },
-            child: Container(
-              height: 42,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              decoration: BoxDecoration(
-                color: tWhite,
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _selectedType,
-                    style: GoogleFonts.manrope(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: tBlack.withOpacity(0.65),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'images/company.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: tBlack.withOpacity(0.05),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 50,
+                            color: tWhite.withOpacity(0.6),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  const SizedBox(width: 18),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 17,
-                    color: tBlue3,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
-          const SizedBox(width: 9),
-
-          SizedBox(
-            height: 42,
-            child: ElevatedButton(
-              onPressed: _performSearch,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: tBlue3,
-                foregroundColor: tWhite,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 22),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-              child: Text(
-                'Search',
-                style: GoogleFonts.manrope(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w800,
-                ),
+          // ========================================================
+          // SEARCH BAR
+          // ========================================================
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: -37,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildSearchBar(),
               ),
             ),
           ),
@@ -681,7 +799,253 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     );
   }
 
+  // ============================================================
+  // HERO INTRO CARD
+  // ============================================================
+
+  Widget _buildResourceHeaderIntroCard({
+    required String icon,
+    required String title,
+    required String description,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
+
+        const SizedBox(height: 10),
+
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.manrope(
+            color: tWhite,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        const SizedBox(height: 4),
+
+        Text(
+          description,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.manrope(
+            color: tWhite.withOpacity(0.7),
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // SEARCH BAR
+  // ============================================================
+
+  Widget _buildSearchBar() {
+    return Center(
+      child: Container(
+        width: 1270,
+        height: 80,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [tBlue2, const Color.fromARGB(255, 14, 23, 55)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(11),
+          border: Border.all(color: tBlue3),
+          boxShadow: [
+            BoxShadow(
+              color: tBlack.withOpacity(0.18),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search_rounded, size: 31, color: tOrange1),
+
+            const SizedBox(width: 15),
+
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Find the right resource',
+                  style: GoogleFonts.manrope(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: tWhite,
+                  ),
+                ),
+
+                const SizedBox(height: 2),
+
+                Text(
+                  'Search by topic, keyword or resource type.',
+                  style: GoogleFonts.manrope(
+                    fontSize: 9.5,
+                    color: tWhite.withOpacity(0.60),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(width: 70),
+
+            SizedBox(
+              width: 650,
+              height: 50,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: tWhite,
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  textInputAction: TextInputAction.search,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.trim();
+                    });
+                  },
+                  onSubmitted: (_) {
+                    _performSearch();
+                  },
+                  style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
+                  decoration: InputDecoration(
+                    hintText: 'Search resources...',
+                    hintStyle: GoogleFonts.manrope(
+                      fontSize: 11,
+                      color: tBlack.withOpacity(0.40),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            PopupMenuButton<String>(
+              tooltip: 'Filter resources',
+              onSelected: (value) {
+                setState(() {
+                  _selectedType = value;
+                });
+              },
+              itemBuilder: (context) {
+                const types = [
+                  'All Resources',
+                  'BLOG',
+                  'WHITEPAPER',
+                  'CASE STUDY',
+                  'WEBINAR',
+                  'DOCUMENTATION',
+                ];
+
+                return types.map((type) {
+                  return PopupMenuItem<String>(
+                    value: type,
+                    child: Row(
+                      children: [
+                        if (_selectedType == type)
+                          Icon(Icons.check_rounded, size: 16, color: tBlue3)
+                        else
+                          const SizedBox(width: 16),
+
+                        const SizedBox(width: 8),
+
+                        Text(
+                          type == 'All Resources' ? type : type.toTitleCase(),
+                          style: GoogleFonts.manrope(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: tBlack.withOpacity(0.72),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList();
+              },
+              child: Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                decoration: BoxDecoration(
+                  color: tWhite,
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _selectedType,
+                      style: GoogleFonts.manrope(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: tBlack.withOpacity(0.65),
+                      ),
+                    ),
+
+                    const SizedBox(width: 18),
+
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 17,
+                      color: tBlue3,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 25),
+
+            SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _performSearch,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: tBlue3,
+                  foregroundColor: tWhite,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                child: Text(
+                  'Search',
+                  style: GoogleFonts.manrope(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
   // POPULAR RESOURCES
+  // ============================================================
 
   Widget _buildPopularResources() {
     return Column(
@@ -689,7 +1053,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
         Text(
           'POPULAR RESOURCES',
           style: GoogleFonts.manrope(
-            fontSize: 11.5,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: tOrange1,
             letterSpacing: 1.0,
@@ -701,15 +1065,11 @@ class _ResourcesSectionState extends State<ResourcesSection> {
         Text(
           'Handpicked resources for you',
           style: GoogleFonts.manrope(
-            fontSize: 23,
+            fontSize: 25,
             fontWeight: FontWeight.w700,
             color: tBlue2,
           ),
         ),
-
-        const SizedBox(height: 10),
-
-        Container(width: 35, height: 2, color: tBlue3),
 
         const SizedBox(height: 20),
 
@@ -723,18 +1083,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
 
             return LayoutBuilder(
               builder: (context, constraints) {
-                final spacing = 12.0;
-                final visibleCount = resources.length;
-                final width =
-                    visibleCount == 1
-                        ? (constraints.maxWidth * 0.24).clamp(190.0, 280.0)
-                        : visibleCount == 2
-                        ? (constraints.maxWidth - spacing) / 2
-                        : visibleCount == 3
-                        ? (constraints.maxWidth - spacing * 2) / 3
-                        : visibleCount == 4
-                        ? (constraints.maxWidth - spacing * 3) / 4
-                        : (constraints.maxWidth - spacing * 4) / 5;
+                const spacing = 12.0;
+
+                final width = (constraints.maxWidth - spacing * 4) / 5;
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,7 +1096,12 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                       ),
                       child: SizedBox(
                         width: width,
-                        child: _HoverResourceCard(data: resources[index]),
+                        child: _HoverResourceCard(
+                          data: resources[index],
+                          onAction: () {
+                            _handleResourceAction(resources[index].type);
+                          },
+                        ),
                       ),
                     );
                   }),
@@ -758,10 +1114,14 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     );
   }
 
+  // ============================================================
+  // NO SEARCH RESULTS
+  // ============================================================
+
   Widget _buildNoSearchResults() {
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 225,
       padding: const EdgeInsets.symmetric(vertical: 38, horizontal: 20),
       decoration: BoxDecoration(
         color: tWhite,
@@ -775,7 +1135,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
             size: 38,
             color: tBlue3.withOpacity(0.65),
           ),
+
           const SizedBox(height: 10),
+
           Text(
             'No resources found',
             style: GoogleFonts.manrope(
@@ -784,7 +1146,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
               color: tBlack,
             ),
           ),
+
           const SizedBox(height: 5),
+
           Text(
             'Try another keyword or choose a different resource type.',
             textAlign: TextAlign.center,
@@ -794,17 +1158,11 @@ class _ResourcesSectionState extends State<ResourcesSection> {
               color: tBlack.withOpacity(0.55),
             ),
           ),
+
           const SizedBox(height: 14),
+
           OutlinedButton(
             onPressed: _clearSearch,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: tBlue3,
-              side: BorderSide(color: tBlue3.withOpacity(0.35)),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
             child: Text(
               'Clear Search',
               style: GoogleFonts.manrope(
@@ -818,7 +1176,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     );
   }
 
-  // CATEGORIES
+  // RESOURCE CATEGORIES
 
   Widget _buildCategories() {
     return Column(
@@ -826,9 +1184,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
         Text(
           'RESOURCE CATEGORIES',
           style: GoogleFonts.manrope(
-            fontSize: 11.5,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: tBlue3,
+            color: tOrange1,
             letterSpacing: 1,
           ),
         ),
@@ -838,9 +1196,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
         Text(
           'Browse by category',
           style: GoogleFonts.manrope(
-            fontSize: 22,
+            fontSize: 25,
             fontWeight: FontWeight.w700,
-            color: tBlack,
+            color: tBlue2,
           ),
         ),
 
@@ -865,6 +1223,8 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                         setState(() {
                           _selectedResource = index;
                         });
+
+                        // _navigateToCategory(_categories[index].title);
                       },
                     ),
                   ),
@@ -877,7 +1237,51 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     );
   }
 
-  // LATEST + NEWSLETTER
+  // void _navigateToCategory(String category) {
+  //   switch (category) {
+  //     case 'Blog':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const BlogPage()),
+  //       );
+  //       break;
+
+  //     case 'Case Studies':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const CaseStudiesPage()),
+  //       );
+  //       break;
+
+  //     case 'Whitepapers':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const WhitepapersPage()),
+  //       );
+  //       break;
+
+  //     case 'Webinars':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const WebinarsPage()),
+  //       );
+  //       break;
+
+  //     case 'Documentation':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const DocumentationPage()),
+  //       );
+  //       break;
+
+  //     case 'FAQs':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const FaqPage()),
+  //       );
+  //       break;
+  //   }
+  // }
 
   Widget _buildLatestAndNewsletter() {
     return Row(
@@ -901,7 +1305,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
           style: GoogleFonts.manrope(
             fontSize: 11.5,
             fontWeight: FontWeight.w700,
-            color: tBlue3,
+            color: tBlue2,
             letterSpacing: 1,
           ),
         ),
@@ -919,14 +1323,18 @@ class _ResourcesSectionState extends State<ResourcesSection> {
 
         Center(
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const BlogPage()),
+              // );
+            },
             style: OutlinedButton.styleFrom(
-              foregroundColor: tBlue3,
-              side: BorderSide(color: tBlue3.withOpacity(0.55)),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              side: const BorderSide(color: tBlue3, width: 1.2),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(7),
+                borderRadius: BorderRadius.circular(8),
               ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -935,11 +1343,18 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                   'View All Blog Posts',
                   style: GoogleFonts.manrope(
                     fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
+                    color: tBlue3,
                   ),
                 ),
+
                 const SizedBox(width: 7),
-                const Icon(Icons.arrow_forward_rounded, size: 14),
+
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 14,
+                  color: tBlue3,
+                ),
               ],
             ),
           ),
@@ -951,116 +1366,166 @@ class _ResourcesSectionState extends State<ResourcesSection> {
   Widget _buildNewsletter() {
     return _HoverContainer(
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.fromLTRB(25, 25, 25, 20),
         decoration: BoxDecoration(
-          color: tWhite,
-          borderRadius: BorderRadius.circular(14),
+          color: const Color(0xFFF0F6FF),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: tBlue3.withOpacity(0.08)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Text(
-              'STAY UPDATED',
-              style: GoogleFonts.manrope(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w800,
-                color: tBlue3,
-                letterSpacing: 1,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              'Subscribe to our newsletter',
-              style: GoogleFonts.manrope(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: tBlack,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Get the latest insights, product updates and industry trends delivered to your inbox.',
-              style: GoogleFonts.manrope(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: tBlack.withOpacity(0.60),
-                height: 1.45,
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: tWhite,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: tBlack.withOpacity(0.07)),
+            // NEWSLETTER CONTENT
+            Padding(
+              padding: const EdgeInsets.only(right: 150),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'STAY UPDATED',
+                    style: GoogleFonts.manrope(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: tOrange1,
+                      letterSpacing: 1,
                     ),
-                    child: TextField(
-                      style: GoogleFonts.manrope(fontSize: 10),
-                      decoration: InputDecoration(
-                        hintText: 'Enter your email',
-                        hintStyle: GoogleFonts.manrope(
-                          fontSize: 10,
-                          color: tBlack.withOpacity(0.35),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    'Subscribe to our newsletter',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: tBlack,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    'Get the latest insights, product updates and industry trends delivered to your inbox.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: tBlack.withOpacity(0.60),
+                      height: 1.45,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // EMAIL + SUBSCRIBE BUTTON
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: tWhite,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: tBlack.withOpacity(0.07)),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Enter your email',
+                              hintStyle: GoogleFonts.manrope(
+                                fontSize: 10,
+                                color: tBlack.withOpacity(0.35),
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
+
+                      const SizedBox(width: 8),
+
+                      SizedBox(
+                        height: 38,
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: tBlue3,
+                            foregroundColor: tWhite,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          child: Text(
+                            'Subscribe',
+                            style: GoogleFonts.manrope(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  _buildNewsletterPoint('Latest articles and insights'),
+
+                  _buildNewsletterPoint('Product updates and releases'),
+
+                  _buildNewsletterPoint('Upcoming webinars and events'),
+
+                  _buildNewsletterPoint('Exclusive offers and more'),
+                ],
+              ),
+            ),
+
+            Positioned(
+              right: -12,
+              bottom: -6,
+              child: IgnorePointer(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: 175,
+                    height: 125,
+                    child: Image.asset(
+                      'images/email.png',
+                      // fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 145,
+                          height: 145,
+                          decoration: BoxDecoration(
+                            color: tBlue3.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 30,
+                            color: tBlue3.withOpacity(0.35),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-
-                const SizedBox(width: 7),
-
-                SizedBox(
-                  height: 38,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: tBlue3,
-                      foregroundColor: tWhite,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    child: Text(
-                      'Subscribe',
-                      style: GoogleFonts.manrope(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-
-            const SizedBox(height: 16),
-
-            _buildNewsletterPoint('Latest articles and insights'),
-            _buildNewsletterPoint('Product updates and releases'),
-            _buildNewsletterPoint('Upcoming webinars and events'),
-            _buildNewsletterPoint('Exclusive offers and more'),
           ],
         ),
       ),
     );
   }
+
+  // ============================================================
+  // NEWSLETTER POINT
+  // ============================================================
 
   Widget _buildNewsletterPoint(String text) {
     return Padding(
@@ -1068,13 +1533,17 @@ class _ResourcesSectionState extends State<ResourcesSection> {
       child: Row(
         children: [
           Icon(Icons.check_circle_outline_rounded, size: 14, color: tBlue3),
+
           const SizedBox(width: 7),
-          Text(
-            text,
-            style: GoogleFonts.manrope(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w600,
-              color: tBlack.withOpacity(0.65),
+
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.manrope(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: tBlack.withOpacity(0.65),
+              ),
             ),
           ),
         ],
@@ -1082,7 +1551,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
     );
   }
 
+  // ============================================================
   // CONTACT STRIP
+  // ============================================================
 
   Widget _buildContactStrip() {
     return _HoverContainer(
@@ -1090,7 +1561,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
         height: 78,
         padding: const EdgeInsets.symmetric(horizontal: 28),
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [tBlue2, tBlue2]),
+          gradient: LinearGradient(colors: [tBlue2, tBlue3]),
           borderRadius: BorderRadius.circular(11),
         ),
         child: Row(
@@ -1108,7 +1579,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                       color: tWhite,
                     ),
                   ),
+
                   const SizedBox(height: 3),
+
                   Text(
                     'Our team is here to help you find the right resources.',
                     style: GoogleFonts.manrope(
@@ -1122,18 +1595,6 @@ class _ResourcesSectionState extends State<ResourcesSection> {
 
             ElevatedButton(
               onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: tBlue3,
-                foregroundColor: tWhite,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
               child: Row(
                 children: [
                   Text(
@@ -1143,7 +1604,9 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+
                   const SizedBox(width: 7),
+
                   const Icon(Icons.arrow_forward_rounded, size: 14),
                 ],
               ),
@@ -1155,12 +1618,15 @@ class _ResourcesSectionState extends State<ResourcesSection> {
   }
 }
 
-// HOVER RESOURCE CARD
+// ============================================================
+// RESOURCE CARD
+// ============================================================
 
 class _HoverResourceCard extends StatefulWidget {
   final _ResourceCardData data;
+  final VoidCallback onAction;
 
-  const _HoverResourceCard({required this.data});
+  const _HoverResourceCard({required this.data, required this.onAction});
 
   @override
   State<_HoverResourceCard> createState() => _HoverResourceCardState();
@@ -1175,8 +1641,16 @@ class _HoverResourceCardState extends State<_HoverResourceCard> {
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      onEnter: (_) {
+        setState(() {
+          _hovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _hovering = false;
+        });
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
@@ -1227,6 +1701,7 @@ class _HoverResourceCardState extends State<_HoverResourceCard> {
                       );
                     },
                   ),
+
                   Positioned(
                     top: 10,
                     left: 10,
@@ -1270,36 +1745,46 @@ class _HoverResourceCardState extends State<_HoverResourceCard> {
                         height: 1.28,
                       ),
                     ),
+
                     const SizedBox(height: 9),
+
                     Text(
                       data.description,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.manrope(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
                         color: tBlack.withOpacity(0.58),
                         height: 1.4,
                       ),
                     ),
+
                     const Spacer(),
-                    Row(
-                      children: [
-                        Text(
-                          data.action,
-                          style: GoogleFonts.manrope(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
+
+                    GestureDetector(
+                      onTap: widget.onAction,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            data.action,
+                            style: GoogleFonts.manrope(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: tBlue3,
+                            ),
+                          ),
+
+                          const SizedBox(width: 5),
+
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 14,
                             color: tBlue3,
                           ),
-                        ),
-                        const SizedBox(width: 5),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 14,
-                          color: tBlue3,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -1312,7 +1797,9 @@ class _HoverResourceCardState extends State<_HoverResourceCard> {
   }
 }
 
+// ============================================================
 // CATEGORY CARD
+// ============================================================
 
 class _HoverCategoryCard extends StatefulWidget {
   final _ResourceCategoryData data;
@@ -1338,13 +1825,20 @@ class _HoverCategoryCardState extends State<_HoverCategoryCard> {
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      onEnter: (_) {
+        setState(() {
+          _hovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _hovering = false;
+        });
+      },
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
           transform: Matrix4.translationValues(0, _hovering ? -4 : 0, 0),
           height: 160,
           padding: const EdgeInsets.all(15),
@@ -1369,8 +1863,7 @@ class _HoverCategoryCardState extends State<_HoverCategoryCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+              Container(
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
@@ -1408,7 +1901,7 @@ class _HoverCategoryCardState extends State<_HoverCategoryCard> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.manrope(
-                    fontSize: 11,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w500,
                     color: tBlack.withOpacity(0.58),
                     height: 1.35,
@@ -1421,12 +1914,14 @@ class _HoverCategoryCardState extends State<_HoverCategoryCard> {
                   Text(
                     'Explore',
                     style: GoogleFonts.manrope(
-                      fontSize: 9,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w800,
                       color: tBlue3,
                     ),
                   ),
+
                   const SizedBox(width: 5),
+
                   Icon(Icons.arrow_forward_rounded, size: 11, color: tBlue3),
                 ],
               ),
@@ -1438,7 +1933,10 @@ class _HoverCategoryCardState extends State<_HoverCategoryCard> {
   }
 }
 
+// ============================================================
 // LATEST ARTICLE
+// ============================================================
+
 class _HoverLatestArticle extends StatefulWidget {
   final _LatestArticleData data;
 
@@ -1457,8 +1955,16 @@ class _HoverLatestArticleState extends State<_HoverLatestArticle> {
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      onEnter: (_) {
+        setState(() {
+          _hovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _hovering = false;
+        });
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         transform: Matrix4.translationValues(_hovering ? 3 : 0, 0, 0),
@@ -1467,20 +1973,12 @@ class _HoverLatestArticleState extends State<_HoverLatestArticle> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(7),
-              child: Image.asset(
+              child: SvgPicture.asset(
                 data.image,
-                width: 122,
-                height: 65,
+                width: 70,
+                height: 35,
+                color: tOrange1,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 122,
-                    height: 65,
-                    color: tBlack.withOpacity(0.04),
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.image_outlined),
-                  );
-                },
               ),
             ),
 
@@ -1508,7 +2006,7 @@ class _HoverLatestArticleState extends State<_HoverLatestArticle> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.manrope(
-                      fontSize: 8.8,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w500,
                       color: tBlack.withOpacity(0.58),
                       height: 1.3,
@@ -1520,7 +2018,7 @@ class _HoverLatestArticleState extends State<_HoverLatestArticle> {
                   Text(
                     'Read More  →',
                     style: GoogleFonts.manrope(
-                      fontSize: 8.8,
+                      fontSize: 9.6,
                       fontWeight: FontWeight.w800,
                       color: tBlue3,
                     ),
@@ -1531,23 +2029,13 @@ class _HoverLatestArticleState extends State<_HoverLatestArticle> {
 
             const SizedBox(width: 12),
 
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 11,
-                  color: tBlack.withOpacity(0.35),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  data.date,
-                  style: GoogleFonts.manrope(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w500,
-                    color: tBlack.withOpacity(0.40),
-                  ),
-                ),
-              ],
+            Text(
+              data.date,
+              style: GoogleFonts.manrope(
+                fontSize: 8,
+                fontWeight: FontWeight.w500,
+                color: tBlack.withOpacity(0.40),
+              ),
             ),
           ],
         ),
@@ -1556,7 +2044,9 @@ class _HoverLatestArticleState extends State<_HoverLatestArticle> {
   }
 }
 
+// ============================================================
 // GENERIC HOVER CONTAINER
+// ============================================================
 
 class _HoverContainer extends StatefulWidget {
   final Widget child;
@@ -1573,17 +2063,28 @@ class _HoverContainerState extends State<_HoverContainer> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      onEnter: (_) {
+        setState(() {
+          _hovering = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _hovering = false;
+        });
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
         transform: Matrix4.translationValues(0, _hovering ? -3 : 0, 0),
         child: widget.child,
       ),
     );
   }
 }
+
+// ============================================================
+// STRING EXTENSION
+// ============================================================
 
 extension _ResourceTypeTitleCase on String {
   String toTitleCase() {
@@ -1592,13 +2093,16 @@ extension _ResourceTypeTitleCase on String {
           (word) =>
               word.isEmpty
                   ? word
-                  : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
+                  : '${word[0].toUpperCase()}'
+                      '${word.substring(1).toLowerCase()}',
         )
         .join(' ');
   }
 }
 
-// DATA
+// ============================================================
+// DATA CLASSES
+// ============================================================
 
 class _ResourceCardData {
   final String type;

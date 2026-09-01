@@ -45,25 +45,34 @@ class _MainPageState extends State<MainPage> {
               index: selectedIndex,
               children: [
                 HomeSection(
+                  isActive: selectedIndex == 0,
                   onNavigate: (index) {
                     setState(() {
                       selectedIndex = index;
                     });
                   },
                 ),
+                // SolutionsSection(
+                //   onNavigate: (index) {
+                //     setState(() {
+                //       selectedIndex = index;
+                //     });
+                //   },
+                // ),
                 SolutionsSection(
+                  isActive: selectedIndex == 1,
                   onNavigate: (index) {
                     setState(() {
                       selectedIndex = index;
                     });
                   },
                 ),
-                EngineeringSection(),
-                ManufacturingSection(),
-                ProductsSection(),
-                IndustriesSection(),
+                EngineeringSection(isActive: selectedIndex == 2),
+                ManufacturingSection(isActive: selectedIndex == 3),
+                ProductsSection(isActive: selectedIndex == 4),
+                IndustriesSection(isActive: selectedIndex == 5),
                 ResourcesSection(),
-                AboutusSection(),
+                AboutusSection(isActive: selectedIndex == 7),
               ],
             ),
           ),

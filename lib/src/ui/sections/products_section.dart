@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
+import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import '../widgets/footer_section.dart';
 
 class ProductsSection extends StatefulWidget {
-  const ProductsSection({super.key});
+  final bool isActive;
+  const ProductsSection({super.key, required this.isActive});
 
   @override
   State<ProductsSection> createState() => _ProductsSectionState();
@@ -18,9 +20,7 @@ class _ProductsSectionState extends State<ProductsSection> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildProductsHeader(),
-          const SizedBox(height: 40),
-          BuildProductSection(),
+          BuildProductSection(header: _buildProductsHeader()),
           const SizedBox(height: 40),
           FooterSection(),
         ],
@@ -32,7 +32,7 @@ class _ProductsSectionState extends State<ProductsSection> {
   Widget _buildProductsHeader() {
     return Container(
       width: double.infinity,
-      height: 400,
+      // height: 400,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -45,52 +45,62 @@ class _ProductsSectionState extends State<ProductsSection> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 5,
+            // flex: 5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  ' OUR PRODUCTS',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: tOrange1,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                RichText(
-                  text: TextSpan(
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 20,
+                  child: Text(
+                    ' OUR PRODUCTS',
                     style: GoogleFonts.manrope(
-                      fontSize: 48,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      height: 1.15,
-                      color: tWhite,
+                      color: tOrange1,
+                      letterSpacing: 1.2,
                     ),
-                    children: [
-                      const TextSpan(text: 'Innovative Products.\n'),
-                      TextSpan(
-                        text: 'Built for Performance.',
-                        style: TextStyle(
-                          color: tOrange1,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
 
                 const SizedBox(height: 20),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 120,
+                  child: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.manrope(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w600,
+                        height: 1.15,
+                        color: tWhite,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Innovative Products.\n'),
+                        TextSpan(
+                          text: 'Built for Performance.',
+                          style: TextStyle(
+                            color: tOrange1,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                Text(
-                  'Explore our range of hardware and software products engineered to help businesses automate, connect and scale with confidence.',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    color: tWhite,
-                    fontWeight: FontWeight.w400,
-                    height: 1.5,
+                const SizedBox(height: 20),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 320,
+                  child: Text(
+                    'Explore our range of hardware and software products engineered to help businesses automate, connect and scale with confidence.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      color: tWhite,
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
+                    ),
                   ),
                 ),
 
@@ -99,43 +109,57 @@ class _ProductsSectionState extends State<ProductsSection> {
                 Row(
                   children: [
                     Expanded(
-                      // child: Center(
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'High',
-                        description: 'Performance',
+                      child: HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 520,
+                        child: _buildHeaderIntroCard(
+                          icon: 'icons/performance.svg',
+                          title: 'High Performance',
+                          description:
+                              'Built for reliable performance and consistency',
+                        ),
                       ),
-                      // ),
                     ),
+
                     Expanded(
-                      // child: Center(
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'Reliable &',
-                        description: 'Secure',
+                      child: HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 720,
+                        child: _buildHeaderIntroCard(
+                          icon: 'icons/secured.svg',
+                          title: 'Reliable & Secure',
+                          description:
+                              'Built for secure, reliable and consistent performance',
+                        ),
                       ),
-                      // ),
                     ),
+
                     Expanded(
-                      // child: Center(
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'Easy',
-                        description: 'Integration',
+                      child: HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 920,
+                        child: _buildHeaderIntroCard(
+                          icon: 'icons/integration.svg',
+                          title: 'Easy Integration',
+                          description: 'Simple integration with your systems',
+                        ),
                       ),
-                      // ),
                     ),
+
                     Expanded(
-                      // child: Center(
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'Built for',
-                        description: 'Scale',
+                      child: HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 1120,
+                        child: _buildHeaderIntroCard(
+                          icon: 'icons/scalability.svg',
+                          title: 'Built for Scale',
+                          description: 'Designed to grow with your needs',
+                        ),
                       ),
-                      // ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 25),
               ],
             ),
           ),
@@ -143,9 +167,9 @@ class _ProductsSectionState extends State<ProductsSection> {
           const SizedBox(width: 40),
 
           Expanded(
-            flex: 4,
+            // flex: 4,
             child: Container(
-              height: 340,
+              height: 350,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
@@ -158,7 +182,7 @@ class _ProductsSectionState extends State<ProductsSection> {
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.asset(
-                'images/company.jpg',
+                'images/company.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -184,28 +208,19 @@ class _ProductsSectionState extends State<ProductsSection> {
     required String title,
     required String description,
   }) {
-    return SizedBox(
-      width: 130,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            child: Center(
-              child: SvgPicture.asset(
-                icon,
-                width: 30,
-                height: 30,
-                color: tOrange1,
-              ),
-            ),
-          ),
+          SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
 
           const SizedBox(height: 10),
 
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               color: tWhite,
               fontSize: 13,
@@ -213,14 +228,16 @@ class _ProductsSectionState extends State<ProductsSection> {
             ),
           ),
 
+          const SizedBox(height: 6),
+
           Text(
             description,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
-              color: tWhite,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+              color: tWhite.withOpacity(0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ],

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
 class SolutionsSection extends StatefulWidget {
   final ValueChanged<int>? onNavigate;
-
-  const SolutionsSection({super.key, this.onNavigate});
+  final bool isActive;
+  const SolutionsSection({super.key, this.onNavigate, required this.isActive});
 
   @override
   State<SolutionsSection> createState() => _SolutionsSectionState();
@@ -16,12 +17,48 @@ class SolutionsSection extends StatefulWidget {
 
 class _SolutionsSectionState extends State<SolutionsSection> {
   static const double _solutionCardHeight = 400;
-  static const double _solutionCard = 400;
+  // static const double _solutionCard = 400;
   static const double _solutionCardImageHeight = 200;
   static const double _solutionCardContentPadding = 20;
-  static const double _solutionCardSpacing = 10;
+  // static const double _solutionCardSpacing = 10;
+  static const double _approachCardHeight = 210;
 
   int? _hoveredSolutionIndex;
+  int? _hoveredApproachIndex;
+
+  // bool _headerAnimationStarted = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   if (widget.isActive) {
+  //     _startHeaderAnimation();
+  //   }
+  // }
+
+  // @override
+  // void didUpdateWidget(covariant SolutionsSection oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+
+  //   if (!oldWidget.isActive && widget.isActive) {
+  //     _startHeaderAnimation();
+  //   }
+  // }
+
+  // void _startHeaderAnimation() {
+  //   setState(() {
+  //     _headerAnimationStarted = false;
+  //   });
+
+  //   Future.delayed(const Duration(milliseconds: 50), () {
+  //     if (mounted && widget.isActive) {
+  //       setState(() {
+  //         _headerAnimationStarted = true;
+  //       });
+  //     }
+  //   });
+  // }
 
   final List<_SolutionCardData> _solutions = const [
     _SolutionCardData(
@@ -29,22 +66,14 @@ class _SolutionsSectionState extends State<SolutionsSection> {
       description:
           'Connected solutions designed to improve visibility, efficiency and control.',
       image: 'images/iotsolution.png',
-      features: [
-        'IoT Device Design & Development',
-        'Connectivity & Protocols',
-        'Device Management Platform',
-      ],
+      features: ['IoT Design & Development', 'Connectivity & Protocols'],
     ),
     _SolutionCardData(
       title: 'Embedded Systems',
       description:
           'Intelligent embedded solutions built for reliable performance and control.',
       image: 'images/embedded_systems.jpg',
-      features: [
-        'Firmware Development',
-        'Sensor Integration',
-        'Embedded Hardware Design',
-      ],
+      features: ['Firmware Development', 'Sensor Integration'],
     ),
     _SolutionCardData(
       title: 'Software Developments',
@@ -62,33 +91,21 @@ class _SolutionsSectionState extends State<SolutionsSection> {
       description:
           'Smart cloud and AI solutions that turn data into actionable insights.',
       image: 'images/cloudai.jpg',
-      features: [
-        'Cloud Infrastructure Setup',
-        'AI Model Development',
-        'Intelligent Data Analytics',
-      ],
+      features: ['Cloud Infrastructure Setup', 'AI Model Development'],
     ),
     _SolutionCardData(
       title: 'Mobile Apps',
       description:
-          'User-friendly mobile applications built for seamless digital experiences..',
+          'User-friendly mobile applications built for seamless digital experiences.',
       image: 'images/mobileapps.jpg',
-      features: [
-        'Cross-Platform Development',
-        'Mobile UI/UX Design',
-        'App API Integration',
-      ],
+      features: ['Cross-Platform Development', 'Mobile UI/UX Design'],
     ),
     _SolutionCardData(
       title: 'Web Applications',
       description:
           'Powerful web applications designed for efficiency, accessibility, and growth.',
       image: 'images/webapps.jpg',
-      features: [
-        'Responsive Web Development',
-        'Web Portal Development',
-        'API & Database Integration',
-      ],
+      features: ['Responsive Web Development', 'Web Portal Development'],
     ),
   ];
 
@@ -107,30 +124,65 @@ class _SolutionsSectionState extends State<SolutionsSection> {
     _ApproachStepData(
       number: '01',
       title: 'Discover',
-      description: 'We understand your challenges, goals and requirements.',
+      description:
+          'We understand your product requirements, specifications and production goals.',
+      icon: "icons/search.svg",
+      image: 'images/discover.png',
     ),
     _ApproachStepData(
       number: '02',
       title: 'Design',
-      description: 'We architect the right solutions tailored to your needs.',
+      description:
+          'We design the right solution, features, experience and technology.',
+      icon: "icons/design.svg",
+      image: 'images/design2.png',
     ),
     _ApproachStepData(
       number: '03',
       title: 'Develop',
       description:
           'We build, test and integrate with precision and best practices.',
+      icon: "icons/embedded_systems.svg",
+      image: 'images/develop.png',
     ),
     _ApproachStepData(
       number: '04',
       title: 'Deploy',
-      description: 'We ensure smooth implementation and seamless integration.',
+      description: 'We ensure smooth integration and seamless implementation.',
+      icon: "icons/deploy.svg",
+      image: 'images/deploy.png',
     ),
     _ApproachStepData(
       number: '05',
       title: 'Support',
       description: 'We provide ongoing support and continuous improvement.',
+      icon: "icons/support1.svg",
+      image: 'images/support.png',
     ),
   ];
+  // Widget _buildHeroAnimatedText({required Widget child, required int delay}) {
+  //   return TweenAnimationBuilder<double>(
+  //     key: ValueKey('${widget.isActive}_${_headerAnimationStarted}_$delay'),
+  //     tween: Tween<double>(begin: 0, end: _headerAnimationStarted ? 1 : 0),
+  //     duration: Duration(milliseconds: 1000 + delay),
+  //     curve: Curves.easeOutCubic,
+  //     child: child,
+  //     builder: (context, value, child) {
+  //       final double animationValue = ((value * (650 + delay) - delay) / 650)
+  //           .clamp(0.0, 1.0);
+
+  //       final curvedValue = Curves.easeOutCubic.transform(animationValue);
+
+  //       return Opacity(
+  //         opacity: curvedValue,
+  //         child: Transform.translate(
+  //           offset: Offset(60 * (1 - curvedValue), 0),
+  //           child: child,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -142,22 +194,24 @@ class _SolutionsSectionState extends State<SolutionsSection> {
           const SizedBox(height: 40),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: _buildComprehensiveSolutionsSection(),
           ),
 
           const SizedBox(height: 45),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: _buildIndustriesSection(),
           ),
+
           const SizedBox(height: 45),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: _buildApproachSection(),
           ),
+
           const SizedBox(height: 40),
 
           FooterSection(),
@@ -170,7 +224,7 @@ class _SolutionsSectionState extends State<SolutionsSection> {
   Widget _buildSolutionsHeader() {
     return Container(
       width: double.infinity,
-      height: 400,
+      // height: 400,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -183,87 +237,112 @@ class _SolutionsSectionState extends State<SolutionsSection> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'SOLUTIONS',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: tOrange1,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                RichText(
-                  text: TextSpan(
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 20,
+                  child: Text(
+                    'SOLUTIONS',
                     style: GoogleFonts.manrope(
-                      fontSize: 48,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      height: 1.15,
-                      color: tWhite,
+                      color: tOrange1,
+                      letterSpacing: 1.2,
                     ),
-                    children: [
-                      const TextSpan(text: 'Intelligent Solutions.\n'),
-                      TextSpan(
-                        text: 'Real-World Impact.',
-                        style: TextStyle(
-                          color: tOrange1,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                Text(
-                  'We design and deliver innovative IoT, embedded and software solutions that help businesses automate operations, gain insights and accelerate growth.',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    color: tWhite,
-                    fontWeight: FontWeight.w400,
-                    height: 1.5,
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 120,
+                  // beginOffset: const Offset(0, 0.35),
+                  child: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.manrope(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w600,
+                        height: 1.15,
+                        color: tWhite,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Intelligent Solutions.\n'),
+                        TextSpan(
+                          text: 'Real-World Impact.',
+                          style: TextStyle(
+                            color: tOrange1,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 320,
+                  // beginOffset: const Offset(0, 0.25),
+                  child: Text(
+                    'We design and deliver innovative IoT, embedded and software solutions that help businesses automate operations, gain insights and accelerate growth.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      color: tWhite,
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 35),
-
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 520,
+                      // beginOffset: const Offset(0, 0.3),
                       child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
+                        icon: 'icons/location.svg',
                         title: 'End-to-End Expertise',
                         description:
                             'Covering every stage from idea to deployment',
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 720,
+                      // beginOffset: const Offset(0, 0.3),
                       child: _buildHeaderIntroCard(
                         icon: 'icons/secured.svg',
                         title: 'Scalable & Secure',
                         description: 'Built to grow safely with your business',
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 920,
+                      // beginOffset: const Offset(0, 0.3),
                       child: _buildHeaderIntroCard(
                         icon: 'icons/future.svg',
                         title: 'Future-Ready Tech',
                         description: 'Designed to adapt as your needs evolve',
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 1120,
+                      // beginOffset: const Offset(0, 0.3),
                       child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
+                        icon: 'icons/support.svg',
                         title: 'Reliable Support',
                         description: 'Here for you at every step of the way',
                       ),
@@ -277,9 +356,9 @@ class _SolutionsSectionState extends State<SolutionsSection> {
           const SizedBox(width: 40),
 
           Expanded(
-            flex: 4,
+            // flex: 4,
             child: Container(
-              height: 340,
+              height: 350,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
@@ -292,7 +371,7 @@ class _SolutionsSectionState extends State<SolutionsSection> {
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.asset(
-                'images/company.jpg',
+                'images/company.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -318,34 +397,40 @@ class _SolutionsSectionState extends State<SolutionsSection> {
     required String title,
     required String description,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
-        const SizedBox(height: 10),
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.manrope(
-            color: tWhite,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+    return SizedBox(
+      width: 150,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
+
+          const SizedBox(height: 10),
+
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              color: tWhite,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          description,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.manrope(
-            color: tWhite.withOpacity(0.7),
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
+
+          const SizedBox(height: 6),
+
+          Text(
+            description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              color: tWhite.withOpacity(0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -490,12 +575,18 @@ class _SolutionsSectionState extends State<SolutionsSection> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        data.title,
-                        style: GoogleFonts.manrope(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: tBlack,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          data.title,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: GoogleFonts.manrope(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: tBlack,
+                          ),
                         ),
                       ),
                       Container(
@@ -507,8 +598,7 @@ class _SolutionsSectionState extends State<SolutionsSection> {
 
                       Text(
                         data.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
                         style: GoogleFonts.manrope(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -557,11 +647,10 @@ class _SolutionsSectionState extends State<SolutionsSection> {
           Expanded(
             child: Text(
               text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              softWrap: true,
               style: GoogleFonts.manrope(
                 color: textColor,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -598,12 +687,26 @@ class _SolutionsSectionState extends State<SolutionsSection> {
         ),
 
         const SizedBox(height: 30),
-
+        // Container(
+        //   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        //   decoration: BoxDecoration(
+        //     color: tWhite,
+        //     borderRadius: BorderRadius.circular(14),
+        //     border: Border.all(color: tBlue3.withOpacity(0.12), width: 1),
+        //     boxShadow: [
+        //       BoxShadow(
+        //         color: tBlack.withOpacity(0.08),
+        //         blurRadius: 18,
+        //         offset: const Offset(0, 6),
+        //       ),
+        //     ],
+        //   ),
+        //   child:
         Row(
           children: [
             for (int i = 0; i < _industries.length; i++) ...[
               Expanded(
-                child: Center(child: _buildIndustryItem(_industries[i])),
+                child: Center(child: _buildIndustryItem(_industries[i], i)),
               ),
 
               if (i < _industries.length - 1)
@@ -615,6 +718,7 @@ class _SolutionsSectionState extends State<SolutionsSection> {
             ],
           ],
         ),
+        // ),
         const SizedBox(height: 30),
 
         OutlinedButton(
@@ -639,14 +743,17 @@ class _SolutionsSectionState extends State<SolutionsSection> {
     );
   }
 
-  Widget _buildIndustryItem(_IndustryData data) {
+  Widget _buildIndustryItem(_IndustryData data, int index) {
     return Column(
       children: [
         Container(
           width: 55,
           height: 55,
           decoration: BoxDecoration(
-            color: tBlue1.withOpacity(0.08),
+            color:
+                index.isEven
+                    ? tBlue1.withOpacity(0.08)
+                    : tOrange1.withOpacity(0.20),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -687,108 +794,160 @@ class _SolutionsSectionState extends State<SolutionsSection> {
           ),
         ),
 
-        const SizedBox(height: 4),
+        const SizedBox(height: 10),
 
         Text(
           'How We Deliver Solutions That Make a Difference',
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            fontSize: 25,
+            fontSize: 30,
             fontWeight: FontWeight.w700,
-            color: tBlue2,
+            color: tBlack,
           ),
         ),
 
-        const SizedBox(height: 35),
+        const SizedBox(height: 8),
 
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (int i = 0; i < _approachSteps.length; i++) ...[
-                Expanded(child: _buildApproachStepCard(_approachSteps[i])),
+        Text(
+          'A clear, proven process that takes your idea from concept to a fully supported product.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.manrope(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: tBlack.withOpacity(0.6),
+            height: 1.5,
+          ),
+        ),
 
-                if (i < _approachSteps.length - 1)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Center(
-                      child: SvgPicture.asset(
-                        'icons/arrow.svg',
-                        width: 40,
-                        height: 20,
-                        color: tBlue3.withOpacity(0.35),
+        const SizedBox(height: 32),
+
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (
+                    int index = 0;
+                    index < _approachSteps.length;
+                    index++
+                  ) ...[
+                    Expanded(
+                      child: _buildApproachStep(
+                        _approachSteps[index],
+                        index.isEven ? tBlue3 : tOrange1,
                       ),
                     ),
-                  ),
-              ],
-            ],
-          ),
+
+                    if (index != _approachSteps.length - 1)
+                      SizedBox(
+                        width: 90,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: _buildApproachConnector(),
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  // BORDERED STEP CARD (number badge + title + description)
-  Widget _buildApproachStepCard(_ApproachStepData data) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: tWhite,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: tBlack1.withOpacity(0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+  // APPROACH CONNECTOR (small circular arrow between steps)
+
+  Widget _buildApproachConnector() {
+    return SizedBox(
+      width: 90,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [tBlue2, tBlue3],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                data.number,
-                style: GoogleFonts.manrope(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: tWhite,
-                ),
+          for (int i = 0; i < 9; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Icon(
+                Icons.circle,
+                size: 3.5,
+                color: tBlue3.withOpacity(0.45),
               ),
             ),
-          ),
 
-          const SizedBox(height: 16),
+          const SizedBox(width: 2),
 
-          Text(
-            data.title,
-            style: GoogleFonts.manrope(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: tBlack,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            data.description,
-            style: GoogleFonts.manrope(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: tBlack.withOpacity(0.6),
-              height: 1.5,
-            ),
+          Icon(
+            Icons.arrow_forward_rounded,
+            size: 18,
+            color: tBlue3.withOpacity(0.65),
           ),
         ],
       ),
+    );
+  }
+
+  // APPROACH CARD
+
+  Widget _buildApproachStep(_ApproachStepData data, Color circleColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(color: circleColor, shape: BoxShape.circle),
+          padding: const EdgeInsets.all(11),
+          child: SvgPicture.asset(data.icon, color: tWhite),
+        ),
+
+        const SizedBox(height: 10),
+
+        Text(
+          data.number,
+          style: GoogleFonts.manrope(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: tOrange1,
+            letterSpacing: 0.8,
+          ),
+        ),
+
+        const SizedBox(height: 4),
+
+        Text(
+          data.title,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.manrope(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: tBlack,
+          ),
+        ),
+
+        const SizedBox(height: 5),
+
+        SizedBox(
+          width: 180,
+          height: 49,
+          child: Text(
+            data.description,
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.55),
+              height: 1.35,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -818,10 +977,13 @@ class _ApproachStepData {
   final String number;
   final String title;
   final String description;
-
+  final String icon;
+  final String image;
   const _ApproachStepData({
     required this.number,
     required this.title,
     required this.description,
+    required this.icon,
+    required this.image,
   });
 }

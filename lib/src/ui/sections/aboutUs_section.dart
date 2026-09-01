@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
 class AboutusSection extends StatefulWidget {
-  const AboutusSection({super.key});
+  final bool isActive;
+  const AboutusSection({super.key, required this.isActive});
 
   @override
   State<AboutusSection> createState() => _AboutusSectionState();
@@ -283,68 +285,96 @@ class _AboutusSectionState extends State<AboutusSection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'About TrakMate',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: tOrange1,
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 20,
+                  child: Text(
+                    'About TrakMate',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: tOrange1,
+                    ),
                   ),
                 ),
                 SizedBox(height: 20),
-                RichText(
-                  text: TextSpan(
-                    style: GoogleFonts.manrope(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w600,
-                      height: 1.15,
-                      color: tWhite,
-                    ),
-                    children: [
-                      const TextSpan(text: "Engineering Innovation.\n"),
-                      TextSpan(
-                        text: "Building a Smarter Tomorrow.",
-                        style: TextStyle(
-                          color: tOrange1,
-                          fontWeight: FontWeight.w800,
-                        ),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 120,
+                  child: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.manrope(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w600,
+                        height: 1.15,
+                        color: tWhite,
                       ),
-                    ],
+                      children: [
+                        const TextSpan(text: "Engineering Innovation.\n"),
+                        TextSpan(
+                          text: "Building a Smarter Tomorrow.",
+                          style: TextStyle(
+                            color: tOrange1,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
-                Text(
-                  'TrakMate is a product engineering and manufacturing company delivering end-to-end solutions in IoT, Embedded Systems, Software, Hardware Design and Manufacturing.',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    color: tWhite,
-                    fontWeight: FontWeight.w400,
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 320,
+                  child: Text(
+                    'TrakMate is a product engineering and manufacturing company delivering end-to-end solutions in IoT, Embedded Systems, Software, Hardware Design and Manufacturing.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      color: tWhite,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildHeaderIntroCard(
-                      icon: 'icons/innovation.svg',
-                      title: 'Innovation',
-                      description: 'At the core of everything we do',
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 520,
+                      child: _buildHeaderIntroCard(
+                        icon: 'icons/innovation.svg',
+                        title: 'Innovation',
+                        description: 'At the core of everything we do',
+                      ),
                     ),
-                    _buildHeaderIntroCard(
-                      icon: 'icons/integrity.svg',
-                      title: 'Integrity',
-                      description: 'We build trust through transparency',
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 720,
+                      child: _buildHeaderIntroCard(
+                        icon: 'icons/integrity.svg',
+                        title: 'Integrity',
+                        description: 'We build trust through transparency',
+                      ),
                     ),
-                    _buildHeaderIntroCard(
-                      icon: 'icons/collaboration.svg',
-                      title: 'Collaboration',
-                      description: 'Stronger together, better outcomes',
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 920,
+                      child: _buildHeaderIntroCard(
+                        icon: 'icons/collaboration.svg',
+                        title: 'Collaboration',
+                        description: 'Stronger together, better outcomes',
+                      ),
                     ),
-                    _buildHeaderIntroCard(
-                      icon: 'icons/impact.svg',
-                      title: 'Impact',
-                      description: 'Technology that makes a difference',
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 1120,
+                      child: _buildHeaderIntroCard(
+                        icon: 'icons/impact.svg',
+                        title: 'Impact',
+                        description: 'Technology that makes a difference',
+                      ),
                     ),
                   ],
                 ),
@@ -357,7 +387,7 @@ class _AboutusSectionState extends State<AboutusSection> {
               height: 350,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("images/company.jpg"),
+                  image: AssetImage("images/company.png"),
                   fit: BoxFit.cover,
                   alignment: Alignment.center,
                 ),

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildengineering.dart';
+import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 import '../widgets/footer_section.dart';
 
 class EngineeringSection extends StatefulWidget {
-  const EngineeringSection({super.key});
+  final bool isActive;
+  const EngineeringSection({super.key, required this.isActive});
 
   @override
   State<EngineeringSection> createState() => _EngineeringSectionState();
@@ -20,7 +22,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
       child: Column(
         children: [
           _buildEngineeringHeader(),
-          const SizedBox(height: 40),
+          const SizedBox(height: 30),
           BuildEngineeringSection(),
           const SizedBox(height: 40),
           FooterSection(),
@@ -33,7 +35,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
   Widget _buildEngineeringHeader() {
     return Container(
       width: double.infinity,
-      height: 400,
+      // height: 400,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -46,94 +48,107 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 5,
+            // flex: 5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'ENGINEERING',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: tOrange1,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                RichText(
-                  text: TextSpan(
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 20,
+                  child: Text(
+                    'ENGINEERING',
                     style: GoogleFonts.manrope(
-                      fontSize: 48,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      height: 1.15,
-                      color: tWhite,
+                      color: tOrange1,
+                      letterSpacing: 1.2,
                     ),
-                    children: [
-                      const TextSpan(text: 'Engineering Innovation.\n'),
-                      TextSpan(
-                        text: 'Built to Perform.',
-                        style: TextStyle(
-                          color: tOrange1,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
 
                 const SizedBox(height: 20),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 120,
+                  child: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.manrope(
+                        fontSize: 48,
+                        fontWeight: FontWeight.w600,
+                        height: 1.15,
+                        color: tWhite,
+                      ),
+                      children: [
+                        const TextSpan(text: 'Engineering Innovation.\n'),
+                        TextSpan(
+                          text: 'Built to Perform.',
+                          style: TextStyle(
+                            color: tOrange1,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                Text(
-                  'From concept to production, we deliver end-to-end engineering solutions that bring your ideas to life with precision, quality and efficiency.',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    color: tWhite,
-                    fontWeight: FontWeight.w400,
-                    height: 1.5,
+                const SizedBox(height: 20),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 320,
+                  child: Text(
+                    'From concept to production, we deliver end-to-end engineering solutions that bring your ideas to life with precision, quality and efficiency.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      color: tWhite,
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 35),
-
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      // child: Center(
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 520,
                       child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'End-to-End',
-                        description: 'Engineering',
+                        icon: 'icons/location.svg',
+                        title: 'End-to-End Expertise',
+                        description:
+                            'Complete engineering support to production',
                       ),
-                      // ),
                     ),
-                    Expanded(
-                      // child: Center(
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 720,
                       child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'Advanced',
-                        description: 'Tools & Software',
+                        icon: 'icons/laptop.svg',
+                        title: 'Advanced Engineering',
+                        description: 'Modern tools for precise engineering',
                       ),
-                      // ),
                     ),
-                    Expanded(
-                      // child: Center(
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 920,
                       child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'Expert',
-                        description: 'Engineering Team',
+                        icon: 'icons/collaboration.svg',
+                        title: 'Expert Team',
+                        description:
+                            'Skilled engineers focused on quality and innovation',
                       ),
-                      // ),
                     ),
-                    Expanded(
-                      // child: Center(
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 1120,
                       child: _buildHeaderIntroCard(
-                        icon: 'icons/globe.svg',
-                        title: 'Quality &',
-                        description: 'Reliability',
+                        icon: 'icons/quality.svg',
+                        title: 'Quality & Reliability',
+                        description:
+                            'Engineered for consistent performance & reliability',
                       ),
-                      // ),
                     ),
                   ],
                 ),
@@ -144,9 +159,9 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           const SizedBox(width: 40),
 
           Expanded(
-            flex: 4,
+            // flex: 4,
             child: Container(
-              height: 340,
+              height: 350,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
@@ -159,7 +174,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.asset(
-                'images/company.jpg',
+                'images/company.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -186,42 +201,35 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     required String description,
   }) {
     return SizedBox(
-      width: 130,
+      width: 150,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            child: Center(
-              child: SvgPicture.asset(
-                icon,
-                width: 30,
-                height: 30,
-                color: tOrange1,
-              ),
-            ),
-          ),
+          SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
 
           const SizedBox(height: 10),
 
           Text(
             title,
-            style: GoogleFonts.manrope(
-              color: tWhite,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-
-          Text(
-            description,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               color: tWhite,
               fontSize: 13,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          Text(
+            description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              color: tWhite.withOpacity(0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ],

@@ -6,11 +6,15 @@ import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildhome.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import '../widgets/footer_section.dart';
+import 'package:video_player/video_player.dart';
+
+import '../widgets/heroanimation.dart';
 
 class HomeSection extends StatefulWidget {
   final ValueChanged<int>? onNavigate;
+  final bool isActive;
 
-  const HomeSection({super.key, this.onNavigate});
+  const HomeSection({super.key, this.onNavigate, required this.isActive});
 
   @override
   State<HomeSection> createState() => _HomeSectionState();
@@ -18,21 +22,19 @@ class HomeSection extends StatefulWidget {
 
 // Data for a single hero slide
 class _HeroSlideData {
-  final String image;
+  final String video;
   final String label;
   final String headingLine1;
   final String headingLine2;
   final String description;
-  // final String buttonText;
   final List<_StatData> stats;
 
   const _HeroSlideData({
-    required this.image,
+    required this.video,
     required this.label,
     required this.headingLine1,
     required this.headingLine2,
     required this.description,
-    // required this.buttonText,
     required this.stats,
   });
 }
@@ -52,7 +54,7 @@ class _StatData {
 class _HomeSectionState extends State<HomeSection> {
   final List<_HeroSlideData> _slides = const [
     _HeroSlideData(
-      image: "images/hero1.png",
+      video: "video/hero1.mp4",
       label: "SMART FLEET",
       headingLine1: "Driving Innovation.",
       headingLine2: "Charging a Sustainable Tomorrow.",
@@ -83,7 +85,7 @@ class _HomeSectionState extends State<HomeSection> {
       // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
-      image: "images/hero1.png",
+      video: "video/hero2.mp4",
       label: "CONNECTED TECHNOLOGY",
       headingLine1: "Smart Connections.",
       headingLine2: "Smarter Asset Management.",
@@ -114,7 +116,7 @@ class _HomeSectionState extends State<HomeSection> {
       // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
-      image: "images/hero1.png",
+      video: "video/hero1.mp4",
       label: "TRUSTED WORLDWIDE",
       headingLine1: "Built for Scale.",
       headingLine2: "Delivered with Precision.",
@@ -147,23 +149,79 @@ class _HomeSectionState extends State<HomeSection> {
   ];
 
   final PageController _pageController = PageController(initialPage: 0);
+  final List<VideoPlayerController> _videoControllers = [];
+
   Timer? _autoSlideTimer;
   int _currentVirtualPage = 0;
   bool _isPrevHovered = false;
   bool _isNextHovered = false;
   bool _isSlideHovered = false;
-
+  bool _isSliderPaused = false;
+  bool _showPauseButton = true;
+  bool _isMuted = true;
+  Timer? _pauseButtonTimer;
   @override
   void initState() {
     super.initState();
+
+    _initializeVideos();
     _startAutoSlide();
+  }
+
+  Future<void> _initializeVideos() async {
+    // Create controllers first
+    for (final slide in _slides) {
+      _videoControllers.add(VideoPlayerController.asset(slide.video));
+    }
+
+    // Initialize ONLY the first video immediately
+    final firstController = _videoControllers[0];
+
+    await firstController.initialize();
+    await firstController.setLooping(true);
+    await firstController.setVolume(0);
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    // Start first video as soon as it is ready
+    if (mounted && widget.isActive) {
+      await firstController.play();
+    }
+
+    // Load remaining videos in the background
+    for (int i = 1; i < _videoControllers.length; i++) {
+      _initializeVideoInBackground(i);
+    }
+  }
+
+  Future<void> _initializeVideoInBackground(int index) async {
+    final controller = _videoControllers[index];
+
+    if (controller.value.isInitialized) return;
+
+    try {
+      await controller.initialize();
+      await controller.setLooping(true);
+      await controller.setVolume(0);
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Failed to initialize video $index: $e');
+    }
   }
 
   void _startAutoSlide() {
     _autoSlideTimer?.cancel();
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (!mounted) return;
+
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
+      if (!mounted || _isSliderPaused) return;
+
       _currentVirtualPage++;
+
       _pageController.animateToPage(
         _currentVirtualPage,
         duration: const Duration(milliseconds: 600),
@@ -172,8 +230,37 @@ class _HomeSectionState extends State<HomeSection> {
     });
   }
 
+  void _showPauseControl() {
+    _pauseButtonTimer?.cancel();
+
+    if (!mounted) return;
+
+    setState(() {
+      _showPauseButton = true;
+    });
+  }
+
+  void _hidePauseControl() {
+    _pauseButtonTimer?.cancel();
+
+    if (_isSliderPaused) return;
+
+    _pauseButtonTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted || _isSliderPaused) return;
+
+      setState(() {
+        _showPauseButton = false;
+      });
+    });
+  }
+
   void _onNextPressed() {
+    if (_isSliderPaused) return;
+
+    _showPauseControl();
+
     _currentVirtualPage++;
+
     _pageController.animateToPage(
       _currentVirtualPage,
       duration: const Duration(milliseconds: 600),
@@ -184,7 +271,12 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   void _onPrevPressed() {
+    if (_isSliderPaused) return;
+
+    _showPauseControl();
+
     _currentVirtualPage--;
+
     _pageController.animateToPage(
       _currentVirtualPage,
       duration: const Duration(milliseconds: 600),
@@ -194,11 +286,84 @@ class _HomeSectionState extends State<HomeSection> {
     _startAutoSlide();
   }
 
+  double _getHeroHeight(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return (width * 0.50).clamp(500.0, 600.0);
+    //  return (width * 0.35).clamp(500.0, 600.0);
+  }
+  // double _getHeroHeight(BuildContext context) {
+  //   final width = MediaQuery.of(context).size.width;
+
+  //   if (width < 900) {
+  //     return 360;
+  //   }
+
+  //   if (width < 1400) {
+  //     return 420;
+  //   }
+
+  //   if (width < 1800) {
+  //     return 460;
+  //   }
+
+  //   return 500;
+  // }
+
   @override
   void dispose() {
     _autoSlideTimer?.cancel();
+    _pauseButtonTimer?.cancel();
     _pageController.dispose();
+
+    for (final controller in _videoControllers) {
+      controller.dispose();
+    }
+
     super.dispose();
+  }
+
+  Future<void> _updateVideoPlayback() async {
+    if (!mounted || _videoControllers.isEmpty) return;
+
+    // Home is not active → stop all videos
+    if (!widget.isActive) {
+      for (final controller in _videoControllers) {
+        if (controller.value.isInitialized) {
+          await controller.pause();
+        }
+      }
+      return;
+    }
+
+    // Home is active, but user manually paused → keep it paused
+    if (_isSliderPaused) {
+      return;
+    }
+
+    // Home is active and slider is not paused → play current video
+    final int activeIndex = _currentVirtualPage % _slides.length;
+
+    final controller = _videoControllers[activeIndex];
+
+    if (controller.value.isInitialized) {
+      await controller.play();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.isActive != widget.isActive) {
+      if (widget.isActive) {
+        _startAutoSlide();
+      } else {
+        _autoSlideTimer?.cancel();
+      }
+
+      _updateVideoPlayback();
+    }
   }
 
   @override
@@ -207,7 +372,7 @@ class _HomeSectionState extends State<HomeSection> {
       child: Column(
         children: [
           _buildHeroSection(),
-          const SizedBox(height: 40),
+          const SizedBox(height: 10),
           IndustriesProductsSection(onNavigate: widget.onNavigate),
           const SizedBox(height: 40),
           FooterSection(),
@@ -217,65 +382,226 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   Widget _buildHeroSection() {
+    // final width = MediaQuery.of(context).size.width;
+    // print("SCREEN WIDTH: $width");
     return MouseRegion(
-      onEnter: (_) => setState(() => _isSlideHovered = true),
-      onExit: (_) => setState(() => _isSlideHovered = false),
+      onEnter: (_) {
+        setState(() => _isSlideHovered = true);
+        _showPauseControl();
+      },
+      onExit: (_) {
+        setState(() => _isSlideHovered = false);
+        _hidePauseControl();
+      },
       child: GestureDetector(
-        onTapDown: (_) => setState(() => _isSlideHovered = true),
+        onTapDown: (_) {
+          if (!_isSliderPaused) {
+            setState(() => _isSlideHovered = true);
+          }
+        },
         child: SizedBox(
           width: double.infinity,
-          height: 400,
+          // height: 460,
+          height: _getHeroHeight(context),
           child: Stack(
             children: [
               PageView.builder(
                 controller: _pageController,
+                physics:
+                    _isSliderPaused
+                        ? const NeverScrollableScrollPhysics()
+                        : const PageScrollPhysics(),
                 onPageChanged: (index) {
+                  final int newIndex = index % _slides.length;
+
+                  // Update page immediately
                   setState(() {
                     _currentVirtualPage = index;
                   });
+
+                  // Make sure controllers are available
+                  if (_videoControllers.length != _slides.length) {
+                    return;
+                  }
+
+                  // Pause all videos
+                  for (final controller in _videoControllers) {
+                    if (controller.value.isInitialized) {
+                      controller.pause();
+                    }
+                  }
+
+                  // Play current video's beginning
+                  final controller = _videoControllers[newIndex];
+
+                  if (controller.value.isInitialized) {
+                    controller
+                      ..seekTo(Duration.zero)
+                      ..setVolume(_isMuted ? 0.0 : 1.0)
+                      ..play();
+                  }
                 },
                 itemBuilder: (context, index) {
                   final slideIndex = index % _slides.length;
                   return _buildSlide(_slides[slideIndex]);
                 },
               ),
+              // Sound button
+              // Positioned(
+              //   bottom: 20,
+              //   right: 20,
+              //   child: GestureDetector(
+              //     onTap: () async {
+              //       final int activeIndex =
+              //           _currentVirtualPage % _slides.length;
 
-              // Dot indicators
-              Positioned(
-                bottom: 16,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_slides.length, (index) {
-                    final int activeIndex =
-                        _currentVirtualPage % _slides.length;
-                    final bool isActive = (activeIndex == index);
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      width: isActive ? 13 : 10,
-                      height: isActive ? 13 : 10,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isActive ? tOrange1 : tWhite.withOpacity(0.5),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Center(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: isActive ? 6 : 0,
-                          height: isActive ? 6 : 0,
+              //       if (_videoControllers.length <= activeIndex) return;
+
+              //       final controller = _videoControllers[activeIndex];
+
+              //       if (!controller.value.isInitialized) return;
+
+              //       setState(() {
+              //         _isMuted = !_isMuted;
+              //       });
+
+              //       await controller.setVolume(_isMuted ? 0.0 : 1.0);
+              //     },
+              //     child: Container(
+              //       width: 25,
+              //       height: 25,
+              //       decoration: BoxDecoration(
+              //         shape: BoxShape.circle,
+              //         color: tWhite.withOpacity(0.12),
+              //         border: Border.all(
+              //           color: tOrange1.withOpacity(0.7),
+              //           width: 1.5,
+              //         ),
+              //       ),
+              //       child: Icon(
+              //         _isMuted
+              //             ? CupertinoIcons.volume_off
+              //             : CupertinoIcons.volume_up,
+              //         color: tOrange1,
+              //         size: 15,
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              // Pause / Resume button
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: !_showPauseButton && !_isSliderPaused,
+                  child: Center(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 900),
+                      curve: Curves.easeOut,
+                      opacity:
+                          _isSliderPaused
+                              ? 1.0
+                              : (_showPauseButton ? 1.0 : 0.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            _isSliderPaused = !_isSliderPaused;
+                          });
+                          if (_isSliderPaused) {
+                            _pauseButtonTimer?.cancel();
+                            _showPauseButton = true;
+                            _autoSlideTimer?.cancel();
+
+                            for (final controller in _videoControllers) {
+                              controller.pause();
+                            }
+                          } else {
+                            _startAutoSlide();
+
+                            final int activeIndex =
+                                _currentVirtualPage % _slides.length;
+
+                            if (_videoControllers[activeIndex]
+                                .value
+                                .isInitialized) {
+                              final controller = _videoControllers[activeIndex];
+
+                              await controller.play();
+                            }
+
+                            if (_isSlideHovered) {
+                              _showPauseControl();
+                            } else {
+                              _hidePauseControl();
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: 42,
+                          height: 42,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: tOrange1,
+                            color: Colors.transparent,
+                            border: Border.all(
+                              color: tOrange1.withOpacity(0.7),
+                              width: 1.8,
+                            ),
+                          ),
+                          child: Icon(
+                            _isSliderPaused
+                                ? CupertinoIcons.play_fill
+                                : CupertinoIcons.pause_fill,
+                            color: tOrange1.withOpacity(0.7),
+                            size: 18,
                           ),
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                  ),
+                ),
+              ),
+              // Dot indicators
+              Positioned(
+                bottom: 12,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  ignoring: _isSliderPaused,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: _isSliderPaused ? 0.0 : 1.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(_slides.length, (index) {
+                        final int activeIndex =
+                            _currentVirtualPage % _slides.length;
+                        final bool isActive = (activeIndex == index);
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          width: isActive ? 13 : 10,
+                          height: isActive ? 13 : 10,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color:
+                                  isActive ? tOrange1 : tWhite.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: isActive ? 6 : 0,
+                              height: isActive ? 6 : 0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: tOrange1,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
 
@@ -287,7 +613,8 @@ class _HomeSectionState extends State<HomeSection> {
                 child: Center(
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
-                    opacity: _isSlideHovered ? 1.0 : 0.0,
+                    opacity:
+                        _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
                     child: IgnorePointer(
                       ignoring: !_isSlideHovered,
                       child: MouseRegion(
@@ -331,9 +658,10 @@ class _HomeSectionState extends State<HomeSection> {
                 child: Center(
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
-                    opacity: _isSlideHovered ? 1.0 : 0.0,
+                    opacity:
+                        _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
                     child: IgnorePointer(
-                      ignoring: !_isSlideHovered,
+                      ignoring: _isSliderPaused || !_isSlideHovered,
                       child: MouseRegion(
                         onEnter: (_) => setState(() => _isNextHovered = true),
                         onExit: (_) => setState(() => _isNextHovered = false),
@@ -374,140 +702,181 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   Widget _buildSlide(_HeroSlideData slide) {
-    return Container(
+    final int slideIndex = _slides.indexOf(slide);
+
+    if (_videoControllers.length <= slideIndex) {
+      return Container(width: double.infinity, color: tBlue2);
+    }
+
+    final VideoPlayerController controller = _videoControllers[slideIndex];
+
+    return SizedBox(
       width: double.infinity,
-      height: 400,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(slide.image),
-          fit: BoxFit.cover,
-          alignment: Alignment.center,
-        ),
-      ),
-      child: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              tBlue2.withOpacity(0.85),
-              tBlue2.withOpacity(0.55),
-              Colors.transparent,
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            stops: const [0.0, 0.45, 1.0],
-          ),
-        ),
-        // padding: const EdgeInsets.symmetric(horizontal: 40),
-        padding: const EdgeInsets.only(left: 65, right: 40),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    slide.label,
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: tOrange1,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
+      child: Stack(
+        // fit: StackFit.expand,
+        children: [
+          // Background video
+          if (controller.value.isInitialized)
+            Positioned.fill(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: controller.value.size.width,
+                  height: controller.value.size.height,
+                  child: VideoPlayer(controller),
+                ),
+              ),
+            )
+          else
+            Container(color: tBlue2),
 
-                  const SizedBox(height: 20),
-
-                  RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w600,
-                        height: 1.15,
-                        color: tWhite,
-                      ),
-                      children: [
-                        TextSpan(text: "${slide.headingLine1}\n"),
-                        TextSpan(
-                          text: slide.headingLine2,
-                          style: GoogleFonts.manrope(
-                            color: tOrange1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  SizedBox(
-                    width: 480,
-                    child: Text(
-                      slide.description,
-                      style: GoogleFonts.manrope(
-                        fontSize: 14,
-                        color: tWhite.withOpacity(0.85),
-                        fontWeight: FontWeight.w400,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      for (int i = 0; i < slide.stats.length; i++) ...[
-                        if (i != 0) const SizedBox(width: 66),
-                        _buildStatItem(
-                          slide.stats[i].icon,
-                          slide.stats[i].value,
-                          slide.stats[i].label,
-                        ),
-                      ],
-                    ],
-                  ),
-                  // ElevatedButton(
-                  //   onPressed: () {},
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: tOrange1,
-                  //     shape: RoundedRectangleBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //     ),
-                  //     padding: const EdgeInsets.symmetric(
-                  //       horizontal: 22,
-                  //       vertical: 18,
-                  //     ),
-                  //   ),
-                  //   child: Row(
-                  //     mainAxisSize: MainAxisSize.min,
-                  //     children: [
-                  //       Text(
-                  //         slide.buttonText,
-                  //         style: GoogleFonts.manrope(
-                  //           color: tWhite,
-                  //           fontSize: 13,
-                  //           fontWeight: FontWeight.w600,
-                  //         ),
-                  //       ),
-                  //       const SizedBox(width: 8),
-                  //       const Icon(
-                  //         Icons.arrow_forward,
-                  //         color: tWhite,
-                  //         size: 16,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
+          // Dark gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  tBlue2.withOpacity(0.85),
+                  tBlue2.withOpacity(0.55),
+                  Colors.transparent,
                 ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                stops: const [0.0, 0.45, 1.0],
               ),
             ),
-            const Expanded(flex: 2, child: SizedBox()),
-          ],
-        ),
+          ),
+
+          // YOUR EXISTING CONTENT
+
+          // Your existing content
+          Padding(
+            padding: const EdgeInsets.only(left: 65, right: 40),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Transform.translate(
+                    offset: const Offset(0, -18),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        HeroAnimatedText(
+                          isActive: widget.isActive,
+                          delay: 520,
+                          child: Text(
+                            slide.label,
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: tOrange1,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+                        HeroAnimatedText(
+                          isActive: widget.isActive,
+                          delay: 720,
+                          child: RichText(
+                            text: TextSpan(
+                              style: GoogleFonts.manrope(
+                                fontSize: 48,
+                                fontWeight: FontWeight.w600,
+                                height: 1.15,
+                                color: tWhite,
+                              ),
+                              children: [
+                                TextSpan(text: "${slide.headingLine1}\n"),
+                                TextSpan(
+                                  text: slide.headingLine2,
+                                  style: GoogleFonts.manrope(
+                                    color: tOrange1,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+                        HeroAnimatedText(
+                          isActive: widget.isActive,
+                          delay: 920,
+                          child: SizedBox(
+                            width: 480,
+                            child: Text(
+                              slide.description,
+                              style: GoogleFonts.manrope(
+                                fontSize: 14,
+                                color: tWhite.withOpacity(0.85),
+                                fontWeight: FontWeight.w400,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+                        HeroAnimatedText(
+                          isActive: widget.isActive,
+                          delay: 1120,
+                          child: Row(
+                            children: [
+                              for (int i = 0; i < slide.stats.length; i++) ...[
+                                if (i != 0) const SizedBox(width: 66),
+                                _buildStatItem(
+                                  slide.stats[i].icon,
+                                  slide.stats[i].value,
+                                  slide.stats[i].label,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        // ElevatedButton(
+                        //   onPressed: () {},
+                        //   style: ElevatedButton.styleFrom(
+                        //     backgroundColor: tOrange1,
+                        //     shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //     padding: const EdgeInsets.symmetric(
+                        //       horizontal: 22,
+                        //       vertical: 18,
+                        //     ),
+                        //   ),
+                        //   child: Row(
+                        //     mainAxisSize: MainAxisSize.min,
+                        //     children: [
+                        //       Text(
+                        //         slide.buttonText,
+                        //         style: GoogleFonts.manrope(
+                        //           color: tWhite,
+                        //           fontSize: 13,
+                        //           fontWeight: FontWeight.w600,
+                        //         ),
+                        //       ),
+                        //       const SizedBox(width: 8),
+                        //       const Icon(
+                        //         Icons.arrow_forward,
+                        //         color: tWhite,
+                        //         size: 16,
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Expanded(flex: 2, child: SizedBox()),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

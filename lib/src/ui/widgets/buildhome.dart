@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 class _IndustryItemData {
@@ -227,6 +228,15 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       ],
     ),
   ];
+  // Accent colors cycled across the service cards for a bit of visual rhythm.
+  static const List<Color> _serviceAccents = [
+    tOrange1,
+    tBlue3,
+    tOrange1,
+    tBlue3,
+    tOrange1,
+    tBlue3,
+  ];
   // final List<_ClientItemData> _clients = const [
   //   _ClientItemData(image: "icons/tata.svg", name: "Tata Exlsi"),
   //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
@@ -275,13 +285,58 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       width: 100,
       height: 55,
     ),
+
     _ClientItemData(image: "icons/zf.svg", name: "ZF", width: 100, height: 55),
-    // _ClientItemData(
-    //   image: "icons/tata.svg",
-    //   name: "Tata",
-    //   width: 100,
-    //   height: 55,
-    // ),
+    //from heree
+    _ClientItemData(
+      image: "icons/jbm1.svg",
+      name: "JBM",
+      width: 100,
+      height: 55,
+    ),
+    _ClientItemData(
+      image: "icons/bajaj.svg",
+      name: "Bajaj",
+      width: 100,
+      height: 55,
+    ),
+    _ClientItemData(
+      image: "icons/jio.svg",
+      name: "Jio",
+      width: 100,
+      height: 55,
+    ),
+    _ClientItemData(
+      image: "icons/ampace.svg",
+      name: "Ampace",
+      width: 200,
+      height: 100,
+    ),
+    _ClientItemData(
+      image: "icons/fieldbee.svg",
+      name: "Field Bee",
+      width: 150,
+      height: 100,
+    ),
+    _ClientItemData(
+      image: "icons/enginecal.svg",
+      name: "EngineCal",
+      width: 100,
+      height: 90,
+    ),
+    _ClientItemData(
+      image: "icons/zippin.svg",
+      name: "Zippin",
+      width: 100,
+      height: 90,
+    ),
+    _ClientItemData(
+      image: "icons/trinetra.svg",
+      name: "Trinetra",
+      width: 100,
+      height: 90,
+    ),
+    _ClientItemData(image: "icons/e3.svg", name: "E3", width: 100, height: 90),
   ];
   int? _hoveredServiceIndex;
   int? _hoveredIndustryIndex;
@@ -356,7 +411,10 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       padding: const EdgeInsets.only(left: 40, right: 40, top: 30),
       child: Column(
         children: [
-          _buildServicesSection(),
+          HomeReveal(
+            delay: const Duration(milliseconds: 300),
+            child: _buildServicesSection(),
+          ),
           const SizedBox(height: 60),
           _buildIndustriesSection(),
           const SizedBox(height: 60),
@@ -727,7 +785,127 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     );
   }
 
+  // Widget _buildServiceCard(_ServiceItemData service, int index) {
+  //   return MouseRegion(
+  //     onEnter: (_) {
+  //       setState(() {
+  //         _hoveredServiceIndex = index;
+  //       });
+  //     },
+  //     onExit: (_) {
+  //       setState(() {
+  //         _hoveredServiceIndex = null;
+  //       });
+  //     },
+
+  //     child: AnimatedScale(
+  //       scale: _hoveredServiceIndex == index ? 1.03 : 1.0,
+  //       duration: const Duration(milliseconds: 220),
+  //       curve: Curves.easeOut,
+
+  //       child: AnimatedContainer(
+  //         duration: const Duration(milliseconds: 180),
+  //         curve: Curves.easeOut,
+  //         child: Container(
+  //           padding: const EdgeInsets.all(20),
+  //           decoration: BoxDecoration(
+  //             color: tWhite,
+  //             borderRadius: BorderRadius.circular(14),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: tBlue3.withOpacity(
+  //                   _hoveredServiceIndex == index ? 0.30 : 0.20,
+  //                 ),
+  //                 blurRadius: _hoveredServiceIndex == index ? 18 : 12,
+  //                 offset: Offset(0, _hoveredServiceIndex == index ? 7 : 4),
+  //               ),
+  //             ],
+  //           ),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.center,
+  //             children: [
+  //               Container(
+  //                 width: 48,
+  //                 height: 48,
+  //                 decoration: BoxDecoration(
+  //                   color: tBlue.withOpacity(0.08),
+  //                   borderRadius: BorderRadius.circular(10),
+  //                 ),
+  //                 child: Center(
+  //                   child: SvgPicture.asset(
+  //                     service.icon,
+  //                     width: 24,
+  //                     height: 24,
+  //                     colorFilter: const ColorFilter.mode(
+  //                       tOrange1,
+  //                       BlendMode.srcIn,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Text(
+  //                 service.title,
+  //                 style: GoogleFonts.manrope(
+  //                   fontSize: 15,
+  //                   fontWeight: FontWeight.w700,
+  //                   color: tBlue2,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 12),
+  //               Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children:
+  //                     service.points
+  //                         .map(
+  //                           (point) => Padding(
+  //                             padding: const EdgeInsets.only(bottom: 6),
+  //                             child: Row(
+  //                               mainAxisSize: MainAxisSize.min,
+  //                               crossAxisAlignment: CrossAxisAlignment.start,
+  //                               children: [
+  //                                 Padding(
+  //                                   padding: const EdgeInsets.only(
+  //                                     top: 6,
+  //                                     right: 8,
+  //                                   ),
+  //                                   child: Container(
+  //                                     width: 4,
+  //                                     height: 4,
+  //                                     decoration: const BoxDecoration(
+  //                                       shape: BoxShape.circle,
+  //                                       color: tBlack,
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                                 Text(
+  //                                   point,
+  //                                   style: GoogleFonts.manrope(
+  //                                     fontSize: 12.5,
+  //                                     fontWeight: FontWeight.w500,
+  //                                     color: tBlack,
+  //                                     height: 1.4,
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ),
+  //                         )
+  //                         .toList(),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildServiceCard(_ServiceItemData service, int index) {
+    final bool isHovered = _hoveredServiceIndex == index;
+    final Color accent = _serviceAccents[index % _serviceAccents.length];
+
     return MouseRegion(
       onEnter: (_) {
         setState(() {
@@ -739,105 +917,165 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           _hoveredServiceIndex = null;
         });
       },
-
       child: AnimatedScale(
-        scale: _hoveredServiceIndex == index ? 1.03 : 1.0,
+        scale: isHovered ? 1.03 : 1.0,
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
-
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: const Duration(milliseconds: 220),
           curve: Curves.easeOut,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: tWhite,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: tBlue3.withOpacity(
-                    _hoveredServiceIndex == index ? 0.30 : 0.20,
-                  ),
-                  blurRadius: _hoveredServiceIndex == index ? 18 : 12,
-                  offset: Offset(0, _hoveredServiceIndex == index ? 7 : 4),
-                ),
-              ],
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color:
+                  isHovered
+                      ? accent.withOpacity(0.55)
+                      : tBlue3.withOpacity(0.08),
+              width: 1.3,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: tBlue.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      service.icon,
-                      width: 24,
-                      height: 24,
-                      colorFilter: const ColorFilter.mode(
-                        tOrange1,
-                        BlendMode.srcIn,
-                      ),
-                    ),
+            color: tWhite,
+            boxShadow: [
+              BoxShadow(
+                color: (isHovered ? accent : tBlue3).withOpacity(
+                  isHovered ? 0.22 : 0.12,
+                ),
+                blurRadius: isHovered ? 22 : 12,
+                offset: Offset(0, isHovered ? 10 : 4),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                height: isHovered ? 5 : 4,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accent, accent.withOpacity(0.4)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  service.title,
-                  style: GoogleFonts.manrope(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: tBlue2,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      service.points
-                          .map(
-                            (point) => Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 6,
-                                      right: 8,
-                                    ),
-                                    child: Container(
-                                      width: 4,
-                                      height: 4,
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: tBlack,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    point,
-                                    style: GoogleFonts.manrope(
-                                      fontSize: 12.5,
-                                      fontWeight: FontWeight.w500,
-                                      color: tBlack,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                accent.withOpacity(isHovered ? 0.22 : 0.12),
+                                accent.withOpacity(isHovered ? 0.10 : 0.05),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              service.icon,
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(
+                                accent,
+                                BlendMode.srcIn,
                               ),
                             ),
-                          )
-                          .toList(),
+                          ),
+                        ),
+                        // const SizedBox(height: 10),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Text(
+                            service.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                            style: GoogleFonts.manrope(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: tBlue2,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    // Container(
+                    //   width: 28,
+                    //   height: 2.5,
+                    //   margin: const EdgeInsets.only(bottom: 12),
+                    //   decoration: BoxDecoration(
+                    //     color: accent.withOpacity(0.5),
+                    //     borderRadius: BorderRadius.circular(2),
+                    //   ),
+                    // ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children:
+                          service.points
+                              .map(
+                                (point) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 6,
+                                          right: 8,
+                                        ),
+                                        child: Icon(
+                                          Icons.check_circle_rounded,
+                                          size: 12,
+                                          color: accent.withOpacity(0.75),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          point,
+                                          style: GoogleFonts.manrope(
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w500,
+                                            color: tBlack,
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                    ),
+                    const SizedBox(height: 10),
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 220),
+                      opacity: isHovered ? 1 : 0,
+                      child: AnimatedSlide(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOut,
+                        offset: isHovered ? Offset.zero : const Offset(0, 0.3),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

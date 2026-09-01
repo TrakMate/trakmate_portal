@@ -1,101 +1,117 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
-class IndustriesSection extends StatelessWidget {
-  const IndustriesSection({super.key});
+class IndustriesSection extends StatefulWidget {
+  final bool isActive;
+  const IndustriesSection({super.key, required this.isActive});
 
-  static const String _heroImage = 'assets/images/company.jpg';
+  @override
+  State<IndustriesSection> createState() => _IndustriesSectionState();
+}
 
-  // INDUSTRIES
+class _IndustriesSectionState extends State<IndustriesSection> {
+  // static const String _heroImage = 'images/company.jpg';
+
   static const List<_IndustryData> _industries = [
     _IndustryData(
       icon: Icons.directions_car_filled_outlined,
       title: 'Automotive',
-      image: 'assets/images/automotive.jpg',
+      image: 'images/automotive.jpg',
       tag: 'CONNECTED MOBILITY',
       description:
           'Connected vehicle electronics, telematics and intelligent systems that make mobility safer, smarter and more efficient.',
       accent: tBlue3,
     ),
+
     _IndustryData(
       icon: Icons.electric_car_outlined,
       title: 'Electric Mobility',
-      image: 'assets/images/electric_mobility.jpg',
+      image: 'images/electric_mobility.jpg',
       tag: 'EV TECHNOLOGY',
       description:
           'Technology for the EV ecosystem including battery intelligence, vehicle connectivity, monitoring and energy-aware systems.',
       accent: tOrange1,
     ),
+
     _IndustryData(
       icon: Icons.local_shipping_outlined,
       title: 'Fleet & Logistics',
-      image: 'assets/images/fleet_logistics.jpg',
+      image: 'images/fleet_logistics.jpg',
       tag: 'FLEET INTELLIGENCE',
       description:
           'Real-time visibility, vehicle health, route intelligence and operational insights for modern transport and logistics fleets.',
       accent: tBlue3,
     ),
+
     _IndustryData(
       icon: Icons.factory_outlined,
       title: 'Industrial',
-      image: 'assets/images/industrial.jpg',
+      image: 'images/industrial.jpg',
       tag: 'SMART OPERATIONS',
       description:
           'Connected industrial solutions that improve equipment visibility, process efficiency, predictive insights and uptime.',
       accent: tOrange1,
     ),
+
     _IndustryData(
       icon: Icons.location_city_outlined,
       title: 'Smart Cities',
-      image: 'assets/images/smartcity.jpg',
+      image: 'images/smartcity.jpg',
       tag: 'URBAN CONNECTIVITY',
       description:
           'IoT-driven infrastructure solutions designed to improve mobility, monitoring, resource utilisation and urban services.',
       accent: tBlue3,
     ),
+
     _IndustryData(
       icon: Icons.agriculture_outlined,
       title: 'Agriculture',
-      image: 'assets/images/agriculture.jpg',
+      image: 'images/agriculture.jpg',
       tag: 'SMART FARMING',
       description:
           'Connected sensing and monitoring solutions that help agricultural operations make better decisions with real-time data.',
       accent: tOrange1,
     ),
+
     _IndustryData(
       icon: Icons.health_and_safety_outlined,
       title: 'Healthcare',
-      image: 'assets/images/healthcare.png',
+      image: 'images/healthcare.png',
       tag: 'CONNECTED CARE',
       description:
           'Reliable connected-device technologies for monitoring, asset visibility and smarter healthcare operations.',
       accent: tBlue3,
     ),
+
     _IndustryData(
       icon: Icons.inventory_2_outlined,
       title: 'Supply Chain',
-      image: 'assets/images/supplychain.png',
+      image: 'images/supplychain.png',
       tag: 'ASSET VISIBILITY',
       description:
           'Track critical assets and shipments with connected technology that brings transparency across the supply chain.',
       accent: tOrange1,
     ),
+
     _IndustryData(
       icon: Icons.storefront_outlined,
       title: 'Retail',
-      image: 'assets/images/retail1.png',
+      image: 'images/retail1.png',
       tag: 'SMART RETAIL',
       description:
           'Technology that helps retailers connect assets, monitor operations and create more responsive customer experiences.',
       accent: tBlue3,
     ),
+
     _IndustryData(
       icon: Icons.bolt_outlined,
       title: 'Energy',
-      image: 'assets/images/energy.png',
+      image: 'images/energy.png',
       tag: 'ENERGY INTELLIGENCE',
       description:
           'Connected monitoring and management solutions supporting efficient, reliable and data-driven energy operations.',
@@ -103,45 +119,58 @@ class IndustriesSection extends StatelessWidget {
     ),
   ];
 
-  // VALUE ITEMS
+  // ============================================================
+  // WHY CHOOSE US
+  // SVG ICONS ARE INDIVIDUAL FOR EACH ITEM
+  // ============================================================
+
   static const List<_ValueItemData> _values = [
     _ValueItemData(
-      icon: Icons.architecture_outlined,
+      icon: 'icons/build.svg',
       title: 'Built Around Your Industry',
       description:
           'Solutions are shaped around real operational requirements instead of one-size-fits-all technology.',
     ),
+
     _ValueItemData(
-      icon: Icons.hub_outlined,
+      icon: 'icons/software_solutions.svg',
       title: 'Hardware + Software',
       description:
           'A connected approach across embedded electronics, firmware, cloud platforms and applications.',
     ),
+
     _ValueItemData(
-      icon: Icons.insights_outlined,
+      icon: 'icons/decision.svg',
       title: 'Data That Drives Decisions',
       description:
           'Turn connected-device data into useful visibility, insights and measurable operational improvements.',
     ),
+
     _ValueItemData(
-      icon: Icons.security_outlined,
+      icon: 'icons/design.svg',
       title: 'Reliable by Design',
       description:
           'Engineered for dependable operation, security, maintainability and long-term deployment.',
     ),
+
     _ValueItemData(
-      icon: Icons.trending_up_outlined,
+      icon: 'icons/build.svg',
       title: 'Ready to Scale',
       description:
           'Architecture that can grow with more devices, users, locations, data and business requirements.',
     ),
+
     _ValueItemData(
-      icon: Icons.support_agent_outlined,
+      icon: 'icons/build.svg',
       title: 'Long-Term Partnership',
       description:
           'Support throughout design, deployment, optimisation and the next stage of your connected journey.',
     ),
   ];
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -149,154 +178,202 @@ class IndustriesSection extends StatelessWidget {
       child: Column(
         children: [
           _buildHeroSection(),
-          const SizedBox(height: 72),
+
+          const SizedBox(height: 30),
+
           _buildIndustriesSection(),
-          const SizedBox(height: 72),
+
+          const SizedBox(height: 45),
+
           _buildValueSection(),
-          const SizedBox(height: 55),
+
+          const SizedBox(height: 45),
+
           FooterSection(),
         ],
       ),
     );
   }
 
-  // =========================================================
+  // ============================================================
   // HERO SECTION
-  // =========================================================
+  // ============================================================
 
   Widget _buildHeroSection() {
     return Container(
       width: double.infinity,
-      height: 400,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [tBlue2, tBlue3],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-      ),
+      decoration: const BoxDecoration(color: tBlue2),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 47,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 46,
-                right: 28,
-                top: 34,
-                bottom: 28,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 20,
+                  child: Text(
                     'INDUSTRIES WE EMPOWER',
                     style: GoogleFonts.manrope(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: tOrange1,
-                      letterSpacing: 0.8,
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  RichText(
+                ),
+
+                const SizedBox(height: 20),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 120,
+                  child: RichText(
                     text: TextSpan(
                       style: GoogleFonts.manrope(
-                        fontSize: 44,
+                        fontSize: 48,
                         fontWeight: FontWeight.w600,
-                        height: 1.13,
+                        height: 1.15,
                         color: tWhite,
                       ),
                       children: [
-                        const TextSpan(text: 'Technology Solutions\n'),
+                        const TextSpan(text: 'Technology Solutions.\n'),
                         TextSpan(
                           text: 'for a Better Tomorrow',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: tOrange1,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 455,
-                    child: Text(
-                      'We deliver innovative, reliable and scalable solutions across diverse industries, driving efficiency, safety and sustainable growth.',
-                      style: GoogleFonts.manrope(
-                        fontSize: 13,
-                        height: 1.55,
-                        fontWeight: FontWeight.w400,
-                        color: tWhite.withOpacity(0.82),
-                      ),
+                ),
+
+                const SizedBox(height: 20),
+                HeroAnimatedText(
+                  isActive: widget.isActive,
+                  delay: 320,
+                  child: Text(
+                    'We deliver innovative, reliable and scalable solutions across diverse industries, driving efficiency, safety and sustainable growth.',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      color: tWhite,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildHeroFeature(
-                          Icons.workspace_premium_outlined,
-                          'Industry',
-                          'Expertise',
-                        ),
+                ),
+
+                const SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 520,
+                      child: _buildHeroFeature(
+                        icon: Icons.workspace_premium_outlined,
+                        title: 'Industry Expertise',
+                        description: 'Deep knowledge across industries',
                       ),
-                      Expanded(
-                        child: _buildHeroFeature(
-                          Icons.settings_suggest_outlined,
-                          'Tailored',
-                          'Solutions',
-                        ),
+                    ),
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 720,
+                      child: _buildHeroFeature(
+                        icon: Icons.settings_suggest_outlined,
+                        title: 'Tailored Solutions',
+                        description: 'Solutions built around your needs',
                       ),
-                      Expanded(
-                        child: _buildHeroFeature(
-                          Icons.auto_graph_outlined,
-                          'Improved',
-                          'Efficiency',
-                        ),
+                    ),
+
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 920,
+                      child: _buildHeroFeature(
+                        icon: Icons.auto_graph_outlined,
+                        title: 'Improved Efficiency',
+                        description: 'Technology that drives better results',
                       ),
-                      Expanded(
-                        child: _buildHeroFeature(
-                          Icons.verified_user_outlined,
-                          'Sustainable',
-                          'Impact',
-                        ),
+                    ),
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 1120,
+                      child: _buildHeroFeature(
+                        icon: Icons.verified_user_outlined,
+                        title: 'Sustainable Impact',
+                        description: 'Built for long-term value',
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 40),
+
+          // ------------------------------------------------------
+          // HERO IMAGE
+          // ------------------------------------------------------
+          Expanded(
+            child: Container(
+              height: 350,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('images/company.png'),
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(75),
+                  bottomRight: Radius.circular(75),
+                ),
               ),
             ),
           ),
-          Expanded(flex: 53, child: _buildHeroVisual()),
         ],
       ),
     );
   }
 
-  Widget _buildHeroFeature(IconData icon, String title, String subtitle) {
+  // ============================================================
+  // HERO FEATURE
+  // ============================================================
+
+  Widget _buildHeroFeature({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
     return SizedBox(
-      height: 100,
+      width: 150,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: tOrange1, size: 40),
+          Icon(icon, color: tOrange1, size: 30),
+
           const SizedBox(height: 10),
+
           Text(
             title,
             style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
               color: tWhite,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
           ),
+
+          const SizedBox(height: 6),
+
           Text(
-            subtitle,
+            description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              color: tWhite.withOpacity(0.88),
+              color: tWhite.withOpacity(0.7),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ],
@@ -304,62 +381,9 @@ class IndustriesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroVisual() {
-    return ClipRect(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            _heroImage,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: tBlue3,
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.image_not_supported_outlined,
-                  size: 55,
-                  color: tWhite.withOpacity(0.45),
-                ),
-              );
-            },
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  tBlue3.withOpacity(0.92),
-                  tBlue3.withOpacity(0.35),
-                  Colors.transparent,
-                ],
-                stops: const [0.0, 0.28, 0.62],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeroNode(IconData icon) {
-    return Container(
-      width: 39,
-      height: 39,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: tBlue3.withOpacity(0.72),
-        border: Border.all(color: tWhite.withOpacity(0.38), width: 1),
-        boxShadow: [BoxShadow(color: tBlue3.withOpacity(0.35), blurRadius: 12)],
-      ),
-      child: Icon(icon, size: 19, color: tWhite.withOpacity(0.9)),
-    );
-  }
-
-  // =========================================================
+  // ============================================================
   // INDUSTRIES SECTION
-  // =========================================================
+  // ============================================================
 
   Widget _buildIndustriesSection() {
     return Padding(
@@ -367,7 +391,9 @@ class IndustriesSection extends StatelessWidget {
       child: Column(
         children: [
           _sectionEyebrow('INDUSTRIES WE SERVE'),
+
           const SizedBox(height: 4),
+
           Text(
             'Solutions shaped for real-world industries',
             textAlign: TextAlign.center,
@@ -377,7 +403,9 @@ class IndustriesSection extends StatelessWidget {
               color: tBlue2,
             ),
           ),
+
           const SizedBox(height: 11),
+
           SizedBox(
             width: 720,
             child: Text(
@@ -391,116 +419,208 @@ class IndustriesSection extends StatelessWidget {
               ),
             ),
           ),
+
           const SizedBox(height: 32),
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildIndustryCard(_industries[0], 0)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[1], 1)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[2], 2)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[3], 3)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[4], 4)),
-            ],
-          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const int columns = 5;
 
-          const SizedBox(height: 18),
+              const double horizontalSpacing = 18;
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: _buildIndustryCard(_industries[5], 5)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[6], 6)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[7], 7)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[8], 8)),
-              const SizedBox(width: 18),
-              Expanded(child: _buildIndustryCard(_industries[9], 9)),
-            ],
+              const double verticalSpacing = 18;
+
+              const double cardHeight = 360;
+
+              final double totalSpacing = horizontalSpacing * (columns - 1);
+
+              final double cardWidth =
+                  (constraints.maxWidth - totalSpacing) / columns;
+
+              return Wrap(
+                spacing: horizontalSpacing,
+                runSpacing: verticalSpacing,
+                children: List.generate(
+                  _industries.length,
+                  (index) => SizedBox(
+                    width: cardWidth,
+                    height: cardHeight,
+                    child: _buildIndustryCard(_industries[index], index),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
+  // ============================================================
+  // INDUSTRY CARD
+  // ============================================================
+
   Widget _buildIndustryCard(_IndustryData data, int index) {
     return _IndustryHoverCard(data: data, index: index);
   }
 
-  // =========================================================
-  // VALUE SECTION
-  // =========================================================
+  // ============================================================
+  // WHY CHOOSE US
+  // ============================================================
 
   Widget _buildValueSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 46),
       child: Container(
         width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(35, 28, 35, 28),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [tBlue2, tBlue3],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
+            colors: [tBlue2, tBlue3],
           ),
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(22),
         ),
-        padding: const EdgeInsets.fromLTRB(40, 42, 40, 44),
         child: Column(
           children: [
-            _sectionEyebrow('WHY CHOOSE US', light: true),
-            const SizedBox(height: 11),
-            Text(
-              'One technology partner. Many possibilities.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: tWhite,
-              ),
-            ),
-            const SizedBox(height: 11),
-            SizedBox(
-              width: 680,
-              child: Text(
-                'We bring together industry understanding and engineering depth to help organisations move from an idea to a dependable connected solution.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
-                  fontSize: 12,
-                  height: 1.55,
-                  fontWeight: FontWeight.w500,
-                  color: tWhite.withOpacity(0.72),
-                ),
-              ),
-            ),
-            const SizedBox(height: 35),
-
+            // ==================================================
+            // HEADER
+            // ==================================================
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: _buildValueItem(_values[0])),
-                const SizedBox(width: 30),
-                Expanded(child: _buildValueItem(_values[1])),
-                const SizedBox(width: 30),
-                Expanded(child: _buildValueItem(_values[2])),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: tOrange1.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: tOrange1.withOpacity(0.25)),
+                  ),
+                  child: Text(
+                    'WHY CHOOSE US',
+                    style: GoogleFonts.manrope(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: tOrange1,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.manrope(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: tWhite,
+                      ),
+                      children: [
+                        const TextSpan(text: 'One technology partner. '),
+                        TextSpan(
+                          text: 'Many possibilities.',
+                          style: GoogleFonts.manrope(
+                            color: tOrange1,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ------------------------------------------------
+                // COUNTER
+                // ------------------------------------------------
+                Row(
+                  children: [
+                    Text(
+                      '06',
+                      style: GoogleFonts.manrope(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: tOrange1,
+                      ),
+                    ),
+
+                    const SizedBox(width: 6),
+
+                    Text(
+                      'CORE\nADVANTAGES',
+                      style: GoogleFonts.manrope(
+                        fontSize: 7,
+                        height: 1.2,
+                        fontWeight: FontWeight.w700,
+                        color: tWhite.withOpacity(0.5),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 8),
 
+            // ==================================================
+            // DESCRIPTION
+            // ==================================================
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 125),
+                child: Text(
+                  'We bring together industry understanding and engineering depth to help organisations move from an idea to a dependable connected solution.',
+                  style: GoogleFonts.manrope(
+                    fontSize: 12,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                    color: tWhite.withOpacity(0.55),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            // ==================================================
+            // TOP ROW
+            // ==================================================
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _buildValueItem(_values[3])),
-                const SizedBox(width: 30),
-                Expanded(child: _buildValueItem(_values[4])),
-                const SizedBox(width: 30),
-                Expanded(child: _buildValueItem(_values[5])),
+                Expanded(child: _buildCompactValue(_values[0])),
+
+                const SizedBox(width: 12),
+
+                Expanded(child: _buildCompactValue(_values[1])),
+
+                const SizedBox(width: 12),
+
+                Expanded(child: _buildCompactValue(_values[2])),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // ==================================================
+            // BOTTOM ROW
+            // ==================================================
+            Row(
+              children: [
+                Expanded(child: _buildCompactValue(_values[3])),
+
+                const SizedBox(width: 12),
+
+                Expanded(child: _buildCompactValue(_values[4])),
+
+                const SizedBox(width: 12),
+
+                Expanded(child: _buildCompactValue(_values[5])),
               ],
             ),
           ],
@@ -509,55 +629,110 @@ class IndustriesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildValueItem(_ValueItemData item) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 46,
-          height: 46,
-          decoration: BoxDecoration(
-            color: tOrange1,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(color: tBlack.withOpacity(0.12), blurRadius: 10),
-            ],
-          ),
-          child: Icon(item.icon, color: tWhite, size: 22),
-        ),
-        const SizedBox(width: 13),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: GoogleFonts.manrope(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: tWhite,
+  // ============================================================
+  // COMPACT VALUE ITEM
+  // ============================================================
+
+  Widget _buildCompactValue(_ValueItemData item) {
+    return Container(
+      height: 78,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        color: tWhite.withOpacity(0.055),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tWhite.withOpacity(0.08)),
+      ),
+      child: Row(
+        children: [
+          // ==================================================
+          // SVG ICON
+          // ==================================================
+          Container(
+            width: 45,
+            height: 45,
+            padding: const EdgeInsets.all(11),
+            decoration: BoxDecoration(
+              color: tOrange1,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: tOrange1.withOpacity(0.18),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                item.description,
-                style: GoogleFonts.manrope(
-                  fontSize: 10.5,
-                  height: 1.45,
-                  fontWeight: FontWeight.w500,
-                  color: tWhite.withOpacity(0.68),
-                ),
-              ),
-            ],
+              ],
+            ),
+            child: SvgPicture.asset(
+              item.icon,
+              width: 20,
+              height: 20,
+
+              // SVG will appear white
+              // when the SVG supports
+              // color replacement.
+              color: tWhite,
+            ),
           ),
-        ),
-      ],
+
+          const SizedBox(width: 11),
+
+          // ==================================================
+          // TEXT
+          // ==================================================
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: tWhite,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  item.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    fontSize: 10,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                    color: tWhite.withOpacity(0.48),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 6),
+
+          // ==================================================
+          // INDICATOR
+          // ==================================================
+          Container(
+            width: 5,
+            height: 5,
+            decoration: const BoxDecoration(
+              color: tOrange1,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  // =========================================================
+  // ============================================================
   // COMMON
-  // =========================================================
+  // ============================================================
 
   Widget _sectionEyebrow(String text, {bool light = false}) {
     return Text(
@@ -572,9 +747,9 @@ class IndustriesSection extends StatelessWidget {
   }
 }
 
-// =========================================================
-// INDUSTRY CARD
-// =========================================================
+// ============================================================
+// INDUSTRY HOVER CARD
+// ============================================================
 
 class _IndustryHoverCard extends StatefulWidget {
   final _IndustryData data;
@@ -595,8 +770,6 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
     final bool isOddCard = widget.index.isEven;
 
-    // Each card keeps its own original color.
-    // NO color swapping on hover.
     final Color topColor = isOddCard ? tBlue3 : tOrange1;
 
     return MouseRegion(
@@ -650,15 +823,13 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
-            // =================================================
+            // ==================================================
             // IMAGE
-            // =================================================
+            // ==================================================
             SizedBox(
               width: double.infinity,
               height: 175,
-
               child: Stack(
                 clipBehavior: Clip.none,
                 fit: StackFit.expand,
@@ -666,13 +837,10 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                   Image.asset(
                     data.image,
                     fit: BoxFit.cover,
-
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: tBlue3.withOpacity(0.08),
-
                         alignment: Alignment.center,
-
                         child: Icon(
                           data.icon,
                           size: 42,
@@ -685,16 +853,14 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
               ),
             ),
 
-            // =================================================
+            // ==================================================
             // INFORMATION
-            // =================================================
+            // ==================================================
             Stack(
               clipBehavior: Clip.none,
-
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(17, 34, 17, 18),
-
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -736,39 +902,20 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                   ),
                 ),
 
-                // =================================================
-                // ICON
-                //
-                // NORMAL:
-                //   Background = same original color at 60%
-                //   Icon       = 60%
-                //
-                // HOVER:
-                //   Background = same original color at 100%
-                //   Icon       = 100%
-                //
-                // NO COLOR SWAPPING
-                // =================================================
+                // ==================================================
+                // INDUSTRY ICON
+                // ==================================================
                 Positioned(
                   top: -25,
                   left: 17,
-
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
-
                     curve: Curves.easeOut,
-
                     width: 50,
                     height: 50,
-
                     decoration: BoxDecoration(
-                      // Same color in both states.
-                      //
-                      // Only opacity changes.
                       color: topColor.withOpacity(_hovered ? 1.0 : 0.80),
-
                       borderRadius: BorderRadius.circular(13),
-
                       boxShadow: [
                         BoxShadow(
                           color: tBlack.withOpacity(_hovered ? 0.16 : 0.08),
@@ -777,17 +924,10 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                         ),
                       ],
                     ),
-
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 180),
-
                       curve: Curves.easeOut,
-
-                      // Icon opacity:
-                      // Normal = 60%
-                      // Hover  = 100%
                       opacity: _hovered ? 1.0 : 0.60,
-
                       child: Icon(data.icon, color: tWhite, size: 25),
                     ),
                   ),
@@ -801,9 +941,9 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
   }
 }
 
-// =========================================================
+// ============================================================
 // DATA MODELS
-// =========================================================
+// ============================================================
 
 class _IndustryData {
   final IconData icon;
@@ -823,8 +963,16 @@ class _IndustryData {
   });
 }
 
+// ============================================================
+// VALUE DATA
+//
+// IMPORTANT:
+// icon is String because it contains
+// the SVG asset path.
+// ============================================================
+
 class _ValueItemData {
-  final IconData icon;
+  final String icon;
   final String title;
   final String description;
 

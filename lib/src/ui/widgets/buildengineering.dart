@@ -12,9 +12,13 @@ class BuildEngineeringSection extends StatelessWidget {
       children: [
         _buildServicesSection(),
         const SizedBox(height: 40),
-        _buildProcessSection(),
-        const SizedBox(height: 30),
+        // _buildProcessSection(),
         _buildCtaBanner(),
+        const SizedBox(height: 30),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: _buildProcessSection(),
+        ),
       ],
     );
   }
@@ -85,7 +89,7 @@ class BuildEngineeringSection extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: const Color(0xFFF6F8FB),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Column(
         children: [
           Text(
@@ -314,138 +318,118 @@ class BuildEngineeringSection extends StatelessWidget {
       ),
     ];
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [tBlue2, tBlue3],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return Column(
+      children: [
+        Text(
+          'OUR ENGINEERING PROCESS',
+          style: GoogleFonts.manrope(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: tOrange1,
+            letterSpacing: 1.2,
+          ),
         ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 35),
-      child: Column(
-        children: [
-          Text(
-            'OUR ENGINEERING PROCESS',
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'From Concept to Creation',
-            style: GoogleFonts.manrope(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: tWhite,
-            ),
-          ),
-          const SizedBox(height: 35),
 
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columnWidth = constraints.maxWidth / steps.length;
-              final inset = columnWidth / 2;
-              return Stack(
+        const SizedBox(height: 10),
+
+        Text(
+          'From Concept to Creation',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.manrope(
+            fontSize: 30,
+            fontWeight: FontWeight.w700,
+            color: tBlack,
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // dashed line runs from the center of the first circle
-                  // to the center of the last circle, passing through all of them
-                  Positioned(
-                    top: 28,
-                    left: inset,
-                    right: inset,
-                    child: CustomPaint(
-                      size: const Size(double.infinity, 1),
-                      painter: _DashedLinePainter(
-                        color: tWhite.withOpacity(0.3),
+                  for (int index = 0; index < steps.length; index++) ...[
+                    Expanded(
+                      child: _buildProcessStep(
+                        steps[index],
+                        index.isEven ? tBlue3 : tOrange1,
                       ),
                     ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        steps
-                            .map(
-                              (step) =>
-                                  Expanded(child: _buildProcessStep(step)),
-                            )
-                            .toList(),
-                  ),
+
+                    if (index != steps.length - 1)
+                      SizedBox(
+                        width: 90,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: _buildProcessConnector(),
+                        ),
+                      ),
+                  ],
                 ],
-              );
-            },
-          ),
-        ],
-      ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildProcessStep(_ProcessStep step) {
+  Widget _buildProcessStep(_ProcessStep step, Color circleColor) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: tBlue3.withOpacity(0.9),
-            border: Border.all(color: tBlue1.withOpacity(0.7), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: tOrange1.withOpacity(0.35),
-                blurRadius: 14,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Center(
-            child: SizedBox(
-              width: 30,
-              height: 30,
-              child: SvgPicture.asset(
-                step.icon,
-                fit: BoxFit.contain,
-                color: tOrange1,
-              ),
-            ),
-          ),
+          width: 54,
+          height: 54,
+          decoration: BoxDecoration(color: circleColor, shape: BoxShape.circle),
+          padding: const EdgeInsets.all(11),
+          child: SvgPicture.asset(step.icon, color: tWhite),
         ),
-        const SizedBox(height: 8),
+
+        const SizedBox(height: 10),
+
         Text(
           step.number,
           style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
             color: tOrange1,
+            letterSpacing: 0.8,
           ),
         ),
-        const SizedBox(height: 6),
+
+        const SizedBox(height: 4),
+
         Text(
           step.title,
           textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: GoogleFonts.manrope(
-            fontSize: 13.5,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: tWhite,
+            color: tBlack,
           ),
         ),
-        const SizedBox(height: 6),
+
+        const SizedBox(height: 5),
+
         SizedBox(
-          width: 130,
+          width: 180,
+          height: 49,
           child: Text(
             step.description,
             textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w400,
-              height: 1.4,
-              color: tWhite.withOpacity(0.58),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: tBlack.withOpacity(0.55),
+              height: 1.35,
             ),
           ),
         ),
@@ -459,86 +443,162 @@ class BuildEngineeringSection extends StatelessWidget {
       _CtaItem(icon: 'icons/tools.svg', label: 'Advanced Tools'),
       _CtaItem(icon: 'icons/quality.svg', label: 'Quality Focused'),
       _CtaItem(icon: 'icons/ontime.svg', label: 'On-Time Delivery'),
+      // _CtaItem(icon: 'icons/ontime.svg', label: 'On-Time Delivery'),
     ];
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 40),
       width: double.infinity,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [tBlue3, tOrange1],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            // Color(0xFF0B2380),
+            // Color.fromARGB(255, 6, 19, 62),
+            // Color(0xFF2348AD),
+            // Color.fromARGB(255, 6, 19, 62),
+            // Color(0xFF2348AD),
+            // Color(0xFF0B2380),
+            // tBlue2,
+            // tBlue3,
+            Color(0xFF101B72),
+            Color(0xFF263FA8),
+            Color(0xFF3154B8),
+          ],
         ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: tBlue3.withOpacity(0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 25),
-      child: Row(
+      // padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
         children: [
-          Expanded(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Center(
+                    child: SizedBox(
+                      width: constraints.maxWidth * 1.8,
+                      height: constraints.maxHeight,
+                      // height: constraints.maxHeight * 0.6,
+                      // child: RotatedBox(
+                      // quarterTurns: 1,
+                      child: SvgPicture.asset(
+                        'icons/waves_7.svg',
+                        fit: BoxFit.fill,
+                        // colorFilter: ColorFilter.mode(
+                        //   tWhite.withOpacity(0.3),
+                        //   BlendMode.srcIn,
+                        // ),
+                      ),
+                      // ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          // Positioned(
+          //   left: 330,
+          //   top: 5,
+          //   child: IgnorePointer(
+          //     child: SizedBox(
+          //       width: 400,
+          //       height: 125,
+          //       child: FittedBox(
+          //         fit: BoxFit.fill,
+          //         child: SvgPicture.asset(
+          //           'icons/map2.svg',
+          //           width: 700,
+          //           height: 165,
+          //           color: tBlue1.withOpacity(0.2),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Have an engineering challenge?',
-                  style: GoogleFonts.manrope(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: tWhite,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "Let's build something extraordinary together.",
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: tWhite.withOpacity(0.85),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: tOrange1,
-                    foregroundColor: tWhite,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 14,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Row(
+                // LEFT CONTENT
+                Expanded(
+                  flex: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Talk to Our Experts',
+                        'Have an engineering challenge?',
                         style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: tWhite,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, size: 15),
+
+                      const SizedBox(height: 6),
+
+                      Text(
+                        "Let's build something extraordinary together.",
+                        style: GoogleFonts.manrope(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: tWhite.withOpacity(0.82),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: tOrange1,
+                          foregroundColor: tWhite,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Talk to Our Experts',
+                              style: GoogleFonts.manrope(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            const Icon(Icons.arrow_forward_rounded, size: 15),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (int i = 0; i < items.length; i++) ...[
-                  if (i != 0) _buildCtaDivider(),
-                  _buildCtaIconItem(items[i]),
-                ],
+
+                const SizedBox(width: 20),
+
+                // RIGHT CAPABILITIES
+                Expanded(flex: 4, child: _buildCtaCapabilities(items)),
               ],
             ),
           ),
@@ -547,26 +607,185 @@ class BuildEngineeringSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCtaDivider() {
-    return Container(width: 1, height: 34, color: tWhite.withOpacity(0.2));
+  // Widget _buildCtaDivider() {
+  //   return Container(width: 1, height: 34, color: tWhite.withOpacity(0.2));
+  // }
+  Widget _buildCtaCapabilities(List<_CtaItem> items) {
+    return SizedBox(
+      height: 135,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // const double cardWidth = 88;
+          // const double cardHeight = 102;
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // CARD 1
+              Positioned(
+                left: 5,
+                top: 15,
+                child: Transform.rotate(
+                  angle: -0.10,
+                  child: _buildCtaCard(items[0], background: tBlue3),
+                ),
+              ),
+
+              // CARD 2
+              Positioned(
+                left: 118,
+                top: 4,
+                child: Transform.rotate(
+                  angle: 0.035,
+                  child: _buildCtaCard(items[1], background: tOrange1),
+                ),
+              ),
+
+              // CARD 3
+              Positioned(
+                left: 341,
+                top: 10,
+                child: Transform.rotate(
+                  angle: -0.035,
+                  child: _buildCtaCard(items[2], background: tBlue3),
+                ),
+              ),
+
+              // CARD 4
+              Positioned(
+                left: 226,
+                top: 0,
+                child: Transform.rotate(
+                  angle: 0.09,
+                  child: _buildCtaCard(items[3], background: tBlue2),
+                ),
+              ),
+              //card 5
+              // Positioned(
+              //   left: 451,
+              //   top: 0,
+              //   child: Transform.rotate(
+              //     angle: -0.15,
+              //     child: _buildCtaCard(items[4], background: tOrange1),
+              //   ),
+              // ),
+
+              // // LABEL 1
+              // Positioned(
+              //   left: 0,
+              //   top: 108,
+              //   width: 98,
+              //   child: _buildCtaLabel(items[0].label),
+              // ),
+
+              // // LABEL 2
+              // Positioned(
+              //   left: 73,
+              //   top: 108,
+              //   width: 98,
+              //   child: _buildCtaLabel(items[1].label),
+              // ),
+
+              // // LABEL 3
+              // Positioned(
+              //   left: 146,
+              //   top: 108,
+              //   width: 98,
+              //   child: _buildCtaLabel(items[2].label),
+              // ),
+
+              // // LABEL 4
+              // Positioned(
+              //   left: 219,
+              //   top: 108,
+              //   width: 98,
+              //   child: _buildCtaLabel(items[3].label),
+              // ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
-  Widget _buildCtaIconItem(_CtaItem item) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SvgPicture.asset(item.icon, width: 34, height: 34, color: tWhite),
-        const SizedBox(height: 8),
-        Text(
-          item.label,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w600,
-            color: tWhite,
+  Widget _buildCtaCard(_CtaItem item, {required Color background}) {
+    return Container(
+      width: 130,
+      height: 130,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: tWhite.withValues(alpha: 0.45), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: tBlack.withValues(alpha: 0.20),
+            blurRadius: 12,
+            offset: const Offset(0, 7),
           ),
-        ),
-      ],
+        ],
+      ),
+      child: Stack(
+        children: [
+          // SUBTLE INNER SHAPE
+          // Positioned(
+          //   right: -20,
+          //   bottom: -25,
+          //   child: Container(
+          //     width: 80,
+          //     height: 80,
+          //     decoration: BoxDecoration(
+          //       shape: BoxShape.circle,
+          //       color: tWhite.withValues(alpha: 0.07),
+          //     ),
+          //   ),
+          // ),
+
+          // SVG ICON
+          Center(
+            child: Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: tWhite.withValues(alpha: 0.10),
+                border: Border.all(
+                  color: tWhite.withValues(alpha: 0.22),
+                  width: 1,
+                ),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  item.icon,
+                  width: 29,
+                  height: 29,
+                  color: tWhite,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 5,
+            right: 5,
+            bottom: 10,
+            child: _buildCtaLabel(item.label),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCtaLabel(String label) {
+    return Text(
+      label,
+      textAlign: TextAlign.center,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: GoogleFonts.manrope(
+        fontSize: 9.5,
+        fontWeight: FontWeight.w700,
+        color: tWhite,
+        height: 1.2,
+      ),
     );
   }
 }
@@ -652,28 +871,31 @@ class _HoverCardState extends State<_HoverCard> {
   }
 }
 
-class _DashedLinePainter extends CustomPainter {
-  final Color color;
+Widget _buildProcessConnector() {
+  return SizedBox(
+    width: 90,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        for (int i = 0; i < 9; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Icon(
+              Icons.circle,
+              size: 3.5,
+              color: tBlue3.withOpacity(0.45),
+            ),
+          ),
 
-  _DashedLinePainter({required this.color});
+        const SizedBox(width: 2),
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = color
-          ..strokeWidth = 1;
-
-    const dashWidth = 4.0;
-    const dashSpace = 4.0;
-    double startX = 0;
-
-    while (startX < size.width) {
-      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
-      startX += dashWidth + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedLinePainter oldDelegate) => false;
+        Icon(
+          Icons.arrow_forward_rounded,
+          size: 18,
+          color: tBlue3.withOpacity(0.65),
+        ),
+      ],
+    ),
+  );
 }
