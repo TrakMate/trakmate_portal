@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
@@ -16,7 +18,30 @@ class ManufacturingSection extends StatefulWidget {
 }
 
 class _ManufacturingSectionState extends State<ManufacturingSection> {
-  static const String _heroImage = 'images/company.png';
+  bool _heroImageLoading = true; // NEW
+  @override
+  void initState() {
+    super.initState(); // NEW
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadHeroImage();
+    });
+  }
+
+  Future<void> _preloadHeroImage() async {
+    try {
+      await precacheImage(const AssetImage('images/sol3.jpg'), context);
+      await Future.delayed(const Duration(seconds: 3)); //  testing only
+    } catch (e) {
+      debugPrint('Error preloading solutions hero image: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _heroImageLoading = false;
+    });
+  }
+
+  static const String _heroImage = 'images/manufacturing.jpg';
   // static const String _cardImage = 'images/company.jpg';
 
   final List<_ManufacturingService> _services = const [
@@ -98,50 +123,14 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     ),
   ];
 
-  final List<_ManufacturingProcess> _process = const [
-    _ManufacturingProcess(
-      number: '01',
-      title: 'Requirement Analysis',
-      description:
-          'We understand your product requirements, specifications and production goals.',
-      icon: 'icons/globe.svg',
-    ),
-    _ManufacturingProcess(
-      number: '02',
-      title: 'Manufacturing Planning',
-      description:
-          'We design the right solution, features, experience and technology.',
-      icon: 'icons/automation.svg',
-    ),
-    _ManufacturingProcess(
-      number: '03',
-      title: 'Production & Assembly',
-      description:
-          'Products are assembled and manufactured with precision and controlled processes.',
-      icon: 'icons/product.svg',
-    ),
-    _ManufacturingProcess(
-      number: '04',
-      title: 'Testing & Validation',
-      description:
-          'Products undergo testing and validation to ensure reliability and performance.',
-      icon: 'icons/search.svg',
-    ),
-    _ManufacturingProcess(
-      number: '05',
-      title: 'Packaging & Delivery',
-      description:
-          'Finished products are prepared, packaged and coordinated for delivery.',
-      icon: 'icons/truck.svg',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildHero(),
+          _heroImageLoading
+              ? const HeroHeaderShimmer() // NEW
+              : _buildHero(),
 
           const SizedBox(height: 42),
 
@@ -161,7 +150,47 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: _buildProcessSection(),
+            child: ProcessSection(
+              eyebrow: 'OUR MANUFACTURING PROCESS',
+              title: 'From Concept to Customer',
+              steps: const [
+                ProcessStepData(
+                  number: '01',
+                  icon: 'icons/globe.svg',
+                  title: 'Requirement Analysis',
+                  description:
+                      'We understand your product requirements, specifications and production goals.',
+                ),
+                ProcessStepData(
+                  number: '02',
+                  icon: 'icons/automation.svg',
+                  title: 'Manufacturing Planning',
+                  description:
+                      'We design the right solution, features, experience and technology.',
+                ),
+                ProcessStepData(
+                  number: '03',
+                  icon: 'icons/product.svg',
+                  title: 'Production & Assembly',
+                  description:
+                      'Products are assembled and manufactured with precision and controlled processes.',
+                ),
+                ProcessStepData(
+                  number: '04',
+                  icon: 'icons/search.svg',
+                  title: 'Testing & Validation',
+                  description:
+                      'Products undergo testing and validation to ensure reliability and performance.',
+                ),
+                ProcessStepData(
+                  number: '05',
+                  icon: 'icons/truck.svg',
+                  title: 'Packaging & Delivery',
+                  description:
+                      'Finished products are prepared, packaged and coordinated for delivery.',
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 45),
@@ -342,39 +371,41 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     required String title,
     required String subtitle,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
+            const SizedBox(height: 10),
 
-          const SizedBox(height: 10),
-
-          Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              color: tWhite,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+            Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                color: tWhite,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
 
-          const SizedBox(height: 6),
+            const SizedBox(height: 6),
 
-          Text(
-            subtitle,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              color: tWhite.withOpacity(0.7),
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
+            Text(
+              subtitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                color: tWhite.withOpacity(0.7),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -432,13 +463,14 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
             return Wrap(
               spacing: 16,
               runSpacing: 16,
-              children:
-                  _services.map((service) {
-                    return SizedBox(
-                      width: cardWidth,
-                      child: _buildServiceCard(service),
-                    );
-                  }).toList(),
+              children: List.generate(_services.length, (index) {
+                final service = _services[index];
+
+                return SizedBox(
+                  width: cardWidth,
+                  child: _buildServiceCard(service, index),
+                );
+              }),
             );
           },
         ),
@@ -446,7 +478,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     );
   }
 
-  Widget _buildServiceCard(_ManufacturingService service) {
+  Widget _buildServiceCard(_ManufacturingService service, int index) {
+    final Color iconBackground = index.isEven ? tBlue2 : tOrange1;
     return Container(
       height: 350,
       decoration: BoxDecoration(
@@ -484,20 +517,29 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                   left: 12,
                   top: 12,
                   child: Container(
-                    width: 38,
-                    height: 38,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: tBlue2,
-                      borderRadius: BorderRadius.circular(9),
+                      color: iconBackground,
+                      borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
                           color: tBlack.withOpacity(0.18),
                           blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(9),
-                    child: SvgPicture.asset(service.icon, color: tWhite),
+                    padding: const EdgeInsets.all(10),
+                    child: SvgPicture.asset(
+                      service.icon,
+                      width: 27,
+                      height: 27,
+                      colorFilter: const ColorFilter.mode(
+                        tWhite,
+                        BlendMode.srcIn,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -679,163 +721,6 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           ),
         ],
       ),
-    );
-  }
-
-  // PROCESS
-
-  Widget _buildProcessSection() {
-    return Column(
-      children: [
-        Text(
-          'OUR MANUFACTURING PROCESS',
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: tOrange1,
-            letterSpacing: 1.2,
-          ),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          'From Concept to Customer',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontSize: 30,
-            fontWeight: FontWeight.w700,
-            color: tBlack,
-          ),
-        ),
-
-        const SizedBox(height: 32),
-
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (int index = 0; index < _process.length; index++) ...[
-                    // PROCESS ITEM
-                    Expanded(
-                      child: _buildProcessItem(
-                        _process[index],
-                        index.isEven ? tBlue3 : tOrange1,
-                      ),
-                    ),
-
-                    // LONG DOTTED ARROW
-                    if (index != _process.length - 1)
-                      SizedBox(
-                        width: 90,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: _buildDottedArrow(),
-                        ),
-                      ),
-                  ],
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  // DOTTED LONG ARROW
-
-  Widget _buildDottedArrow() {
-    return SizedBox(
-      width: 90,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (int i = 0; i < 9; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Icon(
-                Icons.circle,
-                size: 3.5,
-                color: tBlue3.withOpacity(0.45),
-              ),
-            ),
-
-          const SizedBox(width: 2),
-
-          Icon(
-            Icons.arrow_forward_rounded,
-            size: 18,
-            color: tBlue3.withOpacity(0.65),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // PROCESS ITEM
-
-  Widget _buildProcessItem(_ManufacturingProcess process, Color circleColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(color: circleColor, shape: BoxShape.circle),
-          padding: const EdgeInsets.all(11),
-          child: SvgPicture.asset(process.icon, color: tWhite),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          process.number,
-          style: GoogleFonts.manrope(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: tOrange1,
-            letterSpacing: 0.8,
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(
-          process.title,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tBlack,
-          ),
-        ),
-
-        const SizedBox(height: 5),
-
-        SizedBox(
-          width: 180,
-          height: 49,
-          child: Text(
-            process.description,
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: tBlack.withOpacity(0.55),
-              height: 1.35,
-            ),
-          ),
-        ),
-      ],
     );
   }
 

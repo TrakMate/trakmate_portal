@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
@@ -16,10 +17,32 @@ class IndustriesSection extends StatefulWidget {
 
 class _IndustriesSectionState extends State<IndustriesSection> {
   // static const String _heroImage = 'images/company.jpg';
+  bool _heroImageLoading = true; // NEW
+  @override
+  void initState() {
+    super.initState(); // NEW
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadHeroImage();
+    });
+  }
+
+  Future<void> _preloadHeroImage() async {
+    try {
+      await precacheImage(const AssetImage('images/sol3.jpg'), context);
+      await Future.delayed(const Duration(seconds: 3)); //  testing only
+    } catch (e) {
+      debugPrint('Error preloading solutions hero image: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _heroImageLoading = false;
+    });
+  }
 
   static const List<_IndustryData> _industries = [
     _IndustryData(
-      icon: Icons.directions_car_filled_outlined,
+      icon: "icons/car.svg",
       title: 'Automotive',
       image: 'images/automotive.jpg',
       tag: 'CONNECTED MOBILITY',
@@ -29,7 +52,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.electric_car_outlined,
+      icon: "icons/ev.svg",
       title: 'Electric Mobility',
       image: 'images/electric_mobility.jpg',
       tag: 'EV TECHNOLOGY',
@@ -39,7 +62,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.local_shipping_outlined,
+      icon: "icons/truck.svg",
       title: 'Fleet & Logistics',
       image: 'images/fleet_logistics.jpg',
       tag: 'FLEET INTELLIGENCE',
@@ -49,7 +72,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.factory_outlined,
+      icon: "icons/automation.svg",
       title: 'Industrial',
       image: 'images/industrial.jpg',
       tag: 'SMART OPERATIONS',
@@ -59,7 +82,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.location_city_outlined,
+      icon: "icons/city.svg",
       title: 'Smart Cities',
       image: 'images/smartcity.jpg',
       tag: 'URBAN CONNECTIVITY',
@@ -69,7 +92,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.agriculture_outlined,
+      icon: "icons/agriculture.svg",
       title: 'Agriculture',
       image: 'images/agriculture.jpg',
       tag: 'SMART FARMING',
@@ -79,7 +102,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.health_and_safety_outlined,
+      icon: "icons/healthcare.svg",
       title: 'Healthcare',
       image: 'images/healthcare.png',
       tag: 'CONNECTED CARE',
@@ -89,7 +112,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.inventory_2_outlined,
+      icon: "icons/supplychain.svg",
       title: 'Supply Chain',
       image: 'images/supplychain.png',
       tag: 'ASSET VISIBILITY',
@@ -99,7 +122,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.storefront_outlined,
+      icon: "icons/retail.svg",
       title: 'Retail',
       image: 'images/retail1.png',
       tag: 'SMART RETAIL',
@@ -109,7 +132,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
 
     _IndustryData(
-      icon: Icons.bolt_outlined,
+      icon: "icons/utilities.svg",
       title: 'Energy',
       image: 'images/energy.png',
       tag: 'ENERGY INTELLIGENCE',
@@ -118,11 +141,6 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       accent: tOrange1,
     ),
   ];
-
-  // ============================================================
-  // WHY CHOOSE US
-  // SVG ICONS ARE INDIVIDUAL FOR EACH ITEM
-  // ============================================================
 
   static const List<_ValueItemData> _values = [
     _ValueItemData(
@@ -168,16 +186,16 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
   ];
 
-  // ============================================================
   // BUILD
-  // ============================================================
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildHeroSection(),
+          // _buildHeroSection(),
+          _heroImageLoading
+              ? const HeroHeaderShimmer() // NEW
+              : _buildHeroSection(),
 
           const SizedBox(height: 30),
 
@@ -195,9 +213,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ============================================================
   // HERO SECTION
-  // ============================================================
 
   Widget _buildHeroSection() {
     return Container(
@@ -302,7 +318,8 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                       child: _buildHeroFeature(
                         icon: Icons.verified_user_outlined,
                         title: 'Sustainable Impact',
-                        description: 'Built for long-term value',
+                        description:
+                            'Built for long-term value and consiistency',
                       ),
                     ),
                   ],
@@ -313,15 +330,12 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
           const SizedBox(width: 40),
 
-          // ------------------------------------------------------
-          // HERO IMAGE
-          // ------------------------------------------------------
           Expanded(
             child: Container(
               height: 350,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('images/company.png'),
+                  image: AssetImage('images/hero_industry.png'),
                   fit: BoxFit.cover,
                   alignment: Alignment.center,
                 ),
@@ -337,10 +351,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ============================================================
   // HERO FEATURE
-  // ============================================================
-
   Widget _buildHeroFeature({
     required IconData icon,
     required String title,
@@ -380,10 +391,6 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       ),
     );
   }
-
-  // ============================================================
-  // INDUSTRIES SECTION
-  // ============================================================
 
   Widget _buildIndustriesSection() {
     return Padding(
@@ -456,17 +463,13 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ============================================================
   // INDUSTRY CARD
-  // ============================================================
 
   Widget _buildIndustryCard(_IndustryData data, int index) {
     return _IndustryHoverCard(data: data, index: index);
   }
 
-  // ============================================================
   // WHY CHOOSE US
-  // ============================================================
 
   Widget _buildValueSection() {
     return Padding(
@@ -484,9 +487,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
         ),
         child: Column(
           children: [
-            // ==================================================
             // HEADER
-            // ==================================================
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -535,9 +536,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                   ),
                 ),
 
-                // ------------------------------------------------
                 // COUNTER
-                // ------------------------------------------------
                 Row(
                   children: [
                     Text(
@@ -567,9 +566,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
             const SizedBox(height: 8),
 
-            // ==================================================
             // DESCRIPTION
-            // ==================================================
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -588,9 +585,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
             const SizedBox(height: 25),
 
-            // ==================================================
             // TOP ROW
-            // ==================================================
             Row(
               children: [
                 Expanded(child: _buildCompactValue(_values[0])),
@@ -607,9 +602,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
             const SizedBox(height: 12),
 
-            // ==================================================
             // BOTTOM ROW
-            // ==================================================
             Row(
               children: [
                 Expanded(child: _buildCompactValue(_values[3])),
@@ -629,9 +622,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ============================================================
   // COMPACT VALUE ITEM
-  // ============================================================
 
   Widget _buildCompactValue(_ValueItemData item) {
     return Container(
@@ -644,9 +635,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       ),
       child: Row(
         children: [
-          // ==================================================
           // SVG ICON
-          // ==================================================
           Container(
             width: 45,
             height: 45,
@@ -666,19 +655,13 @@ class _IndustriesSectionState extends State<IndustriesSection> {
               item.icon,
               width: 20,
               height: 20,
-
-              // SVG will appear white
-              // when the SVG supports
-              // color replacement.
               color: tWhite,
             ),
           ),
 
           const SizedBox(width: 11),
 
-          // ==================================================
           // TEXT
-          // ==================================================
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -713,10 +696,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
           ),
 
           const SizedBox(width: 6),
-
-          // ==================================================
           // INDICATOR
-          // ==================================================
           Container(
             width: 5,
             height: 5,
@@ -730,10 +710,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ============================================================
   // COMMON
-  // ============================================================
-
   Widget _sectionEyebrow(String text, {bool light = false}) {
     return Text(
       text,
@@ -747,9 +724,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
   }
 }
 
-// ============================================================
 // INDUSTRY HOVER CARD
-// ============================================================
 
 class _IndustryHoverCard extends StatefulWidget {
   final _IndustryData data;
@@ -799,14 +774,13 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
           borderRadius: BorderRadius.circular(16),
 
-          border: Border.all(
-            color:
-                _hovered
-                    ? tOrange1.withOpacity(0.75)
-                    : tBlack1.withOpacity(0.08),
-            width: _hovered ? 1.2 : 1,
-          ),
-
+          // border: Border.all(
+          //   color:
+          //       _hovered
+          //           ? tOrange1.withOpacity(0.75)
+          //           : tBlack1.withOpacity(0.08),
+          //   width: _hovered ? 1.2 : 1,
+          // ),
           boxShadow: [
             BoxShadow(
               color:
@@ -818,15 +792,22 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
             ),
           ],
         ),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color:
+                _hovered
+                    ? tOrange1.withOpacity(0.75)
+                    : tBlack1.withOpacity(0.08),
+            width: _hovered ? 1.2 : 1,
+          ),
+        ),
 
         clipBehavior: Clip.antiAlias,
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ==================================================
-            // IMAGE
-            // ==================================================
             SizedBox(
               width: double.infinity,
               height: 175,
@@ -841,9 +822,10 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                       return Container(
                         color: tBlue3.withOpacity(0.08),
                         alignment: Alignment.center,
-                        child: Icon(
+                        child: SvgPicture.asset(
                           data.icon,
-                          size: 42,
+                          width: 22,
+                          height: 22,
                           color: tBlue3.withOpacity(0.55),
                         ),
                       );
@@ -853,9 +835,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
               ),
             ),
 
-            // ==================================================
             // INFORMATION
-            // ==================================================
             Stack(
               clipBehavior: Clip.none,
               children: [
@@ -902,9 +882,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                   ),
                 ),
 
-                // ==================================================
                 // INDUSTRY ICON
-                // ==================================================
                 Positioned(
                   top: -25,
                   left: 17,
@@ -928,7 +906,18 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                       duration: const Duration(milliseconds: 180),
                       curve: Curves.easeOut,
                       opacity: _hovered ? 1.0 : 0.60,
-                      child: Icon(data.icon, color: tWhite, size: 25),
+                      child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: SvgPicture.asset(
+                            data.icon,
+                            fit: BoxFit.contain,
+                            color: tWhite,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -941,12 +930,10 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
   }
 }
 
-// ============================================================
 // DATA MODELS
-// ============================================================
 
 class _IndustryData {
-  final IconData icon;
+  final String icon;
   final String title;
   final String tag;
   final String description;
@@ -962,14 +949,6 @@ class _IndustryData {
     required this.image,
   });
 }
-
-// ============================================================
-// VALUE DATA
-//
-// IMPORTANT:
-// icon is String because it contains
-// the SVG asset path.
-// ============================================================
 
 class _ValueItemData {
   final String icon;

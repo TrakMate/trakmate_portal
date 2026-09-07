@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildhome.dart';
+import 'package:trakmate_portal/src/ui/widgets/scroller_button.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import '../widgets/footer_section.dart';
 import 'package:video_player/video_player.dart';
@@ -54,7 +56,7 @@ class _StatData {
 class _HomeSectionState extends State<HomeSection> {
   final List<_HeroSlideData> _slides = const [
     _HeroSlideData(
-      video: "video/hero1.mp4",
+      video: "video/v1.mp4",
       label: "SMART FLEET",
       headingLine1: "Driving Innovation.",
       headingLine2: "Charging a Sustainable Tomorrow.",
@@ -85,7 +87,7 @@ class _HomeSectionState extends State<HomeSection> {
       // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
-      video: "video/hero2.mp4",
+      video: "video/v2.mp4",
       label: "CONNECTED TECHNOLOGY",
       headingLine1: "Smart Connections.",
       headingLine2: "Smarter Asset Management.",
@@ -116,7 +118,38 @@ class _HomeSectionState extends State<HomeSection> {
       // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
-      video: "video/hero1.mp4",
+      video: "video/v3.mp4",
+      label: "TRUSTED WORLDWIDE",
+      headingLine1: "Built for Scale.",
+      headingLine2: "Delivered with Precision.",
+      description:
+          'With clients across 6+ countries and 750+ products delivered, TrakMate is a technology partner businesses rely on globally.',
+      stats: [
+        _StatData(
+          icon: "icons/badge.svg",
+          value: "12+",
+          label: "Years of Experience",
+        ),
+        _StatData(
+          icon: "icons/delivery.svg",
+          value: "750+",
+          label: "Projects Delivered",
+        ),
+        _StatData(
+          icon: "icons/handshake.svg",
+          value: "25+",
+          label: "Happy Clients",
+        ),
+        _StatData(
+          icon: "icons/globe.svg",
+          value: "6+",
+          label: "Countries Served",
+        ),
+      ],
+      // buttonText: "Explore Solutions",
+    ),
+    _HeroSlideData(
+      video: "video/v4.mp4",
       label: "TRUSTED WORLDWIDE",
       headingLine1: "Built for Scale.",
       headingLine2: "Delivered with Precision.",
@@ -149,6 +182,7 @@ class _HomeSectionState extends State<HomeSection> {
   ];
 
   final PageController _pageController = PageController(initialPage: 0);
+  final ScrollController _scrollController = ScrollController();
   final List<VideoPlayerController> _videoControllers = [];
 
   Timer? _autoSlideTimer;
@@ -159,7 +193,15 @@ class _HomeSectionState extends State<HomeSection> {
   bool _isSliderPaused = false;
   bool _showPauseButton = true;
   bool _isMuted = true;
+  // bool _isScrollButtonHovered = false;
   Timer? _pauseButtonTimer;
+  // ADD THIS
+  bool get _isCurrentVideoReady {
+    final int activeIndex = _currentVirtualPage % _slides.length;
+    if (_videoControllers.length <= activeIndex) return false;
+    return _videoControllers[activeIndex].value.isInitialized;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -177,10 +219,16 @@ class _HomeSectionState extends State<HomeSection> {
     // Initialize ONLY the first video immediately
     final firstController = _videoControllers[0];
 
-    await firstController.initialize();
-    await firstController.setLooping(true);
-    await firstController.setVolume(0);
-
+    try {
+      // ADD
+      await firstController.initialize();
+      await firstController.setLooping(true);
+      await firstController.setVolume(0);
+      // await Future.delayed(const Duration(seconds: 3)); //testing only
+    } catch (e) {
+      // ADD
+      debugPrint('Failed to initialize first video: $e'); // ADD
+    }
     if (mounted) {
       setState(() {});
     }
@@ -217,7 +265,7 @@ class _HomeSectionState extends State<HomeSection> {
   void _startAutoSlide() {
     _autoSlideTimer?.cancel();
 
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (!mounted || _isSliderPaused) return;
 
       _currentVirtualPage++;
@@ -229,6 +277,23 @@ class _HomeSectionState extends State<HomeSection> {
       );
     });
   }
+
+  //   void _startAutoSlide() {
+  //   _autoSlideTimer?.cancel();
+  //   debugPrint('🔵 Starting auto-slide timer: 15 seconds'); // ADD THIS
+
+  //   _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+  //     if (!mounted || _isSliderPaused) return;
+  //     debugPrint('🔵 Auto-advancing slide at ${DateTime.now()}'); // ADD THIS
+
+  //     _currentVirtualPage++;
+  //     _pageController.animateToPage(
+  //       _currentVirtualPage,
+  //       duration: const Duration(milliseconds: 600),
+  //       curve: Curves.easeInOut,
+  //     );
+  //   });
+  // }
 
   void _showPauseControl() {
     _pauseButtonTimer?.cancel();
@@ -287,9 +352,9 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   double _getHeroHeight(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.height;
 
-    return (width * 0.50).clamp(500.0, 600.0);
+    return width * 0.91;
     //  return (width * 0.35).clamp(500.0, 600.0);
   }
   // double _getHeroHeight(BuildContext context) {
@@ -315,7 +380,7 @@ class _HomeSectionState extends State<HomeSection> {
     _autoSlideTimer?.cancel();
     _pauseButtonTimer?.cancel();
     _pageController.dispose();
-
+    _scrollController.dispose();
     for (final controller in _videoControllers) {
       controller.dispose();
     }
@@ -369,6 +434,7 @@ class _HomeSectionState extends State<HomeSection> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Column(
         children: [
           _buildHeroSection(),
@@ -491,15 +557,24 @@ class _HomeSectionState extends State<HomeSection> {
               // Pause / Resume button
               Positioned.fill(
                 child: IgnorePointer(
-                  ignoring: !_showPauseButton && !_isSliderPaused,
+                  // ignoring: !_showPauseButton && !_isSliderPaused,
+                  ignoring:
+                      !_isCurrentVideoReady ||
+                      (!_showPauseButton && !_isSliderPaused),
                   child: Center(
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 900),
                       curve: Curves.easeOut,
+                      // opacity:
+                      //     _isSliderPaused
+                      //         ? 1.0
+                      //         : (_showPauseButton ? 1.0 : 0.0),
                       opacity:
-                          _isSliderPaused
-                              ? 1.0
-                              : (_showPauseButton ? 1.0 : 0.0),
+                          !_isCurrentVideoReady
+                              ? 0.0
+                              : (_isSliderPaused
+                                  ? 1.0
+                                  : (_showPauseButton ? 1.0 : 0.0)),
                       child: GestureDetector(
                         onTap: () async {
                           setState(() {
@@ -564,10 +639,15 @@ class _HomeSectionState extends State<HomeSection> {
                 left: 0,
                 right: 0,
                 child: IgnorePointer(
-                  ignoring: _isSliderPaused,
+                  // ignoring: _isSliderPaused,
+                  ignoring: !_isCurrentVideoReady || _isSliderPaused,
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
-                    opacity: _isSliderPaused ? 0.0 : 1.0,
+                    // opacity: _isSliderPaused ? 0.0 : 1.0,
+                    opacity:
+                        !_isCurrentVideoReady
+                            ? 0.0
+                            : (_isSliderPaused ? 0.0 : 1.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(_slides.length, (index) {
@@ -613,10 +693,17 @@ class _HomeSectionState extends State<HomeSection> {
                 child: Center(
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
+                    // opacity:
+                    //     _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
                     opacity:
-                        _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
+                        !_isCurrentVideoReady
+                            ? 0.0
+                            : (_isSliderPaused
+                                ? 0.0
+                                : (_isSlideHovered ? 1.0 : 0.0)),
                     child: IgnorePointer(
-                      ignoring: !_isSlideHovered,
+                      // ignoring: !_isSlideHovered,
+                      ignoring: !_isCurrentVideoReady || !_isSlideHovered,
                       child: MouseRegion(
                         onEnter: (_) => setState(() => _isPrevHovered = true),
                         onExit: (_) => setState(() => _isPrevHovered = false),
@@ -658,10 +745,20 @@ class _HomeSectionState extends State<HomeSection> {
                 child: Center(
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
+                    // opacity:
+                    //     _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
                     opacity:
-                        _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
+                        !_isCurrentVideoReady
+                            ? 0.0
+                            : (_isSliderPaused
+                                ? 0.0
+                                : (_isSlideHovered ? 1.0 : 0.0)),
                     child: IgnorePointer(
-                      ignoring: _isSliderPaused || !_isSlideHovered,
+                      // ignoring: _isSliderPaused || !_isSlideHovered,
+                      ignoring:
+                          !_isCurrentVideoReady ||
+                          _isSliderPaused ||
+                          !_isSlideHovered,
                       child: MouseRegion(
                         onEnter: (_) => setState(() => _isNextHovered = true),
                         onExit: (_) => setState(() => _isNextHovered = false),
@@ -694,6 +791,33 @@ class _HomeSectionState extends State<HomeSection> {
                   ),
                 ),
               ),
+
+              // Scroller
+              Positioned(
+                right: 45,
+                bottom: 45,
+                child: ScrollerButton(
+                  isVisible: _isSlideHovered && _isCurrentVideoReady,
+                  onTap: () {
+                    if (!_scrollController.hasClients) return;
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!_scrollController.hasClients) return;
+
+                      final double target = _getHeroHeight(context);
+
+                      _scrollController.animateTo(
+                        target.clamp(
+                          0.0,
+                          _scrollController.position.maxScrollExtent,
+                        ),
+                        duration: const Duration(milliseconds: 900),
+                        curve: Curves.easeInOutCubic,
+                      );
+                    });
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -705,7 +829,8 @@ class _HomeSectionState extends State<HomeSection> {
     final int slideIndex = _slides.indexOf(slide);
 
     if (_videoControllers.length <= slideIndex) {
-      return Container(width: double.infinity, color: tBlue2);
+      // return Container(width: double.infinity, color: tBlue2);
+      return const SizedBox(width: double.infinity, child: HeroVideoShimmer());
     }
 
     final VideoPlayerController controller = _videoControllers[slideIndex];
@@ -715,6 +840,20 @@ class _HomeSectionState extends State<HomeSection> {
       child: Stack(
         // fit: StackFit.expand,
         children: [
+          // Background video
+          // if (controller.value.isInitialized)
+          //   Positioned.fill(
+          //     child: FittedBox(
+          //       fit: BoxFit.cover,
+          //       child: SizedBox(
+          //         width: controller.value.size.width,
+          //         height: controller.value.size.height,
+          //         child: VideoPlayer(controller),
+          //       ),
+          //     ),
+          //   )
+          // else
+          //   Container(color: tBlue2),
           // Background video
           if (controller.value.isInitialized)
             Positioned.fill(
@@ -728,8 +867,7 @@ class _HomeSectionState extends State<HomeSection> {
               ),
             )
           else
-            Container(color: tBlue2),
-
+            const Positioned.fill(child: HeroVideoShimmer()), // CHANGED
           // Dark gradient overlay
           Container(
             decoration: BoxDecoration(
@@ -745,137 +883,143 @@ class _HomeSectionState extends State<HomeSection> {
               ),
             ),
           ),
-
-          // YOUR EXISTING CONTENT
-
-          // Your existing content
-          Padding(
-            padding: const EdgeInsets.only(left: 65, right: 40),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Transform.translate(
-                    offset: const Offset(0, -18),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        HeroAnimatedText(
-                          isActive: widget.isActive,
-                          delay: 520,
-                          child: Text(
-                            slide.label,
-                            style: GoogleFonts.manrope(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: tOrange1,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                        HeroAnimatedText(
-                          isActive: widget.isActive,
-                          delay: 720,
-                          child: RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.manrope(
-                                fontSize: 48,
-                                fontWeight: FontWeight.w600,
-                                height: 1.15,
-                                color: tWhite,
+          if (controller.value.isInitialized) // ADD THIS GUARD
+            // Your existing content
+            if (controller.value.isInitialized)
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 115,
+                  right: 40,
+                ), //fr whole text block
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Transform.translate(
+                        offset: const Offset(0, -38),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 520,
+                              child: Text(
+                                slide.label,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: tOrange1,
+                                  letterSpacing: 1.2,
+                                ),
                               ),
-                              children: [
-                                TextSpan(text: "${slide.headingLine1}\n"),
-                                TextSpan(
-                                  text: slide.headingLine2,
+                            ),
+
+                            const SizedBox(height: 30),
+                            HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 720,
+                              child: RichText(
+                                text: TextSpan(
                                   style: GoogleFonts.manrope(
-                                    color: tOrange1,
-                                    fontWeight: FontWeight.w800,
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.15,
+                                    color: tWhite,
+                                  ),
+                                  children: [
+                                    TextSpan(text: "${slide.headingLine1}\n"),
+                                    TextSpan(
+                                      text: slide.headingLine2,
+                                      style: GoogleFonts.manrope(
+                                        color: tOrange1,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+                            HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 920,
+                              child: SizedBox(
+                                width: 480,
+                                child: Text(
+                                  slide.description,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14,
+                                    color: tWhite.withOpacity(0.95),
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.5,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 18),
-                        HeroAnimatedText(
-                          isActive: widget.isActive,
-                          delay: 920,
-                          child: SizedBox(
-                            width: 480,
-                            child: Text(
-                              slide.description,
-                              style: GoogleFonts.manrope(
-                                fontSize: 14,
-                                color: tWhite.withOpacity(0.85),
-                                fontWeight: FontWeight.w400,
-                                height: 1.5,
                               ),
                             ),
-                          ),
-                        ),
 
-                        const SizedBox(height: 30),
-                        HeroAnimatedText(
-                          isActive: widget.isActive,
-                          delay: 1120,
-                          child: Row(
-                            children: [
-                              for (int i = 0; i < slide.stats.length; i++) ...[
-                                if (i != 0) const SizedBox(width: 66),
-                                _buildStatItem(
-                                  slide.stats[i].icon,
-                                  slide.stats[i].value,
-                                  slide.stats[i].label,
-                                ),
-                              ],
-                            ],
-                          ),
+                            const SizedBox(height: 40),
+                            HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 1120,
+                              child: Row(
+                                children: [
+                                  for (
+                                    int i = 0;
+                                    i < slide.stats.length;
+                                    i++
+                                  ) ...[
+                                    if (i != 0) const SizedBox(width: 66),
+                                    _buildStatItem(
+                                      slide.stats[i].icon,
+                                      slide.stats[i].value,
+                                      slide.stats[i].label,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            // ElevatedButton(
+                            //   onPressed: () {},
+                            //   style: ElevatedButton.styleFrom(
+                            //     backgroundColor: tOrange1,
+                            //     shape: RoundedRectangleBorder(
+                            //       borderRadius: BorderRadius.circular(8),
+                            //     ),
+                            //     padding: const EdgeInsets.symmetric(
+                            //       horizontal: 22,
+                            //       vertical: 18,
+                            //     ),
+                            //   ),
+                            //   child: Row(
+                            //     mainAxisSize: MainAxisSize.min,
+                            //     children: [
+                            //       Text(
+                            //         slide.buttonText,
+                            //         style: GoogleFonts.manrope(
+                            //           color: tWhite,
+                            //           fontSize: 13,
+                            //           fontWeight: FontWeight.w600,
+                            //         ),
+                            //       ),
+                            //       const SizedBox(width: 8),
+                            //       const Icon(
+                            //         Icons.arrow_forward,
+                            //         color: tWhite,
+                            //         size: 16,
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                          ],
                         ),
-                        // ElevatedButton(
-                        //   onPressed: () {},
-                        //   style: ElevatedButton.styleFrom(
-                        //     backgroundColor: tOrange1,
-                        //     shape: RoundedRectangleBorder(
-                        //       borderRadius: BorderRadius.circular(8),
-                        //     ),
-                        //     padding: const EdgeInsets.symmetric(
-                        //       horizontal: 22,
-                        //       vertical: 18,
-                        //     ),
-                        //   ),
-                        //   child: Row(
-                        //     mainAxisSize: MainAxisSize.min,
-                        //     children: [
-                        //       Text(
-                        //         slide.buttonText,
-                        //         style: GoogleFonts.manrope(
-                        //           color: tWhite,
-                        //           fontSize: 13,
-                        //           fontWeight: FontWeight.w600,
-                        //         ),
-                        //       ),
-                        //       const SizedBox(width: 8),
-                        //       const Icon(
-                        //         Icons.arrow_forward,
-                        //         color: tWhite,
-                        //         size: 16,
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                      ],
+                      ),
                     ),
-                  ),
+                    const Expanded(flex: 2, child: SizedBox()),
+                  ],
                 ),
-                const Expanded(flex: 2, child: SizedBox()),
-              ],
-            ),
-          ),
+              ),
         ],
       ),
     );
@@ -918,7 +1062,7 @@ class _HomeSectionState extends State<HomeSection> {
           label,
           style: GoogleFonts.manrope(
             fontSize: 11,
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w600,
             color: tWhite.withOpacity(0.75),
           ),
         ),

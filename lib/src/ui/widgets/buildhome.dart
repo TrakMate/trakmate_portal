@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -10,7 +8,7 @@ import 'package:trakmate_portal/src/utils/colors.dart';
 
 class _IndustryItemData {
   final String image;
-  final IconData icon;
+  final String icon;
   final String label;
 
   const _IndustryItemData({
@@ -64,6 +62,160 @@ class _ClientItemData {
   });
 }
 
+class _AnimatedOutlinedButton extends StatefulWidget {
+  final String label;
+  final VoidCallback? onPressed;
+
+  const _AnimatedOutlinedButton({required this.label, this.onPressed});
+
+  @override
+  State<_AnimatedOutlinedButton> createState() =>
+      _AnimatedOutlinedButtonState();
+}
+
+class _AnimatedOutlinedButtonState extends State<_AnimatedOutlinedButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _rippleController;
+
+  late final Animation<double> _rippleScale;
+  late final Animation<double> _rippleOpacity;
+
+  bool _isAnimating = false;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _rippleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 420),
+    );
+
+    _rippleScale = Tween<double>(begin: 0.0, end: 16.0).animate(
+      CurvedAnimation(parent: _rippleController, curve: Curves.easeOutCubic),
+    );
+
+    _rippleOpacity = Tween<double>(begin: 0.12, end: 0.0).animate(
+      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _rippleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleTap() async {
+    if (_isAnimating || widget.onPressed == null) return;
+
+    setState(() {
+      _isAnimating = true;
+    });
+
+    _rippleController.forward(from: 0.0);
+
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    if (!mounted) return;
+
+    setState(() {
+      _isAnimating = false;
+    });
+
+    widget.onPressed!();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        if (!_isHovered) {
+          setState(() {
+            _isHovered = true;
+          });
+        }
+      },
+      onExit: (_) {
+        if (_isHovered) {
+          setState(() {
+            _isHovered = false;
+          });
+        }
+      },
+      child: GestureDetector(
+        onTap: _handleTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: _isHovered ? tBlue3.withOpacity(0.035) : tWhite,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: tBlue3, width: 1.2),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // CLICK RIPPLE
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: AnimatedBuilder(
+                      animation: _rippleController,
+                      builder: (context, child) {
+                        return Center(
+                          child: Opacity(
+                            opacity: _rippleOpacity.value,
+                            child: Transform.scale(
+                              scale: _rippleScale.value,
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: tBlue3,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // BUTTON CONTENT
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.label,
+                        style: GoogleFonts.manrope(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: tBlue3,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(Icons.arrow_forward, size: 15, color: tBlue3),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class IndustriesProductsSection extends StatefulWidget {
   final ValueChanged<int>? onNavigate;
   const IndustriesProductsSection({super.key, this.onNavigate});
@@ -77,93 +229,96 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     with SingleTickerProviderStateMixin {
   final List<_IndustryItemData> _industries = const [
     _IndustryItemData(
-      image: "images/smartcity.jpg",
-      icon: CupertinoIcons.building_2_fill,
-      label: "Smart Cities",
-    ),
-    _IndustryItemData(
-      image: "images/ev.jpg",
-      icon: CupertinoIcons.car_detailed,
-      label: "EV & E-Mobility",
-    ),
-    _IndustryItemData(
-      image: "images/fleetmanagement.jpg",
-      icon: CupertinoIcons.bus,
-      label: "Fleet Management",
-    ),
-    _IndustryItemData(
-      image: "images/automation.jpg",
-      icon: Icons.precision_manufacturing_rounded,
-      label: "Industrial Automation",
+      image: "images/automotive.jpg",
+      icon: "icons/car.svg",
+      label: "Automotive",
     ),
     // _IndustryItemData(
-    //   image: "images/infrastructure.png",
-    //   icon: Icons.location_city_rounded,
+    //   image: "images/smartcity.jpg",
+    //   icon: "icons/city.svg",
     //   label: "Smart Cities",
     // ),
     _IndustryItemData(
-      image: "images/agri2.jpg",
-      icon: Icons.agriculture_rounded,
+      image: "images/ev.jpg",
+      icon: "icons/ev.svg",
+      label: "EV Technology",
+    ),
+    _IndustryItemData(
+      image: "images/fleet_logistics.jpg",
+      icon: "icons/truck.svg",
+      label: "Fleet & Logistics",
+    ),
+    _IndustryItemData(
+      image: "images/industrial.jpg",
+      icon: "icons/automation.svg",
+      label: "Industrial",
+    ),
+
+    _IndustryItemData(
+      image: "images/smartcity.jpg",
+      icon: "icons/city.svg",
+      label: "Smart Cities",
+    ),
+    _IndustryItemData(
+      image: "images/agriculture.jpg",
+      icon: "icons/agriculture.svg",
       label: "Agriculture",
     ),
     _IndustryItemData(
-      image: "images/retail.png",
-      icon: CupertinoIcons.bag_fill,
-      label: "Retail",
+      image: "images/healthcare.png",
+      icon: "icons/healthcare.svg",
+      label: "Healthcare",
     ),
-    _IndustryItemData(
-      image: "images/logistics.jpg",
-      icon: CupertinoIcons.cube_box_fill,
-      label: "Logistics",
-    ),
+    // _IndustryItemData(
+    //   image: "images/logistics.jpg",
+    //   icon: "icons/city.svg",
+    //   label: "Logistics",
+    // ),
   ];
 
   final List<_ProductItemData> _products = const [
     _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "TMD024",
+      image: "images/tmd104.png",
+      name: "TMD104",
       subtitle: "Advanced GPS Tracker",
     ),
+
     _ProductItemData(
-      image: "images/trackx4G.png",
+      image: "images/tmd364-side1.png",
+      name: "TCU550",
+      subtitle: "Advanced Fleet Tracker",
+    ),
+    _ProductItemData(
+      image: "images/tmdcstrr-5.png",
+      name: "TMDCSTR-5",
+      subtitle: "Intelligent Vehicle Cluster",
+    ),
+    _ProductItemData(
+      image: "images/tmd400.png",
+      name: "TMD400",
+      subtitle: "Advanced OBD Tracker",
+    ),
+
+    _ProductItemData(
+      image: "images/tmb024.png",
+      name: "TMB024",
+      subtitle: "Advanced Tracker",
+    ),
+    _ProductItemData(
+      image: "images/a1.png",
+      name: "TMDCSTR-7",
+      subtitle: "Smart Digital Cluster",
+    ),
+    _ProductItemData(
+      image: "images/a2.png",
+      name: "TMDCSTR-7A",
+      subtitle: "Smart Vehicle Display",
+    ),
+    _ProductItemData(
+      image: "images/tmd364-side1.png",
       name: "TMD364",
-      subtitle: "Industrial IoT Gateway",
+      subtitle: "Connected Vehicle Tracker",
     ),
-    _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "TMD500",
-      subtitle: "Smart IoT Sensor",
-    ),
-    _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "TMD320",
-      subtitle: "Embedded Controller",
-    ),
-    _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "5-inch cluster-TFT",
-      subtitle: "Vehicle Diagnostics",
-    ),
-    _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "7-inch cluster-Android",
-      subtitle: "Bluetooth Low Energy Beacon",
-    ),
-    _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "TMD410",
-      subtitle: "Bluetooth Low Energy Beacon",
-    ),
-    _ProductItemData(
-      image: "images/trackx4G.png",
-      name: "TMD006",
-      subtitle: "Bluetooth Low Energy Beacon",
-    ),
-    // _ProductItemData(
-    //   image: "images/trackx4G.png",
-    //   name: "TMD006",
-    //   subtitle: "Bluetooth Low Energy Beacon",
-    // ),
   ];
 
   final List<_ServiceItemData> _services = const [
@@ -343,7 +498,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   final ScrollController _productsScrollController = ScrollController();
   final ScrollController _clientsScrollController = ScrollController();
   // Timer? _clientsAutoScrollTimer;
-  late final AnimationController _clientsAutoScrollController;
+  // late final AnimationController _clientsAutoScrollController;
   late final Ticker _clientsTicker;
   Duration _clientsLastElapsed = Duration.zero;
   double _clientsScrollOffset = 0.0;
@@ -411,10 +566,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       padding: const EdgeInsets.only(left: 40, right: 40, top: 30),
       child: Column(
         children: [
-          HomeReveal(
-            delay: const Duration(milliseconds: 300),
-            child: _buildServicesSection(),
-          ),
+          _buildServicesSection(),
           const SizedBox(height: 60),
           _buildIndustriesSection(),
           const SizedBox(height: 60),
@@ -438,7 +590,9 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
             letterSpacing: 1.2,
           ),
         ),
+
         const SizedBox(height: 8),
+
         Text(
           "Empowering Industries with Technology",
           textAlign: TextAlign.center,
@@ -448,19 +602,26 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
             color: tBlue2,
           ),
         ),
+
         const SizedBox(height: 25),
+
         Row(
           children: [
             for (int i = 0; i < _industries.length; i++) ...[
               if (i != 0) const SizedBox(width: 12),
+
               Expanded(child: _buildIndustryCard(_industries[i], i)),
             ],
           ],
         ),
+
         const SizedBox(height: 28),
-        _buildOutlinedButton(
-          "View All Industries",
-          onPressed: () => widget.onNavigate?.call(5), // Industries tab index
+
+        _AnimatedOutlinedButton(
+          label: "View All Industries",
+          onPressed: () {
+            widget.onNavigate?.call(5);
+          },
         ),
       ],
     );
@@ -473,53 +634,86 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           _hoveredIndustryIndex = index;
         });
       },
+
       onExit: (_) {
         setState(() {
           _hoveredIndustryIndex = null;
         });
       },
+
       child: AnimatedScale(
         scale: _hoveredIndustryIndex == index ? 1.03 : 1.0,
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
+
         child: Column(
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      industry.image,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder:
-                          (context, error, stackTrace) =>
-                              Container(color: tBlue3.withOpacity(0.15)),
-                    ),
-                  ),
-                  Positioned(
-                    left: 8,
-                    bottom: 8,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: tBlue3.withOpacity(0.9),
+
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+
+                child: Stack(
+                  clipBehavior: Clip.hardEdge,
+
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        industry.image,
+                        fit: BoxFit.cover,
+
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(color: tBlue3.withOpacity(0.15));
+                        },
                       ),
-                      child: Icon(industry.icon, color: tOrange1, size: 15),
                     ),
-                  ),
-                ],
+
+                    Positioned(
+                      left: 10,
+                      bottom: 10,
+
+                      child: Container(
+                        width: 48,
+                        height: 48,
+
+                        decoration: BoxDecoration(
+                          color: index.isEven ? tBlue2 : tOrange1,
+
+                          borderRadius: BorderRadius.circular(10),
+
+                          boxShadow: [
+                            BoxShadow(
+                              color: tBlack.withOpacity(0.18),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+
+                        child: Center(
+                          // child: Icon(industry.icon, color: tWhite, size: 25),
+                          child: SvgPicture.asset(
+                            industry.icon,
+                            width: 25,
+                            height: 25,
+                            fit: BoxFit.contain,
+                            color: tWhite,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+
             const SizedBox(height: 10),
+
             Text(
               industry.label,
               textAlign: TextAlign.center,
+
               style: GoogleFonts.manrope(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
@@ -590,9 +784,11 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           ],
         ),
         const SizedBox(height: 28),
-        _buildOutlinedButton(
-          "View All Products",
-          onPressed: () => widget.onNavigate?.call(4), // Products tab index
+        _AnimatedOutlinedButton(
+          label: "View All Products",
+          onPressed: () {
+            widget.onNavigate?.call(4);
+          },
         ),
       ],
     );
@@ -615,16 +811,32 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Expanded(
+          //   child: ClipRRect(
+          //     borderRadius: BorderRadius.circular(8),
+          //     child: Image.asset(
+          //       product.image,
+          //       fit: BoxFit.contain,
+          //       width: double.infinity,
+          //       errorBuilder:
+          //           (context, error, stackTrace) =>
+          //               Container(color: tBlue3.withOpacity(0.1)),
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                product.image,
-                fit: BoxFit.contain,
-                width: double.infinity,
-                errorBuilder:
-                    (context, error, stackTrace) =>
-                        Container(color: tBlue3.withOpacity(0.1)),
+              child: Center(
+                child: Image.asset(
+                  product.image,
+                  fit: BoxFit.contain,
+                  width: 170,
+                  height: 130,
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                          Container(color: tBlue3.withOpacity(0.1)),
+                ),
               ),
             ),
           ),
@@ -731,7 +943,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                   style: GoogleFonts.manrope(
                     fontSize: 25,
                     fontWeight: FontWeight.w700,
-                    color: tOrange1,
+                    color: tBlue2,
                   ),
                 ),
               ],

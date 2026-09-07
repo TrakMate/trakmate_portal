@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 class BuildProductSection extends StatefulWidget {
@@ -14,197 +18,287 @@ class BuildProductSection extends StatefulWidget {
 
 class _BuildProductSectionState extends State<BuildProductSection> {
   int _selectedFilterIndex = 0;
-
+  bool _imagesLoading = true;
   final List<_FilterTabData> _filterTabs = const [
     _FilterTabData(icon: "icons/all.svg", label: 'All Products'),
-    _FilterTabData(icon: "icons/iot.svg", label: 'IoT Devices'),
+    _FilterTabData(icon: "icons/iot.svg", label: 'Vehicle Trackers'),
     _FilterTabData(icon: "icons/gateway.svg", label: 'Gateways'),
-    _FilterTabData(icon: "icons/gps.svg", label: 'Trackers'),
-    _FilterTabData(icon: "icons/embedded.svg", label: 'Embedded Modules'),
-    _FilterTabData(icon: "icons/sensors.svg", label: 'Sensors'),
-    _FilterTabData(icon: "icons/accessories.svg", label: 'Accessories'),
+    _FilterTabData(icon: "icons/gps.svg", label: 'Clusters'),
+    _FilterTabData(icon: "icons/car.svg", label: 'ADAS'),
   ];
 
-  final List<_ProductData> _products = const [
-    _ProductData(
-      image: 'images/trackx4G.png',
+  final List<ProductData> _products = const [
+    ProductData(
+      image: 'images/tmd104.png',
       badge: '4G',
       badgeColor: tBlue3,
-      title: 'TMD024',
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TMD104',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      category: 'Vehicle Trackers',
       description:
-          'Compact 4G LTE tracker with real-time tracking, geo-fencing, and driver behavior monitoring.',
+          '4G LTE modem with 2G fallback, real-time tracking, geo-fencing, and  monitoring.',
       features: [
-        _ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
           icon: Icons.notifications_active_outlined,
           label: 'Real-time Alerts',
         ),
-        _ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
-      badge: 'NEW',
-      badgeColor: newbadge,
-      title: 'TMD006',
-      subtitle: 'Industrial IoT Gateway',
-      category: 'Gateways',
+    ProductData(
+      image: 'images/tmd104.png',
+      badge: '4G',
+      badgeColor: tBlue3,
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TMD004',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Vehicle Trackers',
       description:
-          'Powerful gateway for seamless data collection, protocol conversion and cloud connectivity.',
+          '4G LTE modem with datalogging, CAN/BMS monitoring, BLE sensor integration, and FOTA support.',
       features: [
-        _ProductFeature(icon: Icons.hub_outlined, label: 'Multi-Protocol'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.hub_outlined, label: 'Multi-Protocol'),
+        ProductFeature(
           icon: Icons.developer_board_outlined,
           label: 'Edge Computing',
         ),
-        _ProductFeature(icon: Icons.lock_outline, label: 'Secure MQTT'),
+        ProductFeature(icon: Icons.lock_outline, label: 'Secure MQTT'),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
-      badge: null,
-      badgeColor: null,
-      title: 'TMD364',
-      subtitle: 'Embedded Controller',
-      category: 'Embedded Modules',
+    ProductData(
+      image: 'images/tmd104.png',
+      badge: '4G',
+      badgeColor: tBlue3,
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TMD024',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Vehicle Trackers',
       description:
-          'High-performance embedded controller for industrial and IoT applications.',
+          '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       features: [
-        _ProductFeature(icon: Icons.speed_rounded, label: 'High Performance'),
-        _ProductFeature(icon: Icons.battery_saver_outlined, label: 'Low Power'),
-        _ProductFeature(
-          icon: Icons.settings_input_component_outlined,
-          label: 'Multiple Interfaces',
+        ProductFeature(icon: Icons.hub_outlined, label: 'Multi-Protocol'),
+        ProductFeature(
+          icon: Icons.developer_board_outlined,
+          label: 'Edge Computing',
         ),
+        ProductFeature(icon: Icons.lock_outline, label: 'Secure MQTT'),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
-      badge: null,
-      badgeColor: null,
-      title: 'TMD500',
-      subtitle: 'Smart IoT Sensor',
-      category: 'Sensors',
+    ProductData(
+      image: 'images/tmb024.png',
+      badge: 'new',
+      badgeColor: newbadge,
+      title: 'TMB024',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Vehicle Trackers',
       description:
-          'Multi-parameter sensor for environment, asset and condition monitoring.',
+          '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       features: [
-        _ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
-        _ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
+        ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
+        ProductFeature(
           icon: Icons.directions_run_rounded,
           label: 'Motion & More',
         ),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
-      badge: 'IP67',
+
+    ProductData(
+      image: 'images/tmd400.png',
+      badge: "OBD-II",
       badgeColor: ipbadge,
-      title: 'TMD320',
-      subtitle: 'Vehicle Diagnostics',
-      category: 'Trackers',
+      title: 'TMD400',
+      subtitle: 'Industrial IoT Gateway',
+      category: 'Vehicle Trackers',
       description:
-          'Plug & Play OBD-II tracker for vehicle diagnostics and real-time telemetry.',
+          'OBD vehicle diagnostics with Bluetooth 5.0, remote diagnostics, and error detection.',
       features: [
-        _ProductFeature(icon: Icons.usb_rounded, label: 'OBD-II Interface'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
+        ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
+        ProductFeature(
+          icon: Icons.directions_run_rounded,
+          label: 'Motion & More',
+        ),
+      ],
+    ),
+    ProductData(
+      image: 'images/tmd364-side1.png',
+      image2: 'images/tmd364-top1.png',
+      image3: 'images/tmd364-back1.png',
+      image4: 'images/tmd364-part1.png',
+      // image5: 'images/tmd364-side1.png',
+      badge: '4G',
+      badgeColor: tBlue3,
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TMD364',
+      subtitle: 'Industrial IoT Gateway',
+      category: 'Vehicle Trackers',
+      description:
+          '4G LTE with 2G fallback, CAN/RS232 interfaces, BLE 5.0, motion sensing, and IP67 protection.',
+      features: [
+        ProductFeature(icon: Icons.speed_rounded, label: 'High Performance'),
+        ProductFeature(icon: Icons.battery_saver_outlined, label: 'Low Power'),
+        ProductFeature(
+          icon: Icons.settings_input_component_outlined,
+          label: 'Multiple Interfaces',
+        ),
+      ],
+    ),
+    ProductData(
+      image: 'images/tmd364-side1.png',
+      image2: 'images/tmd364-top1.png',
+      image3: 'images/tmd364-back1.png',
+      image4: 'images/tmd364-part1.png',
+      badge: 'AIS140',
+      badgeColor: ipbadge,
+      title: 'TMD 364-AIS140',
+      subtitle: 'Industrial IoT Gateway',
+      category: 'Vehicle Trackers',
+      description:
+          '4G LTE with 2G fallback, GNSS + IRNSS positioning, BLE 5.0, vehicle diagnostics, and IP67 protection.',
+      features: [
+        ProductFeature(icon: Icons.usb_rounded, label: 'OBD-II Interface'),
+        ProductFeature(
           icon: Icons.directions_car_outlined,
           label: 'Vehicle Data',
         ),
-        _ProductFeature(
+        ProductFeature(
           icon: Icons.build_circle_outlined,
           label: 'Easy Installation',
         ),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
+    ProductData(
+      image: 'images/tmd364-side1.png',
+      image2: 'images/tmd364-top1.png',
+      image3: 'images/tmd364-back1.png',
+      image4: 'images/tmd364-part1.png',
       badge: '4G',
       badgeColor: tBlue3,
-      title: '5-inch cluster-TFT',
-      subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TCU510',
+      subtitle: 'Industrial IoT Gateway',
+      category: 'Gateways',
       description:
-          'Compact 4G LTE tracker with real-time tracking, geo-fencing, and driver behavior monitoring.',
+          '4G LTE with 2G fallback, secure communication, ECU monitoring, SD card data logging.',
       features: [
-        _ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
           icon: Icons.notifications_active_outlined,
           label: 'Real-time Alerts',
         ),
-        _ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
+    ProductData(
+      image: 'images/tmd364-side1.png',
+      image2: 'images/tmd364-top1.png',
+      image3: 'images/tmd364-back1.png',
+      image4: 'images/tmd364-part1.png',
       badge: '4G',
       badgeColor: tBlue3,
-      title: '7-inch cluster-Android',
-      subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TCU520',
+      subtitle: 'Industrial IoT Gateway',
+      category: 'Gateways',
       description:
-          'Compact 4G LTE tracker with real-time tracking, geo-fencing, and driver behavior monitoring.',
+          '4G LTE with 2G fallback, dual-band Wi-Fi, secure communication, ECU monitoring.',
       features: [
-        _ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
           icon: Icons.notifications_active_outlined,
           label: 'Real-time Alerts',
         ),
-        _ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
       ],
     ),
-    _ProductData(
-      image: 'images/trackx4G.png',
+    ProductData(
+      image: 'images/tmd364-side1.png',
+      image2: 'images/tmd364-top1.png',
+      image3: 'images/tmd364-back1.png',
+      image4: 'images/tmd364-part1.png',
       badge: '4G',
       badgeColor: tBlue3,
-      title: 'TMD410',
-      subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TCU550',
+      subtitle: 'Industrial IoT Gateway',
+      category: 'Gateways',
       description:
-          'Compact 4G LTE tracker with real-time tracking, geo-fencing, and driver behavior monitoring.',
+          '4G LTE with 2G fallback, Ethernet connectivity, CAN interfaces, GPS odometer.',
       features: [
-        _ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
-        _ProductFeature(
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
           icon: Icons.notifications_active_outlined,
           label: 'Real-time Alerts',
         ),
-        _ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
       ],
     ),
-  ];
+    ProductData(
+      image: 'images/tmdcstrr-5.png',
+      image2: 'images/tmdcstr-5-back.png',
+      badge: null,
+      badgeColor: null,
+      title: 'TMDCSTR-5',
+      subtitle: 'Smart Display Cluster',
+      category: 'Clusters',
+      description:
+          '5-inch TFT display with 4G LTE Cat 1, 2G fallback, GNSS positioning, and vehicle monitoring',
+      features: [
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
+          icon: Icons.notifications_active_outlined,
+          label: 'Real-time Alerts',
+        ),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+      ],
+    ),
+    ProductData(
+      image: 'images/tmdcstrr-7.png',
+      image2: 'images/tmdcstr-7-side.png',
+      image3: 'images/tmdcstr-7-back.png',
 
-  final List<_CategoryData> _categories = const [
-    _CategoryData(
-      image: 'images/company.jpg',
-      title: 'IoT Devices',
-      description: 'Connected devices for monitoring & control',
+      badge: null,
+      badgeColor: null,
+      title: 'TMDCSTR-7',
+      subtitle: 'Smart Display Cluster',
+      category: 'Clusters',
+      description:
+          '7-inch TFT display with 4G LTE Cat 1, 2G fallback, GNSS positioning, and vehicle monitoring',
+      features: [
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
+          icon: Icons.notifications_active_outlined,
+          label: 'Real-time Alerts',
+        ),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+      ],
     ),
-    _CategoryData(
-      image: 'images/company.jpg',
-      title: 'Gateways',
-      description: 'Reliable connectivity & data aggregation',
-    ),
-    _CategoryData(
-      image: 'images/company.jpg',
-      title: 'Trackers',
-      description: 'Real-time tracking & asset visibility',
-    ),
-    _CategoryData(
-      image: 'images/categories/embedded_modules.jpg',
-      title: 'Embedded Modules',
-      description: 'Powerful modules for custom applications',
-    ),
-    _CategoryData(
-      image: 'images/company.jpg',
-      title: 'Sensors',
-      description: 'Smart sensors for every environment',
-    ),
-    _CategoryData(
-      image: 'images/company.jpg',
-      title: 'Accessories',
-      description: 'Add-ons for installation & integration',
+    ProductData(
+      image: 'images/a2.png',
+      badge: null,
+      badgeColor: null,
+      title: 'TMDCSTR-7A',
+      subtitle: 'Smart Display Cluster',
+      category: 'Clusters',
+      description:
+          '7-inch TFT touchscreen with 4G LTE Cat 4,2G fallback, dual-band Wi-Fi, GNSS.',
+      features: [
+        ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
+        ProductFeature(
+          icon: Icons.notifications_active_outlined,
+          label: 'Real-time Alerts',
+        ),
+        ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+      ],
     ),
   ];
 
@@ -231,16 +325,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
   ];
 
-  List<_ProductData> get _filteredProducts {
-    final selectedLabel = _filterTabs[_selectedFilterIndex].label;
-
-    if (selectedLabel == 'All Products') {
-      return _products;
-    }
-
-    return _products.where((p) => p.category == selectedLabel).toList();
-  }
-
   void _selectFilterIndex(int index) {
     if (index == _selectedFilterIndex) return;
 
@@ -255,6 +339,67 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   //   if (index != -1) {
   //     _selectFilterIndex(index);
   //   }
+  // }
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadProductImages();
+    });
+  }
+
+  Future<void> _preloadProductImages() async {
+    try {
+      final imagePaths = _products.map((product) => product.image).toSet();
+
+      await Future.wait(
+        imagePaths.map((path) => precacheImage(AssetImage(path), context)),
+      );
+      await Future.delayed(
+        const Duration(seconds: 3),
+      ); //just fr testing purposes
+    } catch (e) {
+      debugPrint('Error preloading product images: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _imagesLoading = false;
+    });
+  }
+
+  // Future<void> _preloadProductImages() async {
+  //   try {
+  //     final imagePaths = _products.map((product) => product.image).toSet();
+
+  //     debugPrint('🟡 Starting image preload...');
+  //     debugPrint('🟡 Total unique images: ${imagePaths.length}');
+
+  //     await Future.wait(
+  //       imagePaths.map((path) => precacheImage(AssetImage(path), context)),
+  //     );
+
+  //     debugPrint('🎉 ALL PRODUCT IMAGES LOADED');
+
+  //     // TESTING ONLY
+  //     await Future.delayed(const Duration(seconds: 8));
+
+  //     debugPrint('⏰ Test delay finished');
+
+  //     debugPrint('🎉 ALL PRODUCT IMAGES LOADED');
+  //   } catch (e) {
+  //     debugPrint('❌ Error preloading product images: $e');
+  //   }
+
+  //   if (!mounted) return;
+
+  //   setState(() {
+  //     _imagesLoading = false;
+  //   });
+
+  //   debugPrint('🟢 _imagesLoading = false');
   // }
 
   @override
@@ -275,8 +420,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
             //   child: _buildFilterTabsBar(),
             // ),
             Positioned(
-              left: MediaQuery.of(context).size.width * 0.05,
-              right: MediaQuery.of(context).size.width * 0.05,
+              left: MediaQuery.of(context).size.width * 0.15,
+              right: MediaQuery.of(context).size.width * 0.15,
               bottom: 35,
               child: _buildFilterTabsBar(),
             ),
@@ -288,20 +433,23 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           child: Column(
             children: [
               _buildProductRangeHeader(),
-              const SizedBox(height: 38),
+              const SizedBox(height: 28),
               _buildProductsGrid(),
               const SizedBox(height: 55),
             ],
           ),
         ),
 
-        _buildHowProductsWorkTogether(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: _buildTrustBar(),
+        ),
 
         const SizedBox(height: 45),
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: _buildTrustBar(),
+          child: _buildHowProductsWorkTogether(),
         ),
       ],
     );
@@ -416,32 +564,128 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   // PRODUCT GRID
 
   Widget _buildProductsGrid() {
-    final products = _filteredProducts;
+    if (_imagesLoading) {
+      return ProductShimmer();
+    }
 
-    return SizedBox(
-      width: double.infinity,
-      height: 420,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        layoutBuilder: (currentChild, previousChildren) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              ...previousChildren,
-              if (currentChild != null) currentChild,
-            ],
-          );
-        },
-        child:
-            products.isEmpty
-                ? _buildEmptyState()
-                : _ProductCarousel(
-                  key: ValueKey(_selectedFilterIndex),
-                  products: products,
+    final selectedLabel = _filterTabs[_selectedFilterIndex].label;
+
+    // When "All Products" is selected,
+    // display products grouped by their category.
+    if (selectedLabel == 'All Products') {
+      final categories = <String>[
+        'Vehicle Trackers',
+        'Gateways',
+        'Clusters',
+        'ADAS',
+      ];
+
+      return Column(
+        children: [
+          for (final category in categories)
+            _buildCategorySection(
+              category,
+              _products.where((p) => p.category == category).toList(),
+            ),
+        ],
+      );
+    }
+
+    // When a specific filter is selected,
+    // show only that category with its heading.
+    final products =
+        _products.where((p) => p.category == selectedLabel).toList();
+
+    if (products.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return _buildCategorySection(selectedLabel, products);
+  }
+
+  Widget _buildCategorySection(String category, List<ProductData> products) {
+    if (products.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 52),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // CATEGORY HEADING
+          Padding(
+            padding: const EdgeInsets.only(left: 75, bottom: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category,
+                  style: GoogleFonts.manrope(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: tBlue2,
+                  ),
                 ),
+                const SizedBox(height: 5),
+
+                Container(width: 30, height: 2, color: tOrange1),
+              ],
+            ),
+          ),
+          // PRODUCT CARDS
+          _buildCategoryProductsGrid(products),
+        ],
       ),
+    );
+  }
+
+  Widget _buildCategoryProductsGrid(List<ProductData> products) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double screenWidth = constraints.maxWidth;
+
+        double cardWidth;
+
+        if (screenWidth >= 1800) {
+          cardWidth = 410;
+        } else {
+          cardWidth = 330;
+        }
+
+        return Column(
+          children: [
+            for (int i = 0; i < products.length; i += 4)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: i + 4 < products.length ? 16 : 0,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 75),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      for (int j = i; j < i + 4 && j < products.length; j++)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            right:
+                                j + 1 < i + 4 && j + 1 < products.length
+                                    ? 16
+                                    : 0,
+                          ),
+                          child: SizedBox(
+                            width: cardWidth,
+                            height: 390,
+                            child: _ProductCard(data: products[j]),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -449,7 +693,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     return Container(
       key: const ValueKey('empty'),
       width: double.infinity,
-      height: 420,
+      height: 350,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -662,565 +906,50 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   }
 
   Widget _buildHowProductsWorkTogether() {
-    final steps = [
-      (
-        number: '01',
-        title: 'Sensors',
-        label: 'DATA COLLECTION',
-        description: 'Collect real-time data from the environment.',
-        icon: Icons.sensors_rounded,
-      ),
-      (
-        number: '02',
-        title: 'Devices',
-        label: 'EDGE PROCESSING',
-        description: 'Capture and process data from connected assets.',
-        icon: Icons.devices_other_rounded,
-      ),
-      (
-        number: '03',
-        title: 'Gateways',
-        label: 'CONNECTIVITY',
-        description: 'Connect devices and securely transmit data.',
-        icon: Icons.router_rounded,
-      ),
-      (
-        number: '04',
-        title: 'Cloud',
-        label: 'DATA PLATFORM',
-        description: 'Store and manage connected data centrally.',
-        icon: Icons.cloud_outlined,
-      ),
-      (
-        number: '05',
-        title: 'Insights',
-        label: 'INTELLIGENCE',
-        description: 'Turn real-time data into actionable insights.',
-        icon: Icons.insights_rounded,
-      ),
-    ];
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          Text(
-            'HOW OUR PRODUCTS WORK TOGETHER',
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.4,
-            ),
+      child: ProcessSection(
+        eyebrow: 'HOW OUR PRODUCTS WORK TOGETHER',
+        title: 'From Data to Decisions',
+        steps: const [
+          ProcessStepData(
+            number: '01',
+            icon: 'icons/sensors.svg',
+            title: 'Sensors',
+            description: 'Collect real-time data from the environment.',
           ),
-
-          const SizedBox(height: 11),
-
-          Text(
-            'From Data to Decisions',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontSize: 27,
-              fontWeight: FontWeight.w800,
-              color: tBlue2,
-            ),
+          ProcessStepData(
+            number: '02',
+            icon: 'icons/iot_device.svg',
+            title: 'Devices',
+            description: 'Capture and process data from connected assets.',
           ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            'Connect devices, collect real-time data and turn it into actionable insights.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: tBlack.withOpacity(0.55),
-            ),
+          ProcessStepData(
+            number: '03',
+            icon: 'icons/gateway.svg',
+            title: 'Gateways',
+            description: 'Connect devices and securely transmit data.',
           ),
-
-          const SizedBox(height: 38),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 17),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  // tBlue3.withOpacity(0.025),
-                  // tWhite,
-                  // tBlue3.withOpacity(0.018),
-                  tBlue2,
-                  tBlue3,
-                ],
-              ),
-              border: Border.all(color: tBlue3.withOpacity(0.07)),
-            ),
-            child: Stack(
-              children: [
-                // Positioned(
-                //   left: 25,
-                //   right: 25,
-                //   top: 62,
-                //   child: Container(height: 1, color: tBlue3.withOpacity(0.055)),
-                // ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: List.generate(steps.length * 2 - 1, (index) {
-                    if (index.isEven) {
-                      final stepIndex = index ~/ 2;
-                      final step = steps[stepIndex];
-
-                      return Expanded(
-                        child: _buildIoTFlowCard(
-                          number: step.number,
-                          title: step.title,
-                          label: step.label,
-                          description: step.description,
-                          icon: step.icon,
-                          isLast: stepIndex == steps.length - 1,
-                        ),
-                      );
-                    }
-
-                    return const SizedBox(
-                      width: 40,
-                      child: _AnimatedFlowConnector(),
-                    );
-                  }),
-                ),
-              ],
-            ),
+          ProcessStepData(
+            number: '04',
+            icon: 'icons/iot_solutions.svg',
+            title: 'Cloud',
+            description: 'Store and manage connected data centrally.',
           ),
-
-          const SizedBox(height: 17),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: tOrange1,
-                  boxShadow: [
-                    BoxShadow(color: tOrange1.withOpacity(0.35), blurRadius: 8),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              Text(
-                'REAL-TIME DATA FLOW',
-                style: GoogleFonts.manrope(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w800,
-                  color: tBlue3.withOpacity(0.55),
-                  letterSpacing: 1.3,
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              Container(width: 32, height: 1, color: tBlue3.withOpacity(0.15)),
-
-              const SizedBox(width: 10),
-
-              Text(
-                'END-TO-END CONNECTIVITY',
-                style: GoogleFonts.manrope(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: tBlack.withOpacity(0.32),
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
+          ProcessStepData(
+            number: '05',
+            icon: 'icons/innovation.svg',
+            title: 'Insights',
+            description: 'Turn real-time data into actionable insights.',
           ),
         ],
       ),
     );
   }
-
-  Widget _buildIoTFlowCard({
-    required String number,
-    required String title,
-    required String label,
-    required String description,
-    required IconData icon,
-    bool isLast = false,
-  }) {
-    return _IoTFlowCard(
-      number: number,
-      title: title,
-      label: label,
-      description: description,
-      icon: icon,
-      isLast: isLast,
-    );
-  }
-}
-
-class _IoTFlowCard extends StatefulWidget {
-  final String number;
-  final String title;
-  final String label;
-  final String description;
-  final IconData icon;
-  final bool isLast;
-
-  const _IoTFlowCard({
-    required this.number,
-    required this.title,
-    required this.label,
-    required this.description,
-    required this.icon,
-    required this.isLast,
-  });
-
-  @override
-  State<_IoTFlowCard> createState() => _IoTFlowCardState();
-}
-
-class _IoTFlowCardState extends State<_IoTFlowCard> {
-  bool _hovering = false;
-
-  void _setHovering(bool value) {
-    if (_hovering == value) return;
-
-    setState(() {
-      _hovering = value;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.basic,
-      onEnter: (_) => _setHovering(true),
-      onExit: (_) => _setHovering(false),
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        padding: EdgeInsets.only(
-          top: _hovering ? 0 : 6,
-          bottom: _hovering ? 6 : 0,
-        ),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          height: 150,
-          decoration: BoxDecoration(
-            color: tWhite,
-            borderRadius: BorderRadius.circular(17),
-            border: Border.all(
-              color:
-                  _hovering
-                      ? tBlue3.withOpacity(0.20)
-                      : tBlue3.withOpacity(0.09),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: tBlue3.withOpacity(_hovering ? 0.10 : 0.045),
-                blurRadius: _hovering ? 24 : 16,
-                offset: Offset(0, _hovering ? 10 : 6),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                height: 3,
-                width: _hovering ? 110 : 52,
-                decoration: BoxDecoration(
-                  color: tOrange1,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(17),
-                    topRight: Radius.circular(17),
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 17, 14, 13),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          width: 39,
-                          height: 39,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [tOrange1, tOrange1.withOpacity(0.82)],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: tOrange1.withOpacity(
-                                  _hovering ? 0.32 : 0.22,
-                                ),
-                                blurRadius: _hovering ? 16 : 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            widget.number,
-                            style: GoogleFonts.manrope(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w800,
-                              color: tWhite,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 10),
-
-                        Expanded(
-                          child: Row(
-                            children: [
-                              // AnimatedContainer(
-                              //   // duration: const Duration(milliseconds: 220),
-                              //   // width: 31,
-                              //   // height: 31,
-                              //   // decoration: BoxDecoration(
-                              //   //   color: tBlue3.withOpacity(
-                              //   //     _hovering ? 0.12 : 0.065,
-                              //   //   ),
-                              //   //   borderRadius: BorderRadius.circular(9),
-                              //   // ),
-                              //   alignment: Alignment.center,
-                              //   // child: Icon(
-                              //   //   widget.icon,
-                              //   //   size: 17,
-                              //   //   color: _hovering ? tOrange1 : tBlue3,
-                              //   // ),
-                              // ),
-                              const SizedBox(width: 8),
-
-                              Expanded(
-                                child: Text(
-                                  widget.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                    color: tBlue2,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          width: _hovering ? 7 : 5,
-                          height: _hovering ? 7 : 5,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: tOrange1,
-                          ),
-                        ),
-
-                        const SizedBox(width: 6),
-
-                        Text(
-                          widget.label,
-                          style: GoogleFonts.manrope(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: tBlue3.withOpacity(0.75),
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Container(
-                      width: double.infinity,
-                      height: 1,
-                      color: tBlack.withOpacity(0.055),
-                    ),
-
-                    const SizedBox(height: 9),
-
-                    Expanded(
-                      child: Text(
-                        widget.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                          color: tBlack.withOpacity(0.52),
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-
-                    // Row(
-                    //   children: [
-                    //     Icon(
-                    //       widget.isLast
-                    //           ? Icons.auto_awesome_rounded
-                    //           : Icons.arrow_forward_rounded,
-                    //       size: 11,
-                    //       color: tOrange1,
-                    //     ),
-
-                    //     // const SizedBox(width: 5),
-
-                    //     // Text(
-                    //     //   widget.isLast ? 'Actionable output' : 'Data flow',
-                    //     //   style: GoogleFonts.manrope(
-                    //     //     fontSize: 9,
-                    //     //     fontWeight: FontWeight.w700,
-                    //     //     color: tBlue3.withOpacity(0.58),
-                    //     //   ),
-                    //     // ),
-                    //   ],
-                    // ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ANIMATED FLOW CONNECTOR
-
-class _AnimatedFlowConnector extends StatefulWidget {
-  const _AnimatedFlowConnector();
-
-  @override
-  State<_AnimatedFlowConnector> createState() => _AnimatedFlowConnectorState();
-}
-
-class _AnimatedFlowConnectorState extends State<_AnimatedFlowConnector>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 150,
-      child: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return CustomPaint(
-              size: const Size(40, 24),
-              painter: _FlowConnectorPainter(progress: _controller.value),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-// FLOW CONNECTOR PAINTER
-
-class _FlowConnectorPainter extends CustomPainter {
-  final double progress;
-
-  const _FlowConnectorPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final centerY = size.height / 2;
-
-    // DASHED LINE
-
-    final dotPaint =
-        Paint()
-          ..color = tWhite
-          ..style = PaintingStyle.fill;
-
-    const double dotSize = 1.0;
-    const double dotSpacing = 6.0;
-
-    double x = 2;
-
-    while (x < size.width - 10) {
-      canvas.drawCircle(Offset(x, centerY), dotSize, dotPaint);
-
-      x += dotSpacing;
-    }
-
-    // ARROW HEAD
-
-    final arrowPaint =
-        Paint()
-          ..color = tWhite
-          ..strokeWidth = 1.7
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round;
-
-    final arrow = Path();
-
-    arrow.moveTo(size.width - 9, centerY - 6);
-
-    arrow.lineTo(size.width - 2, centerY);
-
-    arrow.lineTo(size.width - 9, centerY + 6);
-
-    canvas.drawPath(arrow, arrowPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _FlowConnectorPainter oldDelegate) {
-    return false;
-  }
 }
 
 class _ProductCarousel extends StatefulWidget {
-  final List<_ProductData> products;
+  final List<ProductData> products;
 
   const _ProductCarousel({required Key key, required this.products})
     : super(key: key);
@@ -1477,7 +1206,7 @@ class _ProductCarouselState extends State<_ProductCarousel> {
 }
 
 class _ProductCard extends StatefulWidget {
-  final _ProductData data;
+  final ProductData data;
 
   const _ProductCard({required this.data});
 
@@ -1503,157 +1232,288 @@ class _ProductCardState extends State<_ProductCard> {
     return MouseRegion(
       onEnter: (_) => _setHovering(true),
       onExit: (_) => _setHovering(false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        transform:
-            Matrix4.identity()
-              ..translate(0.0, _hovering ? -8.0 : 0.0)
-              ..scale(_hovering ? 1.03 : 1.0),
-        transformAlignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: tWhite,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: tBlack1.withOpacity(0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: tBlack.withOpacity(_hovering ? 0.16 : 0.05),
-              blurRadius: _hovering ? 26 : 14,
-              offset: Offset(0, _hovering ? 14 : 4),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 150,
-                  child: Image.asset(
-                    data.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: tBlack.withOpacity(0.05),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.image_not_supported_outlined,
-                          size: 32,
-                          color: tBlack.withOpacity(0.3),
-                        ),
-                      );
-                    },
-                  ),
+          mouseCursor: SystemMouseCursors.click,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsPage(product: data),
+              ),
+            );
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            transform:
+                Matrix4.identity()
+                  ..translate(0.0, _hovering ? -8.0 : 0.0)
+                  ..scale(_hovering ? 1.02 : 1.0),
+            transformAlignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: tWhite,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: tBlack1.withOpacity(0.08)),
+              boxShadow: [
+                BoxShadow(
+                  color: tBlack.withOpacity(_hovering ? 0.16 : 0.05),
+                  blurRadius: _hovering ? 26 : 14,
+                  offset: Offset(0, _hovering ? 14 : 4),
                 ),
-
-                if (data.badge != null)
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: data.badgeColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        data.badge!,
-                        style: GoogleFonts.manrope(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: tWhite,
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  children: [
+                    Padding(
+                      padding:
+                      // data.title == 'TMDCSTR-7A'
+                      //     ? const EdgeInsets.only(top: 11, left: 14, right: 14)
+                      //     :
+                      const EdgeInsets.only(top: 10),
+                      child: ClipRRect(
+                        borderRadius:
+                            // data.title == 'TMDCSTR-7A'
+                            //     ? BorderRadius.circular(14)
+                            //     :
+                            BorderRadius.zero,
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 210,
+                          child: Image.asset(
+                            data.image,
+                            fit: BoxFit.contain,
+                            frameBuilder: (
+                              context,
+                              child,
+                              frame,
+                              wasSynchronouslyLoaded,
+                            ) {
+                              // Already decoded/in cache -> just show it, no flicker.
+                              if (wasSynchronouslyLoaded) return child;
 
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data.title,
-                    style: GoogleFonts.manrope(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: tBlack,
+                              return AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 250),
+                                child:
+                                    frame != null
+                                        ? child
+                                        : const ShimmerBox(height: 210),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: tBlack.withOpacity(0.05),
+                                alignment: Alignment.center,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
                     ),
+
+                    // if (data.badge != null)
+                    //   Positioned(
+                    //     top: 10,
+                    //     right: 10,
+                    //     child: Container(
+                    //       padding: const EdgeInsets.symmetric(
+                    //         horizontal: 10,
+                    //         vertical: 4,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         color: data.badgeColor,
+                    //         borderRadius: BorderRadius.circular(20),
+                    //       ),
+                    //       child: Text(
+                    //         data.badge!,
+                    //         style: GoogleFonts.manrope(
+                    //           fontSize: 10,
+                    //           fontWeight: FontWeight.w700,
+                    //           color: tWhite,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    if (data.badge != null || data.secondBadge != null)
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // Existing badge
+                            if (data.badge != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: data.badgeColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  data.badge!,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: tWhite,
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(width: 3),
+                            // Second badge
+                            if (data.secondBadge != null) ...[
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: data.secondBadgeColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  data.secondBadge!,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: tWhite,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.title,
+                        style: GoogleFonts.manrope(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: tBlue3,
+                        ),
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      Text(
+                        data.subtitle,
+                        style: GoogleFonts.manrope(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: tBlack.withOpacity(0.5),
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      SizedBox(
+                        height: 50,
+                        child: Text(
+                          data.description,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.manrope(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w500,
+                            color: tBlack,
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(6),
+                          mouseCursor: SystemMouseCursors.click,
+
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        ProductDetailsPage(product: data),
+                              ),
+                            );
+                          },
+
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 2,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'More Info',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: tOrange1,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 5),
+
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 15,
+                                  color: tOrange1,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // const SizedBox(height: 12),
+
+                      // // ...data.features.map(_buildFeatureItem),
+                      // const SizedBox(height: 6),
+                    ],
                   ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    data.subtitle,
-                    style: GoogleFonts.manrope(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: tBlack.withOpacity(0.5),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  Text(
-                    data.description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w500,
-                      color: tBlack.withOpacity(0.6),
-                      height: 1.45,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  ...data.features.map(_buildFeatureItem),
-
-                  const SizedBox(height: 6),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFeatureItem(_ProductFeature feature) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        children: [
-          Icon(feature.icon, size: 13, color: tBlue3),
-
-          const SizedBox(width: 7),
-
-          Expanded(
-            child: Text(
-              feature.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w500,
-                color: tBlack.withOpacity(0.65),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildImageShimmer() {
+  //   return Shimmer.fromColors(
+  //     baseColor: Colors.grey.shade300,
+  //     highlightColor: Colors.grey.shade100,
+  //     child: Container(
+  //       width: double.infinity,
+  //       height: 210,
+  //       color: Colors.white,
+  //     ),
+  //   );
+  // }
 }
 
 class _FilterTabData {
@@ -1663,20 +1523,32 @@ class _FilterTabData {
   const _FilterTabData({required this.icon, required this.label});
 }
 
-class _ProductData {
+class ProductData {
   final String image;
   final String? badge;
   final Color? badgeColor;
+  final String? secondBadge;
+  final Color? secondBadgeColor;
   final String title;
   final String subtitle;
   final String category;
   final String description;
-  final List<_ProductFeature> features;
+  final String? image2;
+  final String? image3;
+  final String? image4;
+  final String? image5;
+  final List<ProductFeature> features;
 
-  const _ProductData({
+  const ProductData({
     required this.image,
+    this.image2,
+    this.image3,
+    this.image4,
+    this.image5,
     required this.badge,
     required this.badgeColor,
+    this.secondBadge,
+    this.secondBadgeColor,
     required this.title,
     required this.subtitle,
     required this.category,
@@ -1685,23 +1557,11 @@ class _ProductData {
   });
 }
 
-class _ProductFeature {
+class ProductFeature {
   final IconData icon;
   final String label;
 
-  const _ProductFeature({required this.icon, required this.label});
-}
-
-class _CategoryData {
-  final String image;
-  final String title;
-  final String description;
-
-  const _CategoryData({
-    required this.image,
-    required this.title,
-    required this.description,
-  });
+  const ProductFeature({required this.icon, required this.label});
 }
 
 class _TrustItemData {

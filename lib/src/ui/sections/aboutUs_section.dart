@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
-
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -17,6 +17,8 @@ class AboutusSection extends StatefulWidget {
 }
 
 class _AboutusSectionState extends State<AboutusSection> {
+  bool _heroImageLoading = true; // NEW
+
   late final PageController _certPageController;
   Timer? _certAutoScrollTimer;
   static const int _visibleCertCount = 4;
@@ -49,11 +51,28 @@ class _AboutusSectionState extends State<AboutusSection> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadHeroImage();
+    });
     _certPageController = PageController(
       viewportFraction: 1 / _visibleCertCount,
       initialPage: _certs.length * _certLoopMultiplier,
     );
     _startCertAutoScroll();
+  }
+
+  Future<void> _preloadHeroImage() async {
+    try {
+      await precacheImage(const AssetImage('images/sol3.jpg'), context);
+      await Future.delayed(const Duration(seconds: 3)); //  testing only
+    } catch (e) {
+      debugPrint('Error preloading solutions hero image: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _heroImageLoading = false;
+    });
   }
 
   @override
@@ -82,7 +101,10 @@ class _AboutusSectionState extends State<AboutusSection> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildAboutUsHeader(),
+          // _buildAboutUsHeader(),
+          _heroImageLoading
+              ? const HeroHeaderShimmer() // NEW
+              : _buildAboutUsHeader(),
           SizedBox(height: 25),
 
           Padding(

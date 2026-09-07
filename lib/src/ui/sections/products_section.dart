@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -15,12 +16,41 @@ class ProductsSection extends StatefulWidget {
 }
 
 class _ProductsSectionState extends State<ProductsSection> {
+  bool _heroImageLoading = true; // NEW
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadHeroImage();
+    });
+  }
+
+  Future<void> _preloadHeroImage() async {
+    try {
+      await precacheImage(const AssetImage('images/company.png'), context);
+      await Future.delayed(const Duration(seconds: 3)); // just fr testing
+    } catch (e) {
+      debugPrint('Error preloading hero image: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _heroImageLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          BuildProductSection(header: _buildProductsHeader()),
+          // BuildProductSection(header: _buildProductsHeader()),
+          BuildProductSection(
+            header:
+                _heroImageLoading
+                    ? const HeroHeaderShimmer() // NEW
+                    : _buildProductsHeader(),
+          ),
           const SizedBox(height: 40),
           FooterSection(),
         ],
@@ -115,8 +145,7 @@ class _ProductsSectionState extends State<ProductsSection> {
                         child: _buildHeaderIntroCard(
                           icon: 'icons/performance.svg',
                           title: 'High Performance',
-                          description:
-                              'Built for reliable performance and consistency',
+                          description: 'Built for reliable performance.',
                         ),
                       ),
                     ),

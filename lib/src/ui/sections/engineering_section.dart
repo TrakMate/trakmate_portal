@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildengineering.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 import '../widgets/footer_section.dart';
@@ -16,12 +17,38 @@ class EngineeringSection extends StatefulWidget {
 }
 
 class _EngineeringSectionState extends State<EngineeringSection> {
+  bool _heroImageLoading = true; // NEW
+  @override
+  void initState() {
+    super.initState(); // NEW
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadHeroImage();
+    });
+  }
+
+  Future<void> _preloadHeroImage() async {
+    try {
+      await precacheImage(const AssetImage('images/sol3.jpg'), context);
+      await Future.delayed(const Duration(seconds: 3)); //  testing only
+    } catch (e) {
+      debugPrint('Error preloading solutions hero image: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _heroImageLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildEngineeringHeader(),
+          // _buildEngineeringHeader(),
+          _heroImageLoading
+              ? const HeroHeaderShimmer() // NEW
+              : _buildEngineeringHeader(),
           const SizedBox(height: 30),
           BuildEngineeringSection(),
           const SizedBox(height: 40),
@@ -174,7 +201,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.asset(
-                'images/company.png',
+                'images/hero_engineering.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

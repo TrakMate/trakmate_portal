@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 class BuildEngineeringSection extends StatelessWidget {
@@ -17,7 +18,47 @@ class BuildEngineeringSection extends StatelessWidget {
         const SizedBox(height: 30),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: _buildProcessSection(),
+          child: ProcessSection(
+            eyebrow: 'OUR ENGINEERING PROCESS',
+            title: 'From Concept to Creation',
+            steps: const [
+              ProcessStepData(
+                number: '01',
+                icon: 'icons/analysis1.svg',
+                title: 'Concept & Analysis',
+                description:
+                    'We understand requirements, assess feasibility and define the right approach.',
+              ),
+              ProcessStepData(
+                number: '02',
+                icon: 'icons/design.svg',
+                title: 'Design & Development',
+                description:
+                    'We develop practical designs, detailed schematics and reliable system architectures.',
+              ),
+              ProcessStepData(
+                number: '03',
+                icon: 'icons/electronics_design.svg',
+                title: 'Prototyping',
+                description:
+                    'We build functional prototypes, test performance and validate the design.',
+              ),
+              ProcessStepData(
+                number: '04',
+                icon: 'icons/validation.svg',
+                title: 'Testing & Validation',
+                description:
+                    'We conduct rigorous testing to ensure quality, reliability and performance.',
+              ),
+              ProcessStepData(
+                number: '05',
+                icon: 'icons/production.svg',
+                title: 'Production Handoff',
+                description:
+                    'We ensure a smooth transition from validated designs to scalable mass production.',
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -281,159 +322,6 @@ class BuildEngineeringSection extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildProcessSection() {
-    final List<_ProcessStep> steps = [
-      _ProcessStep(
-        number: '01',
-        icon: 'icons/analysis1.svg',
-        title: 'Concept & Analysis',
-        description: 'Understanding requirements and feasibility analysis.',
-      ),
-      _ProcessStep(
-        number: '02',
-        icon: 'icons/design.svg',
-        title: 'Design & Development',
-        description: 'CAD, schematic & system design and development.',
-      ),
-      _ProcessStep(
-        number: '03',
-        icon: 'icons/electronics_design.svg',
-        title: 'Prototyping',
-        description: 'Build prototypes and validate design.',
-      ),
-      _ProcessStep(
-        number: '04',
-        icon: 'icons/validation.svg',
-        title: 'Testing & Validation',
-        description: 'Rigorous testing to ensure quality and performance.',
-      ),
-      _ProcessStep(
-        number: '05',
-        icon: 'icons/production.svg',
-        title: 'Production Handoff',
-        description: 'Smooth transition to manufacturing for mass production.',
-      ),
-    ];
-
-    return Column(
-      children: [
-        Text(
-          'OUR ENGINEERING PROCESS',
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: tOrange1,
-            letterSpacing: 1.2,
-          ),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          'From Concept to Creation',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontSize: 30,
-            fontWeight: FontWeight.w700,
-            color: tBlack,
-          ),
-        ),
-
-        const SizedBox(height: 32),
-
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (int index = 0; index < steps.length; index++) ...[
-                    Expanded(
-                      child: _buildProcessStep(
-                        steps[index],
-                        index.isEven ? tBlue3 : tOrange1,
-                      ),
-                    ),
-
-                    if (index != steps.length - 1)
-                      SizedBox(
-                        width: 90,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: _buildProcessConnector(),
-                        ),
-                      ),
-                  ],
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProcessStep(_ProcessStep step, Color circleColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(color: circleColor, shape: BoxShape.circle),
-          padding: const EdgeInsets.all(11),
-          child: SvgPicture.asset(step.icon, color: tWhite),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          step.number,
-          style: GoogleFonts.manrope(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: tOrange1,
-            letterSpacing: 0.8,
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(
-          step.title,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tBlack,
-          ),
-        ),
-
-        const SizedBox(height: 5),
-
-        SizedBox(
-          width: 180,
-          height: 49,
-          child: Text(
-            step.description,
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: tBlack.withOpacity(0.55),
-              height: 1.35,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -806,20 +694,6 @@ class _ServiceItem {
   });
 }
 
-class _ProcessStep {
-  final String number;
-  final String icon;
-  final String title;
-  final String description;
-
-  _ProcessStep({
-    required this.number,
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-}
-
 class _CtaItem {
   final String icon;
   final String label;
@@ -869,33 +743,4 @@ class _HoverCardState extends State<_HoverCard> {
       ),
     );
   }
-}
-
-Widget _buildProcessConnector() {
-  return SizedBox(
-    width: 90,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        for (int i = 0; i < 9; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Icon(
-              Icons.circle,
-              size: 3.5,
-              color: tBlue3.withOpacity(0.45),
-            ),
-          ),
-
-        const SizedBox(width: 2),
-
-        Icon(
-          Icons.arrow_forward_rounded,
-          size: 18,
-          color: tBlue3.withOpacity(0.65),
-        ),
-      ],
-    ),
-  );
 }
