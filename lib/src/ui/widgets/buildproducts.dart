@@ -21,9 +21,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   bool _imagesLoading = true;
   final List<_FilterTabData> _filterTabs = const [
     _FilterTabData(icon: "icons/all.svg", label: 'All Products'),
-    _FilterTabData(icon: "icons/iot.svg", label: 'Vehicle Trackers'),
+    _FilterTabData(icon: "icons/trackers.svg", label: 'Vehicle Trackers'),
     _FilterTabData(icon: "icons/gateway.svg", label: 'Gateways'),
-    _FilterTabData(icon: "icons/gps.svg", label: 'Clusters'),
+    _FilterTabData(icon: "icons/iot.svg", label: 'Clusters'),
     _FilterTabData(icon: "icons/car.svg", label: 'ADAS'),
   ];
 
@@ -509,8 +509,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
             children: [
               SvgPicture.asset(
                 tab.icon,
-                width: 19,
-                height: 19,
+                width: 22,
+                height: 22,
                 color: isSelected ? tBlue3 : tBlack.withOpacity(0.5),
               ),
               const SizedBox(width: 9),

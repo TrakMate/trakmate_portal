@@ -1,3 +1,5 @@
+//product details
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +23,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   bool _specificationsExpanded = false;
   bool _connectivityExpanded = false;
   bool _applicationsExpanded = false;
+
+  // Only the RIGHT column scrolls now. The LEFT column (title + image)
+  // instead shrinks/expands its image to exactly fill whatever height is
+  // available — see _buildLeftProductArea / _buildProductImage below.
   final ScrollController _rightScrollController = ScrollController();
 
   final GlobalKey _featuresKey = GlobalKey();
@@ -92,37 +98,52 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           builder: (context, constraints) {
             final bool isCompact = constraints.maxWidth < 900;
 
-            if (isCompact) {
-              return _buildCompactLayout();
-            }
-
-            return _buildDesktopLayout();
+            return isCompact ? _buildCompactLayout() : _buildDesktopLayout();
           },
         ),
       ),
     );
   }
 
+  // DESKTOP LAYOUT
+  // Back button (fixed) -> content area (fills all remaining space, and
+  // internally scrolls on both sides if it doesn't fit) -> CTA (fixed,
+  // always sits at the bottom of the screen). This matches the original
+  // intent: whatever height the screen is, the CTA is anchored to the
+  // bottom and the content area above it auto-sizes to fill exactly the
+  // space that's left.
   Widget _buildDesktopLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // BACK BUTTON
+        // BACK BUTTON — fixed height
         _buildBackButton(),
 
         const SizedBox(height: 25),
 
-        // MAIN PRODUCT + INFORMATION AREA
+        // MAIN PRODUCT + INFORMATION AREA — fills all remaining space
+        // between the back button and the CTA below.
         Expanded(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // LEFT SECTION — FIXED
-              Expanded(flex: 52, child: _buildLeftProductArea()),
+              // LEFT SECTION
+              // No scrolling here anymore. Because the Row above uses
+              // crossAxisAlignment.stretch, this Expanded gives the left
+              // column a fixed, bounded height (screen space remaining).
+              // _buildLeftProductArea() uses that bounded height to make
+              // its image container shrink/expand to fill exactly what's
+              // available (see flexibleImage: true below).
+              Expanded(
+                flex: 52,
+                child: _buildLeftProductArea(flexibleImage: true),
+              ),
 
               const SizedBox(width: 48),
 
-              // RIGHT SECTION — SCROLLABLE
+              // RIGHT SECTION — still scrolls internally since it has
+              // variable-length expandable content (Features, Specs, etc.)
+              // that can't reasonably shrink to fit.
               Expanded(
                 flex: 48,
                 child: ClipRect(
@@ -138,34 +159,47 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
         const SizedBox(height: 25),
 
-        // FULL WIDTH CTA — FIXED
+        // FULL WIDTH CTA — fixed height, always pinned to the bottom of
+        // the screen. Since the Row above it is wrapped in Expanded and
+        // both its children are internally scrollable (never overflow),
+        // this can never be pushed on top of or covered by the content.
         _buildTalkToTeamSection(),
       ],
     );
   }
 
+  // COMPACT (MOBILE/NARROW) LAYOUT
+  // Narrow screens don't have the "left/right side by side" problem, so a
+  // simple single scrolling column works fine and is standard mobile UX.
   Widget _buildCompactLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // BACK BUTTON
-        _buildBackButton(),
+    return SingleChildScrollView(
+      // Reuses the "right" controller here (there's only one scroll view
+      // in compact mode) so _scrollToExpandedSection works on mobile too.
+      controller: _rightScrollController,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // BACK BUTTON
+          _buildBackButton(),
 
-        const SizedBox(height: 22),
+          const SizedBox(height: 22),
 
-        // PRODUCT
-        _buildLeftProductArea(),
+          // PRODUCT — flexibleImage: false, so a sensible fixed height is
+          // used instead (Expanded can't be used here since this whole
+          // layout sits inside an unbounded SingleChildScrollView).
+          _buildLeftProductArea(flexibleImage: false),
 
-        const SizedBox(height: 35),
+          const SizedBox(height: 35),
 
-        // INFORMATION
-        _buildRightInformationArea(),
+          // INFORMATION
+          _buildRightInformationArea(),
 
-        const SizedBox(height: 35),
+          const SizedBox(height: 35),
 
-        // CTA
-        _buildTalkToTeamSection(),
-      ],
+          // CTA
+          _buildTalkToTeamSection(),
+        ],
+      ),
     );
   }
 
@@ -209,7 +243,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   // LEFT PRODUCT AREA
 
-  Widget _buildLeftProductArea() {
+  Widget _buildLeftProductArea({required bool flexibleImage}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -227,7 +261,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         const SizedBox(height: 12),
 
         // PRODUCT IMAGE
-        _buildProductImage(),
+        // On desktop (flexibleImage: true) this Expanded makes the image
+        // container shrink or expand to fill exactly whatever vertical
+        // space is left in the column after the title above and the line
+        // below take theirs — no scrolling, no overflow, no fixed number.
+        // On compact/mobile (flexibleImage: false) we're inside an
+        // unbounded scroll view, so Expanded isn't valid — a fixed height
+        // is used instead.
+        flexibleImage
+            ? Expanded(child: _buildProductImage(fixedHeight: null))
+            : _buildProductImage(fixedHeight: 420),
 
         const SizedBox(height: 14),
 
@@ -255,11 +298,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   // PRODUCT IMAGE
-
-  Widget _buildProductImage() {
+  // fixedHeight == null  -> fills whatever height its parent gives it
+  //                         (used when wrapped in Expanded on desktop).
+  // fixedHeight != null  -> uses that exact height (used on compact/mobile
+  //                         where the parent is unbounded).
+  Widget _buildProductImage({required double? fixedHeight}) {
     return Container(
       width: double.infinity,
-      height: 530,
+      height: fixedHeight, // null = fill parent's given constraints
       decoration: BoxDecoration(
         color: tWhite,
         borderRadius: BorderRadius.circular(2),
@@ -578,6 +624,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
       final double targetOffset =
           viewport.getOffsetToReveal(renderObject, 0.05).offset;
+
+      // Features/Specifications/Connectivity/Applications all live in the
+      // right column, so scroll that column's own controller. On compact
+      // layout, the right column's SingleChildScrollView is nested inside
+      // the outer page scroll view — the controller still resolves to the
+      // nearest enclosing scrollable in that case, so this keeps working
+      // on mobile too.
+      if (!_rightScrollController.hasClients) return;
 
       final double maxScroll = _rightScrollController.position.maxScrollExtent;
 

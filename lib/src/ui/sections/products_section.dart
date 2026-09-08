@@ -143,7 +143,7 @@ class _ProductsSectionState extends State<ProductsSection> {
                         isActive: widget.isActive,
                         delay: 520,
                         child: _buildHeaderIntroCard(
-                          icon: 'icons/performance.svg',
+                          icon: 'icons/performance1.svg',
                           title: 'High Performance',
                           description: 'Built for reliable performance.',
                         ),
@@ -157,8 +157,7 @@ class _ProductsSectionState extends State<ProductsSection> {
                         child: _buildHeaderIntroCard(
                           icon: 'icons/secured.svg',
                           title: 'Reliable & Secure',
-                          description:
-                              'Built for secure, reliable and consistent performance',
+                          description: 'Built for secure performanceble ',
                         ),
                       ),
                     ),
@@ -168,7 +167,7 @@ class _ProductsSectionState extends State<ProductsSection> {
                         isActive: widget.isActive,
                         delay: 920,
                         child: _buildHeaderIntroCard(
-                          icon: 'icons/integration.svg',
+                          icon: 'icons/integration1.svg',
                           title: 'Easy Integration',
                           description: 'Simple integration with your systems',
                         ),

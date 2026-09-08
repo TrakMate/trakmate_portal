@@ -16,6 +16,44 @@ import '../sections/products_section.dart';
 import '../sections/resources_section.dart';
 import '../sections/solutions_section.dart';
 
+void showGetInTouchDialog(BuildContext context) {
+  Future.delayed(const Duration(milliseconds: 180), () {
+    if (!context.mounted) return;
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Get in touch',
+      barrierColor: tBlack.withOpacity(0.58),
+      transitionDuration: const Duration(milliseconds: 550),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const _GetInTouchDialog();
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final Animation<double> scaleAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutBack,
+          reverseCurve: Curves.easeInCubic,
+        );
+
+        final Animation<double> fadeAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOut,
+          reverseCurve: Curves.easeIn,
+        );
+
+        return FadeTransition(
+          opacity: fadeAnimation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.72, end: 1.0).animate(scaleAnimation),
+            child: child,
+          ),
+        );
+      },
+    );
+  });
+}
+
 class MainPage extends StatefulWidget {
   final int initialIndex;
   const MainPage({super.key, this.initialIndex = 0});
@@ -118,10 +156,6 @@ class _MainPageState extends State<MainPage> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          setState(() {
-            selectedIndex = null;
-          });
-
           _showGetInTouchDialog();
         },
         child: Container(
@@ -155,10 +189,8 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
-  // ============================================================
-  // SHOW GET IN TOUCH DIALOG
-  // ============================================================
 
+  // SHOW GET IN TOUCH DIALOG
   void _showGetInTouchDialog() {
     Future.delayed(const Duration(milliseconds: 180), () {
       if (!mounted) return;
@@ -199,6 +231,9 @@ class _MainPageState extends State<MainPage> {
       );
     });
   }
+  // void _showGetInTouchDialog() {
+  //   showGetInTouchDialog(context);
+  // }
 
   Widget _navButton(String text, int index) {
     final bool isSelected = selectedIndex == index;
@@ -293,7 +328,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   late Animation<double> _rightFadeAnimation;
 
   late Animation<Offset> _rightSlideAnimation;
-
+  bool _titleHovered = false;
   @override
   void initState() {
     super.initState();
@@ -502,22 +537,64 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Let’s get in touch',
-          style: GoogleFonts.manrope(
-            fontSize: 30,
-            fontWeight: FontWeight.w800,
-            color: tBlue2,
-            height: 1.12,
+        // Text(
+        //   'Let’s get in touch',
+        //   style: GoogleFonts.manrope(
+        //     fontSize: 30,
+        //     fontWeight: FontWeight.w800,
+        //     color: tBlue2,
+        //     height: 1.12,
+        //   ),
+        // ),
+        MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              _titleHovered = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              _titleHovered = false;
+            });
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Let’s get in touch',
+                style: GoogleFonts.manrope(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                  color: tBlue2,
+                  height: 1.12,
+                ),
+              ),
+
+              const SizedBox(height: 7),
+
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 280),
+                curve: Curves.easeOutCubic,
+                height: 3,
+                // width: _titleHovered ? 90 : 35,
+                width: 65,
+                decoration: BoxDecoration(
+                  color: tOrange1,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ],
           ),
         ),
+
+        const SizedBox(height: 11),
 
         const SizedBox(height: 11),
 
         Text(
           'We’d love to hear from you. Reach out to our team and let’s discuss how we can help.',
           style: GoogleFonts.manrope(
-            fontSize: 12.5,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
             color: tBlack.withOpacity(0.55),
             height: 1.55,
@@ -548,10 +625,9 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
           icon: 'icons/location.svg',
           title: 'Office',
           content:
-              '#1A, 3rd Cross, Raghavendra Extension\n'
-              'Opp. of MEI, Off Tumkur Road\n'
-              'Yeshwanthapura, Bangalore 560022\n'
-              'Karnataka, India',
+              'TrakMate Design Solutions Pvt Ltd\n'
+              '17G/46-3 and 17G/46-3-1\n'
+              '1st & 2nd floor, MEI Road, Industrial suburb, Yeshwanthpura, Bengaluru -560022',
         ),
 
         const SizedBox(height: 40),
@@ -587,7 +663,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         Text(
           'Send us a message',
           style: GoogleFonts.manrope(
-            fontSize: 18,
+            fontSize: 23,
             fontWeight: FontWeight.w800,
             color: tBlue2,
           ),
@@ -598,7 +674,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         Text(
           'Fill in the details below and our team will get in touch with you.',
           style: GoogleFonts.manrope(
-            fontSize: 11.5,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
             color: tBlack.withOpacity(0.48),
           ),
@@ -795,7 +871,7 @@ class _GoogleMapView extends StatefulWidget {
 
 class _GoogleMapViewState extends State<_GoogleMapView> {
   static const String _googleMapEmbedUrl =
-      'https://www.google.com/maps?q=13.0249319,77.5431742&z=17&output=embed';
+      'https://www.google.com/maps?q=TrakMate+Design+Solutions+Pvt+Ltd,+17G%2F46-3+and+17G%2F46-3-1,+1st+%26+2nd+floor,+MEI+Road,+Industrial+Suburb,+Yeshwanthpura,+Bengaluru+560022&z=18&output=embed';
 
   late final String _viewType;
 
@@ -811,17 +887,12 @@ class _GoogleMapViewState extends State<_GoogleMapView> {
       iframe.src = _googleMapEmbedUrl;
 
       iframe.style.border = '0';
-
       iframe.style.width = '100%';
-
       iframe.style.height = '100%';
-
       iframe.style.display = 'block';
 
       iframe.setAttribute('allowfullscreen', 'true');
-
       iframe.setAttribute('loading', 'lazy');
-
       iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
 
       return iframe;
@@ -849,7 +920,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
   bool _isHovered = false;
 
   static const String _googleMapsUrl =
-      'https://www.google.com/maps/place/TrakMate/@13.0249319,77.5405993,17z/data=!3m1!4b1!4m6!3m5!1s0x3bae162b0c795555:0x932171032762f6da!8m2!3d13.0249319!4d77.5431742!16s%2Fg%2F11cjnp91m3?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D';
+      'https://www.google.com/maps/place/TrakMate/@13.0226122,77.5423735,21z/data=!4m14!1m7!3m6!1s0x3bae162b0c795555:0x932171032762f6da!2sTrakMate!8m2!3d13.0226462!4d77.54256!16s%2Fg%2F11cjnp91m3!3m5!1s0x3bae162b0c795555:0x932171032762f6da!8m2!3d13.0226462!4d77.54256!16s%2Fg%2F11cjnp91m3?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D';
 
   Future<void> _openGoogleMaps() async {
     final Uri url = Uri.parse(_googleMapsUrl);
@@ -994,7 +1065,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                       Text(
                         'OPEN IN MAPS',
                         style: GoogleFonts.manrope(
-                          fontSize: 8,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w800,
                           color: tWhite,
                         ),
@@ -1370,7 +1441,7 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
               child: Center(
                 child: _PopupSvgIcon(
                   asset: widget.icon,
-                  size: 16,
+                  size: 23,
                   color: tBlue3,
                 ),
               ),
@@ -1386,7 +1457,7 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
                   Text(
                     widget.title,
                     style: GoogleFonts.manrope(
-                      fontSize: 11,
+                      fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                       color: tBlack.withOpacity(0.52),
                     ),
@@ -1397,7 +1468,7 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
                   Text(
                     widget.content,
                     style: GoogleFonts.manrope(
-                      fontSize: 10.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: tBlue2,
                       height: 1.5,
@@ -1461,7 +1532,7 @@ class _HoverFormFieldState extends State<_HoverFormField> {
             widget.label,
 
             style: GoogleFonts.manrope(
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: tBlack.withOpacity(0.70),
             ),
@@ -1528,7 +1599,7 @@ class _HoverFormFieldState extends State<_HoverFormField> {
                     child: Center(
                       child: _PopupSvgIcon(
                         asset: widget.icon,
-                        size: 16,
+                        size: 23,
                         color: tBlue3,
                       ),
                     ),
@@ -1544,7 +1615,7 @@ class _HoverFormFieldState extends State<_HoverFormField> {
                   hintText: widget.hint,
 
                   hintStyle: GoogleFonts.manrope(
-                    fontSize: 11,
+                    fontSize: 13,
                     color: tBlack.withOpacity(0.30),
                   ),
                 ),
@@ -1596,7 +1667,7 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
             'Messages *',
 
             style: GoogleFonts.manrope(
-              fontSize: 11,
+              fontSize: 13.5,
               fontWeight: FontWeight.w600,
               color: tBlack.withOpacity(0.70),
             ),
@@ -1657,7 +1728,7 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
                   hintText: 'Write your message here...',
 
                   hintStyle: GoogleFonts.manrope(
-                    fontSize: 11,
+                    fontSize: 13.5,
                     color: tBlack.withOpacity(0.30),
                   ),
                 ),
@@ -1737,7 +1808,7 @@ class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
                 'SEND MESSAGE',
 
                 style: GoogleFonts.manrope(
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.w800,
                   color: tWhite,
                 ),
