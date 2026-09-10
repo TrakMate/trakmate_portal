@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web/helpers.dart' as web;
-
+//till
 import '../../utils/colors.dart';
 import '../sections/aboutUs_section.dart';
 import '../sections/engineering_section.dart';
@@ -73,12 +73,12 @@ class _MainPageState extends State<MainPage> {
 
   final List<String> menus = [
     'Home',
-    'Solutions',
+    // 'Solutions',
     'Engineering',
     'Manufacturing',
-    'Products',
-    'Industries',
-    'Resources',
+    'Products & Solutions',
+    // 'Industries',
+    // 'Resources',
     'About Us',
   ];
 
@@ -101,14 +101,16 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                 ),
+
                 // SolutionsSection(
+                //   isActive: selectedIndex == 1,
                 //   onNavigate: (index) {
                 //     setState(() {
                 //       selectedIndex = index;
                 //     });
                 //   },
                 // ),
-                SolutionsSection(
+                EngineeringSection(
                   isActive: selectedIndex == 1,
                   onNavigate: (index) {
                     setState(() {
@@ -116,12 +118,33 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                 ),
-                EngineeringSection(isActive: selectedIndex == 2),
-                ManufacturingSection(isActive: selectedIndex == 3),
-                ProductsSection(isActive: selectedIndex == 4),
-                IndustriesSection(isActive: selectedIndex == 5),
-                ResourcesSection(),
-                AboutusSection(isActive: selectedIndex == 7),
+
+                ManufacturingSection(
+                  isActive: selectedIndex == 2,
+                  onNavigate: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                ),
+                ProductsSection(isActive: selectedIndex == 3),
+                // IndustriesSection(
+                //   isActive: selectedIndex == 4,
+                //   onNavigate: (index) {
+                //     setState(() {
+                //       selectedIndex = index;
+                //     });
+                //   },
+                // ),
+                // ResourcesSection(isActive: selectedIndex == 5),
+                AboutusSection(
+                  isActive: selectedIndex == 4,
+                  onNavigate: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                ),
               ],
             ),
           ),
@@ -247,7 +270,7 @@ class _MainPageState extends State<MainPage> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20), //header gap
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

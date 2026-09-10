@@ -2,10 +2,105 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
-class BuildEngineeringSection extends StatelessWidget {
-  const BuildEngineeringSection({super.key});
+class BuildEngineeringSection extends StatefulWidget {
+  final Map<String, GlobalKey>? serviceKeys;
+  const BuildEngineeringSection({super.key, this.serviceKeys});
+
+  @override
+  State<BuildEngineeringSection> createState() =>
+      _BuildEngineeringSectionState();
+}
+
+class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
+  bool _cardsLoading = true; // NEW
+  final List<_ServiceItem> _row1 = [
+    _ServiceItem(
+      icon: 'icons/cad.svg',
+      iconBg: tBlueGradient5,
+      image: 'images/cad.png',
+      title: 'CAD Design',
+      description:
+          'High-quality 3D CAD modeling and drafting for components, assemblies and complex products.',
+    ),
+    _ServiceItem(
+      icon: 'icons/product.svg',
+      iconBg: tOrangeGradient2,
+      image: 'images/product.png',
+      title: 'Product Design',
+      description:
+          'Innovative product design that combines aesthetics, usability and functionality to create exceptional experiences.',
+    ),
+    _ServiceItem(
+      icon: 'icons/mechanical.svg',
+      iconBg: tBlueGradient5,
+      image: 'images/mech.png',
+      title: 'Mechanical Engineering',
+      description:
+          'Engineering analysis, simulation and mechanical design for reliable and high-performance products.',
+    ),
+    _ServiceItem(
+      icon: 'icons/pcb.svg',
+      iconBg: tOrangeGradient2,
+      image: 'images/pcb.jpg',
+      title: 'PCB Design',
+      description:
+          'Schematic capture, layout design and signal integrity analysis for robust and optimized PCB designs.',
+    ),
+  ];
+
+  final List<_ServiceItem> _row2 = [
+    _ServiceItem(
+      icon: 'icons/electronics_design.svg',
+      iconBg: tBlueGradient5,
+      image: 'images/pcba.jpg',
+      title: 'PCB Assembly (PCBA)',
+      description:
+          'High-quality PCB assembly with advanced SMT/DIP technology and strict quality control processes.',
+    ),
+    _ServiceItem(
+      icon: 'icons/embedded_systems.svg',
+      iconBg: tOrangeGradient2,
+      image: 'images/firmware.png',
+      title: 'Firmware Development',
+      description:
+          'Reliable firmware development for embedded systems with optimized performance, security and scalability.',
+    ),
+    _ServiceItem(
+      icon: 'icons/cube.svg',
+      iconBg: tBlueGradient5,
+      image: 'images/prototype.png',
+      title: 'Prototyping',
+      description:
+          'Fast and cost-effective prototyping to validate designs, test performance and accelerate time-to-market.',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadServiceImages();
+    });
+  }
+
+  Future<void> _preloadServiceImages() async {
+    try {
+      await Future.wait([
+        ..._row1.map((s) => precacheImage(AssetImage(s.image), context)),
+        ..._row2.map((s) => precacheImage(AssetImage(s.image), context)),
+      ]);
+    } catch (e) {
+      debugPrint('Error preloading engineering service images: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _cardsLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,68 +160,6 @@ class BuildEngineeringSection extends StatelessWidget {
   }
 
   Widget _buildServicesSection() {
-    final List<_ServiceItem> row1 = [
-      _ServiceItem(
-        icon: 'icons/cad.svg',
-        iconBg: tBlueGradient5,
-        image: 'images/cad.png',
-        title: 'CAD Design',
-        description:
-            'High-quality 3D CAD modeling and drafting for components, assemblies and complex products.',
-      ),
-      _ServiceItem(
-        icon: 'icons/product.svg',
-        iconBg: tOrangeGradient2,
-        image: 'images/product.png',
-        title: 'Product Design',
-        description:
-            'Innovative product design that combines aesthetics, usability and functionality to create exceptional experiences.',
-      ),
-      _ServiceItem(
-        icon: 'icons/mechanical.svg',
-        iconBg: tBlueGradient5,
-        image: 'images/mech.png',
-        title: 'Mechanical Engineering',
-        description:
-            'Engineering analysis, simulation and mechanical design for reliable and high-performance products.',
-      ),
-      _ServiceItem(
-        icon: 'icons/pcb.svg',
-        iconBg: tOrangeGradient2,
-        image: 'images/pcb.jpg',
-        title: 'PCB Design',
-        description:
-            'Schematic capture, layout design and signal integrity analysis for robust and optimized PCB designs.',
-      ),
-    ];
-
-    final List<_ServiceItem> row2 = [
-      _ServiceItem(
-        icon: 'icons/electronics_design.svg',
-        iconBg: tBlueGradient5,
-        image: 'images/pcba.jpg',
-        title: 'PCB Assembly (PCBA)',
-        description:
-            'High-quality PCB assembly with advanced SMT/DIP technology and strict quality control processes.',
-      ),
-      _ServiceItem(
-        icon: 'icons/embedded_systems.svg',
-        iconBg: tOrangeGradient2,
-        image: 'images/firmware.png',
-        title: 'Firmware Development',
-        description:
-            'Reliable firmware development for embedded systems with optimized performance, security and scalability.',
-      ),
-      _ServiceItem(
-        icon: 'icons/cube.svg',
-        iconBg: tBlueGradient5,
-        image: 'images/prototype.png',
-        title: 'Prototyping',
-        description:
-            'Fast and cost-effective prototyping to validate designs, test performance and accelerate time-to-market.',
-      ),
-    ];
-
     return Container(
       width: double.infinity,
       color: const Color(0xFFF6F8FB),
@@ -158,19 +191,62 @@ class BuildEngineeringSection extends StatelessWidget {
               const cardSpacing = 20.0;
               final cardWidth = (constraints.maxWidth - (cardSpacing * 3)) / 4;
 
+              if (_cardsLoading) {
+                return Column(
+                  children: [
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: List.generate(
+                          _row1.length,
+                          (_) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: const EngineeringServiceCardShimmer(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    IntrinsicHeight(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: List.generate(
+                          _row2.length,
+                          (_) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: SizedBox(
+                              width: cardWidth,
+                              child: const EngineeringServiceCardShimmer(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
               return Column(
                 children: [
                   IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children:
-                          row1
+                          _row1
                               .map(
                                 (item) => Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                     ),
+                                    key: widget.serviceKeys?[item.title],
                                     child: _buildServiceCard(item),
                                   ),
                                 ),
@@ -186,7 +262,7 @@ class BuildEngineeringSection extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children:
-                          row2
+                          _row2
                               .map(
                                 (item) => Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -194,6 +270,7 @@ class BuildEngineeringSection extends StatelessWidget {
                                   ),
                                   child: SizedBox(
                                     width: cardWidth,
+                                    key: widget.serviceKeys?[item.title],
                                     child: _buildServiceCard(item),
                                   ),
                                 ),

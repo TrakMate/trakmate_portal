@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
-import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
+// import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 class _IndustryItemData {
@@ -226,7 +226,7 @@ class IndustriesProductsSection extends StatefulWidget {
 }
 
 class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final List<_IndustryItemData> _industries = const [
     _IndustryItemData(
       image: "images/automotive.jpg",
@@ -268,6 +268,21 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       image: "images/healthcare.png",
       icon: "icons/healthcare.svg",
       label: "Healthcare",
+    ),
+    _IndustryItemData(
+      image: "images/supplychain.png",
+      icon: "icons/supplychain.svg",
+      label: "Supply Chain",
+    ),
+    _IndustryItemData(
+      image: "images/retail1.png",
+      icon: "icons/retail.svg",
+      label: "Retail",
+    ),
+    _IndustryItemData(
+      image: "images/energy.png",
+      icon: "icons/utilities.svg",
+      label: "Energy",
     ),
     // _IndustryItemData(
     //   image: "images/logistics.jpg",
@@ -392,29 +407,33 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     tOrange1,
     tBlue3,
   ];
-  // final List<_ClientItemData> _clients = const [
-  //   _ClientItemData(image: "icons/tata.svg", name: "Tata Exlsi"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  //   _ClientItemData(image: "icons/tata.svg", name: "fallback"),
-  // ];
 
   final List<_ClientItemData> _clients = const [
-    _ClientItemData(
-      image: "icons/tata.svg",
-      name: "Tata Exlsi",
-      width: 100,
-      height: 55,
-    ),
+    // _ClientItemData(
+    //   image: "icons/tata.svg",
+    //   name: "Tata Exlsi",
+    //   width: 100,
+    //   height: 55,
+    // ),
     _ClientItemData(
       image: "icons/sp.svg",
       name: "Spiro",
       width: 90,
       height: 55,
+    ),
+    _ClientItemData(image: "icons/zf.svg", name: "ZF", width: 100, height: 55),
+
+    _ClientItemData(
+      image: "icons/cbak.svg",
+      name: "cBak",
+      width: 160,
+      height: 100,
+    ),
+    _ClientItemData(
+      image: "icons/greenway.svg",
+      name: "Greenway",
+      width: 150,
+      height: 100,
     ),
     _ClientItemData(
       image: "icons/esync.svg",
@@ -428,12 +447,12 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       width: 95,
       height: 60,
     ),
-    _ClientItemData(
-      image: "icons/blueenergy.svg",
-      name: "Blue Energy",
-      width: 100,
-      height: 60,
-    ),
+    // _ClientItemData(
+    //   image: "icons/blueenergy.svg",
+    //   name: "Blue Energy",
+    //   width: 100,
+    //   height: 60,
+    // ),
     _ClientItemData(
       image: "icons/neshlive.svg",
       name: "Neshlive",
@@ -441,7 +460,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       height: 55,
     ),
 
-    _ClientItemData(image: "icons/zf.svg", name: "ZF", width: 100, height: 55),
     //from heree
     _ClientItemData(
       image: "icons/jbm1.svg",
@@ -449,30 +467,30 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       width: 100,
       height: 55,
     ),
+    // _ClientItemData(
+    //   image: "icons/bajaj.svg",
+    //   name: "Bajaj",
+    //   width: 100,
+    //   height: 55,
+    // ),
     _ClientItemData(
-      image: "icons/bajaj.svg",
-      name: "Bajaj",
-      width: 100,
-      height: 55,
-    ),
-    _ClientItemData(
-      image: "icons/jio.svg",
+      image: "icons/myjio.svg",
       name: "Jio",
       width: 100,
       height: 55,
     ),
-    _ClientItemData(
-      image: "icons/ampace.svg",
-      name: "Ampace",
-      width: 200,
-      height: 100,
-    ),
-    _ClientItemData(
-      image: "icons/fieldbee.svg",
-      name: "Field Bee",
-      width: 150,
-      height: 100,
-    ),
+    // _ClientItemData(
+    //   image: "icons/ampace.svg",
+    //   name: "Ampace",
+    //   width: 200,
+    //   height: 100,
+    // ),
+    // _ClientItemData(
+    //   image: "icons/fieldbee.svg",
+    //   name: "Field Bee",
+    //   width: 150,
+    //   height: 100,
+    // ),
     _ClientItemData(
       image: "icons/enginecal.svg",
       name: "EngineCal",
@@ -502,11 +520,19 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   late final Ticker _clientsTicker;
   Duration _clientsLastElapsed = Duration.zero;
   double _clientsScrollOffset = 0.0;
-
+  bool _isClientsHovered = false;
   static const double _clientItemWidth = 200.0;
   static const double _clientSeparatorWidth = 24.0;
   static const double _clientsScrollSpeed = 40.0; // pixels per second
   static const int _maxFrameDeltaMs = 100; // caps any single jump
+  final ScrollController _industriesScrollController = ScrollController();
+  late final Ticker _industriesTicker;
+  Duration _industriesLastElapsed = Duration.zero;
+  double _industriesScrollOffset = 0.0;
+
+  static const double _industryItemWidth = 200.0; //card height2
+  static const double _industrySeparatorWidth = 12.0;
+  static const double _industriesScrollSpeed = 30.0; // pixels per second
   void _scrollProducts(double delta) {
     final target = (_productsScrollController.offset + delta).clamp(
       0.0,
@@ -526,6 +552,12 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     _clientsTicker = createTicker((elapsed) {
       if (!_clientsScrollController.hasClients) return;
 
+      // PAUSE AUTO-SCROLL WHILE MOUSE IS OVER CLIENTS
+      if (_isClientsHovered) {
+        _clientsLastElapsed = elapsed;
+        return;
+      }
+
       final deltaMs = (elapsed - _clientsLastElapsed).inMilliseconds.clamp(
         0,
         _maxFrameDeltaMs,
@@ -541,11 +573,34 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     })..start();
   }
 
+  void _startIndustriesAutoScroll() {
+    final singleSetWidth =
+        _industries.length * (_industryItemWidth + _industrySeparatorWidth);
+
+    _industriesTicker = createTicker((elapsed) {
+      if (!_industriesScrollController.hasClients) return;
+
+      final deltaMs = (elapsed - _industriesLastElapsed).inMilliseconds.clamp(
+        0,
+        _maxFrameDeltaMs,
+      );
+      _industriesLastElapsed = elapsed;
+
+      _industriesScrollOffset += _industriesScrollSpeed * deltaMs / 1000;
+      if (_industriesScrollOffset >= singleSetWidth) {
+        _industriesScrollOffset -= singleSetWidth;
+      }
+
+      _industriesScrollController.jumpTo(_industriesScrollOffset);
+    })..start();
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startClientsAutoScroll();
+      _startIndustriesAutoScroll();
     });
   }
 
@@ -554,6 +609,8 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     _productsScrollController.dispose();
     _clientsTicker.dispose();
     _clientsScrollController.dispose();
+    _industriesTicker.dispose();
+    _industriesScrollController.dispose();
     super.dispose();
   }
 
@@ -578,6 +635,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     );
   }
 
+  //till
   Widget _buildIndustriesSection() {
     return Column(
       children: [
@@ -605,24 +663,35 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
 
         const SizedBox(height: 25),
 
-        Row(
-          children: [
-            for (int i = 0; i < _industries.length; i++) ...[
-              if (i != 0) const SizedBox(width: 12),
-
-              Expanded(child: _buildIndustryCard(_industries[i], i)),
-            ],
-          ],
+        SizedBox(
+          height: 240, //card height
+          child: ListView.separated(
+            controller: _industriesScrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            clipBehavior: Clip.none,
+            cacheExtent: 1000,
+            itemCount: _industries.length * 3,
+            separatorBuilder:
+                (_, __) => const SizedBox(width: _industrySeparatorWidth),
+            itemBuilder: (context, index) {
+              final industry = _industries[index % _industries.length];
+              return SizedBox(
+                width: _industryItemWidth,
+                child: _buildIndustryCard(industry, index % _industries.length),
+              );
+            },
+          ),
         ),
 
-        const SizedBox(height: 28),
+        // const SizedBox(height: 28),
 
-        _AnimatedOutlinedButton(
-          label: "View All Industries",
-          onPressed: () {
-            widget.onNavigate?.call(5);
-          },
-        ),
+        // _AnimatedOutlinedButton(
+        //   label: "View All Industries",
+        //   onPressed: () {
+        //     widget.onNavigate?.call(5);
+        //   },
+        // ),
       ],
     );
   }
@@ -662,7 +731,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                       child: Image.asset(
                         industry.image,
                         fit: BoxFit.cover,
-
+                        cacheWidth: 400,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(color: tBlue3.withOpacity(0.15));
                         },
@@ -833,6 +902,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                   fit: BoxFit.contain,
                   width: 170,
                   height: 130,
+                  cacheWidth: 340,
                   errorBuilder:
                       (context, error, stackTrace) =>
                           Container(color: tBlue3.withOpacity(0.1)),
@@ -1321,33 +1391,45 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
 
         const SizedBox(height: 5),
 
-        SizedBox(
-          height: 100,
-          child: ListView.separated(
-            controller: _clientsScrollController,
-            scrollDirection: Axis.horizontal,
+        MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              _isClientsHovered = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              _isClientsHovered = false;
+            });
+          },
+          child: SizedBox(
+            height: 100,
+            child: ListView.separated(
+              controller: _clientsScrollController,
+              scrollDirection: Axis.horizontal,
 
-            physics: const NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
 
-            // Gives the logos some breathing space
-            // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              // Gives the logos some breathing space
+              // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
 
-            // Prevents the logo from being cut
-            clipBehavior: Clip.none,
+              // Prevents the logo from being cut
+              clipBehavior: Clip.none,
 
-            itemCount: _clients.length * 3,
+              itemCount: _clients.length * 3,
 
-            separatorBuilder: (_, __) => const SizedBox(width: 24),
+              separatorBuilder: (_, __) => const SizedBox(width: 24),
 
-            itemBuilder: (context, index) {
-              final client = _clients[index % _clients.length];
+              itemBuilder: (context, index) {
+                final client = _clients[index % _clients.length];
 
-              return SizedBox(
-                width: 200,
-                height: 110,
-                child: _buildClientCard(client),
-              );
-            },
+                return SizedBox(
+                  width: 200,
+                  height: 110,
+                  child: _buildClientCard(client),
+                );
+              },
+            ),
           ),
         ),
 

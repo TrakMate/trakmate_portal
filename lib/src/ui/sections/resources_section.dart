@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
@@ -13,9 +14,10 @@ import '../pages/whitepapers.dart';
 import '../pages/webinar.dart';
 
 class ResourcesSection extends StatefulWidget {
+  final bool isActive;
   final ValueChanged<int>? onNavigate;
 
-  const ResourcesSection({super.key, this.onNavigate});
+  const ResourcesSection({super.key, this.onNavigate, required this.isActive});
 
   @override
   State<ResourcesSection> createState() => _ResourcesSectionState();
@@ -171,51 +173,61 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                     crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
-                      Text(
-                        'RESOURCES',
-                        style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: tOrange1,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      RichText(
-                        text: TextSpan(
+                      HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 20,
+                        child: Text(
+                          'RESOURCES',
                           style: GoogleFonts.manrope(
-                            fontSize: 48,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            height: 1.15,
-                            color: tWhite,
+                            color: tOrange1,
+                            letterSpacing: 1.2,
                           ),
-
-                          children: [
-                            const TextSpan(text: 'Knowledge. Insights.\n'),
-
-                            TextSpan(
-                              text: 'Growth.',
-                              style: TextStyle(
-                                color: tOrange1,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
 
                       const SizedBox(height: 20),
+                      HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 120,
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.manrope(
+                              fontSize: 48,
+                              fontWeight: FontWeight.w600,
+                              height: 1.15,
+                              color: tWhite,
+                            ),
 
-                      Text(
-                        'Explore our resources to stay informed, solve challenges and accelerate your IoT and digital transformation journey.',
+                            children: [
+                              const TextSpan(text: 'Knowledge. Insights.\n'),
 
-                        style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          color: tWhite,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
+                              TextSpan(
+                                text: 'Growth.',
+                                style: TextStyle(
+                                  color: tOrange1,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      HeroAnimatedText(
+                        isActive: widget.isActive,
+                        delay: 320,
+                        child: Text(
+                          'Explore our resources to stay informed, solve challenges and accelerate your IoT and digital transformation journey.',
+
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            color: tWhite,
+                            fontWeight: FontWeight.w400,
+                            height: 1.5,
+                          ),
                         ),
                       ),
 
@@ -224,44 +236,60 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                       Row(
                         children: [
                           Expanded(
-                            child: _buildResourceHeaderIntroCard(
-                              icon: 'icons/innovation.svg',
-                              title: 'Expert Insights',
-                              description:
-                                  'Industry knowledge and practical insights',
+                            child: HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 520,
+                              child: _buildResourceHeaderIntroCard(
+                                icon: 'icons/innovation.svg',
+                                title: 'Expert Insights',
+                                description:
+                                    'Industry knowledge and practical insights',
+                              ),
                             ),
                           ),
 
                           const SizedBox(width: 12),
 
                           Expanded(
-                            child: _buildResourceHeaderIntroCard(
-                              icon: 'icons/secured.svg',
-                              title: 'Trusted Knowledge',
-                              description:
-                                  'Reliable information for smarter decisions',
+                            child: HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 720,
+                              child: _buildResourceHeaderIntroCard(
+                                icon: 'icons/secured.svg',
+                                title: 'Trusted Knowledge',
+                                description:
+                                    'Reliable information for smarter decisions',
+                              ),
                             ),
                           ),
 
                           const SizedBox(width: 12),
 
                           Expanded(
-                            child: _buildResourceHeaderIntroCard(
-                              icon: 'icons/future.svg',
-                              title: 'Future-Ready',
-                              description:
-                                  'Stay ahead with emerging technology trends',
+                            child: HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 920,
+                              child: _buildResourceHeaderIntroCard(
+                                icon: 'icons/future.svg',
+                                title: 'Future-Ready',
+                                description:
+                                    'Stay ahead with emerging technology trends',
+                              ),
                             ),
                           ),
 
                           const SizedBox(width: 12),
 
                           Expanded(
-                            child: _buildResourceHeaderIntroCard(
-                              icon: 'icons/globe.svg',
-                              title: 'All in One Place',
-                              description:
-                                  'Guides, case studies, webinars and more',
+                            child: HeroAnimatedText(
+                              isActive: widget.isActive,
+                              delay: 1120,
+                              child: _buildResourceHeaderIntroCard(
+                                icon: 'icons/globe.svg',
+                                title: 'All in One Place',
+                                description:
+                                    'Guides, case studies, webinars and more',
+                              ),
                             ),
                           ),
                         ],
@@ -521,20 +549,20 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                               ),
                             ),
 
-                            const SizedBox(height: 30),
+                            const SizedBox(height: 20),
 
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
+                                // horizontal: 3,
                                 vertical: 5,
                               ),
-                              decoration: BoxDecoration(
-                                color: tWhite.withOpacity(0.10),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: tWhite.withOpacity(0.12),
-                                ),
-                              ),
+                              // decoration: BoxDecoration(
+                              //   color: tWhite.withOpacity(0.10),
+                              //   borderRadius: BorderRadius.circular(10),
+                              //   border: Border.all(
+                              //     color: tWhite.withOpacity(0.12),
+                              //   ),
+                              // ),
                               child: Text(
                                 'Stay Ahead of What’s Next.',
                                 style: GoogleFonts.manrope(
@@ -593,7 +621,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                     'STAY UPDATED',
 
                     style: GoogleFonts.manrope(
-                      fontSize: 10.5,
+                      fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: tOrange1,
                       letterSpacing: 1,
@@ -618,7 +646,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
                     'Get the latest insights, product updates and industry trends delivered to your inbox.',
 
                     style: GoogleFonts.manrope(
-                      fontSize: 11.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: tBlack.withOpacity(0.60),
                       height: 1.45,
@@ -770,7 +798,7 @@ class _ResourcesSectionState extends State<ResourcesSection> {
               text,
 
               style: GoogleFonts.manrope(
-                fontSize: 10,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: tBlack.withOpacity(0.65),
               ),

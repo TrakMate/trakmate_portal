@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
@@ -10,21 +11,34 @@ import '../widgets/footer_section.dart';
 
 class AboutusSection extends StatefulWidget {
   final bool isActive;
-  const AboutusSection({super.key, required this.isActive});
+  final void Function(int index)? onNavigate;
+  const AboutusSection({super.key, required this.isActive, this.onNavigate});
 
   @override
   State<AboutusSection> createState() => _AboutusSectionState();
 }
 
-class _AboutusSectionState extends State<AboutusSection> {
+class _AboutusSectionState extends State<AboutusSection>
+    with SingleTickerProviderStateMixin {
   bool _heroImageLoading = true; // NEW
 
-  late final PageController _certPageController;
-  Timer? _certAutoScrollTimer;
-  static const int _visibleCertCount = 4;
-  static const int _certLoopMultiplier = 5000;
+  final ScrollController _certScrollController = ScrollController();
+  late final Ticker _certTicker;
+
+  Duration _certLastElapsed = Duration.zero;
+  double _certScrollOffset = 0.0;
+
+  static const double _certItemWidth = 200.0;
+  static const double _certSeparatorWidth = 24.0;
+  static const double _certScrollSpeed = 40.0; //scroll speed
+  static const int _maxFrameDeltaMs = 100;
 
   final List<_CertData> _certs = const [
+    _CertData(
+      logo: 'icons/ais.svg',
+      code: 'AIS 140',
+      label: 'Vehicle Tracking & Telematics',
+    ),
     _CertData(
       logo: 'icons/iso.svg',
       code: '9001:2015',
@@ -40,31 +54,28 @@ class _AboutusSectionState extends State<AboutusSection> {
       code: '45001:2018',
       label: 'Occupational Health & Safety',
     ),
-    _CertData(logo: 'icons/ce.svg', code: '', label: 'CE Certified'),
     _CertData(
       logo: 'icons/ais.svg',
-      code: 'AIS 140',
+      code: 'ROHS',
       label: 'Vehicle Tracking & Telematics',
     ),
+    _CertData(logo: 'icons/ce.svg', code: '', label: 'CE Certified'),
   ];
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
+      _startCertAutoScroll();
     });
-    _certPageController = PageController(
-      viewportFraction: 1 / _visibleCertCount,
-      initialPage: _certs.length * _certLoopMultiplier,
-    );
-    _startCertAutoScroll();
   }
 
   Future<void> _preloadHeroImage() async {
     try {
       await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      await Future.delayed(const Duration(seconds: 3)); //  testing only
+      // await Future.delayed(const Duration(seconds: 3)); //  testing only
     } catch (e) {
       debugPrint('Error preloading solutions hero image: $e');
     }
@@ -77,23 +88,34 @@ class _AboutusSectionState extends State<AboutusSection> {
 
   @override
   void dispose() {
-    _certAutoScrollTimer?.cancel();
-    _certPageController.dispose();
+    _certTicker.dispose();
+    _certScrollController.dispose();
+
     super.dispose();
   }
 
   void _startCertAutoScroll() {
-    _certAutoScrollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-      _goToNextCertPage();
-    });
-  }
+    final singleSetWidth =
+        _certs.length * (_certItemWidth + _certSeparatorWidth);
 
-  void _goToNextCertPage() {
-    if (!_certPageController.hasClients) return;
-    _certPageController.nextPage(
-      duration: const Duration(milliseconds: 600),
-      curve: Curves.linear,
-    );
+    _certTicker = createTicker((elapsed) {
+      if (!_certScrollController.hasClients) return;
+
+      final deltaMs = (elapsed - _certLastElapsed).inMilliseconds.clamp(
+        0,
+        _maxFrameDeltaMs,
+      );
+
+      _certLastElapsed = elapsed;
+
+      _certScrollOffset += _certScrollSpeed * deltaMs / 1000;
+
+      if (_certScrollOffset >= singleSetWidth) {
+        _certScrollOffset -= singleSetWidth;
+      }
+
+      _certScrollController.jumpTo(_certScrollOffset);
+    })..start();
   }
 
   @override
@@ -248,7 +270,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
 
           SizedBox(height: 40),
-          FooterSection(),
+          FooterSection(onNavigate: widget.onNavigate),
         ],
       ),
     );
@@ -613,7 +635,7 @@ class _AboutusSectionState extends State<AboutusSection> {
     return Column(
       children: [
         _timelineItem(
-          "2014",
+          "2013",
           "The Beginning",
           "TrakMate was founded with a vision to innovate",
           false,
@@ -890,129 +912,103 @@ class _AboutusSectionState extends State<AboutusSection> {
   }
 
   Widget _buildCertificationsSection() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: tWhite,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: tBlue.withOpacity(0.15),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Certifications & Partnership",
-                  style: GoogleFonts.manrope(
-                    color: tBlack,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "We adhere to global standards to ensure quality, safety and environmental responsibility.",
-                  style: GoogleFonts.manrope(
-                    color: tBlue3,
-                    fontSize: 13,
-                    // fontWeight: FontWeight.w400,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          _certDivider(),
-
-          Expanded(
-            flex: 5,
-            child: SizedBox(
-              height: 100,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final itemWidth = constraints.maxWidth / _visibleCertCount;
-                  return PageView.builder(
-                    controller: _certPageController,
-                    padEnds: false,
-                    onPageChanged: (index) {},
-                    itemBuilder: (context, index) {
-                      final cert = _certs[index % _certs.length];
-                      return SizedBox(
-                        width: itemWidth,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: buildCertificationCard(
-                                logo: cert.logo,
-                                code: cert.code,
-                                label: cert.label,
-                              ),
-                            ),
-                            _certDivider(),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCertificationCard({
-    required String logo,
-    required String code,
-    required String label,
-  }) {
-    final bool isSvg = logo.toLowerCase().endsWith('.svg');
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        // SvgPicture.asset(logo, height: 42),
-        isSvg
-            ? SvgPicture.asset(logo, height: 42)
-            : Image.asset(logo, height: 42, fit: BoxFit.contain),
-        const SizedBox(height: 10),
-        if (code.isNotEmpty) ...[
-          Text(
-            code,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              color: tBlue3,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-        ],
         Text(
-          label,
+          "CERTIFICATIONS",
+          style: GoogleFonts.manrope(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: tOrange1,
+            letterSpacing: 1.2,
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Text(
+          "Committed to Quality, Safety & Excellence",
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            color: tBlue3,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
+            fontSize: 25,
+            fontWeight: FontWeight.w700,
+            color: tBlue2,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            controller: _certScrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+
+            // Prevents logos from being cut
+            clipBehavior: Clip.none,
+
+            // Repeat the certificates for continuous scrolling
+            itemCount: _certs.length * 3,
+
+            separatorBuilder:
+                (_, __) => const SizedBox(width: _certSeparatorWidth),
+
+            itemBuilder: (context, index) {
+              final cert = _certs[index % _certs.length];
+
+              return SizedBox(
+                width: _certItemWidth,
+                height: 110,
+                child: _buildCertificationCard(cert),
+              );
+            },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCertificationCard(_CertData cert) {
+    final bool isSvg = cert.logo.toLowerCase().endsWith('.svg');
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          isSvg
+              ? SvgPicture.asset(cert.logo, height: 42, fit: BoxFit.contain)
+              : Image.asset(cert.logo, height: 42, fit: BoxFit.contain),
+
+          const SizedBox(height: 10),
+
+          if (cert.code.isNotEmpty) ...[
+            Text(
+              cert.code,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.manrope(
+                color: tBlue3,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(height: 2),
+          ],
+
+          Text(
+            cert.label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              color: tBlue3,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

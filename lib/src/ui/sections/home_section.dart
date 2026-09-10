@@ -2,12 +2,16 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildhome.dart';
+import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
+// import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
 import 'package:trakmate_portal/src/ui/widgets/scroller_button.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
-import '../widgets/footer_section.dart';
+// import '../widgets/footer_section.dart';
 import 'package:video_player/video_player.dart';
 
 import '../widgets/heroanimation.dart';
@@ -64,27 +68,31 @@ class _HomeSectionState extends State<HomeSection> {
           'TrakMate’s smart fleet solutions connect vehicles, capture real-time data, and deliver actionable insights to help businesses monitor, manage, and optimize their fleets.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge1.svg",
           value: "12+",
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery.svg",
-          value: "750+",
+          icon: "icons/delivery1.svg",
+          value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake.svg",
+          icon: "icons/handshake1.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/globe.svg",
+          icon: "icons/loc.svg",
           value: "6+",
           label: "Countries Served",
         ),
+        _StatData(
+          icon: "icons/device1.svg",
+          value: "2,00,000+",
+          label: "Device Installed",
+        ),
       ],
-      // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
       video: "video/v2.mp4",
@@ -95,107 +103,123 @@ class _HomeSectionState extends State<HomeSection> {
           'TrakMate connects your assets, captures valuable data, and turns it into actionable insights—giving businesses the knowledge they need, when they need it.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge1.svg",
           value: "12+",
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery.svg",
-          value: "750+",
+          icon: "icons/delivery1.svg",
+          value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake.svg",
+          icon: "icons/handshake1.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/globe.svg",
+          icon: "icons/loc.svg",
           value: "6+",
           label: "Countries Served",
         ),
+        _StatData(
+          icon: "icons/device1.svg",
+          value: "2,00,000+",
+          label: "Device Installed",
+        ),
       ],
-      // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
       video: "video/v3.mp4",
-      label: "TRUSTED WORLDWIDE",
-      headingLine1: "Built for Scale.",
-      headingLine2: "Delivered with Precision.",
+      label: "ENGINEERING THE FUTURE",
+      headingLine1: "Innovate with Confidence.",
+      headingLine2: "Build for Tomorrow.",
       description:
-          'With clients across 6+ countries and 750+ products delivered, TrakMate is a technology partner businesses rely on globally.',
+          'From connected technologies and embedded systems to product engineering and manufacturing, TrakMate delivers solutions built for performance, reliability and long-term growth.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge1.svg",
           value: "12+",
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery.svg",
-          value: "750+",
+          icon: "icons/delivery1.svg",
+          value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake.svg",
+          icon: "icons/handshake1.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/globe.svg",
+          icon: "icons/loc.svg",
           value: "6+",
           label: "Countries Served",
         ),
+        _StatData(
+          icon: "icons/device1.svg",
+          value: "2,00,000+",
+          label: "Device Installed",
+        ),
       ],
-      // buttonText: "Explore Solutions",
     ),
     _HeroSlideData(
       video: "video/v4.mp4",
       label: "TRUSTED WORLDWIDE",
       headingLine1: "Built for Scale.",
-      headingLine2: "Delivered with Precision.",
+      headingLine2: "Delivered with\nPrecision.",
       description:
-          'With clients across 6+ countries and 750+ products delivered, TrakMate is a technology partner businesses rely on globally.',
+          'With clients across 6+ countries and 150+ products delivered, TrakMate is a technology partner businesses rely on globally.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge1.svg",
           value: "12+",
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery.svg",
-          value: "750+",
+          icon: "icons/delivery1.svg",
+          value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake.svg",
+          icon: "icons/handshake1.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/globe.svg",
+          icon: "icons/loc.svg",
           value: "6+",
           label: "Countries Served",
         ),
+        _StatData(
+          icon: "icons/device1.svg",
+          value: "2,00,000+",
+          label: "Device Installed",
+        ),
       ],
-      // buttonText: "Explore Solutions",
     ),
   ];
 
   final PageController _pageController = PageController(initialPage: 0);
   final ScrollController _scrollController = ScrollController();
   final List<VideoPlayerController> _videoControllers = [];
-
+  static const String _deviceCountPrefKey = 'device_count'; //sp
   Timer? _autoSlideTimer;
   int _currentVirtualPage = 0;
+  // Live "Device Installed" counter — starts at 200000, +1 every minute.
+  int _deviceCount = 200000;
+  Timer? _deviceCountTimer;
   bool _isPrevHovered = false;
   bool _isNextHovered = false;
   bool _isSlideHovered = false;
   bool _isSliderPaused = false;
   bool _showPauseButton = true;
   bool _isMuted = true;
-  // bool _isScrollButtonHovered = false;
+  bool _showScrollTop = false;
+
   Timer? _pauseButtonTimer;
-  // ADD THIS
+
   bool get _isCurrentVideoReady {
     final int activeIndex = _currentVirtualPage % _slides.length;
     if (_videoControllers.length <= activeIndex) return false;
@@ -208,6 +232,92 @@ class _HomeSectionState extends State<HomeSection> {
 
     _initializeVideos();
     _startAutoSlide();
+    _loadDeviceCount(); //sp
+    _scrollController.addListener(_handleScrollTopVisibility);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _precacheAssets();
+    });
+  }
+
+  void _startDeviceCounter() {
+    _deviceCountTimer?.cancel();
+    _deviceCountTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        _deviceCount++;
+      });
+      _saveDeviceCount(); // ADD: persist after every increment
+    });
+  } //sp
+
+  Future<void> _saveDeviceCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_deviceCountPrefKey, _deviceCount);
+  } //sp
+
+  Future<void> _loadDeviceCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCount = prefs.getInt(_deviceCountPrefKey);
+
+    if (mounted && savedCount != null) {
+      setState(() {
+        _deviceCount = savedCount;
+      });
+    }
+
+    _startDeviceCounter();
+  }
+
+  Future<void> _precacheAssets() async {
+    if (!mounted) return;
+
+    final List<String> imagePaths = [
+      // industries
+      'images/automotive.jpg',
+      'images/ev.jpg',
+      'images/fleet_logistics.jpg',
+      'images/industrial.jpg',
+      'images/smartcity.jpg',
+      'images/agriculture.jpg',
+      'images/healthcare.png',
+      'images/supplychain.png',
+      'images/retail1.png',
+      'images/energy.png',
+      // products
+      'images/tmd104.png',
+      'images/tmd364-side1.png',
+      'images/tmdcstrr-5.png',
+      'images/tmd400.png',
+      'images/tmb024.png',
+      'images/a1.png',
+      'images/a2.png',
+    ];
+
+    for (final path in imagePaths) {
+      if (!mounted) return;
+      try {
+        await precacheImage(AssetImage(path), context);
+      } catch (e) {
+        debugPrint('Failed to precache $path: $e');
+      }
+    }
+  }
+
+  // Formats a number Indian-style: 200000 -> "2,00,000"
+  String _formatIndianNumber(int number) {
+    final String numStr = number.toString();
+    if (numStr.length <= 3) return numStr;
+
+    final String lastThree = numStr.substring(numStr.length - 3);
+    String rest = numStr.substring(0, numStr.length - 3);
+
+    rest = rest.replaceAllMapped(
+      RegExp(r'(\d)(?=(\d\d)+(?!\d))'),
+      (match) => '${match[1]},',
+    );
+
+    return '$rest,$lastThree';
   }
 
   Future<void> _initializeVideos() async {
@@ -220,14 +330,11 @@ class _HomeSectionState extends State<HomeSection> {
     final firstController = _videoControllers[0];
 
     try {
-      // ADD
       await firstController.initialize();
       await firstController.setLooping(true);
       await firstController.setVolume(0);
-      // await Future.delayed(const Duration(seconds: 3)); //testing only
     } catch (e) {
-      // ADD
-      debugPrint('Failed to initialize first video: $e'); // ADD
+      debugPrint('Failed to initialize first video: $e');
     }
     if (mounted) {
       setState(() {});
@@ -278,22 +385,48 @@ class _HomeSectionState extends State<HomeSection> {
     });
   }
 
-  //   void _startAutoSlide() {
-  //   _autoSlideTimer?.cancel();
-  //   debugPrint('🔵 Starting auto-slide timer: 15 seconds'); // ADD THIS
+  Future<void> _toggleHeroPlayback() async {
+    if (!_isCurrentVideoReady) return;
 
-  //   _autoSlideTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
-  //     if (!mounted || _isSliderPaused) return;
-  //     debugPrint('🔵 Auto-advancing slide at ${DateTime.now()}'); // ADD THIS
+    if (_isSliderPaused) {
+      // RESUME
+      setState(() {
+        _isSliderPaused = false;
+        _showPauseButton = true;
+      });
 
-  //     _currentVirtualPage++;
-  //     _pageController.animateToPage(
-  //       _currentVirtualPage,
-  //       duration: const Duration(milliseconds: 600),
-  //       curve: Curves.easeInOut,
-  //     );
-  //   });
-  // }
+      _startAutoSlide();
+
+      final int activeIndex = _currentVirtualPage % _slides.length;
+
+      final controller = _videoControllers[activeIndex];
+
+      if (controller.value.isInitialized) {
+        await controller.play();
+      }
+
+      if (_isSlideHovered) {
+        _showPauseControl();
+      } else {
+        _hidePauseControl();
+      }
+    } else {
+      // PAUSE
+      setState(() {
+        _isSliderPaused = true;
+        _showPauseButton = true;
+      });
+
+      _pauseButtonTimer?.cancel();
+      _autoSlideTimer?.cancel();
+
+      for (final controller in _videoControllers) {
+        if (controller.value.isInitialized) {
+          await controller.pause();
+        }
+      }
+    }
+  }
 
   void _showPauseControl() {
     _pauseButtonTimer?.cancel();
@@ -355,31 +488,15 @@ class _HomeSectionState extends State<HomeSection> {
     final width = MediaQuery.of(context).size.height;
 
     return width * 0.91;
-    //  return (width * 0.35).clamp(500.0, 600.0);
   }
-  // double _getHeroHeight(BuildContext context) {
-  //   final width = MediaQuery.of(context).size.width;
-
-  //   if (width < 900) {
-  //     return 360;
-  //   }
-
-  //   if (width < 1400) {
-  //     return 420;
-  //   }
-
-  //   if (width < 1800) {
-  //     return 460;
-  //   }
-
-  //   return 500;
-  // }
 
   @override
   void dispose() {
     _autoSlideTimer?.cancel();
     _pauseButtonTimer?.cancel();
+    _deviceCountTimer?.cancel();
     _pageController.dispose();
+    _scrollController.removeListener(_handleScrollTopVisibility);
     _scrollController.dispose();
     for (final controller in _videoControllers) {
       controller.dispose();
@@ -416,6 +533,24 @@ class _HomeSectionState extends State<HomeSection> {
     }
   }
 
+  void _handleScrollTopVisibility() {
+    if (!_scrollController.hasClients) return;
+
+    // Only show once the user is at (or very near) the very bottom of the
+    // page — i.e. near the footer — not at any point in between.
+    const double bottomTolerance = 80.0;
+
+    final double maxScroll = _scrollController.position.maxScrollExtent;
+    final bool shouldShow =
+        _scrollController.offset >= maxScroll - bottomTolerance;
+
+    if (shouldShow != _showScrollTop) {
+      setState(() {
+        _showScrollTop = shouldShow;
+      });
+    }
+  }
+
   @override
   void didUpdateWidget(covariant HomeSection oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -433,23 +568,49 @@ class _HomeSectionState extends State<HomeSection> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: Column(
-        children: [
-          _buildHeroSection(),
-          const SizedBox(height: 10),
-          IndustriesProductsSection(onNavigate: widget.onNavigate),
-          const SizedBox(height: 40),
-          FooterSection(),
-        ],
-      ),
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              _buildHeroSection(),
+              const SizedBox(height: 10),
+              IndustriesProductsSection(onNavigate: widget.onNavigate),
+              const SizedBox(height: 40),
+              FooterSection(onNavigate: widget.onNavigate),
+            ],
+          ),
+        ),
+
+        // Scroll to top — lives OUTSIDE the scrolling content (page-level
+        // overlay) so it stays fixed on screen once you've scrolled past
+        // the hero, instead of scrolling away with it.
+        Positioned(
+          right: 35,
+          bottom: 50,
+          child: ScrollerButton(
+            isVisible: _showScrollTop,
+            svgAsset: 'icons/down1.svg', //  new SVG here
+            iconColor: tWhite, // ADD THIS — only this instance turns blue
+            iconHoverColor: tOrange1,
+            rotateIcon: true,
+            onTap: () {
+              if (!_scrollController.hasClients) return;
+
+              _scrollController.animateTo(
+                0.0,
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeInOutCubic,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildHeroSection() {
-    // final width = MediaQuery.of(context).size.width;
-    // print("SCREEN WIDTH: $width");
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isSlideHovered = true);
@@ -459,19 +620,15 @@ class _HomeSectionState extends State<HomeSection> {
         setState(() => _isSlideHovered = false);
         _hidePauseControl();
       },
-      child: GestureDetector(
-        onTapDown: (_) {
-          if (!_isSliderPaused) {
-            setState(() => _isSlideHovered = true);
-          }
-        },
-        child: SizedBox(
-          width: double.infinity,
-          // height: 460,
-          height: _getHeroHeight(context),
-          child: Stack(
-            children: [
-              PageView.builder(
+      child: SizedBox(
+        width: double.infinity,
+        height: _getHeroHeight(context),
+        child: Stack(
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _toggleHeroPlayback,
+              child: PageView.builder(
                 controller: _pageController,
                 physics:
                     _isSliderPaused
@@ -512,119 +669,138 @@ class _HomeSectionState extends State<HomeSection> {
                   return _buildSlide(_slides[slideIndex]);
                 },
               ),
-              // Sound button
-              // Positioned(
-              //   bottom: 20,
-              //   right: 20,
-              //   child: GestureDetector(
-              //     onTap: () async {
-              //       final int activeIndex =
-              //           _currentVirtualPage % _slides.length;
+            ),
+            // Pause / Resume button
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring:
+                    !_isCurrentVideoReady ||
+                    (!_showPauseButton && !_isSliderPaused),
+                child: Center(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 900),
+                    curve: Curves.easeOut,
+                    opacity:
+                        !_isCurrentVideoReady
+                            ? 0.0
+                            : (_isSliderPaused
+                                ? 1.0
+                                : (_showPauseButton ? 1.0 : 0.0)),
+                    child: GestureDetector(
+                      onTap: _toggleHeroPlayback,
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.transparent,
+                          border: Border.all(
+                            color: tOrange1.withOpacity(0.7),
+                            width: 1.8,
+                          ),
+                        ),
+                        child: Icon(
+                          _isSliderPaused
+                              ? CupertinoIcons.play_fill
+                              : CupertinoIcons.pause_fill,
+                          color: tOrange1.withOpacity(0.7),
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Dot indicators
+            Positioned(
+              bottom: 12,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                ignoring: !_isCurrentVideoReady || _isSliderPaused,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity:
+                      !_isCurrentVideoReady
+                          ? 0.0
+                          : (_isSliderPaused ? 0.0 : 1.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(_slides.length, (index) {
+                      final int activeIndex =
+                          _currentVirtualPage % _slides.length;
+                      final bool isActive = (activeIndex == index);
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        width: isActive ? 13 : 10,
+                        height: isActive ? 13 : 10,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color:
+                                isActive ? tOrange1 : tWhite.withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: isActive ? 6 : 0,
+                            height: isActive ? 6 : 0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: tOrange1,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ),
 
-              //       if (_videoControllers.length <= activeIndex) return;
-
-              //       final controller = _videoControllers[activeIndex];
-
-              //       if (!controller.value.isInitialized) return;
-
-              //       setState(() {
-              //         _isMuted = !_isMuted;
-              //       });
-
-              //       await controller.setVolume(_isMuted ? 0.0 : 1.0);
-              //     },
-              //     child: Container(
-              //       width: 25,
-              //       height: 25,
-              //       decoration: BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: tWhite.withOpacity(0.12),
-              //         border: Border.all(
-              //           color: tOrange1.withOpacity(0.7),
-              //           width: 1.5,
-              //         ),
-              //       ),
-              //       child: Icon(
-              //         _isMuted
-              //             ? CupertinoIcons.volume_off
-              //             : CupertinoIcons.volume_up,
-              //         color: tOrange1,
-              //         size: 15,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // Pause / Resume button
-              Positioned.fill(
-                child: IgnorePointer(
-                  // ignoring: !_showPauseButton && !_isSliderPaused,
-                  ignoring:
-                      !_isCurrentVideoReady ||
-                      (!_showPauseButton && !_isSliderPaused),
-                  child: Center(
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 900),
-                      curve: Curves.easeOut,
-                      // opacity:
-                      //     _isSliderPaused
-                      //         ? 1.0
-                      //         : (_showPauseButton ? 1.0 : 0.0),
-                      opacity:
-                          !_isCurrentVideoReady
+            // Left
+            Positioned(
+              left: 16,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity:
+                      !_isCurrentVideoReady
+                          ? 0.0
+                          : (_isSliderPaused
                               ? 0.0
-                              : (_isSliderPaused
-                                  ? 1.0
-                                  : (_showPauseButton ? 1.0 : 0.0)),
-                      child: GestureDetector(
-                        onTap: () async {
-                          setState(() {
-                            _isSliderPaused = !_isSliderPaused;
-                          });
-                          if (_isSliderPaused) {
-                            _pauseButtonTimer?.cancel();
-                            _showPauseButton = true;
-                            _autoSlideTimer?.cancel();
-
-                            for (final controller in _videoControllers) {
-                              controller.pause();
-                            }
-                          } else {
-                            _startAutoSlide();
-
-                            final int activeIndex =
-                                _currentVirtualPage % _slides.length;
-
-                            if (_videoControllers[activeIndex]
-                                .value
-                                .isInitialized) {
-                              final controller = _videoControllers[activeIndex];
-
-                              await controller.play();
-                            }
-
-                            if (_isSlideHovered) {
-                              _showPauseControl();
-                            } else {
-                              _hidePauseControl();
-                            }
-                          }
-                        },
+                              : (_isSlideHovered ? 1.0 : 0.0)),
+                  child: IgnorePointer(
+                    ignoring: !_isCurrentVideoReady || !_isSlideHovered,
+                    child: MouseRegion(
+                      onEnter: (_) => setState(() => _isPrevHovered = true),
+                      onExit: (_) => setState(() => _isPrevHovered = false),
+                      child: InkWell(
+                        onTap: _onPrevPressed,
+                        borderRadius: BorderRadius.circular(24),
                         child: Container(
-                          width: 42,
-                          height: 42,
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.transparent,
+                            color: tWhite.withOpacity(0.15),
                             border: Border.all(
-                              color: tOrange1.withOpacity(0.7),
-                              width: 1.8,
+                              color:
+                                  _isPrevHovered
+                                      ? tOrange1
+                                      : tWhite.withOpacity(0.6),
+                              width: 1.5,
                             ),
                           ),
                           child: Icon(
-                            _isSliderPaused
-                                ? CupertinoIcons.play_fill
-                                : CupertinoIcons.pause_fill,
-                            color: tOrange1.withOpacity(0.7),
+                            CupertinoIcons.arrow_left,
+                            color: _isPrevHovered ? tOrange1 : Colors.white,
                             size: 18,
                           ),
                         ),
@@ -633,102 +809,51 @@ class _HomeSectionState extends State<HomeSection> {
                   ),
                 ),
               ),
-              // Dot indicators
-              Positioned(
-                bottom: 12,
-                left: 0,
-                right: 0,
-                child: IgnorePointer(
-                  // ignoring: _isSliderPaused,
-                  ignoring: !_isCurrentVideoReady || _isSliderPaused,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    // opacity: _isSliderPaused ? 0.0 : 1.0,
-                    opacity:
-                        !_isCurrentVideoReady
-                            ? 0.0
-                            : (_isSliderPaused ? 0.0 : 1.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_slides.length, (index) {
-                        final int activeIndex =
-                            _currentVirtualPage % _slides.length;
-                        final bool isActive = (activeIndex == index);
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                          width: isActive ? 13 : 10,
-                          height: isActive ? 13 : 10,
+            ),
+
+            // Right
+            Positioned(
+              right: 16,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity:
+                      !_isCurrentVideoReady
+                          ? 0.0
+                          : (_isSliderPaused
+                              ? 0.0
+                              : (_isSlideHovered ? 1.0 : 0.0)),
+                  child: IgnorePointer(
+                    ignoring:
+                        !_isCurrentVideoReady ||
+                        _isSliderPaused ||
+                        !_isSlideHovered,
+                    child: MouseRegion(
+                      onEnter: (_) => setState(() => _isNextHovered = true),
+                      onExit: (_) => setState(() => _isNextHovered = false),
+                      child: InkWell(
+                        onTap: _onNextPressed,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Container(
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
+                            color: tWhite.withOpacity(0.15),
                             border: Border.all(
                               color:
-                                  isActive ? tOrange1 : tWhite.withOpacity(0.5),
+                                  _isNextHovered
+                                      ? tOrange1
+                                      : tWhite.withOpacity(0.6),
                               width: 1.5,
                             ),
                           ),
-                          child: Center(
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              width: isActive ? 6 : 0,
-                              height: isActive ? 6 : 0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: tOrange1,
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Left
-              Positioned(
-                left: 16,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    // opacity:
-                    //     _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
-                    opacity:
-                        !_isCurrentVideoReady
-                            ? 0.0
-                            : (_isSliderPaused
-                                ? 0.0
-                                : (_isSlideHovered ? 1.0 : 0.0)),
-                    child: IgnorePointer(
-                      // ignoring: !_isSlideHovered,
-                      ignoring: !_isCurrentVideoReady || !_isSlideHovered,
-                      child: MouseRegion(
-                        onEnter: (_) => setState(() => _isPrevHovered = true),
-                        onExit: (_) => setState(() => _isPrevHovered = false),
-                        child: InkWell(
-                          onTap: _onPrevPressed,
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: tWhite.withOpacity(0.15),
-                              border: Border.all(
-                                color:
-                                    _isPrevHovered
-                                        ? tOrange1
-                                        : tWhite.withOpacity(0.6),
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Icon(
-                              CupertinoIcons.arrow_left,
-                              color: _isPrevHovered ? tOrange1 : Colors.white,
-                              size: 18,
-                            ),
+                          child: Icon(
+                            CupertinoIcons.arrow_right,
+                            color: _isNextHovered ? tOrange1 : Colors.white,
+                            size: 18,
                           ),
                         ),
                       ),
@@ -736,90 +861,36 @@ class _HomeSectionState extends State<HomeSection> {
                   ),
                 ),
               ),
+            ),
 
-              // Right
-              Positioned(
-                right: 16,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    // opacity:
-                    //     _isSliderPaused ? 0.0 : (_isSlideHovered ? 1.0 : 0.0),
-                    opacity:
-                        !_isCurrentVideoReady
-                            ? 0.0
-                            : (_isSliderPaused
-                                ? 0.0
-                                : (_isSlideHovered ? 1.0 : 0.0)),
-                    child: IgnorePointer(
-                      // ignoring: _isSliderPaused || !_isSlideHovered,
-                      ignoring:
-                          !_isCurrentVideoReady ||
-                          _isSliderPaused ||
-                          !_isSlideHovered,
-                      child: MouseRegion(
-                        onEnter: (_) => setState(() => _isNextHovered = true),
-                        onExit: (_) => setState(() => _isNextHovered = false),
-                        child: InkWell(
-                          onTap: _onNextPressed,
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: tWhite.withOpacity(0.15),
-                              border: Border.all(
-                                color:
-                                    _isNextHovered
-                                        ? tOrange1
-                                        : tWhite.withOpacity(0.6),
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Icon(
-                              CupertinoIcons.arrow_right,
-                              color: _isNextHovered ? tOrange1 : Colors.white,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            // Scroller (scroll down, only relevant while at hero)
+            Positioned(
+              right: 45,
+              bottom: 45,
+              child: ScrollerButton(
+                isVisible: _isSlideHovered && _isCurrentVideoReady,
+                // rotateIcon: true,
+                onTap: () {
+                  if (!_scrollController.hasClients) return;
 
-              // Scroller
-              Positioned(
-                right: 45,
-                bottom: 45,
-                child: ScrollerButton(
-                  isVisible: _isSlideHovered && _isCurrentVideoReady,
-                  onTap: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (!_scrollController.hasClients) return;
 
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (!_scrollController.hasClients) return;
+                    final double target = _getHeroHeight(context);
 
-                      final double target = _getHeroHeight(context);
-
-                      _scrollController.animateTo(
-                        target.clamp(
-                          0.0,
-                          _scrollController.position.maxScrollExtent,
-                        ),
-                        duration: const Duration(milliseconds: 900),
-                        curve: Curves.easeInOutCubic,
-                      );
-                    });
-                  },
-                ),
+                    _scrollController.animateTo(
+                      target.clamp(
+                        0.0,
+                        _scrollController.position.maxScrollExtent,
+                      ),
+                      duration: const Duration(milliseconds: 900),
+                      curve: Curves.easeInOutCubic,
+                    );
+                  });
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -829,7 +900,6 @@ class _HomeSectionState extends State<HomeSection> {
     final int slideIndex = _slides.indexOf(slide);
 
     if (_videoControllers.length <= slideIndex) {
-      // return Container(width: double.infinity, color: tBlue2);
       return const SizedBox(width: double.infinity, child: HeroVideoShimmer());
     }
 
@@ -838,22 +908,7 @@ class _HomeSectionState extends State<HomeSection> {
     return SizedBox(
       width: double.infinity,
       child: Stack(
-        // fit: StackFit.expand,
         children: [
-          // Background video
-          // if (controller.value.isInitialized)
-          //   Positioned.fill(
-          //     child: FittedBox(
-          //       fit: BoxFit.cover,
-          //       child: SizedBox(
-          //         width: controller.value.size.width,
-          //         height: controller.value.size.height,
-          //         child: VideoPlayer(controller),
-          //       ),
-          //     ),
-          //   )
-          // else
-          //   Container(color: tBlue2),
           // Background video
           if (controller.value.isInitialized)
             Positioned.fill(
@@ -867,7 +922,7 @@ class _HomeSectionState extends State<HomeSection> {
               ),
             )
           else
-            const Positioned.fill(child: HeroVideoShimmer()), // CHANGED
+            const Positioned.fill(child: HeroVideoShimmer()),
           // Dark gradient overlay
           Container(
             decoration: BoxDecoration(
@@ -883,149 +938,225 @@ class _HomeSectionState extends State<HomeSection> {
               ),
             ),
           ),
-          if (controller.value.isInitialized) // ADD THIS GUARD
-            // Your existing content
-            if (controller.value.isInitialized)
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 115,
-                  right: 40,
-                ), //fr whole text block
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Transform.translate(
-                        offset: const Offset(0, -38),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            HeroAnimatedText(
-                              isActive: widget.isActive,
-                              delay: 520,
-                              child: Text(
-                                slide.label,
+          if (controller.value.isInitialized)
+            Padding(
+              padding: const EdgeInsets.only(left: 110, right: 40),
+              child: Row(
+                children: [
+                  // HeroAnimatedText(
+                  //   isActive: widget.isActive,
+                  //   delay: 20,
+                  //   child: Column(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //     children: [
+                  //       for (int i = 0; i < slide.stats.length; i++) ...[
+                  //         if (i != 0) const SizedBox(height: 36),
+                  //         _buildStatItem(
+                  //           slide.stats[i].icon,
+                  //           slide.stats[i].icon == "icons/device1.svg"
+                  //               ? "${_formatIndianNumber(_deviceCount)}+"
+                  //               : slide.stats[i].icon == "icons/badge.svg"
+                  //               ? "${DateTime.now().year - 2013}+"
+                  //               : slide.stats[i].value,
+                  //           slide.stats[i].label,
+                  //           animated:
+                  //               slide.stats[i].icon == "icons/device1.svg",
+                  //         ),
+                  //       ],
+                  //     ],
+                  //   ),
+                  // ),
+                  const SizedBox(width: 46),
+                  Expanded(
+                    flex: 3,
+                    child: Transform.translate(
+                      offset: const Offset(0, -28),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          HeroAnimatedText(
+                            isActive: widget.isActive,
+                            delay: 520,
+                            child: Text(
+                              slide.label,
+                              style: GoogleFonts.manrope(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: tOrange1,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 30),
+                          HeroAnimatedText(
+                            isActive: widget.isActive,
+                            delay: 720,
+                            child: RichText(
+                              text: TextSpan(
                                 style: GoogleFonts.manrope(
-                                  fontSize: 13,
+                                  fontSize: 48,
                                   fontWeight: FontWeight.w600,
-                                  color: tOrange1,
-                                  letterSpacing: 1.2,
+                                  height: 1.15,
+                                  color: tWhite,
                                 ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 30),
-                            HeroAnimatedText(
-                              isActive: widget.isActive,
-                              delay: 720,
-                              child: RichText(
-                                text: TextSpan(
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 48,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.15,
-                                    color: tWhite,
-                                  ),
-                                  children: [
-                                    TextSpan(text: "${slide.headingLine1}\n"),
-                                    TextSpan(
-                                      text: slide.headingLine2,
-                                      style: GoogleFonts.manrope(
-                                        color: tOrange1,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-                            HeroAnimatedText(
-                              isActive: widget.isActive,
-                              delay: 920,
-                              child: SizedBox(
-                                width: 480,
-                                child: Text(
-                                  slide.description,
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 14,
-                                    color: tWhite.withOpacity(0.95),
-                                    fontWeight: FontWeight.w500,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 40),
-                            HeroAnimatedText(
-                              isActive: widget.isActive,
-                              delay: 1120,
-                              child: Row(
                                 children: [
-                                  for (
-                                    int i = 0;
-                                    i < slide.stats.length;
-                                    i++
-                                  ) ...[
-                                    if (i != 0) const SizedBox(width: 66),
-                                    _buildStatItem(
-                                      slide.stats[i].icon,
-                                      slide.stats[i].value,
-                                      slide.stats[i].label,
+                                  TextSpan(text: "${slide.headingLine1}\n"),
+                                  TextSpan(
+                                    text: slide.headingLine2,
+                                    style: GoogleFonts.manrope(
+                                      color: tOrange1,
+                                      fontWeight: FontWeight.w800,
                                     ),
-                                  ],
+                                  ),
                                 ],
                               ),
                             ),
-                            // ElevatedButton(
-                            //   onPressed: () {},
-                            //   style: ElevatedButton.styleFrom(
-                            //     backgroundColor: tOrange1,
-                            //     shape: RoundedRectangleBorder(
-                            //       borderRadius: BorderRadius.circular(8),
-                            //     ),
-                            //     padding: const EdgeInsets.symmetric(
-                            //       horizontal: 22,
-                            //       vertical: 18,
-                            //     ),
-                            //   ),
-                            //   child: Row(
-                            //     mainAxisSize: MainAxisSize.min,
-                            //     children: [
-                            //       Text(
-                            //         slide.buttonText,
-                            //         style: GoogleFonts.manrope(
-                            //           color: tWhite,
-                            //           fontSize: 13,
-                            //           fontWeight: FontWeight.w600,
-                            //         ),
-                            //       ),
-                            //       const SizedBox(width: 8),
-                            //       const Icon(
-                            //         Icons.arrow_forward,
-                            //         color: tWhite,
-                            //         size: 16,
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                          ],
-                        ),
+                          ),
+
+                          const SizedBox(height: 25),
+                          HeroAnimatedText(
+                            isActive: widget.isActive,
+                            delay: 920,
+                            child: SizedBox(
+                              width: 480,
+                              child: Text(
+                                slide.description,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 14,
+                                  color: tWhite.withOpacity(0.95),
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.7,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          HeroAnimatedText(
+                            isActive: widget.isActive,
+                            delay: 20,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                for (
+                                  int i = 0;
+                                  i < slide.stats.length;
+                                  i++
+                                ) ...[
+                                  if (i != 0) const SizedBox(width: 66),
+                                  _buildStatItem(
+                                    slide.stats[i].icon,
+                                    slide.stats[i].icon == "icons/device1.svg"
+                                        ? "${_formatIndianNumber(_deviceCount)}+"
+                                        : slide.stats[i].icon ==
+                                            "icons/badge.svg"
+                                        ? "${DateTime.now().year - 2013}+"
+                                        : slide.stats[i].value,
+                                    slide.stats[i].label,
+                                    animated:
+                                        slide.stats[i].icon ==
+                                        "icons/device1.svg",
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Expanded(flex: 2, child: SizedBox()),
-                  ],
-                ),
+                  ),
+                  const Expanded(flex: 2, child: SizedBox()),
+                ],
               ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String iconPath, String value, String label) {
+  // Widget _buildStatItem(
+  //   String iconPath,
+  //   String value,
+  //   String label, {
+  //   bool animated = false,
+  // }) {
+  //   return SizedBox(
+  //     width: 200,
+  //     child: Container(
+  //       padding: const EdgeInsets.all(6),
+  //       decoration: BoxDecoration(
+  //         color: Colors.white.withOpacity(0.15),
+  //         borderRadius: BorderRadius.circular(20),
+  //         border: Border.all(color: Colors.white.withOpacity(0.20), width: 1.0),
+  //       ),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         crossAxisAlignment: CrossAxisAlignment.center,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Container(
+  //                 width: 60,
+  //                 height: 60,
+  //                 decoration: BoxDecoration(
+  //                   color: tOrange1,
+  //                   borderRadius: BorderRadius.circular(15),
+  //                 ),
+  //                 child: Center(
+  //                   child: SvgPicture.asset(
+  //                     iconPath,
+  //                     width: 30,
+  //                     height: 30,
+  //                     color: tWhite,
+  //                   ),
+  //                 ),
+  //               ),
+  //               SizedBox(width: 6),
+  //               Column(
+  //                 children: [
+  //                   animated
+  //                       ? RollingDigitText(
+  //                         text: value,
+  //                         style: GoogleFonts.manrope(
+  //                           fontSize: 20,
+  //                           fontWeight: FontWeight.w700,
+  //                           color: tWhite,
+  //                         ),
+  //                       )
+  //                       : Text(
+  //                         value,
+  //                         style: GoogleFonts.manrope(
+  //                           fontSize: 20,
+  //                           fontWeight: FontWeight.w700,
+  //                           color: tWhite,
+  //                         ),
+  //                       ),
+  //                   const SizedBox(height: 5),
+  //                   Text(
+  //                     label,
+  //                     textAlign: TextAlign.center,
+  //                     style: GoogleFonts.manrope(
+  //                       fontSize: 11,
+  //                       fontWeight: FontWeight.w600,
+  //                       color: tWhite.withOpacity(0.75),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  Widget _buildStatItem(
+    String iconPath,
+    String value,
+    String label, {
+    bool animated = false,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1033,29 +1164,32 @@ class _HomeSectionState extends State<HomeSection> {
         Container(
           width: 44,
           height: 44,
-
-          // decoration: BoxDecoration(
-          //   shape: BoxShape.circle,
-          //   border: Border.all(color: tOrange1.withOpacity(0.6), width: 1.2),
-          // ),
           child: SvgPicture.asset(
             iconPath,
             width: 30,
             height: 30,
-            // colorFilter: const ColorFilter.mode(tOrange1, BlendMode.srcIn),
             color: tOrange1,
           ),
         ),
         const SizedBox(height: 10),
 
-        Text(
-          value,
-          style: GoogleFonts.manrope(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: tWhite,
-          ),
-        ),
+        animated
+            ? RollingDigitText(
+              text: value,
+              style: GoogleFonts.manrope(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: tWhite,
+              ),
+            )
+            : Text(
+              value,
+              style: GoogleFonts.manrope(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: tWhite,
+              ),
+            ),
 
         const SizedBox(height: 2),
         Text(

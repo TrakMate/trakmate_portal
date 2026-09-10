@@ -19,10 +19,12 @@ dependencies:
   svg_flutter:
 
   url_launcher:
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+    
   video_player: ^2.10.0
 
   flutter_lints: ^5.0.0

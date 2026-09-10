@@ -1,8 +1,7 @@
-//product details
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:svg_flutter/svg.dart';
 
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
@@ -17,25 +16,19 @@ class ProductDetailsPage extends StatefulWidget {
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
-  // EXPAND / COLLAPSE
-
   bool _featuresExpanded = false;
   bool _specificationsExpanded = false;
   bool _connectivityExpanded = false;
   bool _applicationsExpanded = false;
 
-  // Only the RIGHT column scrolls now. The LEFT column (title + image)
-  // instead shrinks/expands its image to exactly fill whatever height is
-  // available — see _buildLeftProductArea / _buildProductImage below.
   final ScrollController _rightScrollController = ScrollController();
 
   final GlobalKey _featuresKey = GlobalKey();
   final GlobalKey _specificationsKey = GlobalKey();
   final GlobalKey _connectivityKey = GlobalKey();
   final GlobalKey _applicationsKey = GlobalKey();
-  ProductData get product => widget.product;
 
-  // PRODUCT IMAGE SLIDER
+  ProductData get product => widget.product;
 
   late final PageController _imagePageController;
 
@@ -44,12 +37,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   List<String> get _productImages {
     final List<String> images = [];
 
-    // Image 1 is always available.
     if (product.image.isNotEmpty) {
       images.add(product.image);
     }
 
-    // Add only images that were provided.
     if (product.image2 != null && product.image2!.isNotEmpty) {
       images.add(product.image2!);
     }
@@ -66,12 +57,542 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       images.add(product.image5!);
     }
 
-    // Safety fallback.
     if (images.isEmpty) {
       images.add(product.image);
     }
 
     return images;
+  }
+
+  List<_FeatureItem> get _featureItems {
+    switch (product.title) {
+      // PRODUCT 1
+      //
+      // 'TMD364' now falls through to the exact same feature collage as
+      // 'TMD 364-AIS140' (office photo + GPS icon + globe icon), instead of
+      // the old commented-out layout further below.
+
+      // case 'TMD 364-AIS140':
+      case 'TMD364':
+        return const [
+          _FeatureItem.image(
+            'images/tmd364-top1.png',
+            left: 5,
+            top: 26,
+            width: 45,
+            height: 45,
+          ),
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 72,
+            top: 8,
+            width: 16,
+            height: 16,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 66,
+            top: 30,
+            width: 24,
+            height: 24,
+          ),
+
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 72,
+            top: 57,
+            width: 14,
+            height: 14,
+          ),
+
+          // _FeatureItem.image(
+          //   'images/company.png',
+          //   left: 72,
+          //   top: 74,
+          //   width: 16,
+          //   height: 16,
+          // ),
+        ];
+
+      // PRODUCT 2
+
+      case 'TMD104':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 15,
+            top: 25,
+            width: 30,
+            height: 30,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 45,
+            top: 18,
+            width: 50,
+            height: 50,
+          ),
+
+          // _FeatureItem.svg(
+          //   'icons/gps.svg',
+          //   left: 75,
+          //   top: 15,
+          //   width: 18,
+          //   height: 18,
+          // ),
+
+          // _FeatureItem.svg(
+          //   'icons/globe.svg',
+          //   left: 20,
+          //   top: 55,
+          //   width: 25,
+          //   height: 25,
+          // ),
+
+          // _FeatureItem.image(
+          //   'images/company.png',
+          //   left: 52,
+          //   top: 48,
+          //   width: 35,
+          //   height: 32,
+          // ),
+        ];
+
+      // PRODUCT 3
+
+      case 'TMD004':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 18,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+
+          // _FeatureItem.svg(
+          //   'icons/globe.svg',
+          //   left: 20,
+          //   top: 55,
+          //   width: 25,
+          //   height: 25,
+          // ),
+
+          // _FeatureItem.image(
+          //   'images/company.png',
+          //   left: 52,
+          //   top: 48,
+          //   width: 35,
+          //   height: 32,
+          // ),
+        ];
+
+      // PRODUCT 4
+
+      case 'TMD024':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 18,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+        ];
+
+      // PRODUCT 5
+
+      case 'TMB024':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 18,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+        ];
+
+      // PRODUCT 6
+
+      case 'TMD400':
+        return const [
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 35,
+            top: 30,
+            width: 40,
+            height: 40,
+          ),
+        ];
+
+      // PRODUCT 7
+
+      case 'TCU510':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 9,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          // _FeatureItem.svg(
+          //   'icons/globe.svg',
+          //   left: 20,
+          //   top: 55,
+          //   width: 25,
+          //   height: 25,
+          // ),
+          _FeatureItem.image(
+            'images/linux.jpg',
+            left: 35,
+            top: 48,
+            width: 35,
+            height: 32,
+          ),
+        ];
+
+      // PRODUCT 8
+
+      case 'TCU520':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 9,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/wifi.png',
+            left: 20,
+            top: 55,
+            width: 25,
+            height: 25,
+          ),
+          _FeatureItem.image(
+            'images/linux.jpg',
+            left: 50,
+            top: 54,
+            width: 25,
+            height: 22,
+          ),
+        ];
+
+      // PRODUCT 9
+
+      case 'TCU550':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 9,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/wifi.png',
+            left: 7,
+            top: 55,
+            width: 25,
+            height: 25,
+          ),
+          _FeatureItem.image(
+            'images/linux.jpg',
+            left: 40,
+            top: 54,
+            width: 25,
+            height: 22,
+          ),
+          _FeatureItem.image(
+            'images/ethernet.jpg',
+            left: 57,
+            top: 50,
+            width: 45,
+            height: 38,
+          ),
+        ];
+
+      // PRODUCT 10
+
+      case 'TMDCSTR-7':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 18,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+        ];
+
+      // PRODUCT 11
+
+      case 'TMDCSTR-7A':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 9,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 20,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/wifi.png',
+            left: 7,
+            top: 55,
+            width: 25,
+            height: 25,
+          ),
+          _FeatureItem.image(
+            'images/android.png',
+            left: 40,
+            top: 54,
+            width: 25,
+            height: 22,
+          ),
+          _FeatureItem.image(
+            'images/HD.png',
+            left: 65,
+            top: 55,
+            width: 30,
+            height: 20,
+          ),
+        ];
+
+      // PRODUCT 12
+
+      case 'TMDCSTR-5':
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 10,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 30,
+            top: 18,
+            width: 45,
+            height: 45,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 70,
+            top: 30,
+            width: 20,
+            height: 20,
+          ),
+        ];
+
+      // DEFAULT
+
+      default:
+        return const [
+          _FeatureItem.image(
+            'images/4g.png',
+            left: 8,
+            top: 18,
+            width: 18,
+            height: 18,
+          ),
+
+          _FeatureItem.image(
+            'images/bluetooth1.png',
+            left: 30,
+            top: 18,
+            width: 18,
+            height: 18,
+          ),
+
+          _FeatureItem.image(
+            'images/ev-wifi.jpg',
+            left: 48,
+            top: 12,
+            width: 25,
+            height: 30,
+          ),
+
+          _FeatureItem.svg(
+            'icons/gps.svg',
+            left: 74,
+            top: 18,
+            width: 18,
+            height: 18,
+          ),
+
+          _FeatureItem.svg(
+            'icons/globe.svg',
+            left: 19,
+            top: 52,
+            width: 18,
+            height: 18,
+          ),
+
+          _FeatureItem.image(
+            'images/company.png',
+            left: 41,
+            top: 52,
+            width: 18,
+            height: 18,
+          ),
+
+          _FeatureItem.svg(
+            'icons/gps.svg',
+            left: 63,
+            top: 52,
+            width: 18,
+            height: 18,
+          ),
+        ];
+    }
+  }
+
+  int get _carouselItemCount {
+    return _productImages.length + 1;
+  }
+
+  int get _featurePageIndex {
+    return _productImages.length;
   }
 
   @override
@@ -85,6 +606,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   void dispose() {
     _imagePageController.dispose();
     _rightScrollController.dispose();
+
     super.dispose();
   }
 
@@ -92,8 +614,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: tWhite,
+
       body: Padding(
         padding: const EdgeInsets.fromLTRB(40, 22, 40, 20),
+
         child: LayoutBuilder(
           builder: (context, constraints) {
             final bool isCompact = constraints.maxWidth < 900;
@@ -105,52 +629,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // DESKTOP LAYOUT
-  // Back button (fixed) -> content area (fills all remaining space, and
-  // internally scrolls on both sides if it doesn't fit) -> CTA (fixed,
-  // always sits at the bottom of the screen). This matches the original
-  // intent: whatever height the screen is, the CTA is anchored to the
-  // bottom and the content area above it auto-sizes to fill exactly the
-  // space that's left.
   Widget _buildDesktopLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+
       children: [
-        // BACK BUTTON — fixed height
         _buildBackButton(),
 
         const SizedBox(height: 25),
 
-        // MAIN PRODUCT + INFORMATION AREA — fills all remaining space
-        // between the back button and the CTA below.
         Expanded(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+
             children: [
-              // LEFT SECTION
-              // No scrolling here anymore. Because the Row above uses
-              // crossAxisAlignment.stretch, this Expanded gives the left
-              // column a fixed, bounded height (screen space remaining).
-              // _buildLeftProductArea() uses that bounded height to make
-              // its image container shrink/expand to fill exactly what's
-              // available (see flexibleImage: true below).
               Expanded(
                 flex: 52,
+
                 child: _buildLeftProductArea(flexibleImage: true),
               ),
 
               const SizedBox(width: 48),
 
-              // RIGHT SECTION — still scrolls internally since it has
-              // variable-length expandable content (Features, Specs, etc.)
-              // that can't reasonably shrink to fit.
               Expanded(
                 flex: 48,
-                child: ClipRect(
-                  child: SingleChildScrollView(
-                    controller: _rightScrollController,
-                    child: _buildRightInformationArea(),
-                  ),
+
+                child: SingleChildScrollView(
+                  controller: _rightScrollController,
+
+                  child: _buildRightInformationArea(),
                 ),
               ),
             ],
@@ -159,67 +666,59 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
         const SizedBox(height: 25),
 
-        // FULL WIDTH CTA — fixed height, always pinned to the bottom of
-        // the screen. Since the Row above it is wrapped in Expanded and
-        // both its children are internally scrollable (never overflow),
-        // this can never be pushed on top of or covered by the content.
         _buildTalkToTeamSection(),
       ],
     );
   }
 
-  // COMPACT (MOBILE/NARROW) LAYOUT
-  // Narrow screens don't have the "left/right side by side" problem, so a
-  // simple single scrolling column works fine and is standard mobile UX.
   Widget _buildCompactLayout() {
     return SingleChildScrollView(
-      // Reuses the "right" controller here (there's only one scroll view
-      // in compact mode) so _scrollToExpandedSection works on mobile too.
       controller: _rightScrollController,
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+
         children: [
-          // BACK BUTTON
           _buildBackButton(),
 
           const SizedBox(height: 22),
 
-          // PRODUCT — flexibleImage: false, so a sensible fixed height is
-          // used instead (Expanded can't be used here since this whole
-          // layout sits inside an unbounded SingleChildScrollView).
           _buildLeftProductArea(flexibleImage: false),
 
           const SizedBox(height: 35),
 
-          // INFORMATION
           _buildRightInformationArea(),
 
           const SizedBox(height: 35),
 
-          // CTA
           _buildTalkToTeamSection(),
         ],
       ),
     );
   }
 
-  // BACK BUTTON
-
   Widget _buildBackButton() {
     return Align(
       alignment: Alignment.centerLeft,
+
       child: Material(
         color: Colors.transparent,
+
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
+
           borderRadius: BorderRadius.circular(7),
+
           onTap: () {
             Navigator.pop(context);
           },
+
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+
             child: Row(
               mainAxisSize: MainAxisSize.min,
+
               children: [
                 const Icon(Icons.arrow_back_rounded, size: 18, color: tBlue3),
 
@@ -227,6 +726,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                 Text(
                   'Back to Products',
+
                   style: GoogleFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -241,15 +741,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // LEFT PRODUCT AREA
-
   Widget _buildLeftProductArea({required bool flexibleImage}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+
       children: [
-        // PRODUCT TITLE
         Text(
           product.title,
+
           style: GoogleFonts.manrope(
             fontSize: 36,
             fontWeight: FontWeight.w700,
@@ -260,95 +759,80 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
         const SizedBox(height: 12),
 
-        // PRODUCT IMAGE
-        // On desktop (flexibleImage: true) this Expanded makes the image
-        // container shrink or expand to fill exactly whatever vertical
-        // space is left in the column after the title above and the line
-        // below take theirs — no scrolling, no overflow, no fixed number.
-        // On compact/mobile (flexibleImage: false) we're inside an
-        // unbounded scroll view, so Expanded isn't valid — a fixed height
-        // is used instead.
         flexibleImage
             ? Expanded(child: _buildProductImage(fixedHeight: null))
             : _buildProductImage(fixedHeight: 420),
 
         const SizedBox(height: 14),
 
-        // IMAGE LABEL
         Row(
           children: [
             Container(width: 90, height: 2, color: tOrange1),
 
             const SizedBox(width: 9),
-
-            // Text(
-            //   'CONNECTED TECHNOLOGY',
-            //
-            //   style: GoogleFonts.manrope(
-            //     fontSize: 8.5,
-            //     fontWeight: FontWeight.w600,
-            //     color: tBlack.withOpacity(0.40),
-            //     letterSpacing: 1.2,
-            //   ),
-            // ),
           ],
         ),
       ],
     );
   }
 
-  // PRODUCT IMAGE
-  // fixedHeight == null  -> fills whatever height its parent gives it
-  //                         (used when wrapped in Expanded on desktop).
-  // fixedHeight != null  -> uses that exact height (used on compact/mobile
-  //                         where the parent is unbounded).
   Widget _buildProductImage({required double? fixedHeight}) {
     return Container(
       width: double.infinity,
-      height: fixedHeight, // null = fill parent's given constraints
+      height: fixedHeight,
+
       decoration: BoxDecoration(
         color: tWhite,
+
         borderRadius: BorderRadius.circular(2),
+
         border: Border.all(color: tBlack.withOpacity(0.025)),
       ),
+
       child: Stack(
         clipBehavior: Clip.hardEdge,
+
         children: [
-          // SOFT ORANGE CIRCLE
           Positioned(
             left: -80,
             bottom: -80,
+
             child: Container(
               width: 245,
               height: 245,
+
               decoration: BoxDecoration(
                 color: tOrange1.withOpacity(0.055),
+
                 shape: BoxShape.circle,
               ),
             ),
           ),
 
-          // SOFT BLUE CIRCLE
           Positioned(
             right: -80,
             top: -80,
+
             child: Container(
               width: 245,
               height: 245,
+
               decoration: BoxDecoration(
                 color: tBlue3.withOpacity(0.045),
+
                 shape: BoxShape.circle,
               ),
             ),
           ),
 
-          // PRODUCT IMAGE SLIDER
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.all(28),
+
               child: PageView.builder(
                 controller: _imagePageController,
-                itemCount: _productImages.length,
+
+                itemCount: _carouselItemCount,
 
                 onPageChanged: (index) {
                   if (!mounted) return;
@@ -359,31 +843,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 },
 
                 itemBuilder: (context, index) {
+                  if (index == _featurePageIndex) {
+                    return _buildFeatureCollage();
+                  }
+
                   return Image.asset(
                     _productImages[index],
+
                     fit: BoxFit.contain,
+
                     errorBuilder: (context, error, stackTrace) {
                       return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.image_not_supported_outlined,
-                              size: 48,
-                              color: tBlack.withOpacity(0.20),
-                            ),
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
 
-                            const SizedBox(height: 12),
+                          size: 48,
 
-                            Text(
-                              'Product Image',
-                              style: GoogleFonts.manrope(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: tBlack.withOpacity(0.35),
-                              ),
-                            ),
-                          ],
+                          color: tBlack.withOpacity(0.20),
                         ),
                       );
                     },
@@ -393,11 +869,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
           ),
 
-          // BACKWARD ARROW
           Positioned(
             left: 5,
             top: 0,
             bottom: 0,
+
             child: Center(
               child: _buildImageNavigationButton(
                 icon: Icons.arrow_back_ios_new_rounded,
@@ -406,6 +882,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   if (_currentImageIndex > 0) {
                     _imagePageController.previousPage(
                       duration: const Duration(milliseconds: 350),
+
                       curve: Curves.easeOutCubic,
                     );
                   }
@@ -416,136 +893,62 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
           ),
 
-          // FORWARD ARROW
           Positioned(
             right: 5,
             top: 0,
             bottom: 0,
+
             child: Center(
               child: _buildImageNavigationButton(
                 icon: Icons.arrow_forward_ios_rounded,
 
                 onTap: () {
-                  if (_currentImageIndex < _productImages.length - 1) {
+                  if (_currentImageIndex < _carouselItemCount - 1) {
                     _imagePageController.nextPage(
                       duration: const Duration(milliseconds: 350),
+
                       curve: Curves.easeOutCubic,
                     );
                   }
                 },
 
-                enabled: _currentImageIndex < _productImages.length - 1,
+                enabled: _currentImageIndex < _carouselItemCount - 1,
               ),
             ),
           ),
 
-          // PRODUCT BADGE
-          // if (product.badge != null)
-          //   Positioned(
-          //     top: 18,
-          //     right: 18,
-          //     child: Container(
-          //       padding: const EdgeInsets.symmetric(
-          //         horizontal: 12,
-          //         vertical: 6,
-          //       ),
-          //       decoration: BoxDecoration(
-          //         color: product.badgeColor ?? tBlue3,
-          //         borderRadius: BorderRadius.circular(4),
-          //       ),
-          //       child: Text(
-          //         product.badge!,
-          //         style: GoogleFonts.manrope(
-          //           fontSize: 12,
-          //           fontWeight: FontWeight.w800,
-          //           color: tWhite,
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-
-          // SMALL IMAGE THUMBNAILS
           Positioned(
             left: 0,
             right: 0,
             bottom: 10,
+
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_productImages.length, (index) {
-                final bool isSelected = _currentImageIndex == index;
 
-                return GestureDetector(
-                  onTap: () {
-                    _imagePageController.animateToPage(
-                      index,
-                      duration: const Duration(milliseconds: 350),
-                      curve: Curves.easeOutCubic,
-                    );
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
+              children: [
+                ...List.generate(_productImages.length, (index) {
+                  return _buildProductThumbnail(index);
+                }),
 
-                    width: 52,
-                    height: 52,
-
-                    margin: EdgeInsets.only(
-                      left: index == 0 ? 0 : 5,
-                      right: index == _productImages.length - 1 ? 0 : 5,
-                    ),
-
-                    padding: const EdgeInsets.all(3),
-
-                    decoration: BoxDecoration(
-                      color: tWhite,
-                      borderRadius: BorderRadius.circular(6),
-
-                      border: Border.all(
-                        color: isSelected ? tOrange1 : tBlack.withOpacity(0.10),
-
-                        width: isSelected ? 1.5 : 1,
-                      ),
-
-                      boxShadow: [
-                        BoxShadow(
-                          color: tBlack.withOpacity(0.08),
-                          blurRadius: 7,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-
-                      child: Image.asset(
-                        _productImages[index],
-                        fit: BoxFit.contain,
-
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 18,
-                            color: tBlack.withOpacity(0.25),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              }),
+                _buildFeatureThumbnail(),
+              ],
             ),
           ),
 
-          // PRODUCT ID
           Positioned(
             left: 24,
             bottom: 20,
+
             child: Text(
               product.title,
+
               style: GoogleFonts.manrope(
                 fontSize: 13,
+
                 fontWeight: FontWeight.w800,
+
                 color: tBlue2.withOpacity(0.7),
+
                 letterSpacing: 1,
               ),
             ),
@@ -555,7 +958,221 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // IMAGE NAVIGATION BUTTON
+  Widget _buildProductThumbnail(int index) {
+    final bool isSelected = _currentImageIndex == index;
+
+    return GestureDetector(
+      onTap: () {
+        _imagePageController.animateToPage(
+          index,
+
+          duration: const Duration(milliseconds: 350),
+
+          curve: Curves.easeOutCubic,
+        );
+      },
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+
+        width: 52,
+        height: 52,
+
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+
+        padding: const EdgeInsets.all(3),
+
+        decoration: BoxDecoration(
+          color: tWhite,
+
+          borderRadius: BorderRadius.circular(6),
+
+          border: Border.all(
+            color: isSelected ? tOrange1 : tBlack.withOpacity(0.10),
+
+            width: isSelected ? 1.5 : 1,
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: tBlack.withOpacity(0.08),
+
+              blurRadius: 7,
+
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+
+          child: Image.asset(
+            _productImages[index],
+
+            fit: BoxFit.contain,
+
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(
+                Icons.image_not_supported_outlined,
+
+                size: 18,
+
+                color: tBlack.withOpacity(0.25),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureThumbnail() {
+    final bool isSelected = _currentImageIndex == _featurePageIndex;
+
+    return GestureDetector(
+      onTap: () {
+        _imagePageController.animateToPage(
+          _featurePageIndex,
+
+          duration: const Duration(milliseconds: 350),
+
+          curve: Curves.easeOutCubic,
+        );
+      },
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+
+        width: 52,
+        height: 52,
+
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+
+        padding: const EdgeInsets.all(3),
+
+        decoration: BoxDecoration(
+          color: tWhite,
+
+          borderRadius: BorderRadius.circular(6),
+
+          border: Border.all(
+            color: isSelected ? tOrange1 : tBlack.withOpacity(0.10),
+
+            width: isSelected ? 1.5 : 1,
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: tBlack.withOpacity(0.08),
+
+              blurRadius: 7,
+
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+
+          child: Stack(
+            children: [
+              for (final item in _featureItems.take(4))
+                Positioned(
+                  left: item.left / 100 * 46,
+
+                  top: item.top / 100 * 46,
+
+                  width: item.width / 100 * 46,
+
+                  height: item.height / 100 * 46,
+
+                  child: _buildFeatureAsset(item),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCollage() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+
+        final double height = constraints.maxHeight;
+
+        return Stack(
+          clipBehavior: Clip.hardEdge,
+
+          children: [
+            for (final item in _featureItems)
+              Positioned(
+                left: (item.left / 100) * width,
+
+                top: (item.top / 100) * height,
+
+                width: (item.width / 100) * width,
+
+                height: (item.height / 100) * height,
+
+                child: Transform.rotate(
+                  angle: item.rotation,
+
+                  child: Opacity(
+                    opacity: item.opacity,
+
+                    child: _buildFeatureAsset(item),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFeatureAsset(_FeatureItem item) {
+    if (item.isSvg) {
+      return SvgPicture.asset(
+        item.asset,
+
+        fit: BoxFit.contain,
+
+        placeholderBuilder: (context) {
+          return Center(
+            child: Icon(
+              Icons.image_outlined,
+
+              size: 25,
+
+              color: tBlack.withOpacity(0.20),
+            ),
+          );
+        },
+      );
+    }
+
+    return Image.asset(
+      item.asset,
+
+      fit: BoxFit.contain,
+
+      errorBuilder: (context, error, stackTrace) {
+        return Center(
+          child: Icon(
+            Icons.image_not_supported_outlined,
+
+            size: 30,
+
+            color: tBlack.withOpacity(0.20),
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildImageNavigationButton({
     required IconData icon,
@@ -564,6 +1181,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }) {
     return Material(
       color: Colors.transparent,
+
       child: InkWell(
         onTap: enabled ? onTap : null,
 
@@ -587,7 +1205,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             boxShadow: [
               BoxShadow(
                 color: tBlack.withOpacity(0.10),
+
                 blurRadius: 10,
+
                 offset: const Offset(0, 3),
               ),
             ],
@@ -595,6 +1215,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
           child: Icon(
             icon,
+
             size: 17,
 
             color: enabled ? tBlue2 : tBlack.withOpacity(0.22),
@@ -625,13 +1246,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       final double targetOffset =
           viewport.getOffsetToReveal(renderObject, 0.05).offset;
 
-      // Features/Specifications/Connectivity/Applications all live in the
-      // right column, so scroll that column's own controller. On compact
-      // layout, the right column's SingleChildScrollView is nested inside
-      // the outer page scroll view — the controller still resolves to the
-      // nearest enclosing scrollable in that case, so this keeps working
-      // on mobile too.
-      if (!_rightScrollController.hasClients) return;
+      if (!_rightScrollController.hasClients) {
+        return;
+      }
 
       final double maxScroll = _rightScrollController.position.maxScrollExtent;
 
@@ -639,80 +1256,65 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
       _rightScrollController.animateTo(
         clampedOffset,
+
         duration: const Duration(milliseconds: 350),
+
         curve: Curves.easeOutCubic,
       );
     });
   }
-  // RIGHT INFORMATION AREA
 
   Widget _buildRightInformationArea() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+
       children: [
-        // PRODUCT DESCRIPTION
-        Text(
-          'PRODUCT DESCRIPTION',
-          style: GoogleFonts.manrope(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: tBlack,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+
+          children: [
+            Expanded(
+              child: Text(
+                'PRODUCT DESCRIPTION',
+
+                style: GoogleFonts.manrope(
+                  fontSize: 17,
+
+                  fontWeight: FontWeight.w800,
+
+                  color: tBlack,
+                ),
+              ),
+            ),
+
+            const _DataSheetButton(),
+          ],
         ),
 
         const SizedBox(height: 37),
 
-        // BLUE LINE
         Container(width: 98, height: 2, color: tBlue2),
 
         const SizedBox(height: 27),
 
-        // DESCRIPTION
         Text(
           product.description,
+
           style: GoogleFonts.manrope(
             fontSize: 14.5,
+
             fontWeight: FontWeight.w600,
+
             color: tBlack.withOpacity(0.65),
+
             height: 1.65,
           ),
         ),
 
         const SizedBox(height: 22),
 
-        // USE CASES
-        _buildUseCases(),
-
         const SizedBox(height: 36),
 
-        // FEATURES
-        _buildExpandableSection(
-          title: 'FEATURES',
-
-          icon:
-              _featuresExpanded
-                  ? Icons.indeterminate_check_box_outlined
-                  : Icons.add_box_outlined,
-
-          expanded: _featuresExpanded,
-
-          onTap: () {
-            final bool willExpand = !_featuresExpanded;
-
-            setState(() {
-              _featuresExpanded = willExpand;
-            });
-
-            if (willExpand) {
-              _scrollToExpandedSection(_featuresKey);
-            }
-          },
-
-          child: _buildFeaturesContent(),
-          sectionKey: _featuresKey,
-        ),
-
-        // SPECIFICATIONS
         _buildExpandableSection(
           title: 'SPECIFICATIONS',
 
@@ -736,10 +1338,37 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           },
 
           child: _buildSpecificationsContent(),
+
           sectionKey: _specificationsKey,
         ),
 
-        // CONNECTIVITY
+        _buildExpandableSection(
+          title: 'FEATURES',
+
+          icon:
+              _featuresExpanded
+                  ? Icons.indeterminate_check_box_outlined
+                  : Icons.add_box_outlined,
+
+          expanded: _featuresExpanded,
+
+          onTap: () {
+            final bool willExpand = !_featuresExpanded;
+
+            setState(() {
+              _featuresExpanded = willExpand;
+            });
+
+            if (willExpand) {
+              _scrollToExpandedSection(_featuresKey);
+            }
+          },
+
+          child: _buildFeaturesContent(),
+
+          sectionKey: _featuresKey,
+        ),
+
         _buildExpandableSection(
           title: 'CONNECTIVITY & INTEGRATION',
 
@@ -763,10 +1392,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           },
 
           child: _buildConnectivityContent(),
+
           sectionKey: _connectivityKey,
         ),
 
-        // APPLICATIONS
         _buildExpandableSection(
           title: 'APPLICATIONS',
 
@@ -788,75 +1417,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               _scrollToExpandedSection(_applicationsKey);
             }
           },
+
           child: _buildApplicationsContent(),
+
           sectionKey: _applicationsKey,
         ),
       ],
     );
   }
-
-  // USE CASES
-
-  Widget _buildUseCases() {
-    final useCases = [
-      'Electric and Hybrid Vehicles',
-      'Road Safety',
-      'Pedestrian Safety',
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Use Cases',
-          style: GoogleFonts.manrope(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: tBlack,
-          ),
-        ),
-
-        const SizedBox(height: 14),
-
-        ...useCases.map((item) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 9),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Container(
-                    width: 6,
-                    height: 6,
-                    decoration: const BoxDecoration(
-                      color: tBlue2,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 11),
-
-                Expanded(
-                  child: Text(
-                    item,
-                    style: GoogleFonts.manrope(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: tBlack.withOpacity(0.65),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  // EXPANDABLE SECTION
 
   Widget _buildExpandableSection({
     required String title,
@@ -877,10 +1445,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
       child: Column(
         key: sectionKey,
+
         crossAxisAlignment: CrossAxisAlignment.stretch,
 
         children: [
-          // HEADER
           Material(
             color: Colors.transparent,
 
@@ -902,35 +1470,23 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                     Text(
                       title,
+
                       style: GoogleFonts.manrope(
                         fontSize: 15,
+
                         fontWeight: FontWeight.w800,
+
                         color: tBlack,
                       ),
                     ),
 
                     const Spacer(),
-
-                    // AnimatedRotation(
-                    //   duration: const Duration(milliseconds: 180),
-
-                    //   turns: expanded ? 0.5 : 0,
-
-                    //   child: Icon(
-                    //     Icons.keyboard_arrow_down_rounded,
-
-                    //     size: 21,
-
-                    //     color: tBlack.withOpacity(0.45),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
             ),
           ),
 
-          // CONTENT
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 220),
 
@@ -952,8 +1508,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // FEATURES
-
   Widget _buildFeaturesContent() {
     final features = [
       'Datalogging up to 15000 Location Records',
@@ -962,7 +1516,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       'Odometer (GPS & Pulse Count)',
       'Firmware Over The Air (FOTA)',
       'Battery Back-up',
-      'IP65',
+      'IP67',
       'Immobilization Support',
       'Driver behavior',
     ];
@@ -983,8 +1537,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                   style: GoogleFonts.manrope(
                     fontSize: 13,
+
                     fontWeight: FontWeight.w600,
+
                     color: tBlack.withOpacity(0.90),
+
                     height: 1.45,
                   ),
                 ),
@@ -993,8 +1550,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
-
-  // SPECIFICATIONS
 
   Widget _buildSpecificationsContent() {
     final specifications = [
@@ -1032,8 +1587,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                   style: GoogleFonts.manrope(
                     fontSize: 13,
+
                     fontWeight: FontWeight.w600,
+
                     color: tBlack.withOpacity(0.90),
+
                     height: 1.45,
                   ),
                 ),
@@ -1042,8 +1600,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
-
-  // CONNECTIVITY
 
   Widget _buildConnectivityContent() {
     final connectivityItems = [
@@ -1071,8 +1627,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                   style: GoogleFonts.manrope(
                     fontSize: 13,
+
                     fontWeight: FontWeight.w600,
+
                     color: tBlack.withOpacity(0.90),
+
                     height: 1.45,
                   ),
                 ),
@@ -1081,8 +1640,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
-
-  // APPLICATIONS
 
   Widget _buildApplicationsContent() {
     final applications = [
@@ -1111,8 +1668,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                   style: GoogleFonts.manrope(
                     fontSize: 13,
+
                     fontWeight: FontWeight.w600,
+
                     color: tBlack.withOpacity(0.90),
+
                     height: 1.45,
                   ),
                 ),
@@ -1121,8 +1681,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
-
-  // TALK TO OUR TEAM
 
   Widget _buildTalkToTeamSection() {
     return Container(
@@ -1165,7 +1723,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                   style: GoogleFonts.manrope(
                     fontSize: 17,
+
                     fontWeight: FontWeight.w800,
+
                     color: tBlue2,
                   ),
                 ),
@@ -1177,8 +1737,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                   style: GoogleFonts.manrope(
                     fontSize: 11.5,
+
                     fontWeight: FontWeight.w400,
+
                     color: tBlack.withOpacity(0.52),
+
                     height: 1.5,
                   ),
                 ),
@@ -1197,7 +1760,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               borderRadius: BorderRadius.circular(4),
 
               onTap: () {
-                // Add your contact action here.
+                // CONTACT ACTION
               },
 
               child: Container(
@@ -1221,7 +1784,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                       style: GoogleFonts.manrope(
                         fontSize: 10.5,
+
                         fontWeight: FontWeight.w800,
+
                         color: tWhite,
                       ),
                     ),
@@ -1230,7 +1795,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                     const Icon(
                       Icons.arrow_forward_rounded,
+
                       size: 16,
+
                       color: tWhite,
                     ),
                   ],
@@ -1239,6 +1806,315 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FeatureItem {
+  final String asset;
+
+  final bool isSvg;
+
+  final double left;
+  final double top;
+
+  final double width;
+  final double height;
+
+  final double rotation;
+  final double opacity;
+
+  const _FeatureItem({
+    required this.asset,
+    required this.isSvg,
+
+    this.left = 0,
+    this.top = 0,
+
+    this.width = 20,
+    this.height = 20,
+
+    this.rotation = 0,
+    this.opacity = 1,
+  });
+
+  const _FeatureItem.svg(
+    String asset, {
+    double left = 0,
+    double top = 0,
+
+    double width = 20,
+    double height = 20,
+
+    double rotation = 0,
+    double opacity = 1,
+  }) : this(
+         asset: asset,
+         isSvg: true,
+
+         left: left,
+         top: top,
+
+         width: width,
+         height: height,
+
+         rotation: rotation,
+         opacity: opacity,
+       );
+
+  const _FeatureItem.image(
+    String asset, {
+    double left = 0,
+    double top = 0,
+
+    double width = 20,
+    double height = 20,
+
+    double rotation = 0,
+    double opacity = 1,
+  }) : this(
+         asset: asset,
+         isSvg: false,
+
+         left: left,
+         top: top,
+
+         width: width,
+         height: height,
+
+         rotation: rotation,
+         opacity: opacity,
+       );
+}
+
+class _DataSheetButton extends StatefulWidget {
+  const _DataSheetButton();
+
+  @override
+  State<_DataSheetButton> createState() => _DataSheetButtonState();
+}
+
+class _DataSheetButtonState extends State<_DataSheetButton> {
+  bool _isHovered = false;
+
+  void _openDataSheetPlaceholder() {
+    showDialog(
+      context: context,
+
+      builder: (context) {
+        return Dialog(
+          backgroundColor: tWhite,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+
+          child: Container(
+            width: 420,
+
+            padding: const EdgeInsets.all(30),
+
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+
+              children: [
+                Container(
+                  width: 55,
+                  height: 55,
+
+                  decoration: BoxDecoration(
+                    color: tBlue2.withOpacity(0.08),
+
+                    shape: BoxShape.circle,
+                  ),
+
+                  child: const Icon(
+                    Icons.description_outlined,
+
+                    color: tBlue2,
+
+                    size: 28,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                Text(
+                  'DATA SHEET',
+
+                  style: GoogleFonts.manrope(
+                    fontSize: 17,
+
+                    fontWeight: FontWeight.w800,
+
+                    color: tBlack,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  'Data sheet will be available here.',
+
+                  textAlign: TextAlign.center,
+
+                  style: GoogleFonts.manrope(
+                    fontSize: 13,
+
+                    fontWeight: FontWeight.w500,
+
+                    color: tBlack.withOpacity(0.55),
+
+                    height: 1.5,
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                Material(
+                  color: Colors.transparent,
+
+                  child: InkWell(
+                    mouseCursor: SystemMouseCursors.click,
+
+                    borderRadius: BorderRadius.circular(4),
+
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 11,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: tBlue2,
+
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+
+                      child: Text(
+                        'CLOSE',
+
+                        style: GoogleFonts.manrope(
+                          fontSize: 10.5,
+
+                          fontWeight: FontWeight.w800,
+
+                          color: tWhite,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+
+      onEnter: (_) {
+        setState(() {
+          _isHovered = true;
+        });
+      },
+
+      onExit: (_) {
+        setState(() {
+          _isHovered = false;
+        });
+      },
+
+      child: GestureDetector(
+        onTap: _openDataSheetPlaceholder,
+
+        child: AnimatedScale(
+          scale: _isHovered ? 1.06 : 1.0,
+
+          duration: const Duration(milliseconds: 180),
+
+          curve: Curves.easeOutBack,
+
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+
+            curve: Curves.easeOutCubic,
+
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+
+            decoration: BoxDecoration(
+              color: _isHovered ? tOrange1 : tOrange1.withOpacity(0.90),
+
+              borderRadius: BorderRadius.circular(8),
+
+              boxShadow: [
+                BoxShadow(
+                  color: tBlue2.withOpacity(_isHovered ? 0.28 : 0),
+
+                  blurRadius: _isHovered ? 14 : 0,
+
+                  spreadRadius: _isHovered ? 1 : 0,
+
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+
+              children: [
+                Text(
+                  'DATA SHEET',
+
+                  style: GoogleFonts.manrope(
+                    fontSize: 11,
+
+                    fontWeight: FontWeight.w800,
+
+                    color: tWhite,
+
+                    letterSpacing: 0.3,
+                  ),
+                ),
+
+                const SizedBox(width: 7),
+
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+
+                  transform: Matrix4.translationValues(
+                    _isHovered ? 3 : 0,
+                    0,
+                    0,
+                  ),
+
+                  child: SvgPicture.asset(
+                    'icons/arrow.svg',
+
+                    width: 14,
+                    height: 14,
+
+                    colorFilter: const ColorFilter.mode(
+                      tWhite,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

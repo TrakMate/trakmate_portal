@@ -7,11 +7,19 @@ import 'package:trakmate_portal/src/utils/colors.dart';
 class ScrollerButton extends StatefulWidget {
   final bool isVisible;
   final VoidCallback onTap;
-
+  // NEW: lets you reuse this widget with a different icon (e.g. scroll-up arrow)
+  final String svgAsset;
+  final Color iconColor; // second color
+  final Color iconHoverColor;
+  final bool rotateIcon;
   const ScrollerButton({
     super.key,
     required this.isVisible,
     required this.onTap,
+    this.svgAsset = 'icons/down1.svg', // default keeps old behavior intact
+    this.iconColor = tWhite, // second scroller clr
+    this.iconHoverColor = tOrange1,
+    this.rotateIcon = false,
   });
 
   @override
@@ -97,6 +105,7 @@ class _ScrollerButtonState extends State<ScrollerButton>
                         painter: _ScrollerPainter(
                           progress: _progressController.value,
                           isHovered: _isHovered,
+                          // fillColor: tOrange1.withOpacity(0.2), //fill color
                         ),
                         child: child,
                       );
@@ -116,48 +125,23 @@ class _ScrollerButtonState extends State<ScrollerButton>
                             child: child,
                           );
                         },
-                        child: SvgPicture.asset(
-                          'icons/mouse1.svg',
-                          width: 27,
-                          height: 27,
-                          fit: BoxFit.contain,
-                          color: _isHovered ? tOrange1 : tWhite,
+                        child: Transform.rotate(
+                          angle:
+                              widget.rotateIcon ? pi : 0.0, // static 180° flip
+                          child: SvgPicture.asset(
+                            widget.svgAsset,
+                            width: 27,
+                            height: 27,
+                            fit: BoxFit.contain,
+                            color:
+                                _isHovered
+                                    ? widget.iconHoverColor
+                                    : widget.iconColor,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  //                   AnimatedContainer(
-                  //   duration: const Duration(milliseconds: 180),
-                  //   curve: Curves.easeOut,
-                  //   width: 40,
-                  //   height: 40,
-                  //   decoration: BoxDecoration(
-                  //     shape: BoxShape.circle,
-                  //     color:
-                  //         _isHovered
-                  //             ? tOrange1.withOpacity(0.15)
-                  //             : tWhite.withOpacity(0.15),
-                  //     border: Border.all(
-                  //       color:
-                  //           _isHovered
-                  //               ? tOrange1
-                  //               : tWhite.withOpacity(0.6),
-                  //       width: 1.5,
-                  //     ),
-                  //   ),
-                  //   child: Center(
-                  //     child: SvgPicture.asset(
-                  //       'icons/mouse1.svg',
-                  //       width: 28,
-                  //       height: 28,
-                  //       fit: BoxFit.contain,
-                  //       color:
-                  //           _isHovered
-                  //               ? tOrange1
-                  //               : tWhite,
-                  //     ),
-                  //   ),
-                  // ),
                 ),
               ),
             ),
@@ -171,8 +155,12 @@ class _ScrollerButtonState extends State<ScrollerButton>
 class _ScrollerPainter extends CustomPainter {
   final double progress;
   final bool isHovered;
-
-  _ScrollerPainter({required this.progress, required this.isHovered});
+  // final Color fillColor;
+  _ScrollerPainter({
+    required this.progress,
+    required this.isHovered,
+    // this.fillColor = tWhite,//fill color
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -188,7 +176,12 @@ class _ScrollerPainter extends CustomPainter {
           ..color = tWhite.withOpacity(0.35);
 
     canvas.drawCircle(center, radius, basePaint);
+    // final Paint fillPaint =
+    //     Paint()
+    //       ..color = fillColor
+    //       ..style = PaintingStyle.fill;
 
+    // canvas.drawCircle(center, radius, fillPaint);//fill color
     // Progress ring.
     final Paint progressPaint =
         Paint()

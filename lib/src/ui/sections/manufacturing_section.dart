@@ -1,7 +1,9 @@
+//manufacturing
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 
@@ -10,8 +12,13 @@ import '../widgets/footer_section.dart';
 
 class ManufacturingSection extends StatefulWidget {
   final bool isActive;
+  final void Function(int index) onNavigate;
 
-  const ManufacturingSection({super.key, required this.isActive});
+  const ManufacturingSection({
+    super.key,
+    required this.isActive,
+    required this.onNavigate,
+  });
 
   @override
   State<ManufacturingSection> createState() => _ManufacturingSectionState();
@@ -19,18 +26,68 @@ class ManufacturingSection extends StatefulWidget {
 
 class _ManufacturingSectionState extends State<ManufacturingSection> {
   bool _heroImageLoading = true; // NEW
+  bool _cardsLoading = true; // NEW
   @override
   void initState() {
-    super.initState(); // NEW
+    super.initState();
+    SectionScrollBus.instance.pendingKey.addListener(_onPendingKeyChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
+      _preloadServiceImages();
+      _tryScrollToPending();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant ManufacturingSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _tryScrollToPending(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    SectionScrollBus.instance.pendingKey.removeListener(_onPendingKeyChanged);
+    super.dispose();
+  }
+
+  void _onPendingKeyChanged() {
+    if (widget.isActive) _tryScrollToPending();
+  }
+
+  void _tryScrollToPending() {
+    final target = SectionScrollBus.instance.pendingKey.value;
+    if (target == null) return;
+
+    final key = _serviceKeys[target.key];
+    if (key == null) return; // not one of this section's items
+
+    final ctx = key.currentContext;
+    if (ctx == null) {
+      // layout not ready yet, retry next frame
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _tryScrollToPending(),
+      );
+      return;
+    }
+
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+      alignment: 0.1,
+    );
+
+    SectionScrollBus.instance.pendingKey.value = null; // consumed
   }
 
   Future<void> _preloadHeroImage() async {
     try {
       await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      await Future.delayed(const Duration(seconds: 3)); //  testing only
+      // await Future.delayed(const Duration(seconds: 3)); //  testing only
     } catch (e) {
       debugPrint('Error preloading solutions hero image: $e');
     }
@@ -41,9 +98,32 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     });
   }
 
+  Future<void> _preloadServiceImages() async {
+    try {
+      await Future.wait(
+        _services.map((s) => precacheImage(AssetImage(s.image), context)),
+      );
+    } catch (e) {
+      debugPrint('Error preloading service images: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _cardsLoading = false;
+    });
+  }
+
   static const String _heroImage = 'images/manufacturing.jpg';
   // static const String _cardImage = 'images/company.jpg';
 
+  final Map<String, GlobalKey> _serviceKeys = {
+    'Electronics Manufacturing': GlobalKey(),
+    'Product Assembly': GlobalKey(),
+    'Testing & Validation': GlobalKey(),
+    'Quality Assurance': GlobalKey(),
+    'Production Support': GlobalKey(),
+    'Contract Manufacturing': GlobalKey(),
+  };
   final List<_ManufacturingService> _services = const [
     _ManufacturingService(
       title: 'Electronics Manufacturing',
@@ -195,7 +275,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
           const SizedBox(height: 45),
 
-          FooterSection(),
+          FooterSection(onNavigate: widget.onNavigate),
         ],
       ),
     );
@@ -459,7 +539,18 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         LayoutBuilder(
           builder: (context, constraints) {
             final cardWidth = (constraints.maxWidth - 32) / 3;
-
+            if (_cardsLoading) {
+              return Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: List.generate(_services.length, (index) {
+                  return SizedBox(
+                    width: cardWidth,
+                    child: const ServiceCardShimmer(),
+                  );
+                }),
+              );
+            }
             return Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -467,6 +558,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                 final service = _services[index];
 
                 return SizedBox(
+                  key: _serviceKeys[service.title], // <-- add this
                   width: cardWidth,
                   child: _buildServiceCard(service, index),
                 );
@@ -767,16 +859,4 @@ class _ManufacturingValue {
   });
 }
 
-class _ManufacturingProcess {
-  final String number;
-  final String title;
-  final String description;
-  final String icon;
 
-  const _ManufacturingProcess({
-    required this.number,
-    required this.title,
-    required this.description,
-    required this.icon,
-  });
-}

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildengineering.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
@@ -10,7 +11,12 @@ import '../widgets/footer_section.dart';
 
 class EngineeringSection extends StatefulWidget {
   final bool isActive;
-  const EngineeringSection({super.key, required this.isActive});
+  final void Function(int index)? onNavigate;
+  const EngineeringSection({
+    super.key,
+    required this.isActive,
+    this.onNavigate,
+  });
 
   @override
   State<EngineeringSection> createState() => _EngineeringSectionState();
@@ -18,18 +24,74 @@ class EngineeringSection extends StatefulWidget {
 
 class _EngineeringSectionState extends State<EngineeringSection> {
   bool _heroImageLoading = true; // NEW
+  final Map<String, GlobalKey> _serviceKeys = {
+    'CAD Design': GlobalKey(),
+    'Product Design': GlobalKey(),
+    'Mechanical Engineering': GlobalKey(),
+    'PCB Design': GlobalKey(),
+    'PCB Assembly (PCBA)': GlobalKey(),
+    'Firmware Development': GlobalKey(),
+    'Prototyping': GlobalKey(),
+  };
   @override
   void initState() {
     super.initState(); // NEW
+    SectionScrollBus.instance.pendingKey.addListener(_onPendingKeyChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
+      _tryScrollToPending();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant EngineeringSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _tryScrollToPending(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    SectionScrollBus.instance.pendingKey.removeListener(_onPendingKeyChanged);
+    super.dispose();
+  }
+
+  void _onPendingKeyChanged() {
+    if (widget.isActive) _tryScrollToPending();
+  }
+
+  void _tryScrollToPending() {
+    final target = SectionScrollBus.instance.pendingKey.value;
+    if (target == null) return;
+
+    final key = _serviceKeys[target.key];
+    if (key == null) return; // not one of this section's items
+
+    final ctx = key.currentContext;
+    if (ctx == null) {
+      // layout not ready yet, retry next frame
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _tryScrollToPending(),
+      );
+      return;
+    }
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+      alignment: 0.1,
+    );
+
+    SectionScrollBus.instance.pendingKey.value = null; // consumed
   }
 
   Future<void> _preloadHeroImage() async {
     try {
       await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      await Future.delayed(const Duration(seconds: 3)); //  testing only
+      // await Future.delayed(const Duration(seconds: 3)); //  testing only
     } catch (e) {
       debugPrint('Error preloading solutions hero image: $e');
     }
@@ -50,9 +112,9 @@ class _EngineeringSectionState extends State<EngineeringSection> {
               ? const HeroHeaderShimmer() // NEW
               : _buildEngineeringHeader(),
           const SizedBox(height: 30),
-          BuildEngineeringSection(),
+          BuildEngineeringSection(serviceKeys: _serviceKeys),
           const SizedBox(height: 40),
-          FooterSection(),
+          FooterSection(onNavigate: widget.onNavigate),
         ],
       ),
     );

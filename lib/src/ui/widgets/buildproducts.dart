@@ -5,6 +5,7 @@ import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/solutions_hub.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 class BuildProductSection extends StatefulWidget {
@@ -22,9 +23,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   final List<_FilterTabData> _filterTabs = const [
     _FilterTabData(icon: "icons/all.svg", label: 'All Products'),
     _FilterTabData(icon: "icons/trackers.svg", label: 'Vehicle Trackers'),
+    _FilterTabData(icon: "icons/car.svg", label: 'Vehicle Diagnostics'),
+
     _FilterTabData(icon: "icons/gateway.svg", label: 'Gateways'),
     _FilterTabData(icon: "icons/iot.svg", label: 'Clusters'),
     _FilterTabData(icon: "icons/car.svg", label: 'ADAS'),
+    _FilterTabData(icon: "icons/car.svg", label: 'Solutions Hub'),
   ];
 
   final List<ProductData> _products = const [
@@ -113,7 +117,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       badgeColor: ipbadge,
       title: 'TMD400',
       subtitle: 'Industrial IoT Gateway',
-      category: 'Vehicle Trackers',
+      category: 'Vehicle Diagnostics',
       description:
           'OBD vehicle diagnostics with Bluetooth 5.0, remote diagnostics, and error detection.',
       features: [
@@ -149,30 +153,30 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         ),
       ],
     ),
-    ProductData(
-      image: 'images/tmd364-side1.png',
-      image2: 'images/tmd364-top1.png',
-      image3: 'images/tmd364-back1.png',
-      image4: 'images/tmd364-part1.png',
-      badge: 'AIS140',
-      badgeColor: ipbadge,
-      title: 'TMD 364-AIS140',
-      subtitle: 'Industrial IoT Gateway',
-      category: 'Vehicle Trackers',
-      description:
-          '4G LTE with 2G fallback, GNSS + IRNSS positioning, BLE 5.0, vehicle diagnostics, and IP67 protection.',
-      features: [
-        ProductFeature(icon: Icons.usb_rounded, label: 'OBD-II Interface'),
-        ProductFeature(
-          icon: Icons.directions_car_outlined,
-          label: 'Vehicle Data',
-        ),
-        ProductFeature(
-          icon: Icons.build_circle_outlined,
-          label: 'Easy Installation',
-        ),
-      ],
-    ),
+    // ProductData(
+    //   image: 'images/tmd364-side1.png',
+    //   image2: 'images/tmd364-top1.png',
+    //   image3: 'images/tmd364-back1.png',
+    //   image4: 'images/tmd364-part1.png',
+    //   badge: 'AIS140',
+    //   badgeColor: ipbadge,
+    //   title: 'TMD 364-AIS140',
+    //   subtitle: 'Industrial IoT Gateway',
+    //   category: 'Vehicle Trackers',
+    //   description:
+    //       '4G LTE with 2G fallback, GNSS + IRNSS positioning, BLE 5.0, vehicle diagnostics, and IP67 protection.',
+    //   features: [
+    //     ProductFeature(icon: Icons.usb_rounded, label: 'OBD-II Interface'),
+    //     ProductFeature(
+    //       icon: Icons.directions_car_outlined,
+    //       label: 'Vehicle Data',
+    //     ),
+    //     ProductFeature(
+    //       icon: Icons.build_circle_outlined,
+    //       label: 'Easy Installation',
+    //     ),
+    //   ],
+    // ),
     ProductData(
       image: 'images/tmd364-side1.png',
       image2: 'images/tmd364-top1.png',
@@ -356,9 +360,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       await Future.wait(
         imagePaths.map((path) => precacheImage(AssetImage(path), context)),
       );
-      await Future.delayed(
-        const Duration(seconds: 3),
-      ); //just fr testing purposes
+
+      await Future.delayed(const Duration(seconds: 3));
     } catch (e) {
       debugPrint('Error preloading product images: $e');
     }
@@ -369,38 +372,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       _imagesLoading = false;
     });
   }
-
-  // Future<void> _preloadProductImages() async {
-  //   try {
-  //     final imagePaths = _products.map((product) => product.image).toSet();
-
-  //     debugPrint('🟡 Starting image preload...');
-  //     debugPrint('🟡 Total unique images: ${imagePaths.length}');
-
-  //     await Future.wait(
-  //       imagePaths.map((path) => precacheImage(AssetImage(path), context)),
-  //     );
-
-  //     debugPrint('🎉 ALL PRODUCT IMAGES LOADED');
-
-  //     // TESTING ONLY
-  //     await Future.delayed(const Duration(seconds: 8));
-
-  //     debugPrint('⏰ Test delay finished');
-
-  //     debugPrint('🎉 ALL PRODUCT IMAGES LOADED');
-  //   } catch (e) {
-  //     debugPrint('❌ Error preloading product images: $e');
-  //   }
-
-  //   if (!mounted) return;
-
-  //   setState(() {
-  //     _imagesLoading = false;
-  //   });
-
-  //   debugPrint('🟢 _imagesLoading = false');
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -414,16 +385,23 @@ class _BuildProductSectionState extends State<BuildProductSection> {
               child: widget.header,
             ),
             // Positioned(
-            //   left: 40,
-            //   right: 40,
+            //   left: 60,
+            //   right: 60,
             //   bottom: 35,
             //   child: _buildFilterTabsBar(),
             // ),
             Positioned(
-              left: MediaQuery.of(context).size.width * 0.15,
-              right: MediaQuery.of(context).size.width * 0.15,
+              left: 24,
+              right: 24,
               bottom: 35,
-              child: _buildFilterTabsBar(),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width - 48,
+                  ),
+                  child: SizedBox(width: 1250, child: _buildFilterTabsBar()),
+                ),
+              ),
             ),
           ],
         ),
@@ -459,7 +437,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   Widget _buildFilterTabsBar() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
         color: tWhite,
         borderRadius: BorderRadius.circular(16),
@@ -472,12 +450,15 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         ],
       ),
       child: Row(
-        children: List.generate(_filterTabs.length, (index) {
-          return Expanded(
-            child: Center(
-              child: _buildFilterTab(index: index, tab: _filterTabs[index]),
-            ),
-          );
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: List.generate(_filterTabs.length * 2 - 1, (index) {
+          if (index.isOdd) {
+            return const SizedBox(width: 40);
+          }
+
+          final int tabIndex = index ~/ 2;
+          return _buildFilterTab(index: tabIndex, tab: _filterTabs[tabIndex]);
         }),
       ),
     );
@@ -495,7 +476,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(10),
@@ -568,13 +549,28 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       return ProductShimmer();
     }
 
-    final selectedLabel = _filterTabs[_selectedFilterIndex].label;
+    final String selectedLabel = _filterTabs[_selectedFilterIndex].label;
 
-    // When "All Products" is selected,
-    // display products grouped by their category.
+    // ==========================================================
+    // SOLUTIONS HUB
+    // ==========================================================
+    //
+    // Solutions Hub is a separate page/widget, not a ProductData
+    // category. The tab remains visible because build() still builds
+    // the header and filter bar before this content.
+    //
+    if (selectedLabel == 'Solutions Hub') {
+      return SolutionsHubPage();
+    }
+
+    // ==========================================================
+    // ALL PRODUCTS
+    // ==========================================================
+
     if (selectedLabel == 'All Products') {
-      final categories = <String>[
+      final List<String> categories = [
         'Vehicle Trackers',
+        'Vehicle Diagnostics',
         'Gateways',
         'Clusters',
         'ADAS',
@@ -585,16 +581,22 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           for (final category in categories)
             _buildCategorySection(
               category,
-              _products.where((p) => p.category == category).toList(),
+              _products
+                  .where((product) => product.category == category)
+                  .toList(),
             ),
         ],
       );
     }
 
-    // When a specific filter is selected,
-    // show only that category with its heading.
-    final products =
-        _products.where((p) => p.category == selectedLabel).toList();
+    // ==========================================================
+    // INDIVIDUAL CATEGORY
+    // ==========================================================
+
+    final List<ProductData> products =
+        _products
+            .where((product) => product.category == selectedLabel)
+            .toList();
 
     if (products.isEmpty) {
       return _buildEmptyState();
@@ -634,13 +636,16 @@ class _BuildProductSectionState extends State<BuildProductSection> {
             ),
           ),
           // PRODUCT CARDS
-          _buildCategoryProductsGrid(products),
+          _buildCategoryProductsGrid(products, category: category),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryProductsGrid(List<ProductData> products) {
+  Widget _buildCategoryProductsGrid(
+    List<ProductData> products, {
+    required String category,
+  }) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double screenWidth = constraints.maxWidth;
@@ -653,23 +658,30 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           cardWidth = 330;
         }
 
+        final int cardsPerRow = category == 'Solutions Hub' ? 2 : 4;
+
         return Column(
           children: [
-            for (int i = 0; i < products.length; i += 4)
+            for (int i = 0; i < products.length; i += cardsPerRow)
               Padding(
                 padding: EdgeInsets.only(
-                  bottom: i + 4 < products.length ? 16 : 0,
+                  bottom: i + cardsPerRow < products.length ? 16 : 0,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 75),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      for (int j = i; j < i + 4 && j < products.length; j++)
+                      for (
+                        int j = i;
+                        j < i + cardsPerRow && j < products.length;
+                        j++
+                      )
                         Padding(
                           padding: EdgeInsets.only(
                             right:
-                                j + 1 < i + 4 && j + 1 < products.length
+                                j + 1 < i + cardsPerRow &&
+                                        j + 1 < products.length
                                     ? 16
                                     : 0,
                           ),

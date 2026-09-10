@@ -1,11 +1,14 @@
+//footer
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 
 import '../../utils/colors.dart';
 
 class FooterSection extends StatelessWidget {
-  const FooterSection({super.key});
+  final void Function(int index)? onNavigate;
+  const FooterSection({super.key, this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class FooterSection extends StatelessWidget {
                 "Cloud & AI",
                 "Mobile Apps",
                 "Web Applications",
-              ]),
+              ], sectionIndex: 1),
               _divider(),
 
               _menu("Engineering", [
@@ -43,7 +46,7 @@ class FooterSection extends StatelessWidget {
                 "PCB Assembly (PCBA)",
                 "Firmware Development",
                 "Prototyping",
-              ]),
+              ], sectionIndex: 1),
               _divider(),
 
               _menu("Manufacturing", [
@@ -53,9 +56,28 @@ class FooterSection extends StatelessWidget {
                 "Quality Assurance",
                 "Production Support",
                 "Contract Manufacturing",
+              ], sectionIndex: 2),
+              _divider(),
+
+              _menu("Products", [
+                "All Products",
+                "Vehicle Trackers",
+                "Vehicle Diagnostics",
+                "Gateways",
+                "Clusters",
+                "ADAS",
+                "Solution Hub",
               ]),
               _divider(),
 
+              // _menu("Resources", [
+              //   "Case Studies",
+              //   "Whitepapers",
+              //   "Blogs",
+              //   "Documentation",
+              //   "Downloads",
+              //   "FAQs",
+              // ]),
               _menu("Company", [
                 "About Us",
                 "Our Team",
@@ -63,17 +85,7 @@ class FooterSection extends StatelessWidget {
                 "Careers",
                 "News & Media",
                 "Contact Us",
-              ]),
-              _divider(),
-
-              _menu("Resources", [
-                "Case Studies",
-                "Whitepapers",
-                "Blogs",
-                "Documentation",
-                "Downloads",
-                "FAQs",
-              ]),
+              ], sectionIndex: 4),
 
               _divider(),
 
@@ -105,10 +117,9 @@ class FooterSection extends StatelessWidget {
 
                     _contact(
                       "icons/location.svg",
-                      "#1A, 3rd Cross, Raghavendra Extension,\n"
-                          "Opp. of MEI, Off Tumkur Road,\n"
-                          "Yeswanthapura, Bangalore - 560022,\n"
-                          "Karnataka, India",
+                      " TrakMate Design Solutions Pvt Ltd.\n"
+                          "17G/46-3 and 17G/46-3-1,\n"
+                          "1st & 2nd floor, MEI Road, Industrial Suburb, Yeshwanthpura,\n Bengaluru -560022",
                     ),
 
                     const SizedBox(height: 15),
@@ -210,7 +221,7 @@ class FooterSection extends StatelessWidget {
     );
   }
 
-  Widget _menu(String title, List<String> items) {
+  Widget _menu(String title, List<String> items, {int? sectionIndex}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -230,12 +241,20 @@ class FooterSection extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 10),
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Text(
-                e,
-                style: GoogleFonts.manrope(
-                  color: tWhite.withOpacity(0.8),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+              child: GestureDetector(
+                onTap: () {
+                  if (sectionIndex != null) {
+                    SectionScrollBus.instance.request(e);
+                    onNavigate?.call(sectionIndex);
+                  }
+                },
+                child: Text(
+                  e,
+                  style: GoogleFonts.manrope(
+                    color: tWhite.withOpacity(0.8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),

@@ -27,8 +27,11 @@ class _ProductsSectionState extends State<ProductsSection> {
 
   Future<void> _preloadHeroImage() async {
     try {
-      await precacheImage(const AssetImage('images/company.png'), context);
-      await Future.delayed(const Duration(seconds: 3)); // just fr testing
+      await precacheImage(
+        const AssetImage('images/hero_products.png'),
+        context,
+      );
+      // await Future.delayed(const Duration(seconds: 3)); // just fr testing
     } catch (e) {
       debugPrint('Error preloading hero image: $e');
     }
@@ -210,7 +213,7 @@ class _ProductsSectionState extends State<ProductsSection> {
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.asset(
-                'images/company.png',
+                'images/hero_products.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(

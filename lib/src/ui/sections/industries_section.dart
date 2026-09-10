@@ -9,6 +9,7 @@ import '../widgets/footer_section.dart';
 
 class IndustriesSection extends StatefulWidget {
   final bool isActive;
+
   const IndustriesSection({super.key, required this.isActive});
 
   @override
@@ -16,11 +17,16 @@ class IndustriesSection extends StatefulWidget {
 }
 
 class _IndustriesSectionState extends State<IndustriesSection> {
-  // static const String _heroImage = 'images/company.jpg';
-  bool _heroImageLoading = true; // NEW
+  // ========================================================================
+  // HERO IMAGE LOADING
+  // ========================================================================
+
+  bool _heroImageLoading = true;
+
   @override
   void initState() {
-    super.initState(); // NEW
+    super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
     });
@@ -29,16 +35,22 @@ class _IndustriesSectionState extends State<IndustriesSection> {
   Future<void> _preloadHeroImage() async {
     try {
       await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      await Future.delayed(const Duration(seconds: 3)); //  testing only
+
+      await Future.delayed(const Duration(seconds: 3));
     } catch (e) {
       debugPrint('Error preloading solutions hero image: $e');
     }
 
     if (!mounted) return;
+
     setState(() {
       _heroImageLoading = false;
     });
   }
+
+  // ========================================================================
+  // INDUSTRIES DATA
+  // ========================================================================
 
   static const List<_IndustryData> _industries = [
     _IndustryData(
@@ -142,6 +154,10 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
   ];
 
+  // ========================================================================
+  // WHY CHOOSE US DATA
+  // ========================================================================
+
   static const List<_ValueItemData> _values = [
     _ValueItemData(
       icon: 'icons/build.svg',
@@ -186,16 +202,16 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     ),
   ];
 
+  // ========================================================================
   // BUILD
+  // ========================================================================
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // _buildHeroSection(),
-          _heroImageLoading
-              ? const HeroHeaderShimmer() // NEW
-              : _buildHeroSection(),
+          _heroImageLoading ? const HeroHeaderShimmer() : _buildHeroSection(),
 
           const SizedBox(height: 30),
 
@@ -213,7 +229,9 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
+  // ========================================================================
   // HERO SECTION
+  // ========================================================================
 
   Widget _buildHeroSection() {
     return Container(
@@ -241,6 +259,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                 ),
 
                 const SizedBox(height: 20),
+
                 HeroAnimatedText(
                   isActive: widget.isActive,
                   delay: 120,
@@ -267,6 +286,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                 ),
 
                 const SizedBox(height: 20),
+
                 HeroAnimatedText(
                   isActive: widget.isActive,
                   delay: 320,
@@ -281,6 +301,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                 ),
 
                 const SizedBox(height: 40),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -293,6 +314,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                         description: 'Deep knowledge across industries',
                       ),
                     ),
+
                     HeroAnimatedText(
                       isActive: widget.isActive,
                       delay: 720,
@@ -312,6 +334,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
                         description: 'Technology that drives better results',
                       ),
                     ),
+
                     HeroAnimatedText(
                       isActive: widget.isActive,
                       delay: 1120,
@@ -351,7 +374,10 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
+  // ========================================================================
   // HERO FEATURE
+  // ========================================================================
+
   Widget _buildHeroFeature({
     required IconData icon,
     required String title,
@@ -391,6 +417,10 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       ),
     );
   }
+
+  // ========================================================================
+  // INDUSTRIES SECTION
+  // ========================================================================
 
   Widget _buildIndustriesSection() {
     return Padding(
@@ -463,254 +493,373 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
+  // ========================================================================
   // INDUSTRY CARD
+  // ========================================================================
 
   Widget _buildIndustryCard(_IndustryData data, int index) {
     return _IndustryHoverCard(data: data, index: index);
   }
 
+  // ========================================================================
   // WHY CHOOSE US
+  // ========================================================================
 
   Widget _buildValueSection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 46),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(35, 28, 35, 28),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [tBlue2, tBlue3],
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Column(
+        children: [
+          // ================================================================
+          // WHY CHOOSE US
+          // ================================================================
+          Text(
+            'WHY CHOOSE US',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: tOrange1,
+              letterSpacing: 1.1,
+            ),
           ),
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: Column(
-          children: [
-            // HEADER
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+
+          const SizedBox(height: 12),
+
+          // ================================================================
+          // MAIN TITLE
+          // ================================================================
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: tBlue2,
+              ),
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                const TextSpan(text: 'One technology partner. '),
+                TextSpan(
+                  text: 'Many possibilities.',
+                  style: GoogleFonts.manrope(
+                    color: tOrange1,
+                    fontWeight: FontWeight.w800,
                   ),
-                  decoration: BoxDecoration(
-                    color: tOrange1.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: tOrange1.withOpacity(0.25)),
-                  ),
-                  child: Text(
-                    'WHY CHOOSE US',
-                    style: GoogleFonts.manrope(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: tOrange1,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 16),
-
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: tWhite,
-                      ),
-                      children: [
-                        const TextSpan(text: 'One technology partner. '),
-                        TextSpan(
-                          text: 'Many possibilities.',
-                          style: GoogleFonts.manrope(
-                            color: tOrange1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // COUNTER
-                Row(
-                  children: [
-                    Text(
-                      '06',
-                      style: GoogleFonts.manrope(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: tOrange1,
-                      ),
-                    ),
-
-                    const SizedBox(width: 6),
-
-                    Text(
-                      'CORE\nADVANTAGES',
-                      style: GoogleFonts.manrope(
-                        fontSize: 7,
-                        height: 1.2,
-                        fontWeight: FontWeight.w700,
-                        color: tWhite.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
-            // DESCRIPTION
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 125),
-                child: Text(
-                  'We bring together industry understanding and engineering depth to help organisations move from an idea to a dependable connected solution.',
-                  style: GoogleFonts.manrope(
-                    fontSize: 12,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                    color: tWhite.withOpacity(0.55),
-                  ),
-                ),
+          // ================================================================
+          // THREE-LINE DESCRIPTION
+          // ================================================================
+          SizedBox(
+            width: 620,
+            child: Text(
+              'We bring together industry understanding and engineering depth to help organisations move\n'
+              'from an idea to a dependable connected solution.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.manrope(
+                fontSize: 13,
+                height: 1.55,
+                fontWeight: FontWeight.w500,
+                color: tBlack.withOpacity(0.58),
               ),
             ),
+          ),
 
-            const SizedBox(height: 25),
+          const SizedBox(height: 22),
 
-            // TOP ROW
-            Row(
-              children: [
-                Expanded(child: _buildCompactValue(_values[0])),
+          // ================================================================
+          // CORE ADVANTAGES COUNTER
+          // ================================================================
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 100),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    '06',
+                    style: GoogleFonts.manrope(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      color: tOrange1,
+                      height: 1,
+                    ),
+                  ),
 
-                const SizedBox(width: 12),
+                  const SizedBox(width: 7),
 
-                Expanded(child: _buildCompactValue(_values[1])),
-
-                const SizedBox(width: 12),
-
-                Expanded(child: _buildCompactValue(_values[2])),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // BOTTOM ROW
-            Row(
-              children: [
-                Expanded(child: _buildCompactValue(_values[3])),
-
-                const SizedBox(width: 12),
-
-                Expanded(child: _buildCompactValue(_values[4])),
-
-                const SizedBox(width: 12),
-
-                Expanded(child: _buildCompactValue(_values[5])),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // COMPACT VALUE ITEM
-
-  Widget _buildCompactValue(_ValueItemData item) {
-    return Container(
-      height: 78,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      decoration: BoxDecoration(
-        color: tWhite.withOpacity(0.055),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tWhite.withOpacity(0.08)),
-      ),
-      child: Row(
-        children: [
-          // SVG ICON
-          Container(
-            width: 45,
-            height: 45,
-            padding: const EdgeInsets.all(11),
-            decoration: BoxDecoration(
-              color: tOrange1,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: tOrange1.withOpacity(0.18),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: SvgPicture.asset(
-              item.icon,
-              width: 20,
-              height: 20,
-              color: tWhite,
+                  Text(
+                    'CORE\nADVANTAGES',
+                    style: GoogleFonts.manrope(
+                      fontSize: 10,
+                      height: 1.2,
+                      fontWeight: FontWeight.w800,
+                      color: tBlack.withOpacity(0.45),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          const SizedBox(width: 11),
+          const SizedBox(height: 18),
 
-          // TEXT
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: tWhite,
-                  ),
-                ),
+          // ================================================================
+          // ZIG ZAG
+          // ================================================================
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 900) {
+                return _buildMobileZigZag();
+              }
 
-                const SizedBox(height: 4),
-
-                Text(
-                  item.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
-                    fontSize: 10,
-                    height: 1.5,
-                    fontWeight: FontWeight.w500,
-                    color: tWhite.withOpacity(0.48),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 6),
-          // INDICATOR
-          Container(
-            width: 5,
-            height: 5,
-            decoration: const BoxDecoration(
-              color: tOrange1,
-              shape: BoxShape.circle,
-            ),
+              return _buildDesktopZigZag(constraints);
+            },
           ),
         ],
       ),
     );
   }
 
-  // COMMON
+  // ========================================================================
+  // DESKTOP ZIG ZAG
+  // ========================================================================
+
+  Widget _buildDesktopZigZag(BoxConstraints constraints) {
+    const double diagramWidth = 1580;
+
+    const double diagramHeight = 420;
+
+    final double width =
+        constraints.maxWidth < diagramWidth
+            ? constraints.maxWidth
+            : diagramWidth;
+
+    return SizedBox(
+      width: width,
+      height: diagramHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // ================================================================
+          // CONTINUOUS ZIG-ZAG LINE
+          // ================================================================
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _WhyChooseUsZigZagPainter(itemCount: _values.length),
+              ),
+            ),
+          ),
+
+          // ================================================================
+          // ITEM 1
+          // RELIABLE BY DESIGN
+          // ================================================================
+          _buildDesktopZigZagPositioned(
+            index: 0,
+            item: _values[3],
+            accent: tBlue3,
+          ),
+
+          // ================================================================
+          // ITEM 2
+          // BUILT AROUND YOUR INDUSTRY
+          // ================================================================
+          _buildDesktopZigZagPositioned(
+            index: 1,
+            item: _values[0],
+            accent: tOrange1,
+          ),
+
+          // ================================================================
+          // ITEM 3
+          // READY TO SCALE
+          // ================================================================
+          _buildDesktopZigZagPositioned(
+            index: 2,
+            item: _values[4],
+            accent: tBlue3,
+          ),
+
+          // ================================================================
+          // ITEM 4
+          // HARDWARE + SOFTWARE
+          // ================================================================
+          _buildDesktopZigZagPositioned(
+            index: 3,
+            item: _values[1],
+            accent: tOrange1,
+          ),
+
+          // ================================================================
+          // ITEM 5
+          // LONG-TERM PARTNERSHIP
+          // ================================================================
+          _buildDesktopZigZagPositioned(
+            index: 4,
+            item: _values[5],
+            accent: tBlue3,
+          ),
+
+          // ================================================================
+          // ITEM 6
+          // DATA THAT DRIVES DECISIONS
+          // ================================================================
+          _buildDesktopZigZagPositioned(
+            index: 5,
+            item: _values[2],
+            accent: tOrange1,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========================================================================
+  // DESKTOP ZIG ZAG POSITION
+  // ========================================================================
+
+  Widget _buildDesktopZigZagPositioned({
+    required int index,
+    required _ValueItemData item,
+    required Color accent,
+  }) {
+    const double circleSize = 112;
+    const double itemSpacing = 280;
+    const double startX = 90;
+
+    final double centerX = startX + (index * itemSpacing);
+
+    // Odd positions (1, 3, 5) are above the curve.
+    // Even positions (2, 4, 6) are below the curve.
+    final bool isTop = index.isEven;
+
+    final double centerY = isTop ? 105 : 295;
+
+    final double circleLeft = centerX - circleSize / 2;
+    final double circleTop = centerY - circleSize / 2;
+
+    const double textWidth = 235;
+    const double textHeight = 125;
+
+    // Text is centered with the icon.
+    // Top icon  -> text underneath.
+    // Bottom icon -> text above.
+    final double textLeft = centerX - textWidth / 2;
+    final double textTop =
+        isTop
+            ? centerY + circleSize / 2 + 14
+            : centerY - circleSize / 2 - textHeight - 14;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          left: textLeft,
+          top: textTop,
+          width: textWidth,
+          height: textHeight,
+          child: _buildZigZagText(item: item, isTop: isTop),
+        ),
+
+        Positioned(
+          left: circleLeft,
+          top: circleTop,
+          child: _ZigZagCircle(item: item, accent: accent),
+        ),
+      ],
+    );
+  }
+
+  // ========================================================================
+  // ZIG ZAG TEXT
+  // ========================================================================
+
+  Widget _buildZigZagText({required _ValueItemData item, required bool isTop}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          item.title,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.manrope(
+            fontSize: 16,
+            height: 1.2,
+            fontWeight: FontWeight.w800,
+            color: tBlue2,
+          ),
+        ),
+
+        const SizedBox(height: 7),
+
+        Text(
+          item.description,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.manrope(
+            fontSize: 12,
+            height: 1.45,
+            fontWeight: FontWeight.w500,
+            color: tBlack.withOpacity(0.62),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ========================================================================
+  // MOBILE / COMPACT VERSION
+  // ========================================================================
+
+  Widget _buildMobileZigZag() {
+    return Column(
+      children: List.generate(_values.length, (index) {
+        final bool isTop = index.isEven;
+
+        final Color accent = index.isEven ? tBlue3 : tOrange1;
+
+        final _ValueItemData item =
+            index == 0
+                ? _values[3]
+                : index == 1
+                ? _values[0]
+                : index == 2
+                ? _values[4]
+                : index == 3
+                ? _values[1]
+                : index == 4
+                ? _values[5]
+                : _values[2];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 28),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _ZigZagCircle(item: item, accent: accent),
+
+              const SizedBox(width: 20),
+
+              Expanded(child: _buildZigZagText(item: item, isTop: true)),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  // ========================================================================
+  // COMMON SECTION EYEBROW
+  // ========================================================================
+
   Widget _sectionEyebrow(String text, {bool light = false}) {
     return Text(
       text,
@@ -724,7 +873,152 @@ class _IndustriesSectionState extends State<IndustriesSection> {
   }
 }
 
+// ============================================================================
+// ZIG ZAG CIRCLE
+// ============================================================================
+
+class _ZigZagCircle extends StatefulWidget {
+  final _ValueItemData item;
+  final Color accent;
+
+  const _ZigZagCircle({required this.item, required this.accent});
+
+  @override
+  State<_ZigZagCircle> createState() => _ZigZagCircleState();
+}
+
+class _ZigZagCircleState extends State<_ZigZagCircle> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+
+      onEnter: (_) {
+        setState(() {
+          _hovered = true;
+        });
+      },
+
+      onExit: (_) {
+        setState(() {
+          _hovered = false;
+        });
+      },
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        width: 100,
+        height: 100,
+        transform: Matrix4.identity()..scale(_hovered ? 1.05 : 1.0),
+        decoration: BoxDecoration(
+          color: widget.accent,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.accent.withOpacity(_hovered ? 0.30 : 0.16),
+              blurRadius: _hovered ? 20 : 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 38,
+            height: 38,
+            child: SvgPicture.asset(
+              widget.item.icon,
+              fit: BoxFit.contain,
+              color: tWhite,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// ZIG ZAG PAINTER
+// ============================================================================
+
+class _WhyChooseUsZigZagPainter extends CustomPainter {
+  final int itemCount;
+
+  _WhyChooseUsZigZagPainter({required this.itemCount});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (itemCount < 2) {
+      return;
+    }
+
+    const double itemSpacing = 280;
+
+    const double startX = 90;
+
+    const double topY = 105;
+
+    const double bottomY = 295;
+
+    final List<Offset> points = List.generate(itemCount, (index) {
+      return Offset(
+        startX + index * itemSpacing,
+        index.isEven ? topY : bottomY,
+      );
+    });
+
+    // ================================================================
+    // DRAW EACH SEGMENT
+    // ================================================================
+
+    for (int i = 0; i < points.length - 1; i++) {
+      final Offset start = points[i];
+
+      final Offset end = points[i + 1];
+
+      final Path path = Path();
+
+      final double dx = (end.dx - start.dx) * 0.42;
+
+      path.moveTo(start.dx, start.dy);
+
+      path.cubicTo(
+        start.dx + dx,
+        start.dy,
+        end.dx - dx,
+        end.dy,
+        end.dx,
+        end.dy,
+      );
+
+      final Color startColor = i.isEven ? tBlue3 : tOrange1;
+
+      final Color endColor = i.isEven ? tOrange1 : tBlue3;
+
+      final Paint paint =
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 15
+            ..strokeCap = StrokeCap.round
+            ..shader = LinearGradient(
+              colors: [startColor, endColor],
+            ).createShader(Rect.fromPoints(start, end));
+
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WhyChooseUsZigZagPainter oldDelegate) {
+    return oldDelegate.itemCount != itemCount;
+  }
+}
+
+// ============================================================================
 // INDUSTRY HOVER CARD
+// ============================================================================
 
 class _IndustryHoverCard extends StatefulWidget {
   final _IndustryData data;
@@ -741,7 +1035,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
   @override
   Widget build(BuildContext context) {
-    final data = widget.data;
+    final _IndustryData data = widget.data;
 
     final bool isOddCard = widget.index.isEven;
 
@@ -774,13 +1068,6 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
           borderRadius: BorderRadius.circular(16),
 
-          // border: Border.all(
-          //   color:
-          //       _hovered
-          //           ? tOrange1.withOpacity(0.75)
-          //           : tBlack1.withOpacity(0.08),
-          //   width: _hovered ? 1.2 : 1,
-          // ),
           boxShadow: [
             BoxShadow(
               color:
@@ -792,8 +1079,10 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
             ),
           ],
         ),
+
         foregroundDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
+
           border: Border.all(
             color:
                 _hovered
@@ -808,9 +1097,13 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ==============================================================
+            // IMAGE
+            // ==============================================================
             SizedBox(
               width: double.infinity,
               height: 175,
+
               child: Stack(
                 clipBehavior: Clip.none,
                 fit: StackFit.expand,
@@ -818,34 +1111,60 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                   Image.asset(
                     data.image,
                     fit: BoxFit.cover,
+
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: tBlue3.withOpacity(0.08),
+
                         alignment: Alignment.center,
+
                         child: SvgPicture.asset(
                           data.icon,
                           width: 22,
                           height: 22,
-                          color: tBlue3.withOpacity(0.55),
+                          color: tBlue3,
                         ),
                       );
                     },
+                  ),
+
+                  Positioned.fill(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            tBlack.withOpacity(0.00),
+                            tBlack.withOpacity(0.08),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
 
+            // ==============================================================
             // INFORMATION
+            // ==============================================================
             Stack(
               clipBehavior: Clip.none,
+
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(17, 34, 17, 18),
+
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       Text(
                         data.tag,
+
                         style: GoogleFonts.manrope(
                           fontSize: 8.5,
                           fontWeight: FontWeight.w800,
@@ -858,6 +1177,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
                       Text(
                         data.title,
+
                         style: GoogleFonts.manrope(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -869,8 +1189,11 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
 
                       Text(
                         data.description,
+
                         maxLines: 4,
+
                         overflow: TextOverflow.ellipsis,
+
                         style: GoogleFonts.manrope(
                           fontSize: 10.5,
                           height: 1.5,
@@ -882,18 +1205,26 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                   ),
                 ),
 
+                // ==========================================================
                 // INDUSTRY ICON
+                // ==========================================================
                 Positioned(
                   top: -25,
                   left: 17,
+
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
+
                     curve: Curves.easeOut,
+
                     width: 50,
                     height: 50,
+
                     decoration: BoxDecoration(
                       color: topColor.withOpacity(_hovered ? 1.0 : 0.80),
+
                       borderRadius: BorderRadius.circular(13),
+
                       boxShadow: [
                         BoxShadow(
                           color: tBlack.withOpacity(_hovered ? 0.16 : 0.08),
@@ -902,15 +1233,21 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                         ),
                       ],
                     ),
+
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 180),
+
                       curve: Curves.easeOut,
+
                       opacity: _hovered ? 1.0 : 0.60,
+
                       child: SizedBox(
                         width: 50,
                         height: 50,
+
                         child: Padding(
                           padding: const EdgeInsets.all(8),
+
                           child: SvgPicture.asset(
                             data.icon,
                             fit: BoxFit.contain,
@@ -930,7 +1267,9 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
   }
 }
 
+// ============================================================================
 // DATA MODELS
+// ============================================================================
 
 class _IndustryData {
   final String icon;
