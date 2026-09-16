@@ -786,7 +786,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
               style: GoogleFonts.manrope(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
-                color: tBlue2,
+                color: tBlack,
               ),
             ),
           ],

@@ -22,25 +22,29 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   bool _imagesLoading = true;
   final List<_FilterTabData> _filterTabs = const [
     _FilterTabData(icon: "icons/all.svg", label: 'All Products'),
-    _FilterTabData(icon: "icons/trackers.svg", label: 'Vehicle Trackers'),
-    _FilterTabData(icon: "icons/car.svg", label: 'Vehicle Diagnostics'),
+    _FilterTabData(icon: "icons/trackers1.svg", label: 'Trackers'),
+    _FilterTabData(icon: "icons/diagnostics.svg", label: 'Diagnostics'),
 
-    _FilterTabData(icon: "icons/gateway.svg", label: 'Gateways'),
-    _FilterTabData(icon: "icons/iot.svg", label: 'Clusters'),
+    _FilterTabData(icon: "icons/gateways1.svg", label: 'Gateways'),
+    _FilterTabData(icon: "icons/cluster.svg", label: 'Clusters'),
     _FilterTabData(icon: "icons/car.svg", label: 'ADAS'),
-    _FilterTabData(icon: "icons/car.svg", label: 'Solutions Hub'),
+    _FilterTabData(icon: "icons/solution_hub.svg", label: 'Solutions Hub'),
   ];
 
   final List<ProductData> _products = const [
     ProductData(
-      image: 'images/tmd104.png',
+      image: 'images/tmd104(a).png',
+      image2: 'images/tmd024-top-view.png',
+      image3: 'images/tmd024-bottom-view.png',
+      image4: 'images/tmd024-vertical-view.png',
+      image5: 'images/tmd024-part.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD104',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Vehicle Trackers',
+      category: 'Trackers',
       description:
           '4G LTE modem with 2G fallback, real-time tracking, geo-fencing, and  monitoring.',
       features: [
@@ -53,14 +57,18 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmd104.png',
+      image: 'images/tmd104(a).png',
+      image2: 'images/tmd024-top-view.png',
+      image3: 'images/tmd024-bottom-view.png',
+      image4: 'images/tmd024-vertical-view.png',
+      image5: 'images/tmd024-part.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD004',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Vehicle Trackers',
+      category: 'Trackers',
       description:
           '4G LTE modem with datalogging, CAN/BMS monitoring, BLE sensor integration, and FOTA support.',
       features: [
@@ -73,14 +81,18 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmd104.png',
+      image: 'images/tmd104(a).png',
+      image2: 'images/tmd024-top-view.png',
+      image3: 'images/tmd024-bottom-view.png',
+      image4: 'images/tmd024-vertical-view.png',
+      image5: 'images/tmd024-part.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD024',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Vehicle Trackers',
+      category: 'Trackers',
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       features: [
@@ -96,9 +108,27 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/tmb024.png',
       badge: 'new',
       badgeColor: newbadge,
+      title: 'TMD006',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Trackers',
+      description:
+          '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
+      features: [
+        ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
+        ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
+        ProductFeature(
+          icon: Icons.directions_run_rounded,
+          label: 'Motion & More',
+        ),
+      ],
+    ),
+    ProductData(
+      image: 'images/tmb024.png',
+      badge: 'new',
+      badgeColor: newbadge,
       title: 'TMB024',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Vehicle Trackers',
+      category: 'Trackers',
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       features: [
@@ -116,10 +146,28 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       badge: "OBD-II",
       badgeColor: ipbadge,
       title: 'TMD400',
-      subtitle: 'Industrial IoT Gateway',
-      category: 'Vehicle Diagnostics',
+      subtitle: 'Industrial Vehicle Diagnostics',
+      category: 'Diagnostics',
       description:
           'OBD vehicle diagnostics with Bluetooth 5.0, remote diagnostics, and error detection.',
+      features: [
+        ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
+        ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
+        ProductFeature(
+          icon: Icons.directions_run_rounded,
+          label: 'Motion & More',
+        ),
+      ],
+    ),
+    ProductData(
+      image: 'images/obd300.png',
+      badge: "OBD-II",
+      badgeColor: ipbadge,
+      title: 'TMD300',
+      subtitle: 'Industrial Vehicle Diagnostics',
+      category: 'Diagnostics',
+      description:
+          '16Pin OBD2 Connector OBDii 16 Pin Adaptor OBD II Male Plug J1962 Car Connector.',
       features: [
         ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
         ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
@@ -140,8 +188,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD364',
-      subtitle: 'Industrial IoT Gateway',
-      category: 'Vehicle Trackers',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Trackers',
       description:
           '4G LTE with 2G fallback, CAN/RS232 interfaces, BLE 5.0, motion sensing, and IP67 protection.',
       features: [
@@ -248,7 +296,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmdcstrr-5.png',
-      image2: 'images/tmdcstr-5-back.png',
+      // image2: 'images/tmdcstr-5-back.png',
+      image3: 'images/pigtail.jpg',
       badge: null,
       badgeColor: null,
       title: 'TMDCSTR-5',
@@ -323,7 +372,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description: 'Compliant with international quality',
     ),
     _TrustItemData(
-      icon: "icons/integration.svg",
+      icon: "icons/integration1.svg",
       title: 'Made for Integration',
       description: 'Easy to integrate with your systems & platforms',
     ),
@@ -399,7 +448,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width - 48,
                   ),
-                  child: SizedBox(width: 1250, child: _buildFilterTabsBar()),
+                  child: SizedBox(
+                    width: 1200,
+                    child: _buildFilterTabsBar(),
+                  ), //filter bar width
                 ),
               ),
             ),
@@ -454,7 +506,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         mainAxisSize: MainAxisSize.max,
         children: List.generate(_filterTabs.length * 2 - 1, (index) {
           if (index.isOdd) {
-            return const SizedBox(width: 40);
+            return const SizedBox(width: 60); //gap btwn filter items
           }
 
           final int tabIndex = index ~/ 2;
@@ -514,11 +566,49 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   // PRODUCT RANGE HEADER
 
+  // Widget _buildProductRangeHeader() {
+  //   return Column(
+  //     children: [
+  //       Text(
+  //         'OUR PRODUCT RANGE',
+  //         style: GoogleFonts.manrope(
+  //           fontSize: 13,
+  //           fontWeight: FontWeight.w700,
+  //           color: tOrange1,
+  //           letterSpacing: 1.2,
+  //         ),
+  //       ),
+
+  //       const SizedBox(height: 12),
+
+  //       Text(
+  //         'Smart Products for a Connected World',
+  //         textAlign: TextAlign.center,
+  //         style: GoogleFonts.manrope(
+  //           fontSize: 25,
+  //           fontWeight: FontWeight.w700,
+  //           color: tBlue2,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
   Widget _buildProductRangeHeader() {
+    final bool isSolutionsHub =
+        _filterTabs[_selectedFilterIndex].label == 'Solutions Hub';
+
+    final String eyebrow =
+        isSolutionsHub ? 'SOLUTIONS HUB' : 'OUR PRODUCT RANGE';
+
+    final String title =
+        isSolutionsHub
+            ? 'The Solutions We Provide' // swap in whatever copy you want
+            : 'Smart Products for a Connected World';
+
     return Column(
       children: [
         Text(
-          'OUR PRODUCT RANGE',
+          eyebrow,
           style: GoogleFonts.manrope(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -530,7 +620,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         const SizedBox(height: 12),
 
         Text(
-          'Smart Products for a Connected World',
+          title,
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
             fontSize: 25,
@@ -541,7 +631,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     );
   }
-
   // PRODUCT GRID
 
   Widget _buildProductsGrid() {
@@ -569,8 +658,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     if (selectedLabel == 'All Products') {
       final List<String> categories = [
-        'Vehicle Trackers',
-        'Vehicle Diagnostics',
+        'Trackers',
+        'Diagnostics',
         'Gateways',
         'Clusters',
         'ADAS',

@@ -16,7 +16,7 @@ class ScrollerButton extends StatefulWidget {
     super.key,
     required this.isVisible,
     required this.onTap,
-    this.svgAsset = 'icons/down1.svg', // default keeps old behavior intact
+    this.svgAsset = 'icons/down2.svg', // default keeps old behavior intact
     this.iconColor = tWhite, // second scroller clr
     this.iconHoverColor = tOrange1,
     this.rotateIcon = false,

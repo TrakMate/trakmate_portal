@@ -20,7 +20,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/cad.svg',
       iconBg: tBlueGradient5,
-      image: 'images/cad.png',
+      image: 'images/cad_design.png',
       title: 'CAD Design',
       description:
           'High-quality 3D CAD modeling and drafting for components, assemblies and complex products.',

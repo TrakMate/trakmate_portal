@@ -351,6 +351,17 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   late Animation<double> _rightFadeAnimation;
 
   late Animation<Offset> _rightSlideAnimation;
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber.replaceAll(' ', ''),
+    );
+
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   bool _titleHovered = false;
   @override
   void initState() {
@@ -409,6 +420,86 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     _messageController.dispose();
 
     super.dispose();
+  }
+
+  Future<void> _openContact(String value, String scheme) async {
+    final Uri uri;
+
+    if (scheme == 'tel') {
+      uri = Uri(scheme: 'tel', path: value.replaceAll(' ', ''));
+    } else {
+      uri = Uri(scheme: 'mailto', path: value);
+    }
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _buildClickableContactInfoItem({
+    required String icon,
+    required String title,
+    required List<String> values,
+    required String scheme,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: tBlue3.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: _PopupSvgIcon(asset: icon, size: 23, color: tBlue3),
+          ),
+        ),
+
+        const SizedBox(width: 14),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.manrope(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: tBlack.withOpacity(0.52),
+                ),
+              ),
+
+              const SizedBox(height: 3),
+
+              ...values.map(
+                (value) => Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => _openContact(value, scheme),
+                      child: Text(
+                        value,
+                        style: GoogleFonts.manrope(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: tBlue2,
+                          height: 1.5,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -626,22 +717,32 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         const SizedBox(height: 40),
 
-        _buildContactInfoItem(
+        // _buildContactInfoItem(
+        //   icon: 'icons/phone.svg',
+        //   title: 'Phone',
+        //   content:
+        //       '+91 80 41532112\n'
+        //       '+91 99 00450640',
+        // ),
+        _buildClickableContactInfoItem(
           icon: 'icons/phone.svg',
           title: 'Phone',
-          content:
-              '+91 80 41532112\n'
-              '+91 99 00450640',
+          values: ['+91 80 41532112', '+91 99 00450640'],
+          scheme: 'tel',
         ),
-
         const SizedBox(height: 19),
 
-        _buildContactInfoItem(
+        // _buildContactInfoItem(
+        //   icon: 'icons/mail.svg',
+        //   title: 'Email',
+        //   content: 'info@trakmate.co.in',
+        // ),
+        _buildClickableContactInfoItem(
           icon: 'icons/mail.svg',
           title: 'Email',
-          content: 'info@trakmate.co.in',
+          values: ['info@trakmate.co.in'],
+          scheme: 'mailto',
         ),
-
         const SizedBox(height: 19),
 
         _buildContactInfoItem(

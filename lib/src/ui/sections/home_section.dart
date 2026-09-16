@@ -68,7 +68,7 @@ class _HomeSectionState extends State<HomeSection> {
           'TrakMate’s smart fleet solutions connect vehicles, capture real-time data, and deliver actionable insights to help businesses monitor, manage, and optimize their fleets.',
       stats: [
         _StatData(
-          icon: "icons/badge1.svg",
+          icon: "icons/badge2.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -78,17 +78,17 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake1.svg",
+          icon: "icons/handshake3.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/loc.svg",
+          icon: "icons/worldglobe1.svg",
           value: "6+",
           label: "Countries Served",
         ),
         _StatData(
-          icon: "icons/device1.svg",
+          icon: "icons/device2.svg",
           value: "2,00,000+",
           label: "Device Installed",
         ),
@@ -103,7 +103,7 @@ class _HomeSectionState extends State<HomeSection> {
           'TrakMate connects your assets, captures valuable data, and turns it into actionable insights—giving businesses the knowledge they need, when they need it.',
       stats: [
         _StatData(
-          icon: "icons/badge1.svg",
+          icon: "icons/badge.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -113,17 +113,17 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake1.svg",
+          icon: "icons/handshake3.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/loc.svg",
+          icon: "icons/worldglobe.svg",
           value: "6+",
           label: "Countries Served",
         ),
         _StatData(
-          icon: "icons/device1.svg",
+          icon: "icons/device2.svg",
           value: "2,00,000+",
           label: "Device Installed",
         ),
@@ -138,7 +138,7 @@ class _HomeSectionState extends State<HomeSection> {
           'From connected technologies and embedded systems to product engineering and manufacturing, TrakMate delivers solutions built for performance, reliability and long-term growth.',
       stats: [
         _StatData(
-          icon: "icons/badge1.svg",
+          icon: "icons/badge.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -148,17 +148,17 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake1.svg",
+          icon: "icons/handshake3.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/loc.svg",
+          icon: "icons/worldglobe.svg",
           value: "6+",
           label: "Countries Served",
         ),
         _StatData(
-          icon: "icons/device1.svg",
+          icon: "icons/device2.svg",
           value: "2,00,000+",
           label: "Device Installed",
         ),
@@ -173,7 +173,7 @@ class _HomeSectionState extends State<HomeSection> {
           'With clients across 6+ countries and 150+ products delivered, TrakMate is a technology partner businesses rely on globally.',
       stats: [
         _StatData(
-          icon: "icons/badge1.svg",
+          icon: "icons/badge.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -183,17 +183,17 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake1.svg",
+          icon: "icons/handshake3.svg",
           value: "25+",
           label: "Happy Clients",
         ),
         _StatData(
-          icon: "icons/loc.svg",
+          icon: "icons/worldglobe.svg",
           value: "6+",
           label: "Countries Served",
         ),
         _StatData(
-          icon: "icons/device1.svg",
+          icon: "icons/device2.svg",
           value: "2,00,000+",
           label: "Device Installed",
         ),
@@ -591,7 +591,7 @@ class _HomeSectionState extends State<HomeSection> {
           bottom: 50,
           child: ScrollerButton(
             isVisible: _showScrollTop,
-            svgAsset: 'icons/down1.svg', //  new SVG here
+            svgAsset: 'icons/down2.svg', //  new SVG here
             iconColor: tWhite, // ADD THIS — only this instance turns blue
             iconHoverColor: tOrange1,
             rotateIcon: true,
@@ -799,7 +799,7 @@ class _HomeSectionState extends State<HomeSection> {
                             ),
                           ),
                           child: Icon(
-                            CupertinoIcons.arrow_left,
+                            CupertinoIcons.chevron_left,
                             color: _isPrevHovered ? tOrange1 : Colors.white,
                             size: 18,
                           ),
@@ -851,7 +851,7 @@ class _HomeSectionState extends State<HomeSection> {
                             ),
                           ),
                           child: Icon(
-                            CupertinoIcons.arrow_right,
+                            CupertinoIcons.chevron_right,
                             color: _isNextHovered ? tOrange1 : Colors.white,
                             size: 18,
                           ),
@@ -977,7 +977,7 @@ class _HomeSectionState extends State<HomeSection> {
                         children: [
                           HeroAnimatedText(
                             isActive: widget.isActive,
-                            delay: 520,
+                            delay: 220,
                             child: Text(
                               slide.label,
                               style: GoogleFonts.manrope(
@@ -992,7 +992,7 @@ class _HomeSectionState extends State<HomeSection> {
                           const SizedBox(height: 30),
                           HeroAnimatedText(
                             isActive: widget.isActive,
-                            delay: 720,
+                            delay: 520,
                             child: RichText(
                               text: TextSpan(
                                 style: GoogleFonts.manrope(
@@ -1018,7 +1018,7 @@ class _HomeSectionState extends State<HomeSection> {
                           const SizedBox(height: 25),
                           HeroAnimatedText(
                             isActive: widget.isActive,
-                            delay: 920,
+                            delay: 720,
                             child: SizedBox(
                               width: 480,
                               child: Text(
@@ -1035,7 +1035,7 @@ class _HomeSectionState extends State<HomeSection> {
                           const SizedBox(height: 25),
                           HeroAnimatedText(
                             isActive: widget.isActive,
-                            delay: 20,
+                            delay: 920,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -1047,7 +1047,7 @@ class _HomeSectionState extends State<HomeSection> {
                                   if (i != 0) const SizedBox(width: 66),
                                   _buildStatItem(
                                     slide.stats[i].icon,
-                                    slide.stats[i].icon == "icons/device1.svg"
+                                    slide.stats[i].icon == "icons/device2.svg"
                                         ? "${_formatIndianNumber(_deviceCount)}+"
                                         : slide.stats[i].icon ==
                                             "icons/badge.svg"
@@ -1056,7 +1056,7 @@ class _HomeSectionState extends State<HomeSection> {
                                     slide.stats[i].label,
                                     animated:
                                         slide.stats[i].icon ==
-                                        "icons/device1.svg",
+                                        "icons/device2.svg",
                                   ),
                                 ],
                               ],

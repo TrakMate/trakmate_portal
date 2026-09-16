@@ -13,7 +13,7 @@ class SolutionsHubPage extends StatelessWidget {
     final solutions = <SolutionDetailsData>[
       SolutionDetailsData(
         backgroundImage: 'images/mobileapps1.png',
-        icon: 'icons/phone.svg',
+        icon: 'icons/mobile.svg',
         iconBackgroundColor: tOrange1,
         eyebrow: 'MOBILE APPLICATIONS',
         title: 'Mobile Apps',
@@ -97,7 +97,7 @@ class SolutionsHubPage extends StatelessWidget {
                 solutions
                     .map(
                       (solution) => SizedBox(
-                        width: 420,
+                        width: 420, //card width
                         child: _SolutionCard(
                           backgroundImage: solution.backgroundImage,
                           icon: solution.icon,
@@ -105,15 +105,15 @@ class SolutionsHubPage extends StatelessWidget {
                           eyebrow: solution.eyebrow,
                           title: solution.title,
                           description: solution.description,
-                          onTap:
-                              () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) =>
-                                          SolutionsDetailsPage(data: solution),
-                                ),
-                              ),
+                          onTap: () {},
+                          // () => Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder:
+                          //         (_) =>
+                          //             SolutionsDetailsPage(data: solution),
+                          //   ),
+                          // ),
                         ),
                       ),
                     )
@@ -158,7 +158,7 @@ class _SolutionCardState extends State<_SolutionCard> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           transform: Matrix4.identity()..translate(0.0, hovering ? -7.0 : 0.0),
-          height: 420,
+          height: 390, //card height
           decoration: BoxDecoration(
             color: tWhite,
             borderRadius: BorderRadius.circular(18),
@@ -186,26 +186,26 @@ class _SolutionCardState extends State<_SolutionCard> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(22, 45, 22, 22),
+                    padding: const EdgeInsets.fromLTRB(22, 35, 22, 22),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.eyebrow,
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            color: tOrange1,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 7),
+                        // Text(
+                        //   widget.eyebrow,
+                        //   style: GoogleFonts.manrope(
+                        //     fontSize: 10.5,
+                        //     fontWeight: FontWeight.w700,
+                        //     color: tOrange1,
+                        //     letterSpacing: 1.1,
+                        //   ),
+                        // ),
+                        const SizedBox(height: 1),
                         Text(
                           widget.title,
                           style: GoogleFonts.manrope(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: tBlue3,
+                            color: tBlue2,
                           ),
                         ),
                         const SizedBox(height: 8),

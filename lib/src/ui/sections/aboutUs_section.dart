@@ -25,41 +25,57 @@ class _AboutusSectionState extends State<AboutusSection>
   final ScrollController _certScrollController = ScrollController();
   late final Ticker _certTicker;
 
-  Duration _certLastElapsed = Duration.zero;
-  double _certScrollOffset = 0.0;
+  // Duration _certLastElapsed = Duration.zero;
+  // double _certScrollOffset = 0.0;
 
-  static const double _certItemWidth = 200.0;
-  static const double _certSeparatorWidth = 24.0;
-  static const double _certScrollSpeed = 40.0; //scroll speed
-  static const int _maxFrameDeltaMs = 100;
+  // static const double _certItemWidth = 200.0;
+  // static const double _certSeparatorWidth = 24.0;
+  // static const double _certScrollSpeed = 40.0; //scroll speed
+  // static const int _maxFrameDeltaMs = 100;
 
   final List<_CertData> _certs = const [
     _CertData(
       logo: 'icons/ais.svg',
       code: 'AIS 140',
       label: 'Vehicle Tracking & Telematics',
+      logoHeight: 42,
+      logoWidth: 42,
     ),
     _CertData(
       logo: 'icons/iso.svg',
       code: '9001:2015',
       label: 'Quality Management',
+      logoHeight: 42,
+      logoWidth: 42,
     ),
     _CertData(
       logo: 'icons/iso.svg',
       code: '14001:2015',
       label: 'Environmental Management',
+      logoHeight: 42,
+      logoWidth: 42,
     ),
     _CertData(
       logo: 'icons/iso.svg',
       code: '45001:2018',
       label: 'Occupational Health & Safety',
+      logoHeight: 42,
+      logoWidth: 42,
     ),
     _CertData(
-      logo: 'icons/ais.svg',
+      logo: 'icons/rohs.svg',
       code: 'ROHS',
       label: 'Vehicle Tracking & Telematics',
+      logoHeight: 62,
+      logoWidth: 62,
     ),
-    _CertData(logo: 'icons/ce.svg', code: '', label: 'CE Certified'),
+    _CertData(
+      logo: 'icons/ce.svg',
+      code: '',
+      label: 'CE Certified',
+      logoHeight: 42,
+      logoWidth: 42,
+    ),
   ];
 
   @override
@@ -68,7 +84,7 @@ class _AboutusSectionState extends State<AboutusSection>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
-      _startCertAutoScroll();
+      // _startCertAutoScroll();
     });
   }
 
@@ -94,29 +110,29 @@ class _AboutusSectionState extends State<AboutusSection>
     super.dispose();
   }
 
-  void _startCertAutoScroll() {
-    final singleSetWidth =
-        _certs.length * (_certItemWidth + _certSeparatorWidth);
+  // void _startCertAutoScroll() {
+  //   final singleSetWidth =
+  //       _certs.length * (_certItemWidth + _certSeparatorWidth);
 
-    _certTicker = createTicker((elapsed) {
-      if (!_certScrollController.hasClients) return;
+  //   _certTicker = createTicker((elapsed) {
+  //     if (!_certScrollController.hasClients) return;
 
-      final deltaMs = (elapsed - _certLastElapsed).inMilliseconds.clamp(
-        0,
-        _maxFrameDeltaMs,
-      );
+  //     final deltaMs = (elapsed - _certLastElapsed).inMilliseconds.clamp(
+  //       0,
+  //       _maxFrameDeltaMs,
+  //     );
 
-      _certLastElapsed = elapsed;
+  //     _certLastElapsed = elapsed;
 
-      _certScrollOffset += _certScrollSpeed * deltaMs / 1000;
+  //     _certScrollOffset += _certScrollSpeed * deltaMs / 1000;
 
-      if (_certScrollOffset >= singleSetWidth) {
-        _certScrollOffset -= singleSetWidth;
-      }
+  //     if (_certScrollOffset >= singleSetWidth) {
+  //       _certScrollOffset -= singleSetWidth;
+  //     }
 
-      _certScrollController.jumpTo(_certScrollOffset);
-    })..start();
-  }
+  //     _certScrollController.jumpTo(_certScrollOffset);
+  //   })..start();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -940,29 +956,16 @@ class _AboutusSectionState extends State<AboutusSection>
 
         SizedBox(
           height: 140,
-          child: ListView.separated(
-            controller: _certScrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const NeverScrollableScrollPhysics(),
-
-            // Prevents logos from being cut
-            clipBehavior: Clip.none,
-
-            // Repeat the certificates for continuous scrolling
-            itemCount: _certs.length * 3,
-
-            separatorBuilder:
-                (_, __) => const SizedBox(width: _certSeparatorWidth),
-
-            itemBuilder: (context, index) {
-              final cert = _certs[index % _certs.length];
-
-              return SizedBox(
-                width: _certItemWidth,
-                height: 110,
-                child: _buildCertificationCard(cert),
-              );
-            },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children:
+                _certs.map((cert) {
+                  return SizedBox(
+                    width: 200, //width
+                    height: 110,
+                    child: _buildCertificationCard(cert),
+                  );
+                }).toList(),
           ),
         ),
       ],
@@ -972,54 +975,70 @@ class _AboutusSectionState extends State<AboutusSection>
   Widget _buildCertificationCard(_CertData cert) {
     final bool isSvg = cert.logo.toLowerCase().endsWith('.svg');
 
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          isSvg
-              ? SvgPicture.asset(cert.logo, height: 42, fit: BoxFit.contain)
-              : Image.asset(cert.logo, height: 42, fit: BoxFit.contain),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Fixed-height slot: every logo is centered inside the SAME box,
+        // so no matter how tall/short an individual SVG renders,
+        // this box always ends at the same Y.
+        SizedBox(
+          height: 70, // pick a value >=  tallest logoHeight
+          child: Center(
+            child:
+                isSvg
+                    ? SvgPicture.asset(
+                      cert.logo,
+                      height: cert.logoHeight,
+                      width: cert.logoWidth,
+                      fit: BoxFit.contain,
+                    )
+                    : Image.asset(
+                      cert.logo,
+                      height: cert.logoHeight,
+                      width: cert.logoWidth,
+                      fit: BoxFit.contain,
+                    ),
+          ),
+        ),
 
-          const SizedBox(height: 10),
-
-          if (cert.code.isNotEmpty) ...[
-            Text(
-              cert.code,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
-                color: tBlue3,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-
-            const SizedBox(height: 2),
-          ],
-
+        // const SizedBox(height: 2),
+        if (cert.code.isNotEmpty) ...[
           Text(
-            cert.label,
+            cert.code,
             textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               color: tBlue3,
               fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
             ),
           ),
+          // const SizedBox(height: 2),
         ],
-      ),
+
+        Text(
+          cert.label,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.manrope(
+            color: tBlue3,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _certDivider() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      width: 1,
-      height: 70,
-      color: tBlack1.withOpacity(0.1),
-    );
-  }
+  // Widget _certDivider() {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 15),
+  //     width: 1,
+  //     height: 70,
+  //     color: tBlack1.withOpacity(0.1),
+  //   );
+  // }
 
   Widget _buildInfrastructureSection() {
     return Row(
@@ -1211,10 +1230,14 @@ class _CertData {
   final String logo;
   final String code;
   final String label;
+  final double logoWidth;
+  final double logoHeight;
 
   const _CertData({
     required this.logo,
     required this.code,
     required this.label,
+    required this.logoWidth,
+    required this.logoHeight,
   });
 }
