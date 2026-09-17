@@ -46,6 +46,7 @@ class SolutionsDetailsPage extends StatelessWidget {
         child: Column(
           children: [
             _buildTopBar(context),
+
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -55,9 +56,13 @@ class SolutionsDetailsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeading(),
+
                       const SizedBox(height: 34),
+
                       _buildCards(),
+
                       const SizedBox(height: 48),
+
                       // _buildBottomStrip(),
                     ],
                   ),
@@ -93,7 +98,9 @@ class SolutionsDetailsPage extends StatelessWidget {
       child: Row(
         children: [
           _HoverBackButton(onTap: () => Navigator.pop(context)),
+
           const Spacer(),
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
             decoration: BoxDecoration(
@@ -112,7 +119,9 @@ class SolutionsDetailsPage extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
+
                 const SizedBox(width: 7),
+
                 Text(
                   data.title,
                   style: GoogleFonts.manrope(
@@ -149,7 +158,9 @@ class SolutionsDetailsPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
+
               const SizedBox(width: 10),
+
               Text(
                 data.eyebrow,
                 style: GoogleFonts.manrope(
@@ -161,7 +172,9 @@ class SolutionsDetailsPage extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 9),
+
           Text(
             data.title,
             style: GoogleFonts.manrope(
@@ -171,7 +184,9 @@ class SolutionsDetailsPage extends StatelessWidget {
               letterSpacing: -0.7,
             ),
           ),
+
           const SizedBox(height: 9),
+
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: Text(
@@ -226,63 +241,68 @@ class SolutionsDetailsPage extends StatelessWidget {
 
   // ========================================================================
   // BOTTOM STRIP
-  // =========================a===============================================
+  // ========================================================================
 
   // Widget _buildBottomStrip() {
-  // return Container(
-  //   width: double.infinity,
-  //   padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 21),
-  //   decoration: BoxDecoration(
-  //     color: tWhite,
-  //     borderRadius: BorderRadius.circular(15),
-  //     border: Border.all(color: tBlue2.withOpacity(0.07)),
-  //     boxShadow: [
-  //       BoxShadow(
-  //         color: tBlue2.withOpacity(0.045),
-  //         blurRadius: 20,
-  //         offset: const Offset(0, 8),
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.symmetric(
+  //       horizontal: 26,
+  //       vertical: 21,
+  //     ),
+  //     decoration: BoxDecoration(
+  //       color: tWhite,
+  //       borderRadius: BorderRadius.circular(15),
+  //       border: Border.all(
+  //         color: tBlue2.withOpacity(0.07),
   //       ),
-  //     ],
-  //   ),
-  //   child: Row(
-  //     children: [
-  //       Container(
-  //         width: 34,
-  //         height: 34,
-  //         decoration: BoxDecoration(
-  //           color: tOrange1.withOpacity(0.09),
-  //           borderRadius: BorderRadius.circular(9),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: tBlue2.withOpacity(0.045),
+  //           blurRadius: 20,
+  //           offset: const Offset(0, 8),
   //         ),
-  //         child: const Icon(
-  //           Icons.auto_awesome_rounded,
-  //           size: 17,
-  //           color: tOrange1,
-  //         ),
-  //       ),
-  //       const SizedBox(width: 13),
-  //       Expanded(
-  //         child: Text(
-  //           'Built around your business requirements.',
-  //           style: GoogleFonts.manrope(
-  //             fontSize: 12,
-  //             fontWeight: FontWeight.w700,
-  //             color: tBlue2,
+  //       ],
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           width: 34,
+  //           height: 34,
+  //           decoration: BoxDecoration(
+  //             color: tOrange1.withOpacity(0.09),
+  //             borderRadius: BorderRadius.circular(9),
+  //           ),
+  //           child: const Icon(
+  //             Icons.auto_awesome_rounded,
+  //             size: 17,
+  //             color: tOrange1,
   //           ),
   //         ),
-  //       ),
-  //       Text(
-  //         'Trakmate Design Solutions',
-  //         style: GoogleFonts.manrope(
-  //           fontSize: 11,
-  //           fontWeight: FontWeight.w600,
-  //           color: tBlack.withOpacity(0.42),
+  //         const SizedBox(width: 13),
+  //         Expanded(
+  //           child: Text(
+  //             'Built around your business requirements.',
+  //             style: GoogleFonts.manrope(
+  //               fontSize: 12,
+  //               fontWeight: FontWeight.w700,
+  //               color: tBlue2,
+  //             ),
+  //           ),
   //         ),
-  //       ),
-  //     ],
-  //   ),
-  // );
+  //         Text(
+  //           'Trakmate Design Solutions',
+  //           style: GoogleFonts.manrope(
+  //             fontSize: 11,
+  //             fontWeight: FontWeight.w600,
+  //             color: tBlack.withOpacity(0.42),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
-// }
 
 // ============================================================================
 // DETAIL CARD
@@ -318,238 +338,288 @@ class _DetailCardState extends State<_DetailCard> {
   Widget build(BuildContext context) {
     final SolutionCardData card = widget.data;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => _setHovering(true),
-      onExit: (_) => _setHovering(false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 260),
-        curve: Curves.easeOutCubic,
-        transform: Matrix4.identity()..translate(0.0, _hovering ? -7.0 : 0.0),
-        decoration: BoxDecoration(
-          color: tWhite,
-          borderRadius: BorderRadius.circular(19),
-          border: Border.all(
-            color:
-                _hovering
-                    ? widget.accentColor.withOpacity(0.20)
-                    : tBlue2.withOpacity(0.055),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.accentColor.withOpacity(_hovering ? 0.115 : 0.045),
-              blurRadius: _hovering ? 32 : 23,
-              spreadRadius: _hovering ? 1 : 0,
-              offset: Offset(0, _hovering ? 15 : 9),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ==============================================================
-            // IMAGE
-            // ==============================================================
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 350,
-                  child: ClipRect(
-                    child: AnimatedScale(
-                      scale: _hovering ? 1.025 : 1.0,
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeOutCubic,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.asset(
-                            card.image,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: tBlue2,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    size: 46,
-                                    color: tWhite.withOpacity(0.8),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double cardWidth = constraints.maxWidth;
 
-                          // Subtle bottom fade.
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  tBlue2.withOpacity(_hovering ? 0.20 : 0.09),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+        // ================================================================
+        // RESPONSIVE LOGO
+        // ================================================================
+
+        final double logoWidth = (cardWidth * 0.17).clamp(120.0, 150.0);
+
+        final double logoHeight = (logoWidth * 0.34).clamp(40.0, 50.0);
+
+        final double logoRight = cardWidth * 0.055;
+
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => _setHovering(true),
+          onExit: (_) => _setHovering(false),
+
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 260),
+            curve: Curves.easeOutCubic,
+
+            transform:
+                Matrix4.identity()..translate(0.0, _hovering ? -7.0 : 0.0),
+
+            decoration: BoxDecoration(
+              color: tWhite,
+
+              borderRadius: BorderRadius.circular(19),
+
+              border: Border.all(
+                color:
+                    _hovering
+                        ? widget.accentColor.withOpacity(0.20)
+                        : tBlue2.withOpacity(0.055),
+              ),
+
+              boxShadow: [
+                BoxShadow(
+                  color: widget.accentColor.withOpacity(
+                    _hovering ? 0.115 : 0.045,
                   ),
-                ),
-
-                // // ==========================================================
-                // // TOP-RIGHT NUMBER
-                // // ==========================================================
-                // Positioned(
-                //   top: 15,
-                //   right: 15,
-                //   child: AnimatedContainer(
-                //     duration: const Duration(milliseconds: 220),
-                //     padding: const EdgeInsets.symmetric(
-                //       horizontal: 9,
-                //       vertical: 6,
-                //     ),
-                //     decoration: BoxDecoration(
-                //       color: tWhite.withOpacity(_hovering ? 0.97 : 0.90),
-                //       borderRadius: BorderRadius.circular(8),
-                //       border: Border.all(
-                //         color: widget.accentColor.withOpacity(0.10),
-                //       ),
-                //     ),
-                //     child: Text(
-                //       '0${widget.cardNumber}',
-                //       style: GoogleFonts.manrope(
-                //         fontSize: 10,
-                //         fontWeight: FontWeight.w800,
-                //         color: widget.accentColor,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-
-                // ==========================================================
-                // FLOATING ICON
-                // ==============================================================
-                Positioned(
-                  left: 700,
-                  bottom: -29,
-                  child: AnimatedScale(
-                    scale: _hovering ? 1.075 : 1.0,
-                    duration: const Duration(milliseconds: 230),
-                    curve: Curves.easeOutCubic,
-                    child: Container(
-                      width: 150,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        // Always white — never the alternating accent color,
-                        // in hover or non-hover states.
-                        color: tWhite,
-                        borderRadius: BorderRadius.circular(14),
-
-                        boxShadow: [
-                          // Main shadow around the container
-                          BoxShadow(
-                            color: tBlack.withOpacity(_hovering ? 0.18 : 0.10),
-                            blurRadius: _hovering ? 20 : 14,
-                            spreadRadius: _hovering ? 1 : 0,
-                            offset: const Offset(0, 6),
-                          ),
-
-                          // Soft accent glow around the border — this can
-                          // stay tied to accentColor since it's a shadow,
-                          // not the container's own background fill.
-                          BoxShadow(
-                            color: widget.accentColor.withOpacity(
-                              _hovering ? 0.30 : 0.16,
-                            ),
-                            blurRadius: _hovering ? 18 : 12,
-                            spreadRadius: _hovering ? 1 : 0,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: SvgPicture.asset(
-                        'icons/trakfleet_logo.svg', // <-- your SVG icon
-                        width: 200,
-                        height: 50,
-                        // color: tWhite,
-                      ),
-                    ),
-                  ),
+                  blurRadius: _hovering ? 32 : 23,
+                  spreadRadius: _hovering ? 1 : 0,
+                  offset: Offset(0, _hovering ? 15 : 9),
                 ),
               ],
             ),
 
-            // ==============================================================
-            // CONTENT
-            // ==============================================================
-            Padding(
-              padding: const EdgeInsets.fromLTRB(27, 20, 27, 27),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // IMPORTANT:
+            // Do NOT clip the card here.
+            // The logo needs to overlap the image/content boundary.
+            clipBehavior: Clip.none,
+
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(19),
+
+              child: Stack(
+                clipBehavior: Clip.none,
+
                 children: [
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
-                    style: GoogleFonts.manrope(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: _hovering ? widget.accentColor : tBlue2,
-                      letterSpacing: -0.25,
-                    ),
-                    child: Text(card.title),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  SizedBox(
-                    height: 35,
-                    child: Text(
-                      card.description,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w500,
-                        color: tBlack.withOpacity(0.55),
-                        height: 1.55,
-                      ),
-                    ),
-                  ),
-
-                  // const SizedBox(height: ),
-                  Row(
+                  // ========================================================
+                  // MAIN CARD CONTENT
+                  // ========================================================
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: _HoverButton(
-                          title: 'View Demo',
-                          icon: Icons.arrow_forward_rounded,
-                          backgroundColor: widget.accentColor,
-                          foregroundColor: tWhite,
+                      // ====================================================
+                      // IMAGE
+                      // ====================================================
+                      SizedBox(
+                        width: double.infinity,
+                        height: 350,
+
+                        child: ClipRect(
+                          child: AnimatedScale(
+                            scale: _hovering ? 1.025 : 1.0,
+
+                            duration: const Duration(milliseconds: 400),
+
+                            curve: Curves.easeOutCubic,
+
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.asset(
+                                  card.image,
+                                  fit: BoxFit.cover,
+
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: tBlue2,
+
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.image_outlined,
+                                          size: 46,
+                                          color: tWhite.withOpacity(0.8),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                                // ------------------------------------------------
+                                // SUBTLE BOTTOM FADE
+                                // ------------------------------------------------
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        tBlue2.withOpacity(
+                                          _hovering ? 0.20 : 0.09,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _HoverButton(
-                          title: 'View website',
-                          icon: Icons.north_east_rounded,
-                          backgroundColor: tWhite,
-                          foregroundColor: widget.accentColor,
-                          borderColor: widget.accentColor.withOpacity(0.25),
+
+                      // ====================================================
+                      // CONTENT
+                      // ====================================================
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(27, 20, 27, 27),
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: [
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+
+                              style: GoogleFonts.manrope(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: _hovering ? widget.accentColor : tBlue2,
+                                letterSpacing: -0.25,
+                              ),
+
+                              child: Text(card.title),
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            SizedBox(
+                              height: 35,
+
+                              child: Text(
+                                card.description,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: tBlack.withOpacity(0.55),
+                                  height: 1.55,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 0),
+
+                            // =================================================
+                            // BUTTONS
+                            // =================================================
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _HoverButton(
+                                    title: 'View Demo',
+                                    icon: Icons.arrow_forward_rounded,
+                                    backgroundColor: widget.accentColor,
+                                    foregroundColor: tWhite,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 12),
+
+                                Expanded(
+                                  child: _HoverButton(
+                                    title: 'View website',
+                                    icon: Icons.north_east_rounded,
+                                    backgroundColor: tWhite,
+                                    foregroundColor: widget.accentColor,
+                                    borderColor: widget.accentColor.withOpacity(
+                                      0.25,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
+
+                  // ========================================================
+                  // TRAKFLEET FLOATING LOGO
+                  //
+                  // IMPORTANT:
+                  // This is now positioned relative to the WHOLE CARD.
+                  // It is NOT inside the image Stack.
+                  // ========================================================
+                  Positioned(
+                    right: logoRight,
+
+                    // Image height = 350
+                    //
+                    // Logo overlaps the image/content boundary by
+                    // approximately 29 pixels.
+                    top: 350 - 21,
+
+                    child: AnimatedScale(
+                      scale: _hovering ? 1.075 : 1.0,
+
+                      duration: const Duration(milliseconds: 230),
+
+                      curve: Curves.easeOutCubic,
+
+                      child: Container(
+                        width: logoWidth,
+                        height: logoHeight,
+
+                        decoration: BoxDecoration(
+                          color: tWhite,
+
+                          borderRadius: BorderRadius.circular(14),
+
+                          boxShadow: [
+                            // Main shadow
+                            BoxShadow(
+                              color: tBlack.withOpacity(
+                                _hovering ? 0.18 : 0.10,
+                              ),
+                              blurRadius: _hovering ? 20 : 14,
+                              spreadRadius: _hovering ? 1 : 0,
+                              offset: const Offset(0, 6),
+                            ),
+
+                            // Accent glow
+                            BoxShadow(
+                              color: widget.accentColor.withOpacity(
+                                _hovering ? 0.30 : 0.16,
+                              ),
+                              blurRadius: _hovering ? 18 : 12,
+                              spreadRadius: _hovering ? 1 : 0,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+
+                        alignment: Alignment.center,
+
+                        child: SvgPicture.asset(
+                          'icons/trakfleet_logo.svg',
+
+                          width: logoWidth * 0.80,
+
+                          height: logoHeight * 0.80,
+
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -594,25 +664,36 @@ class _HoverButtonState extends State<_HoverButton> {
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+
       onEnter: (_) => _setHovering(true),
+
       onExit: (_) => _setHovering(false),
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 190),
+
         curve: Curves.easeOutCubic,
+
         height: 48,
+
         transform: Matrix4.identity()..translate(0.0, _hovering ? -2.0 : 0.0),
+
         decoration: BoxDecoration(
           color:
               _hovering && filled
                   ? widget.backgroundColor.withOpacity(0.91)
                   : widget.backgroundColor,
+
           borderRadius: BorderRadius.circular(10),
+
           border: Border.all(
             color:
                 widget.borderColor ??
                 (filled ? widget.backgroundColor : Colors.transparent),
+
             width: 1.2,
           ),
+
           boxShadow:
               _hovering
                   ? [
@@ -624,14 +705,17 @@ class _HoverButtonState extends State<_HoverButton> {
                   ]
                   : [],
         ),
+
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: [
             Flexible(
               child: Text(
                 widget.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+
                 style: GoogleFonts.manrope(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -639,11 +723,16 @@ class _HoverButtonState extends State<_HoverButton> {
                 ),
               ),
             ),
+
             const SizedBox(width: 9),
+
             AnimatedSlide(
               duration: const Duration(milliseconds: 180),
+
               curve: Curves.easeOut,
+
               offset: _hovering ? const Offset(0.15, 0) : Offset.zero,
+
               child: Icon(widget.icon, size: 17, color: widget.foregroundColor),
             ),
           ],
@@ -673,40 +762,54 @@ class _HoverBackButtonState extends State<_HoverBackButton> {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+
       onEnter: (_) {
         setState(() {
           _hovering = true;
         });
       },
+
       onExit: (_) {
         setState(() {
           _hovering = false;
         });
       },
+
       child: GestureDetector(
         onTap: widget.onTap,
+
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
+
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+
           decoration: BoxDecoration(
             color: _hovering ? tBlue2.withOpacity(0.05) : Colors.transparent,
+
             borderRadius: BorderRadius.circular(8),
           ),
+
           child: Row(
             mainAxisSize: MainAxisSize.min,
+
             children: [
               AnimatedSlide(
                 duration: const Duration(milliseconds: 180),
+
                 offset: _hovering ? const Offset(-0.08, 0) : Offset.zero,
+
                 child: const Icon(
                   Icons.arrow_back_rounded,
                   size: 18,
                   color: tBlue2,
                 ),
               ),
+
               const SizedBox(width: 7),
+
               Text(
                 'Back to Solutions',
+
                 style: GoogleFonts.manrope(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

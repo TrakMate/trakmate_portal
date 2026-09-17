@@ -7,6 +7,7 @@ import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/ui/widgets/solutions_hub.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:video_player/video_player.dart';
 
 class BuildProductSection extends StatefulWidget {
   final Widget header;
@@ -38,6 +39,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd024-bottom-view.png',
       image4: 'images/tmd024-vertical-view.png',
       image5: 'images/tmd024-part.png',
+      image6: 'images/tmd104_specs.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -62,6 +64,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd024-bottom-view.png',
       image4: 'images/tmd024-vertical-view.png',
       image5: 'images/tmd024-part.png',
+      image6: 'images/tmd004-024_specs.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -86,6 +89,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd024-bottom-view.png',
       image4: 'images/tmd024-vertical-view.png',
       image5: 'images/tmd024-part.png',
+      image6: 'images/tmd004-024_specs.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -105,7 +109,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmb024.png',
+      image: 'images/tmd006-isometric.png',
+      image2: 'images/tmd006-front.png',
+      image3: 'images/tmd006-back.png',
+      image4: 'images/tmd006-side.png',
+      image5: 'images/tmd006-bottom.png',
       badge: 'new',
       badgeColor: newbadge,
       title: 'TMD006',
@@ -122,8 +130,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         ),
       ],
     ),
+
     ProductData(
       image: 'images/tmb024.png',
+      image2: 'images/tmb024_specs.png',
       badge: 'new',
       badgeColor: newbadge,
       title: 'TMB024',
@@ -143,10 +153,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     ProductData(
       image: 'images/tmd400.png',
+
+      image2: 'images/tmd400_specs.png',
+
       badge: "OBD-II",
       badgeColor: ipbadge,
       title: 'TMD400',
-      subtitle: 'Industrial Vehicle Diagnostics',
+      subtitle: 'Industrial IoT Gateway',
       category: 'Diagnostics',
       description:
           'OBD vehicle diagnostics with Bluetooth 5.0, remote diagnostics, and error detection.',
@@ -177,18 +190,22 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         ),
       ],
     ),
+
     ProductData(
       image: 'images/tmd364-side1.png',
       image2: 'images/tmd364-top1.png',
       image3: 'images/tmd364-back1.png',
       image4: 'images/tmd364-part1.png',
       // image5: 'images/tmd364-side1.png',
+      image5: 'images/tmd364_specs.png',
+      video: 'videos/tmd364_demo.mp4',
+
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD364',
-      subtitle: 'Advanced GPS Tracker',
+      subtitle: 'Industrial IoT Gateway',
       category: 'Trackers',
       description:
           '4G LTE with 2G fallback, CAN/RS232 interfaces, BLE 5.0, motion sensing, and IP67 protection.',
@@ -230,6 +247,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image2: 'images/tmd364-top1.png',
       image3: 'images/tmd364-back1.png',
       image4: 'images/tmd364-part1.png',
+      image5: 'images/tcu510_specs.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -253,6 +271,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image2: 'images/tmd364-top1.png',
       image3: 'images/tmd364-back1.png',
       image4: 'images/tmd364-part1.png',
+      image5: 'images/tcu520_specs.png',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -276,6 +295,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image2: 'images/tmd364-top1.png',
       image3: 'images/tmd364-back1.png',
       image4: 'images/tmd364-part1.png',
+      image5: 'images/tcu550_specs.png',
+      video: 'videos/tcu550_demo.mp4',
+
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -296,8 +318,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmdcstrr-5.png',
-      // image2: 'images/tmdcstr-5-back.png',
-      image3: 'images/pigtail.jpg',
+      image2: 'images/pigtail.jpg',
+
+      image5: 'images/tmdcstr-5_specs.png',
       badge: null,
       badgeColor: null,
       title: 'TMDCSTR-5',
@@ -318,6 +341,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/tmdcstrr-7.png',
       image2: 'images/tmdcstr-7-side.png',
       image3: 'images/tmdcstr-7-back.png',
+      // image4: 'images/tmdcstr-7-top.png',
+      image5: 'images/tmdcstr-7_specs.png',
 
       badge: null,
       badgeColor: null,
@@ -337,6 +362,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/a2.png',
+      // image2: 'images/a2-side.png',
+      // image3: 'images/a2-back.png',
+      // image4: 'images/a2-top.png',
+      image5: 'images/tmdcstr-7a_specs.png',
       badge: null,
       badgeColor: null,
       title: 'TMDCSTR-7A',
@@ -372,7 +401,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description: 'Compliant with international quality',
     ),
     _TrustItemData(
-      icon: "icons/integration1.svg",
+      icon: "icons/integration.svg",
       title: 'Made for Integration',
       description: 'Easy to integrate with your systems & platforms',
     ),
@@ -448,10 +477,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width - 48,
                   ),
-                  child: SizedBox(
-                    width: 1200,
-                    child: _buildFilterTabsBar(),
-                  ), //filter bar width
+                  child: SizedBox(width: 1250, child: _buildFilterTabsBar()),
                 ),
               ),
             ),
@@ -506,7 +532,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         mainAxisSize: MainAxisSize.max,
         children: List.generate(_filterTabs.length * 2 - 1, (index) {
           if (index.isOdd) {
-            return const SizedBox(width: 60); //gap btwn filter items
+            return const SizedBox(width: 40);
           }
 
           final int tabIndex = index ~/ 2;
@@ -566,49 +592,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   // PRODUCT RANGE HEADER
 
-  // Widget _buildProductRangeHeader() {
-  //   return Column(
-  //     children: [
-  //       Text(
-  //         'OUR PRODUCT RANGE',
-  //         style: GoogleFonts.manrope(
-  //           fontSize: 13,
-  //           fontWeight: FontWeight.w700,
-  //           color: tOrange1,
-  //           letterSpacing: 1.2,
-  //         ),
-  //       ),
-
-  //       const SizedBox(height: 12),
-
-  //       Text(
-  //         'Smart Products for a Connected World',
-  //         textAlign: TextAlign.center,
-  //         style: GoogleFonts.manrope(
-  //           fontSize: 25,
-  //           fontWeight: FontWeight.w700,
-  //           color: tBlue2,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
   Widget _buildProductRangeHeader() {
-    final bool isSolutionsHub =
-        _filterTabs[_selectedFilterIndex].label == 'Solutions Hub';
-
-    final String eyebrow =
-        isSolutionsHub ? 'SOLUTIONS HUB' : 'OUR PRODUCT RANGE';
-
-    final String title =
-        isSolutionsHub
-            ? 'The Solutions We Provide' // swap in whatever copy you want
-            : 'Smart Products for a Connected World';
-
     return Column(
       children: [
         Text(
-          eyebrow,
+          'OUR PRODUCT RANGE',
           style: GoogleFonts.manrope(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -620,7 +608,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         const SizedBox(height: 12),
 
         Text(
-          title,
+          'Smart Products for a Connected World',
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
             fontSize: 25,
@@ -631,6 +619,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     );
   }
+
   // PRODUCT GRID
 
   Widget _buildProductsGrid() {
@@ -1638,6 +1627,9 @@ class ProductData {
   final String? image3;
   final String? image4;
   final String? image5;
+  final String? image6;
+  final String? video; // ADD THIS
+
   final List<ProductFeature> features;
 
   const ProductData({
@@ -1646,6 +1638,8 @@ class ProductData {
     this.image3,
     this.image4,
     this.image5,
+    this.image6,
+    this.video, // ADD THIS
     required this.badge,
     required this.badgeColor,
     this.secondBadge,

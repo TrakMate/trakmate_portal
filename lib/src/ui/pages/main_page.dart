@@ -319,9 +319,51 @@ class _PopupSvgIcon extends StatelessWidget {
   }
 }
 
-// ============================================================================
+class _HoverableContactValue extends StatefulWidget {
+  final String value;
+  final VoidCallback onTap;
+
+  const _HoverableContactValue({required this.value, required this.onTap});
+
+  @override
+  State<_HoverableContactValue> createState() => _HoverableContactValueState();
+}
+
+class _HoverableContactValueState extends State<_HoverableContactValue> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: _hovered ? tBlue3.withOpacity(0.05) : Colors.transparent,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Text(
+            widget.value,
+            style: GoogleFonts.manrope(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: tBlue2,
+              height: 1.5,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // GET IN TOUCH DIALOG
-// ============================================================================
 
 class _GetInTouchDialog extends StatefulWidget {
   const _GetInTouchDialog();
@@ -442,63 +484,12 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     required List<String> values,
     required String scheme,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: tBlue3.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: _PopupSvgIcon(asset: icon, size: 23, color: tBlue3),
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.manrope(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: tBlack.withOpacity(0.52),
-                ),
-              ),
-
-              const SizedBox(height: 3),
-
-              ...values.map(
-                (value) => Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => _openContact(value, scheme),
-                      child: Text(
-                        value,
-                        style: GoogleFonts.manrope(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: tBlue2,
-                          height: 1.5,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return _AnimatedClickableContactInfoItem(
+      icon: icon,
+      title: title,
+      values: values,
+      scheme: scheme,
+      onOpen: _openContact,
     );
   }
 
@@ -536,9 +527,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 ),
               ),
 
-              // ==================================================
               // CLOSE BUTTON
-              // ==================================================
               Positioned(
                 top: 14,
                 right: 14,
@@ -764,9 +753,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
-  // ============================================================
   // CONTACT INFO ITEM
-  // ============================================================
 
   Widget _buildContactInfoItem({
     required String icon,
@@ -776,9 +763,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     return _AnimatedContactInfoItem(icon: icon, title: title, content: content);
   }
 
-  // ============================================================
   // CONTACT FORM
-  // ============================================================
 
   Widget _buildContactForm() {
     return Column(
@@ -817,7 +802,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     controller: _nameController,
                     label: 'Name *',
                     hint: 'Your name',
-                    icon: 'icons/person.svg',
+                    icon: 'icons/person2.svg',
                   ),
 
                   const SizedBox(height: 14),
@@ -839,7 +824,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     controller: _nameController,
                     label: 'Name *',
                     hint: 'Your name',
-                    icon: 'icons/person.svg',
+                    icon: 'icons/person2.svg',
                   ),
                 ),
 
@@ -1596,6 +1581,94 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
                       fontWeight: FontWeight.w600,
                       color: tBlue2,
                       height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedClickableContactInfoItem extends StatefulWidget {
+  final String icon;
+  final String title;
+  final List<String> values;
+  final String scheme;
+  final Future<void> Function(String value, String scheme) onOpen;
+
+  const _AnimatedClickableContactInfoItem({
+    required this.icon,
+    required this.title,
+    required this.values,
+    required this.scheme,
+    required this.onOpen,
+  });
+
+  @override
+  State<_AnimatedClickableContactInfoItem> createState() =>
+      _AnimatedClickableContactInfoItemState();
+}
+
+class _AnimatedClickableContactInfoItemState
+    extends State<_AnimatedClickableContactInfoItem> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        transform: Matrix4.translationValues(_hovered ? 3 : 0, 0, 0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: tBlue3.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: _PopupSvgIcon(
+                  asset: widget.icon,
+                  size: 23,
+                  color: tBlue3,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.title,
+                    style: GoogleFonts.manrope(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: tBlack.withOpacity(0.52),
+                    ),
+                  ),
+
+                  const SizedBox(height: 3),
+
+                  ...widget.values.map(
+                    (value) => Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: _HoverableContactValue(
+                        value: value,
+                        onTap: () => widget.onOpen(value, widget.scheme),
+                      ),
                     ),
                   ),
                 ],

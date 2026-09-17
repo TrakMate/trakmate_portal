@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/mobile_app.dart';
+import 'package:trakmate_portal/src/ui/widgets/web_app.dart';
 
 import '../../utils/colors.dart';
 import 'solutions_detail.dart';
+// import 'mobile_app.dart';
+// import 'web_app.dart';
 
 class SolutionsHubPage extends StatelessWidget {
   const SolutionsHubPage({super.key});
@@ -11,6 +15,9 @@ class SolutionsHubPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final solutions = <SolutionDetailsData>[
+      // =========================================================
+      // MOBILE APPS
+      // =========================================================
       SolutionDetailsData(
         backgroundImage: 'images/mobileapps1.png',
         icon: 'icons/mobile.svg',
@@ -46,6 +53,10 @@ class SolutionsHubPage extends StatelessWidget {
           ),
         ],
       ),
+
+      // =========================================================
+      // WEB APPS
+      // =========================================================
       SolutionDetailsData(
         backgroundImage: 'images/webapps1.png',
         icon: 'icons/laptop.svg',
@@ -94,30 +105,43 @@ class SolutionsHubPage extends StatelessWidget {
             spacing: 25,
             runSpacing: 25,
             children:
-                solutions
-                    .map(
-                      (solution) => SizedBox(
-                        width: 420, //card width
-                        child: _SolutionCard(
-                          backgroundImage: solution.backgroundImage,
-                          icon: solution.icon,
-                          iconBackgroundColor: solution.iconBackgroundColor,
-                          eyebrow: solution.eyebrow,
-                          title: solution.title,
-                          description: solution.description,
-                          onTap: () {},
-                          // () => Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder:
-                          //         (_) =>
-                          //             SolutionsDetailsPage(data: solution),
-                          //   ),
-                          // ),
-                        ),
-                      ),
-                    )
-                    .toList(),
+                solutions.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final solution = entry.value;
+
+                  return SizedBox(
+                    width: 420, // card width
+                    child: _SolutionCard(
+                      backgroundImage: solution.backgroundImage,
+                      icon: solution.icon,
+                      iconBackgroundColor: solution.iconBackgroundColor,
+                      eyebrow: solution.eyebrow,
+                      title: solution.title,
+                      description: solution.description,
+
+                      // =====================================================
+                      // NAVIGATION
+                      // =====================================================
+                      onTap: () {
+                        if (index == 0) {
+                          // MOBILE APPS
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MobileApp(),
+                            ),
+                          );
+                        } else if (index == 1) {
+                          // WEB APPS
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const WebApp()),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }).toList(),
           ),
         ],
       ),
@@ -158,7 +182,7 @@ class _SolutionCardState extends State<_SolutionCard> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           transform: Matrix4.identity()..translate(0.0, hovering ? -7.0 : 0.0),
-          height: 390, //card height
+          height: 390, // card height
           decoration: BoxDecoration(
             color: tWhite,
             borderRadius: BorderRadius.circular(18),
@@ -185,6 +209,7 @@ class _SolutionCardState extends State<_SolutionCard> {
                       errorBuilder: (_, __, ___) => Container(color: tBlue3),
                     ),
                   ),
+
                   Padding(
                     padding: const EdgeInsets.fromLTRB(22, 35, 22, 22),
                     child: Column(
@@ -200,6 +225,7 @@ class _SolutionCardState extends State<_SolutionCard> {
                         //   ),
                         // ),
                         const SizedBox(height: 1),
+
                         Text(
                           widget.title,
                           style: GoogleFonts.manrope(
@@ -208,7 +234,9 @@ class _SolutionCardState extends State<_SolutionCard> {
                             color: tBlue2,
                           ),
                         ),
+
                         const SizedBox(height: 8),
+
                         Text(
                           widget.description,
                           maxLines: 3,
@@ -224,6 +252,10 @@ class _SolutionCardState extends State<_SolutionCard> {
                   ),
                 ],
               ),
+
+              // =====================================================
+              // ICON
+              // =====================================================
               Positioned(
                 top: 225,
                 left: 20,
