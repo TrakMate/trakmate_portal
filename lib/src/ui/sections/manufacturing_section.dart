@@ -553,7 +553,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
             }
             return Wrap(
               spacing: 16,
-              runSpacing: 16,
+              runSpacing: 30,
               children: List.generate(_services.length, (index) {
                 final service = _services[index];
 
@@ -573,7 +573,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   Widget _buildServiceCard(_ManufacturingService service, int index) {
     final Color iconBackground = index.isEven ? tBlue2 : tOrange1;
     return Container(
-      height: 350,
+      height: 300, //card height
       decoration: BoxDecoration(
         color: tWhite,
         borderRadius: BorderRadius.circular(14),
@@ -591,7 +591,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 200,
+            height: 200, // image height
             width: double.infinity,
             child: Stack(
               children: [
@@ -671,33 +671,33 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                     ),
                   ),
 
-                  TextButton(
-                    onPressed: () {},
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Learn More',
-                          style: GoogleFonts.manrope(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: tOrange1,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 13,
-                          color: tOrange1,
-                        ),
-                      ],
-                    ),
-                  ),
+                  // TextButton(
+                  //   onPressed: () {},
+                  //   style: TextButton.styleFrom(
+                  //     padding: EdgeInsets.zero,
+                  //     minimumSize: Size.zero,
+                  //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisSize: MainAxisSize.min,
+                  //     children: [
+                  //       Text(
+                  //         'Learn More',
+                  //         style: GoogleFonts.manrope(
+                  //           fontSize: 12,
+                  //           fontWeight: FontWeight.w700,
+                  //           color: tOrange1,
+                  //         ),
+                  //       ),
+                  //       const SizedBox(width: 4),
+                  //       Icon(
+                  //         Icons.arrow_forward_rounded,
+                  //         size: 13,
+                  //         color: tOrange1,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -858,5 +858,3 @@ class _ManufacturingValue {
     required this.description,
   });
 }
-
-

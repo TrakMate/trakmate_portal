@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
-
+import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
 
@@ -33,7 +33,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   late final PageController _imagePageController;
 
   int _currentImageIndex = 0;
-
+  VideoPlayerController? _videoController;
+  bool get _hasVideo => product.video != null && product.video!.isNotEmpty;
   List<String> get _productImages {
     final List<String> images = [];
 
@@ -70,7 +71,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   int get _carouselItemCount {
-    return _productImages.length;
+    // return _productImages.length;
+    return _productImages.length + (_hasVideo ? 1 : 0);
+  }
+
+  void _onVideoStateChanged() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   @override
@@ -78,13 +85,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     super.initState();
 
     _imagePageController = PageController();
+    if (_hasVideo) {
+      _videoController =
+          VideoPlayerController.asset(product.video!)
+            ..initialize().then((_) {
+              if (mounted) setState(() {});
+            })
+            ..addListener(_onVideoStateChanged);
+    }
   }
 
   @override
   void dispose() {
     _imagePageController.dispose();
     _rightScrollController.dispose();
-
+    _videoController?.removeListener(_onVideoStateChanged);
+    _videoController?.dispose();
     super.dispose();
   }
 
@@ -321,6 +337,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 },
 
                 itemBuilder: (context, index) {
+                  if (index >= _productImages.length && _hasVideo) {
+                    return _buildVideoSlide();
+                  }
                   return Image.asset(
                     _productImages[index],
 
@@ -400,7 +419,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
-                ...List.generate(_productImages.length, (index) {
+                ...List.generate(_carouselItemCount, (index) {
                   return _buildProductThumbnail(index);
                 }),
               ],
@@ -426,6 +445,57 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildVideoSlide() {
+    if (_videoController == null || !_videoController!.value.isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Center(
+      child: AspectRatio(
+        aspectRatio: _videoController!.value.aspectRatio,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            VideoPlayer(_videoController!),
+            GestureDetector(
+              onTap: () {
+                final value = _videoController!.value;
+                final bool isFinished =
+                    value.position >= value.duration &&
+                    value.duration > Duration.zero;
+
+                if (isFinished) {
+                  _videoController!.seekTo(Duration.zero);
+                  _videoController!.play();
+                } else if (value.isPlaying) {
+                  _videoController!.pause();
+                } else {
+                  _videoController!.play();
+                }
+              },
+              child: AnimatedOpacity(
+                opacity: _videoController!.value.isPlaying ? 0 : 1,
+                duration: const Duration(milliseconds: 200),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: tBlack.withOpacity(0.35),
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(14),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 36,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -478,22 +548,28 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4),
-
-          child: Image.asset(
-            _productImages[index],
-
-            fit: BoxFit.contain,
-
-            errorBuilder: (context, error, stackTrace) {
-              return Icon(
-                Icons.image_not_supported_outlined,
-
-                size: 18,
-
-                color: tBlack.withOpacity(0.25),
-              );
-            },
-          ),
+          child:
+              index >= _productImages.length
+                  ? Container(
+                    color: tBlack.withOpacity(0.05),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.play_circle_fill_rounded,
+                      size: 22,
+                      color: tBlue2,
+                    ),
+                  )
+                  : Image.asset(
+                    _productImages[index],
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 18,
+                        color: tBlack.withOpacity(0.25),
+                      );
+                    },
+                  ),
         ),
       ),
     );

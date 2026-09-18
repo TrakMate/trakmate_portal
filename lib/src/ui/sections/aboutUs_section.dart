@@ -71,8 +71,8 @@ class _AboutusSectionState extends State<AboutusSection>
     ),
     _CertData(
       logo: 'icons/ce.svg',
-      code: '',
-      label: 'CE Certified',
+      code: 'CE Certified',
+      label: 'Ensures EU product compliance',
       logoHeight: 42,
       logoWidth: 42,
     ),

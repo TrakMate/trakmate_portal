@@ -9,7 +9,8 @@ import '../widgets/footer_section.dart';
 
 class ProductsSection extends StatefulWidget {
   final bool isActive;
-  const ProductsSection({super.key, required this.isActive});
+  final void Function(int index)? onNavigate;
+  const ProductsSection({super.key, required this.isActive, this.onNavigate});
 
   @override
   State<ProductsSection> createState() => _ProductsSectionState();
@@ -55,7 +56,7 @@ class _ProductsSectionState extends State<ProductsSection> {
                     : _buildProductsHeader(),
           ),
           const SizedBox(height: 40),
-          FooterSection(),
+          FooterSection(onNavigate: widget.onNavigate),
         ],
       ),
     );

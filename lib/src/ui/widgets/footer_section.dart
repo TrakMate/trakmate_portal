@@ -67,7 +67,7 @@ class FooterSection extends StatelessWidget {
                 "Clusters",
                 "ADAS",
                 "Solution Hub",
-              ]),
+              ], sectionIndex: 3),
               _divider(),
 
               // _menu("Resources", [

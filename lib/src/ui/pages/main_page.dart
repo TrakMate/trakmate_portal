@@ -127,7 +127,14 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                 ),
-                ProductsSection(isActive: selectedIndex == 3),
+                ProductsSection(
+                  isActive: selectedIndex == 3,
+                  onNavigate: (index) {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                  },
+                ),
                 // IndustriesSection(
                 //   isActive: selectedIndex == 4,
                 //   onNavigate: (index) {

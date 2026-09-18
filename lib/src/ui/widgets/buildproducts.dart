@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
@@ -21,6 +22,7 @@ class BuildProductSection extends StatefulWidget {
 class _BuildProductSectionState extends State<BuildProductSection> {
   int _selectedFilterIndex = 0;
   bool _imagesLoading = true;
+  final GlobalKey _productRangeKey = GlobalKey();
   final List<_FilterTabData> _filterTabs = const [
     _FilterTabData(icon: "icons/all.svg", label: 'All Products'),
     _FilterTabData(icon: "icons/trackers1.svg", label: 'Trackers'),
@@ -109,8 +111,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmd006-isometric.png',
-      image2: 'images/tmd006-front.png',
+      image: 'images/tmd006_isometric.png',
+      image2: 'images/tmd006_front.png',
       image3: 'images/tmd006-back.png',
       image4: 'images/tmd006-side.png',
       image5: 'images/tmd006-bottom.png',
@@ -198,7 +200,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmd364-part1.png',
       // image5: 'images/tmd364-side1.png',
       image5: 'images/tmd364_specs.png',
-      video: 'videos/tmd364_demo.mp4',
+      video: 'video/tmd364_demo.mp4',
 
       badge: '4G',
       badgeColor: tBlue3,
@@ -296,7 +298,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd364-back1.png',
       image4: 'images/tmd364-part1.png',
       image5: 'images/tcu550_specs.png',
-      video: 'videos/tcu550_demo.mp4',
+      video: 'video/tcu550_demo.mp4',
 
       badge: '4G',
       badgeColor: tBlue3,
@@ -401,12 +403,21 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description: 'Compliant with international quality',
     ),
     _TrustItemData(
-      icon: "icons/integration.svg",
+      icon: "icons/integration1.svg",
       title: 'Made for Integration',
       description: 'Easy to integrate with your systems & platforms',
     ),
   ];
 
+  static const Map<String, String> _footerKeyToFilterLabel = {
+    'All Products': 'All Products',
+    'Vehicle Trackers': 'Trackers',
+    'Vehicle Diagnostics': 'Diagnostics',
+    'Gateways': 'Gateways',
+    'Clusters': 'Clusters',
+    'ADAS': 'ADAS',
+    'Solution Hub': 'Solutions Hub',
+  };
   void _selectFilterIndex(int index) {
     if (index == _selectedFilterIndex) return;
 
@@ -425,9 +436,49 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   @override
   void initState() {
     super.initState();
-
+    SectionScrollBus.instance.pendingKey.addListener(_handleFooterNavigation);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadProductImages();
+      _handleFooterNavigation();
+    });
+  }
+
+  @override
+  void dispose() {
+    SectionScrollBus.instance.pendingKey.removeListener(
+      _handleFooterNavigation,
+    );
+    super.dispose();
+  }
+
+  void _handleFooterNavigation() {
+    final request = SectionScrollBus.instance.pendingKey.value;
+    if (request == null) return;
+
+    final filterLabel = _footerKeyToFilterLabel[request.key];
+    if (filterLabel == null)
+      return; // not meant for this section, leave it alone
+
+    final targetIndex = _filterTabs.indexWhere(
+      (tab) => tab.label == filterLabel,
+    );
+    if (targetIndex != -1) {
+      _selectFilterIndex(targetIndex);
+    }
+
+    // Mark it handled so other sections' listeners don't also react to it.
+    SectionScrollBus.instance.pendingKey.value = null;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _productRangeKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+          alignment: 0.05,
+        );
+      }
     });
   }
 
@@ -456,6 +507,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     return Column(
       children: [
         Stack(
+          key: _productRangeKey,
           clipBehavior: Clip.none,
           children: [
             Padding(
@@ -470,7 +522,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
             // ),
             Positioned(
               left: 24,
-              right: 24,
+              right: 24, //gap(filter bar)
               bottom: 35,
               child: Center(
                 child: ConstrainedBox(
@@ -532,7 +584,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         mainAxisSize: MainAxisSize.max,
         children: List.generate(_filterTabs.length * 2 - 1, (index) {
           if (index.isOdd) {
-            return const SizedBox(width: 40);
+            return const SizedBox(width: 65); //gap
           }
 
           final int tabIndex = index ~/ 2;

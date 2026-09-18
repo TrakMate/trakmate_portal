@@ -103,7 +103,7 @@ class _HomeSectionState extends State<HomeSection> {
           'TrakMate connects your assets, captures valuable data, and turns it into actionable insights—giving businesses the knowledge they need, when they need it.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge2.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -138,7 +138,7 @@ class _HomeSectionState extends State<HomeSection> {
           'From connected technologies and embedded systems to product engineering and manufacturing, TrakMate delivers solutions built for performance, reliability and long-term growth.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge2.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -168,12 +168,12 @@ class _HomeSectionState extends State<HomeSection> {
       video: "video/v4.mp4",
       label: "TRUSTED WORLDWIDE",
       headingLine1: "Built for Scale.",
-      headingLine2: "Delivered with\nPrecision.",
+      headingLine2: "Delivered with Precision.",
       description:
           'With clients across 6+ countries and 150+ products delivered, TrakMate is a technology partner businesses rely on globally.',
       stats: [
         _StatData(
-          icon: "icons/badge.svg",
+          icon: "icons/badge2.svg",
           value: "12+",
           label: "Years of Experience",
         ),
@@ -1050,7 +1050,7 @@ class _HomeSectionState extends State<HomeSection> {
                                     slide.stats[i].icon == "icons/device2.svg"
                                         ? "${_formatIndianNumber(_deviceCount)}+"
                                         : slide.stats[i].icon ==
-                                            "icons/badge.svg"
+                                            "icons/badge2.svg"
                                         ? "${DateTime.now().year - 2013}+"
                                         : slide.stats[i].value,
                                     slide.stats[i].label,

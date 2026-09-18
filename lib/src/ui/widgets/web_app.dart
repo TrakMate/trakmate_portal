@@ -5,11 +5,6 @@ import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 
 import '../../utils/colors.dart';
 
-// If colors.dart already defines a brand orange (tOrange, tAccent, etc.)
-// delete this line and use that instead — this is just a stand-in so the
-// file compiles on its own.
-const Color tOrange = Color(0xFFF7931E);
-
 class WebApp extends StatelessWidget {
   const WebApp({super.key});
 
@@ -22,20 +17,18 @@ class WebApp extends StatelessWidget {
           children: [
             // =====================================================
             // WEB APPS SECTION
-            // White background, left-aligned eyebrow + heading,
-            // 2-column grid of straight (non-tilted) image-forward cards.
             // =====================================================
             Container(
               width: double.infinity,
               color: tWhite,
-              padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 50),
+              padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBackButton(context),
-                  // const SizedBox(height: 25),
-                  // const _SectionEyebrow(label: 'WEB APPLICATIONS'),
+
                   const SizedBox(height: 14),
+
                   Text(
                     'Web Apps',
                     style: GoogleFonts.manrope(
@@ -44,7 +37,9 @@ class WebApp extends StatelessWidget {
                       color: tOrange1,
                     ),
                   ),
+
                   const SizedBox(height: 10),
+
                   SizedBox(
                     width: 560,
                     child: Text(
@@ -55,45 +50,76 @@ class WebApp extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 56),
+
                   _CardGrid(
                     cards: const [
+                      // =================================================
+                      // CARD 1
+                      // =================================================
                       _WebServiceCardData(
                         image: 'images/trakfleet.png',
+                        logo: 'icons/trakfleet_logo.svg',
                         title: 'TrakFleet',
                         description:
                             'Scalable web platforms built around your business workflows, users and operational requirements.',
                       ),
+
+                      // =================================================
+                      // CARD 2
+                      // =================================================
                       _WebServiceCardData(
-                        image: 'images/trakfleet.png',
-                        title: 'Trakblue',
+                        image: 'images/esync_login.png',
+                        logo: 'icons/esync.svg',
+                        title: 'Esync',
                         description:
                             'Secure cloud-connected applications with centralized data and easy access from anywhere.',
                       ),
-                      _WebServiceCardData(
-                        image: 'images/trakfleet.png',
-                        title: 'IoT Integration',
-                        description:
-                            'Connect web applications with devices, vehicles and real-time IoT data.',
-                      ),
-                      _WebServiceCardData(
-                        image: 'images/trakfleet.png',
-                        title: 'Dashboards & Analytics',
-                        description:
-                            'Transform business and device data into clear dashboards, reports and actionable insights.',
-                      ),
-                      _WebServiceCardData(
-                        image: 'images/trakfleet.png',
-                        title: 'Custom Portals',
-                        description:
-                            'Tailored client and admin portals with role-based access and streamlined workflows.',
-                      ),
-                      _WebServiceCardData(
-                        image: 'images/trakfleet.png',
-                        title: 'API & Integrations',
-                        description:
-                            'Connect your web app to third-party services and internal systems through robust APIs.',
-                      ),
+
+                      //         // =================================================
+                      //         // CARD 3
+                      //         // =================================================
+                      //         _WebServiceCardData(
+                      //           image: 'images/trakfleet.png',
+                      //           logo: 'icons/trakfleet_logo.svg',
+                      //           title: 'IoT Integration',
+                      //           description:
+                      //               'Connect web applications with devices, vehicles and real-time IoT data.',
+                      //         ),
+
+                      //         // =================================================
+                      //         // CARD 4
+                      //         // =================================================
+                      //         _WebServiceCardData(
+                      //           image: 'images/trakfleet.png',
+                      //           logo: 'icons/trakfleet_logo.svg',
+                      //           title: 'Dashboards & Analytics',
+                      //           description:
+                      //               'Transform business and device data into clear dashboards, reports and actionable insights.',
+                      //         ),
+
+                      //         // =================================================
+                      //         // CARD 5
+                      //         // =================================================
+                      //         _WebServiceCardData(
+                      //           image: 'images/trakfleet.png',
+                      //           logo: 'icons/trakfleet_logo.svg',
+                      //           title: 'Custom Portals',
+                      //           description:
+                      //               'Tailored client and admin portals with role-based access and streamlined workflows.',
+                      //         ),
+
+                      //         // =================================================
+                      //         // CARD 6
+                      //         // =================================================
+                      //         _WebServiceCardData(
+                      //           image: 'images/trakfleet.png',
+                      //           logo: 'icons/trakfleet_logo.svg',
+                      //           title: 'API & Integrations',
+                      //           description:
+                      //               'Connect your web app to third-party services and internal systems through robust APIs.',
+                      //         ),
                     ],
                   ),
                 ],
@@ -111,28 +137,25 @@ class WebApp extends StatelessWidget {
   }
 }
 
+// =========================================================
+// BACK BUTTON
+// =========================================================
+
 Widget _buildBackButton(BuildContext context) {
   return Align(
     alignment: Alignment.centerLeft,
-
     child: Material(
       color: Colors.transparent,
-
       child: InkWell(
         mouseCursor: SystemMouseCursors.click,
-
         borderRadius: BorderRadius.circular(7),
-
         onTap: () {
           Navigator.pop(context);
         },
-
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
-
           child: Row(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               const Icon(Icons.arrow_back_rounded, size: 18, color: tBlue3),
 
@@ -140,7 +163,6 @@ Widget _buildBackButton(BuildContext context) {
 
               Text(
                 'Back to Solutions',
-
                 style: GoogleFonts.manrope(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -156,11 +178,12 @@ Widget _buildBackButton(BuildContext context) {
 }
 
 // =========================================================
-// SECTION EYEBROW  ("— WEB APPLICATIONS")
+// SECTION EYEBROW
 // =========================================================
 
 class _SectionEyebrow extends StatelessWidget {
   final String label;
+
   const _SectionEyebrow({required this.label});
 
   @override
@@ -169,7 +192,9 @@ class _SectionEyebrow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(width: 22, height: 2.5, color: tOrange),
+
         const SizedBox(width: 10),
+
         Text(
           label,
           style: GoogleFonts.manrope(
@@ -186,17 +211,17 @@ class _SectionEyebrow extends StatelessWidget {
 
 // =========================================================
 // DATA MODEL
-// (icon field removed — the target design has no separate icon
-// chip, just the big screenshot image)
 // =========================================================
 
 class _WebServiceCardData {
   final String image;
+  final String logo;
   final String title;
   final String description;
 
   const _WebServiceCardData({
     required this.image,
+    required this.logo,
     required this.title,
     required this.description,
   });
@@ -204,12 +229,11 @@ class _WebServiceCardData {
 
 // =========================================================
 // CARD GRID
-// Straight cards (no rotation/tilt). 2 columns on wide screens,
-// 1 column on narrow screens.
 // =========================================================
 
 class _CardGrid extends StatelessWidget {
   final List<_WebServiceCardData> cards;
+
   const _CardGrid({required this.cards});
 
   @override
@@ -217,7 +241,9 @@ class _CardGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         const spacing = 28.0;
+
         final twoCol = constraints.maxWidth > 820;
+
         final cardWidth =
             twoCol
                 ? (constraints.maxWidth - spacing) / 2
@@ -227,8 +253,9 @@ class _CardGrid extends StatelessWidget {
           spacing: spacing,
           runSpacing: spacing,
           children: List.generate(cards.length, (index) {
-            // Alternates blue / orange CTA, matching the reference.
+            // Alternates blue / orange CTA.
             final accent = index.isEven ? tBlue3 : tOrange;
+
             return _WebServiceCard(
               width: cardWidth,
               data: cards[index],
@@ -243,8 +270,6 @@ class _CardGrid extends StatelessWidget {
 
 // =========================================================
 // CARD
-// Big image on top (most of the card), small footer below with
-// title + description + two CTA buttons.
 // =========================================================
 
 class _WebServiceCard extends StatelessWidget {
@@ -260,19 +285,28 @@ class _WebServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The image sits inside a 12px inset with a 2.5 aspect ratio — used
-    // here to work out where its bottom edge lands, so the floating logo
-    // badge can straddle that edge exactly like in the reference shot.
+    // =====================================================
+    // IMAGE CALCULATIONS
+    // =====================================================
+
     const imageInset = 12.0;
     const imageAspectRatio = 2.5;
+
     final imageInnerWidth = width - imageInset * 2;
+
     final imageBottom = imageInset + imageInnerWidth / imageAspectRatio;
+
+    // =====================================================
+    // CARD
+    // =====================================================
 
     return Container(
       width: width,
+
       decoration: BoxDecoration(
         color: tWhite,
         borderRadius: BorderRadius.circular(18),
+
         boxShadow: [
           BoxShadow(
             color: tBlack.withOpacity(.10),
@@ -281,14 +315,22 @@ class _WebServiceCard extends StatelessWidget {
           ),
         ],
       ),
+
       child: Stack(
         clipBehavior: Clip.none,
+
         children: [
+          // =================================================
+          // CARD CONTENT
+          // =================================================
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
+
             children: [
-              // Big image — dominant part of the card now.
+              // =================================================
+              // PRODUCT IMAGE
+              // =================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   imageInset,
@@ -296,10 +338,13 @@ class _WebServiceCard extends StatelessWidget {
                   imageInset,
                   0,
                 ),
+
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
+
                   child: AspectRatio(
                     aspectRatio: imageAspectRatio,
+
                     child: Image.asset(
                       data.image,
                       width: double.infinity,
@@ -309,52 +354,82 @@ class _WebServiceCard extends StatelessWidget {
                 ),
               ),
 
-              // Small footer.
+              // =================================================
+              // CARD FOOTER
+              // =================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
+
                   children: [
+                    // ===========================================
+                    // TITLE
+                    // ===========================================
                     Text(
                       data.title,
+
                       style: GoogleFonts.manrope(
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
                         color: tBlue3,
                       ),
                     ),
+
                     const SizedBox(height: 6),
+
+                    // ===========================================
+                    // DESCRIPTION
+                    // ===========================================
                     Text(
                       data.description,
+
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+
                       style: GoogleFonts.manrope(
                         fontSize: 12.5,
                         height: 1.45,
                         color: tBlack.withOpacity(.55),
                       ),
                     ),
+
                     const SizedBox(height: 16),
+
+                    // ===========================================
+                    // BUTTONS
+                    // ===========================================
                     Row(
                       children: [
+                        // =======================================
+                        // VIEW DEMO
+                        // =======================================
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // TODO: launch demo URL (e.g. via url_launcher)
+                              // TODO:
+                              // Launch demo URL
                             },
+
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: accentColor,
+                              backgroundColor: tOrange1.withOpacity(0.9),
                               foregroundColor: tWhite,
                               elevation: 0,
+
                               padding: const EdgeInsets.symmetric(vertical: 12),
+
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
+
                             icon: const Icon(Icons.arrow_forward, size: 15),
+
                             label: Text(
                               'View Demo',
+
                               style: GoogleFonts.manrope(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w700,
@@ -362,23 +437,36 @@ class _WebServiceCard extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         const SizedBox(width: 10),
+
+                        // =======================================
+                        // VIEW WEBSITE
+                        // =======================================
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () {
-                              // TODO: launch website URL (e.g. via url_launcher)
+                              // TODO:
+                              // Launch website URL
                             },
+
                             style: OutlinedButton.styleFrom(
                               foregroundColor: tBlue3,
+
                               side: BorderSide(color: tBlack.withOpacity(.15)),
+
                               padding: const EdgeInsets.symmetric(vertical: 12),
+
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
+
                             icon: const Icon(Icons.north_east, size: 14),
+
                             label: Text(
                               'View website',
+
                               style: GoogleFonts.manrope(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w700,
@@ -394,12 +482,14 @@ class _WebServiceCard extends StatelessWidget {
             ],
           ),
 
-          // Floating Trakmate logo badge, straddling the image's bottom
-          // edge — matches the reference screenshot.
+          // =================================================
+          // FLOATING LOGO
+          // =================================================
           Positioned(
             right: 28,
             top: imageBottom - 22,
-            child: const _TrakmateBadge(),
+
+            child: _TrakmateBadge(logo: data.logo),
           ),
         ],
       ),
@@ -412,15 +502,20 @@ class _WebServiceCard extends StatelessWidget {
 // =========================================================
 
 class _TrakmateBadge extends StatelessWidget {
-  const _TrakmateBadge();
+  final String logo;
+
+  const _TrakmateBadge({required this.logo});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+
       decoration: BoxDecoration(
         color: tWhite,
+
         borderRadius: BorderRadius.circular(12),
+
         boxShadow: [
           BoxShadow(
             color: tBlack.withOpacity(.18),
@@ -429,11 +524,8 @@ class _TrakmateBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: SvgPicture.asset(
-        'icons/trakmate_logo.svg', // update the path if yours lives elsewhere
-        height: 40,
-        width: 60,
-      ),
+
+      child: SvgPicture.asset(logo, height: 40, width: 60),
     );
   }
 }
