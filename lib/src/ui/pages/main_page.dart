@@ -137,11 +137,11 @@ class _MainPageState extends State<MainPage> {
                 ),
                 // IndustriesSection(
                 //   isActive: selectedIndex == 4,
-                //   onNavigate: (index) {
-                //     setState(() {
-                //       selectedIndex = index;
-                //     });
-                //   },
+                // onNavigate: (index) {
+                //   setState(() {
+                //     selectedIndex = index;
+                //   });
+                // },
                 // ),
                 // ResourcesSection(isActive: selectedIndex == 5),
                 AboutusSection(

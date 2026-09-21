@@ -27,6 +27,7 @@ class ManufacturingSection extends StatefulWidget {
 class _ManufacturingSectionState extends State<ManufacturingSection> {
   bool _heroImageLoading = true; // NEW
   bool _cardsLoading = true; // NEW
+  final Set<int> _hoveredServiceCards = {};
   @override
   void initState() {
     super.initState();
@@ -175,27 +176,32 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
       title: 'High Quality',
       description: 'Standardized processes and consistent product quality.',
     ),
+
     _ManufacturingValue(
       icon: 'icons/laptop.svg',
       title: 'Advanced Facilities',
       description: 'Modern capabilities for efficient and reliable production.',
     ),
+
     _ManufacturingValue(
       icon: 'icons/team.svg',
       title: 'Experienced Team',
       description: 'Skilled professionals focused on precision and execution.',
     ),
+
     _ManufacturingValue(
       icon: 'icons/scalability.svg',
       title: 'Scalable Solutions',
       description:
           'Production support designed to grow with your requirements.',
     ),
+
     _ManufacturingValue(
       icon: 'icons/ontime.svg',
       title: 'On-Time Delivery',
       description: 'Structured planning and dependable production schedules.',
     ),
+
     _ManufacturingValue(
       icon: 'icons/secured.svg',
       title: 'Confidential & Secure',
@@ -572,137 +578,214 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
   Widget _buildServiceCard(_ManufacturingService service, int index) {
     final Color iconBackground = index.isEven ? tBlue2 : tOrange1;
-    return Container(
-      height: 300, //card height
-      decoration: BoxDecoration(
-        color: tWhite,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: tBlack1.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: tBlack.withOpacity(0.045),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+    final bool isHovered = _hoveredServiceCards.contains(index);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+
+      onEnter: (_) {
+        setState(() {
+          _hoveredServiceCards.add(index);
+        });
+      },
+
+      onExit: (_) {
+        setState(() {
+          _hoveredServiceCards.remove(index);
+        });
+      },
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+
+        // Card hover effect
+        transform: Matrix4.translationValues(0, isHovered ? -5 : 0, 0),
+
+        height: 310, //card height
+
+        decoration: BoxDecoration(
+          color: tWhite,
+          borderRadius: BorderRadius.circular(14),
+
+          border: Border.all(
+            color:
+                isHovered
+                    ? tOrange1.withOpacity(0.75)
+                    : tBlack1.withOpacity(0.08),
+            width: isHovered ? 1.2 : 1,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 200, // image height
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    service.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildImageFallback();
-                    },
-                  ),
+
+          boxShadow: [
+            BoxShadow(
+              color:
+                  isHovered
+                      ? tBlue2.withOpacity(0.14)
+                      : tBlack.withOpacity(0.045),
+              blurRadius: isHovered ? 20 : 14,
+              offset: Offset(0, isHovered ? 9 : 5),
+            ),
+          ],
+        ),
+
+        clipBehavior: Clip.none,
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 200, // image height
+              width: double.infinity,
+
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(14),
                 ),
 
-                Positioned(
-                  left: 12,
-                  top: 12,
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: iconBackground,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: tBlack.withOpacity(0.18),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        service.image,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildImageFallback();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: Stack(
+                clipBehavior: Clip.none,
+
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 30, 15, 12),
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          service.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.manrope(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                            color: tBlack,
+                          ),
                         ),
+
+                        const SizedBox(height: 6),
+
+                        Expanded(
+                          child: Text(
+                            service.description,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: tBlack.withOpacity(0.58),
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+
+                        // TextButton(
+                        //   onPressed: () {},
+                        //   style: TextButton.styleFrom(
+                        //     padding: EdgeInsets.zero,
+                        //     minimumSize: Size.zero,
+                        //     tapTargetSize:
+                        //         MaterialTapTargetSize.shrinkWrap,
+                        //   ),
+                        //   child: Row(
+                        //     mainAxisSize: MainAxisSize.min,
+                        //     children: [
+                        //       Text(
+                        //         'Learn More',
+                        //         style: GoogleFonts.manrope(
+                        //           fontSize: 12,
+                        //           fontWeight: FontWeight.w700,
+                        //           color: tOrange1,
+                        //         ),
+                        //       ),
+                        //       const SizedBox(width: 4),
+                        //       Icon(
+                        //         Icons.arrow_forward_rounded,
+                        //         size: 13,
+                        //         color: tOrange1,
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(10),
-                    child: SvgPicture.asset(
-                      service.icon,
-                      width: 27,
-                      height: 27,
-                      colorFilter: const ColorFilter.mode(
-                        tWhite,
-                        BlendMode.srcIn,
+                  ),
+
+                  // =====================================
+                  // STACKED ICON — SAME AS INDUSTRY CARD
+                  // =====================================
+                  Positioned(
+                    top: -25,
+                    left: 17,
+
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOut,
+
+                      width: 50,
+                      height: 50,
+
+                      decoration: BoxDecoration(
+                        color: iconBackground.withOpacity(
+                          isHovered ? 1.0 : 0.80,
+                        ),
+
+                        borderRadius: BorderRadius.circular(13),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: tBlack.withOpacity(isHovered ? 0.16 : 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOut,
+
+                        opacity: isHovered ? 1.0 : 0.60,
+
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+
+                            child: SvgPicture.asset(
+                              service.icon,
+                              fit: BoxFit.contain,
+                              color: tWhite,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(15, 12, 15, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    service.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                      color: tBlack,
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  Expanded(
-                    child: Text(
-                      service.description,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: tBlack.withOpacity(0.58),
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-
-                  // TextButton(
-                  //   onPressed: () {},
-                  //   style: TextButton.styleFrom(
-                  //     padding: EdgeInsets.zero,
-                  //     minimumSize: Size.zero,
-                  //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  //   ),
-                  //   child: Row(
-                  //     mainAxisSize: MainAxisSize.min,
-                  //     children: [
-                  //       Text(
-                  //         'Learn More',
-                  //         style: GoogleFonts.manrope(
-                  //           fontSize: 12,
-                  //           fontWeight: FontWeight.w700,
-                  //           color: tOrange1,
-                  //         ),
-                  //       ),
-                  //       const SizedBox(width: 4),
-                  //       Icon(
-                  //         Icons.arrow_forward_rounded,
-                  //         size: 13,
-                  //         color: tOrange1,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -712,60 +795,77 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   Widget _buildQualityBar() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: tBlue2.withOpacity(0.16),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: tBlue2.withOpacity(0.18),
+            blurRadius: 25,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'WHY PARTNER WITH US',
-            style: GoogleFonts.manrope(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.1,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 5),
+            decoration: BoxDecoration(
+              color: tOrange1.withOpacity(0.10),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: tOrange1.withOpacity(0.30), width: 1),
+            ),
+            child: Text(
+              'WHY PARTNER WITH US',
+              style: GoogleFonts.manrope(
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                color: tOrange1,
+                letterSpacing: 1.3,
+              ),
             ),
           ),
-
-          const SizedBox(height: 5),
-
+          const SizedBox(height: 9),
           Text(
             'Built on Quality. Driven by Commitment.',
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
-              fontSize: 19,
-              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
               color: tWhite,
+              height: 1.15,
             ),
           ),
-
-          const SizedBox(height: 18),
-
-          Row(
-            children: [
-              for (int i = 0; i < _values.length; i++) ...[
-                Expanded(child: _buildQualityItem(_values[i])),
-                if (i < _values.length - 1)
-                  Container(
-                    width: 1,
-                    height: 55,
-                    color: tWhite.withOpacity(0.14),
-                  ),
+          const SizedBox(height: 5),
+          Text(
+            'Every solution is designed with precision, reliability '
+            'and long-term value in mind.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w500,
+              color: tWhite.withOpacity(0.60),
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 17),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int i = 0; i < _values.length; i++) ...[
+                  Expanded(child: _buildQualityItem(_values[i])),
+                  if (i < _values.length - 1) const SizedBox(width: 8),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),
@@ -773,42 +873,91 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   }
 
   Widget _buildQualityItem(_ManufacturingValue value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+    return Container(
+      height: 145,
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 12),
+
+      decoration: BoxDecoration(
+        color: tWhite.withOpacity(0.055),
+
+        borderRadius: BorderRadius.circular(13),
+
+        border: Border.all(color: tWhite.withOpacity(0.10), width: 1),
+      ),
+
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
+          // =======================================================
+          // ICON
+          // =======================================================
+          Container(
             width: 40,
             height: 40,
-            child: SvgPicture.asset(value.icon, color: tOrange1),
-          ),
 
-          const SizedBox(height: 7),
+            decoration: BoxDecoration(
+              color: tOrange1.withOpacity(0.10),
+              shape: BoxShape.circle,
 
-          Text(
-            value.title,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: tWhite,
+              border: Border.all(color: tOrange1.withOpacity(0.28), width: 1),
+            ),
+
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+
+                child: SvgPicture.asset(value.icon, color: tOrange1),
+              ),
             ),
           ),
 
-          const SizedBox(height: 3),
+          const SizedBox(height: 8),
 
+          // =======================================================
+          // TITLE
+          // =======================================================
           Text(
-            value.description,
+            value.title,
+
             textAlign: TextAlign.center,
-            maxLines: 2,
+
+            maxLines: 1,
+
             overflow: TextOverflow.ellipsis,
+
             style: GoogleFonts.manrope(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: tWhite.withOpacity(0.62),
-              height: 1.3,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: tWhite,
+              height: 1.15,
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          // =======================================================
+          // DESCRIPTION
+          // EXACTLY 2 LINES
+          // =======================================================
+          SizedBox(
+            height: 30,
+
+            child: Text(
+              value.description,
+
+              textAlign: TextAlign.center,
+
+              maxLines: 2,
+
+              overflow: TextOverflow.ellipsis,
+
+              style: GoogleFonts.manrope(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w500,
+                color: tWhite.withOpacity(0.58),
+                height: 1.35,
+              ),
             ),
           ),
         ],

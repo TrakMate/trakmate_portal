@@ -162,7 +162,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   Widget _buildServicesSection() {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF6F8FB),
+      // color: const Color(0xFFF6F8FB),
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
       child: Column(
         children: [
@@ -378,21 +378,21 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Learn More',
-                        style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: tOrange1,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(Icons.arrow_forward, size: 15, color: tOrange1),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisSize: MainAxisSize.min,
+                  //   children: [
+                  //     Text(
+                  //       'Learn More',
+                  //       style: GoogleFonts.manrope(
+                  //         fontSize: 13,
+                  //         fontWeight: FontWeight.w700,
+                  //         color: tOrange1,
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 6),
+                  //     Icon(Icons.arrow_forward, size: 15, color: tOrange1),
+                  //   ],
+                  // ),
                 ],
               ),
             ),

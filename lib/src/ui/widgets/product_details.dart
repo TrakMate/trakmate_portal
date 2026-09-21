@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:video_player/video_player.dart';
@@ -22,7 +23,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   bool _applicationsExpanded = false;
 
   final ScrollController _rightScrollController = ScrollController();
-
+  final FocusNode _carouselFocusNode = FocusNode();
   final GlobalKey _featuresKey = GlobalKey();
   final GlobalKey _specificationsKey = GlobalKey();
   final GlobalKey _connectivityKey = GlobalKey();
@@ -75,6 +76,25 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return _productImages.length + (_hasVideo ? 1 : 0);
   }
 
+  void _goToPreviousImage() {
+    if (_currentImageIndex > 0 && _imagePageController.hasClients) {
+      _imagePageController.previousPage(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  void _goToNextImage() {
+    if (_currentImageIndex < _carouselItemCount - 1 &&
+        _imagePageController.hasClients) {
+      _imagePageController.nextPage(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
   void _onVideoStateChanged() {
     if (!mounted) return;
     setState(() {});
@@ -97,6 +117,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   void dispose() {
+    _carouselFocusNode.dispose();
     _imagePageController.dispose();
     _rightScrollController.dispose();
     _videoController?.removeListener(_onVideoStateChanged);
@@ -196,7 +217,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       alignment: Alignment.centerLeft,
 
       child: Material(
-        color: Colors.transparent,
+        color: tTransparent,
 
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
@@ -271,180 +292,248 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _buildProductImage({required double? fixedHeight}) {
-    return Container(
-      width: double.infinity,
-      height: fixedHeight,
+    return Focus(
+      focusNode: _carouselFocusNode,
+      autofocus: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+          return KeyEventResult.ignored;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          _goToPreviousImage();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          _goToNextImage();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: MouseRegion(
+        onEnter: (_) => _carouselFocusNode.requestFocus(),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => _carouselFocusNode.requestFocus(),
+          child: Container(
+            width: double.infinity,
+            height: fixedHeight,
 
-      decoration: BoxDecoration(
-        color: tWhite,
+            decoration: BoxDecoration(
+              color: tWhite,
 
-        borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(2),
 
-        border: Border.all(color: tBlack.withOpacity(0.025)),
-      ),
-
-      child: Stack(
-        clipBehavior: Clip.hardEdge,
-
-        children: [
-          Positioned(
-            left: -80,
-            bottom: -80,
-
-            child: Container(
-              width: 245,
-              height: 245,
-
-              decoration: BoxDecoration(
-                color: tOrange1.withOpacity(0.055),
-
-                shape: BoxShape.circle,
-              ),
+              border: Border.all(color: tBlack.withOpacity(0.025)),
             ),
-          ),
 
-          Positioned(
-            right: -80,
-            top: -80,
-
-            child: Container(
-              width: 245,
-              height: 245,
-
-              decoration: BoxDecoration(
-                color: tBlue3.withOpacity(0.045),
-
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(28),
-
-              child: PageView.builder(
-                controller: _imagePageController,
-
-                itemCount: _carouselItemCount,
-
-                onPageChanged: (index) {
-                  if (!mounted) return;
-
-                  setState(() {
-                    _currentImageIndex = index;
-                  });
-                },
-
-                itemBuilder: (context, index) {
-                  if (index >= _productImages.length && _hasVideo) {
-                    return _buildVideoSlide();
-                  }
-                  return Image.asset(
-                    _productImages[index],
-
-                    fit: BoxFit.contain,
-
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(
-                        child: Icon(
-                          Icons.image_not_supported_outlined,
-
-                          size: 48,
-
-                          color: tBlack.withOpacity(0.20),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-
-          Positioned(
-            left: 5,
-            top: 0,
-            bottom: 0,
-
-            child: Center(
-              child: _buildImageNavigationButton(
-                icon: Icons.arrow_back_ios_new_rounded,
-
-                onTap: () {
-                  if (_currentImageIndex > 0) {
-                    _imagePageController.previousPage(
-                      duration: const Duration(milliseconds: 350),
-
-                      curve: Curves.easeOutCubic,
-                    );
-                  }
-                },
-
-                enabled: _currentImageIndex > 0,
-              ),
-            ),
-          ),
-
-          Positioned(
-            right: 5,
-            top: 0,
-            bottom: 0,
-
-            child: Center(
-              child: _buildImageNavigationButton(
-                icon: Icons.arrow_forward_ios_rounded,
-
-                onTap: () {
-                  if (_currentImageIndex < _carouselItemCount - 1) {
-                    _imagePageController.nextPage(
-                      duration: const Duration(milliseconds: 350),
-
-                      curve: Curves.easeOutCubic,
-                    );
-                  }
-                },
-
-                enabled: _currentImageIndex < _carouselItemCount - 1,
-              ),
-            ),
-          ),
-
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 10,
-
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
 
               children: [
-                ...List.generate(_carouselItemCount, (index) {
-                  return _buildProductThumbnail(index);
-                }),
+                Positioned(
+                  left: -80,
+                  bottom: -80,
+
+                  child: Container(
+                    width: 245,
+                    height: 245,
+
+                    decoration: BoxDecoration(
+                      color: tOrange1.withOpacity(0.055),
+
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  right: -80,
+                  top: -80,
+
+                  child: Container(
+                    width: 245,
+                    height: 245,
+
+                    decoration: BoxDecoration(
+                      color: tBlue3.withOpacity(0.045),
+
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.all(28),
+
+                    child: PageView.builder(
+                      controller: _imagePageController,
+
+                      itemCount: _carouselItemCount,
+
+                      onPageChanged: (index) {
+                        if (!mounted) return;
+
+                        setState(() {
+                          _currentImageIndex = index;
+                        });
+                      },
+
+                      itemBuilder: (context, index) {
+                        if (index >= _productImages.length && _hasVideo) {
+                          return _buildVideoSlide();
+                        }
+                        return Image.asset(
+                          _productImages[index],
+
+                          fit: BoxFit.contain,
+
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Icon(
+                                Icons.image_not_supported_outlined,
+
+                                size: 48,
+
+                                color: tBlack.withOpacity(0.20),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                //  Positioned.fill(
+                //             // child: Padding(
+                //             //   padding: const EdgeInsets.all(28),
+                //             child: PageView.builder(
+                //               controller: _imagePageController,
+
+                //               itemCount: _carouselItemCount,
+
+                //               onPageChanged: (index) {
+                //                 if (!mounted) return;
+
+                //                 setState(() {
+                //                   _currentImageIndex = index;
+                //                 });
+                //               },
+
+                //               itemBuilder: (context, index) {
+                //                 if (index >= _productImages.length && _hasVideo) {
+                //                   return _buildVideoSlide();
+                //                 }
+                //                 return Padding(
+                //                   padding: const EdgeInsets.all(28),
+                //                   child: Image.asset(
+                //                     _productImages[index],
+
+                //                     fit: BoxFit.contain,
+
+                //                     errorBuilder: (context, error, stackTrace) {
+                //                       return Center(
+                //                         child: Icon(
+                //                           Icons.image_not_supported_outlined,
+
+                //                           size: 48,
+
+                //                           color: tBlack.withOpacity(0.20),
+                //                         ),
+                //                       );
+                //                     },
+                //                   ),
+                //                 );
+                //               },
+                //             ),
+                //             // ),
+                //           ),
+                Positioned(
+                  left: 5,
+                  top: 0,
+                  bottom: 0,
+
+                  child: Center(
+                    child: _buildImageNavigationButton(
+                      icon: Icons.arrow_back_ios_new_rounded,
+
+                      onTap: () {
+                        if (_currentImageIndex > 0) {
+                          _imagePageController.previousPage(
+                            duration: const Duration(milliseconds: 350),
+
+                            curve: Curves.easeOutCubic,
+                          );
+                        }
+                      },
+
+                      enabled: _currentImageIndex > 0,
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  right: 5,
+                  top: 0,
+                  bottom: 0,
+
+                  child: Center(
+                    child: _buildImageNavigationButton(
+                      icon: Icons.arrow_forward_ios_rounded,
+
+                      onTap: () {
+                        if (_currentImageIndex < _carouselItemCount - 1) {
+                          _imagePageController.nextPage(
+                            duration: const Duration(milliseconds: 350),
+
+                            curve: Curves.easeOutCubic,
+                          );
+                        }
+                      },
+
+                      enabled: _currentImageIndex < _carouselItemCount - 1,
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 10,
+
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+                      ...List.generate(_carouselItemCount, (index) {
+                        return _buildProductThumbnail(index);
+                      }),
+                    ],
+                  ),
+                ),
+
+                Positioned(
+                  left: 24,
+                  bottom: 20,
+
+                  child: Text(
+                    product.title,
+
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+
+                      fontWeight: FontWeight.w800,
+
+                      color: tBlue2.withOpacity(0.7),
+
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-
-          Positioned(
-            left: 24,
-            bottom: 20,
-
-            child: Text(
-              product.title,
-
-              style: GoogleFonts.manrope(
-                fontSize: 13,
-
-                fontWeight: FontWeight.w800,
-
-                color: tBlue2.withOpacity(0.7),
-
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -488,7 +577,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   padding: const EdgeInsets.all(14),
                   child: const Icon(
                     Icons.play_arrow_rounded,
-                    color: Colors.white,
+                    color: tWhite,
                     size: 36,
                   ),
                 ),
@@ -499,7 +588,66 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
+  // Widget _buildVideoSlide() {
+  //     if (_videoController == null || !_videoController!.value.isInitialized) {
+  //       return const Center(child: CircularProgressIndicator());
+  //     }
 
+  //     final size = _videoController!.value.size;
+
+  //     return SizedBox.expand(
+  //       child: Stack(
+  //         alignment: Alignment.center,
+  //         children: [
+  //           ClipRect(
+  //             child: FittedBox(
+  //               fit:
+  //                   BoxFit
+  //                       .cover, // <-- CHANGE THIS: cover = crop, contain = whole video
+  //               child: SizedBox(
+  //                 width: size.width,
+  //                 height: size.height,
+  //                 child: VideoPlayer(_videoController!),
+  //               ),
+  //             ),
+  //           ),
+  //           GestureDetector(
+  //             onTap: () {
+  //               final value = _videoController!.value;
+  //               final bool isFinished =
+  //                   value.position >= value.duration &&
+  //                   value.duration > Duration.zero;
+
+  //               if (isFinished) {
+  //                 _videoController!.seekTo(Duration.zero);
+  //                 _videoController!.play();
+  //               } else if (value.isPlaying) {
+  //                 _videoController!.pause();
+  //               } else {
+  //                 _videoController!.play();
+  //               }
+  //             },
+  //             child: AnimatedOpacity(
+  //               opacity: _videoController!.value.isPlaying ? 0 : 1,
+  //               duration: const Duration(milliseconds: 200),
+  //               child: Container(
+  //                 decoration: BoxDecoration(
+  //                   color: tBlack.withOpacity(0.35),
+  //                   shape: BoxShape.circle,
+  //                 ),
+  //                 padding: const EdgeInsets.all(14),
+  //                 child: const Icon(
+  //                   Icons.play_arrow_rounded,
+  //                   color: Colors.white,
+  //                   size: 36,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }
   Widget _buildProductThumbnail(int index) {
     final bool isSelected = _currentImageIndex == index;
 
@@ -581,7 +729,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     required bool enabled,
   }) {
     return Material(
-      color: Colors.transparent,
+      color: tTransparent,
 
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -851,7 +999,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
         children: [
           Material(
-            color: Colors.transparent,
+            color: tTransparent,
 
             child: InkWell(
               onTap: onTap,
@@ -1153,7 +1301,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           const SizedBox(width: 25),
 
           Material(
-            color: Colors.transparent,
+            color: tTransparent,
 
             child: InkWell(
               mouseCursor: SystemMouseCursors.click,
@@ -1297,7 +1445,7 @@ class _DataSheetButtonState extends State<_DataSheetButton> {
                 const SizedBox(height: 25),
 
                 Material(
-                  color: Colors.transparent,
+                  color: tTransparent,
 
                   child: InkWell(
                     mouseCursor: SystemMouseCursors.click,
