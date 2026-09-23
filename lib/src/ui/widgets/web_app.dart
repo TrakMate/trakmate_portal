@@ -5,14 +5,6 @@ import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 
 import '../../utils/colors.dart';
 
-// =========================================================
-// LOGIN DIALOG
-// =========================================================
-
-// =========================================================
-// SHOW ACCESS WEBSITE DIALOG
-// =========================================================
-
 void showLoginDialog(BuildContext context) {
   Future.delayed(const Duration(milliseconds: 180), () {
     if (!context.mounted) return;
@@ -161,7 +153,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
     return Center(
       child: Material(
-        color: Colors.transparent,
+        color: tTransparent,
 
         child: Container(
           width: isMobile ? screenSize.width * 0.90 : 600,
@@ -220,7 +212,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
                 right: 16,
 
                 child: Material(
-                  color: Colors.transparent,
+                  color: tTransparent,
 
                   child: InkWell(
                     borderRadius: BorderRadius.circular(50),
@@ -532,7 +524,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
                   style: GoogleFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.red,
+                    color: tRed1,
                   ),
                 ),
             ],
@@ -856,7 +848,7 @@ Widget _buildBackButton(BuildContext context) {
   return Align(
     alignment: Alignment.centerLeft,
     child: Material(
-      color: Colors.transparent,
+      color: tTransparent,
       child: InkWell(
         mouseCursor: SystemMouseCursors.click,
         borderRadius: BorderRadius.circular(7),
@@ -1313,7 +1305,7 @@ class _LoginDialogState extends State<_LoginDialog>
 
     return Center(
       child: Material(
-        color: Colors.transparent,
+        color: tTransparent,
         child: Container(
           width: compact ? screenSize.width * 0.88 : 480,
 
@@ -1361,7 +1353,7 @@ class _LoginDialogState extends State<_LoginDialog>
                 right: 14,
 
                 child: Material(
-                  color: Colors.transparent,
+                  color: tTransparent,
 
                   child: InkWell(
                     borderRadius: BorderRadius.circular(30),

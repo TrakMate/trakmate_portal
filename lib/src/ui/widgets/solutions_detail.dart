@@ -452,7 +452,7 @@ class _DetailCardState extends State<_DetailCard> {
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        Colors.transparent,
+                                        tTransparent,
                                         tBlue2.withOpacity(
                                           _hovering ? 0.20 : 0.09,
                                         ),
@@ -689,7 +689,7 @@ class _HoverButtonState extends State<_HoverButton> {
           border: Border.all(
             color:
                 widget.borderColor ??
-                (filled ? widget.backgroundColor : Colors.transparent),
+                (filled ? widget.backgroundColor : tTransparent),
 
             width: 1.2,
           ),
@@ -784,7 +784,7 @@ class _HoverBackButtonState extends State<_HoverBackButton> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
 
           decoration: BoxDecoration(
-            color: _hovering ? tBlue2.withOpacity(0.05) : Colors.transparent,
+            color: _hovering ? tBlue2.withOpacity(0.05) : tTransparent,
 
             borderRadius: BorderRadius.circular(8),
           ),

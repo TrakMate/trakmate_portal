@@ -52,8 +52,8 @@ class ProductShimmer extends StatelessWidget {
 
   Widget _buildShimmerHeading() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: tGrey1.shade300,
+      highlightColor: tGrey1.shade100,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -61,12 +61,12 @@ class ProductShimmer extends StatelessWidget {
             width: 170,
             height: 22,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: tWhite,
               borderRadius: BorderRadius.circular(5),
             ),
           ),
           const SizedBox(height: 8),
-          Container(width: 30, height: 2, color: Colors.white),
+          Container(width: 30, height: 2, color: tWhite),
         ],
       ),
     );
@@ -74,19 +74,19 @@ class ProductShimmer extends StatelessWidget {
 
   Widget _buildShimmerCard() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: tGrey1.shade300,
+      highlightColor: tGrey1.shade100,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: tWhite,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: tGrey1.shade300),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // IMAGE PLACEHOLDER
-            Container(width: double.infinity, height: 210, color: Colors.white),
+            Container(width: double.infinity, height: 210, color: tWhite),
 
             // CONTENT
             Padding(
@@ -99,7 +99,7 @@ class ProductShimmer extends StatelessWidget {
                     width: 90,
                     height: 15,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -111,7 +111,7 @@ class ProductShimmer extends StatelessWidget {
                     width: 140,
                     height: 11,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -123,7 +123,7 @@ class ProductShimmer extends StatelessWidget {
                     width: double.infinity,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -135,7 +135,7 @@ class ProductShimmer extends StatelessWidget {
                     width: double.infinity,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -147,7 +147,7 @@ class ProductShimmer extends StatelessWidget {
                     width: 180,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -159,7 +159,7 @@ class ProductShimmer extends StatelessWidget {
                     width: 75,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -189,15 +189,12 @@ class ShimmerBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: tGrey1.shade300,
+      highlightColor: tGrey1.shade100,
       child: Container(
         width: width ?? double.infinity,
         height: height,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: borderRadius,
-        ),
+        decoration: BoxDecoration(color: tWhite, borderRadius: borderRadius),
       ),
     );
   }
@@ -309,25 +306,6 @@ class HeroHeaderShimmer extends StatelessWidget {
 }
 
 //video shimmer
-// class HeroVideoShimmer extends StatelessWidget {
-//   const HeroVideoShimmer({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Shimmer.fromColors(
-//       // baseColor: tBlue2,
-//       // highlightColor: tBlue3,
-//       // child: Container(color: tBlue2),
-//       baseColor: Colors.grey.shade300,
-//       highlightColor: Colors.grey.shade100,
-//       child: Container(color: Colors.white),
-//     );
-//   }
-// }
-//video shimmer
-
-//video shimmer
-//video shimmer
 class HeroVideoShimmer extends StatelessWidget {
   const HeroVideoShimmer({super.key});
 
@@ -340,15 +318,15 @@ class HeroVideoShimmer extends StatelessWidget {
             RepaintBoundary(
               // sweeper
               child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
+                baseColor: tGrey1.shade300,
+                highlightColor: tGrey1.shade100,
                 direction: ShimmerDirection.ltr,
                 period: const Duration(milliseconds: 1600),
                 child: Container(
                   //container bg
                   width: constraints.maxWidth,
                   height: constraints.maxHeight,
-                  color: Colors.grey.shade300,
+                  color: tGrey1.shade300,
                 ),
               ),
             ),
@@ -386,19 +364,19 @@ class ServiceCardShimmer extends StatelessWidget {
     return Container(
       height: 350,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: tWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: tGrey1.shade200),
       ),
       clipBehavior: Clip.antiAlias,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // image placeholder
-            Container(height: 200, width: double.infinity, color: Colors.white),
+            Container(height: 200, width: double.infinity, color: tWhite),
 
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 12, 15, 12),
@@ -410,7 +388,7 @@ class ServiceCardShimmer extends StatelessWidget {
                     width: 120,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -421,7 +399,7 @@ class ServiceCardShimmer extends StatelessWidget {
                     width: double.infinity,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -432,7 +410,7 @@ class ServiceCardShimmer extends StatelessWidget {
                     width: double.infinity,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -443,7 +421,7 @@ class ServiceCardShimmer extends StatelessWidget {
                     width: 140,
                     height: 10,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -454,7 +432,7 @@ class ServiceCardShimmer extends StatelessWidget {
                     width: 75,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -476,11 +454,11 @@ class EngineeringCardShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: tWhite,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: tBlack.withOpacity(0.06),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -488,18 +466,15 @@ class EngineeringCardShimmer extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // image + icon-badge placeholder
             Stack(
               children: [
-                AspectRatio(
-                  aspectRatio: 1.5,
-                  child: Container(color: Colors.white),
-                ),
+                AspectRatio(aspectRatio: 1.5, child: Container(color: tWhite)),
                 Positioned(
                   top: 0,
                   left: 0,
@@ -507,7 +482,7 @@ class EngineeringCardShimmer extends StatelessWidget {
                     width: 50,
                     height: 50,
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(14),
                         bottomRight: Radius.circular(14),
@@ -529,7 +504,7 @@ class EngineeringCardShimmer extends StatelessWidget {
                       width: 110,
                       height: 15,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: tWhite,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -545,7 +520,7 @@ class EngineeringCardShimmer extends StatelessWidget {
                             width: double.infinity,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: tWhite,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -554,7 +529,7 @@ class EngineeringCardShimmer extends StatelessWidget {
                             width: double.infinity,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: tWhite,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -563,7 +538,7 @@ class EngineeringCardShimmer extends StatelessWidget {
                             width: 150,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: tWhite,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -577,7 +552,7 @@ class EngineeringCardShimmer extends StatelessWidget {
                       width: 90,
                       height: 13,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: tWhite,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -600,11 +575,11 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: tWhite,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: tBlack.withOpacity(0.06),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -612,16 +587,13 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // image placeholder
-            AspectRatio(
-              aspectRatio: 1.5,
-              child: Container(color: Colors.white),
-            ),
+            AspectRatio(aspectRatio: 1.5, child: Container(color: tWhite)),
 
             Padding(
               padding: const EdgeInsets.all(16),
@@ -633,7 +605,7 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
                     width: 110,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -649,7 +621,7 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
                           width: double.infinity,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: tWhite,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -658,7 +630,7 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
                           width: double.infinity,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: tWhite,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -667,7 +639,7 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
                           width: 150,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: tWhite,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -681,7 +653,7 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
                     width: 80,
                     height: 13,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: tWhite,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),

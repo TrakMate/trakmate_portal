@@ -16,6 +16,7 @@ const tYellowGradient1 = LinearGradient(
 );
 
 const tRed = Color(0xFFFA0E0E);
+const tRed1 = Colors.red;
 const tRedDark = Color(0xFFFF0000);
 
 const tRedGradient = LinearGradient(
@@ -52,6 +53,10 @@ const tBlue = Color(0xFF184bff);
 const tBlue1 = Color(0xFF0075fd);
 const tBlue2 = Color(0xFF00057D);
 const tBlue3 = Color(0xFF0E2D99);
+const tBlue4 = Color(0xFF101B72);
+const tBlue5 = Color(0xFF263FA8);
+const tBlue6 = Color(0xFF3154B8);
+
 const tBlueDark = Color(0xFF176EF9);
 const tBlueLight = Color(0xFFd0d9ff);
 const tBlueSky = Color(0xFF00C1D9);
@@ -202,6 +207,7 @@ const tGreyGradient = LinearGradient(
 );
 
 const tGrey = Color(0xFFACA7A7);
+const tGrey1 = Colors.grey;
 
 const tTransparent = Colors.transparent;
 

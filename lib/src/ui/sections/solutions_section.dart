@@ -616,7 +616,7 @@ class _SolutionsSectionState extends State<SolutionsSection> {
               color: tOrange1,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check, size: 10, color: Colors.white),
+            child: const Icon(Icons.check, size: 10, color: tWhite),
           ),
 
           const SizedBox(width: 8),

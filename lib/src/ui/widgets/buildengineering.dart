@@ -44,7 +44,8 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/pcb.svg',
       iconBg: tOrangeGradient2,
-      image: 'images/pcb.jpg',
+      // image: 'images/pcb1.jpg',
+      image: 'images/pcb2.png',
       title: 'PCB Design',
       description:
           'Schematic capture, layout design and signal integrity analysis for robust and optimized PCB designs.',
@@ -55,7 +56,8 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/electronics_design.svg',
       iconBg: tBlueGradient5,
-      image: 'images/pcba.jpg',
+      // image: 'images/pcba.jpg',
+      image: 'images/pcba1.png',
       title: 'PCB Assembly (PCBA)',
       description:
           'High-quality PCB assembly with advanced SMT/DIP technology and strict quality control processes.',
@@ -419,19 +421,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            // Color(0xFF0B2380),
-            // Color.fromARGB(255, 6, 19, 62),
-            // Color(0xFF2348AD),
-            // Color.fromARGB(255, 6, 19, 62),
-            // Color(0xFF2348AD),
-            // Color(0xFF0B2380),
-            // tBlue2,
-            // tBlue3,
-            Color(0xFF101B72),
-            Color(0xFF263FA8),
-            Color(0xFF3154B8),
-          ],
+          colors: [tBlue4, tBlue5, tBlue6],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -625,47 +615,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                   child: _buildCtaCard(items[3], background: tBlue2),
                 ),
               ),
-              //card 5
-              // Positioned(
-              //   left: 451,
-              //   top: 0,
-              //   child: Transform.rotate(
-              //     angle: -0.15,
-              //     child: _buildCtaCard(items[4], background: tOrange1),
-              //   ),
-              // ),
-
-              // // LABEL 1
-              // Positioned(
-              //   left: 0,
-              //   top: 108,
-              //   width: 98,
-              //   child: _buildCtaLabel(items[0].label),
-              // ),
-
-              // // LABEL 2
-              // Positioned(
-              //   left: 73,
-              //   top: 108,
-              //   width: 98,
-              //   child: _buildCtaLabel(items[1].label),
-              // ),
-
-              // // LABEL 3
-              // Positioned(
-              //   left: 146,
-              //   top: 108,
-              //   width: 98,
-              //   child: _buildCtaLabel(items[2].label),
-              // ),
-
-              // // LABEL 4
-              // Positioned(
-              //   left: 219,
-              //   top: 108,
-              //   width: 98,
-              //   child: _buildCtaLabel(items[3].label),
-              // ),
             ],
           );
         },
@@ -691,20 +640,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
       ),
       child: Stack(
         children: [
-          // SUBTLE INNER SHAPE
-          // Positioned(
-          //   right: -20,
-          //   bottom: -25,
-          //   child: Container(
-          //     width: 80,
-          //     height: 80,
-          //     decoration: BoxDecoration(
-          //       shape: BoxShape.circle,
-          //       color: tWhite.withValues(alpha: 0.07),
-          //     ),
-          //   ),
-          // ),
-
           // SVG ICON
           Center(
             child: Container(

@@ -136,11 +136,44 @@ class FooterSection extends StatelessWidget {
           ),
 
           const SizedBox(height: 30),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "Made with  ",
+                  style: GoogleFonts.manrope(
+                    color: tWhite.withOpacity(0.7),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SvgPicture.asset(
+                  "icons/heart.svg", // your svg path
+                  width: 14,
+                  height: 14,
+                  color: tWhite.withOpacity(0.7), // optional tint
+                ),
+                Text(
+                  "  INDIA",
+                  style: GoogleFonts.manrope(
+                    color: tWhite.withOpacity(0.7),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 10),
 
           Row(
             children: [
               Text(
-                "© 2026 Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
+                "© ${DateTime.now().year} Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
                 style: GoogleFonts.manrope(
                   color: tWhite,
                   fontSize: 12,

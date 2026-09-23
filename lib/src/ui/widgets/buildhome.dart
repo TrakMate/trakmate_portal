@@ -284,16 +284,11 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       icon: "icons/utilities.svg",
       label: "Energy",
     ),
-    // _IndustryItemData(
-    //   image: "images/logistics.jpg",
-    //   icon: "icons/city.svg",
-    //   label: "Logistics",
-    // ),
   ];
 
   final List<_ProductItemData> _products = const [
     _ProductItemData(
-      image: "images/tmd104.png",
+      image: "images/tmd104(a).png",
       name: "TMD104",
       subtitle: "Advanced GPS Tracker",
     ),
@@ -320,7 +315,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       subtitle: "Advanced Tracker",
     ),
     _ProductItemData(
-      image: "images/a1.png",
+      image: "images/tmdcstrr-7.png",
       name: "TMDCSTR-7",
       subtitle: "Smart Digital Cluster",
     ),
@@ -856,7 +851,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
         _AnimatedOutlinedButton(
           label: "View All Products",
           onPressed: () {
-            widget.onNavigate?.call(4);
+            widget.onNavigate?.call(3);
           },
         ),
       ],
@@ -1066,123 +1061,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       ),
     );
   }
-
-  // Widget _buildServiceCard(_ServiceItemData service, int index) {
-  //   return MouseRegion(
-  //     onEnter: (_) {
-  //       setState(() {
-  //         _hoveredServiceIndex = index;
-  //       });
-  //     },
-  //     onExit: (_) {
-  //       setState(() {
-  //         _hoveredServiceIndex = null;
-  //       });
-  //     },
-
-  //     child: AnimatedScale(
-  //       scale: _hoveredServiceIndex == index ? 1.03 : 1.0,
-  //       duration: const Duration(milliseconds: 220),
-  //       curve: Curves.easeOut,
-
-  //       child: AnimatedContainer(
-  //         duration: const Duration(milliseconds: 180),
-  //         curve: Curves.easeOut,
-  //         child: Container(
-  //           padding: const EdgeInsets.all(20),
-  //           decoration: BoxDecoration(
-  //             color: tWhite,
-  //             borderRadius: BorderRadius.circular(14),
-  //             boxShadow: [
-  //               BoxShadow(
-  //                 color: tBlue3.withOpacity(
-  //                   _hoveredServiceIndex == index ? 0.30 : 0.20,
-  //                 ),
-  //                 blurRadius: _hoveredServiceIndex == index ? 18 : 12,
-  //                 offset: Offset(0, _hoveredServiceIndex == index ? 7 : 4),
-  //               ),
-  //             ],
-  //           ),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.center,
-  //             children: [
-  //               Container(
-  //                 width: 48,
-  //                 height: 48,
-  //                 decoration: BoxDecoration(
-  //                   color: tBlue.withOpacity(0.08),
-  //                   borderRadius: BorderRadius.circular(10),
-  //                 ),
-  //                 child: Center(
-  //                   child: SvgPicture.asset(
-  //                     service.icon,
-  //                     width: 24,
-  //                     height: 24,
-  //                     colorFilter: const ColorFilter.mode(
-  //                       tOrange1,
-  //                       BlendMode.srcIn,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 16),
-  //               Text(
-  //                 service.title,
-  //                 style: GoogleFonts.manrope(
-  //                   fontSize: 15,
-  //                   fontWeight: FontWeight.w700,
-  //                   color: tBlue2,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 12),
-  //               Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children:
-  //                     service.points
-  //                         .map(
-  //                           (point) => Padding(
-  //                             padding: const EdgeInsets.only(bottom: 6),
-  //                             child: Row(
-  //                               mainAxisSize: MainAxisSize.min,
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               children: [
-  //                                 Padding(
-  //                                   padding: const EdgeInsets.only(
-  //                                     top: 6,
-  //                                     right: 8,
-  //                                   ),
-  //                                   child: Container(
-  //                                     width: 4,
-  //                                     height: 4,
-  //                                     decoration: const BoxDecoration(
-  //                                       shape: BoxShape.circle,
-  //                                       color: tBlack,
-  //                                     ),
-  //                                   ),
-  //                                 ),
-  //                                 Text(
-  //                                   point,
-  //                                   style: GoogleFonts.manrope(
-  //                                     fontSize: 12.5,
-  //                                     fontWeight: FontWeight.w500,
-  //                                     color: tBlack,
-  //                                     height: 1.4,
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ),
-  //                         )
-  //                         .toList(),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildServiceCard(_ServiceItemData service, int index) {
     final bool isHovered = _hoveredServiceIndex == index;
@@ -1440,26 +1318,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     );
   }
 
-  // Widget _buildClientCard(_ClientItemData client) {
-  //   return Container(
-  //     alignment: Alignment.center,
-  //     child: SvgPicture.asset(
-  //       client.image,
-  //       width: 70,
-  //       height: 70,
-  //       placeholderBuilder:
-  //           (context) => Text(
-  //             client.name,
-  //             textAlign: TextAlign.center,
-  //             style: GoogleFonts.manrope(
-  //               fontSize: 13,
-  //               fontWeight: FontWeight.w700,
-  //               color: tBlue3,
-  //             ),
-  //           ),
-  //     ),
-  //   );
-  // }
   Widget _buildClientCard(_ClientItemData client) {
     return SizedBox(
       width: 500,

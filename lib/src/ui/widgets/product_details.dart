@@ -39,8 +39,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   List<String> get _productImages {
     final List<String> images = [];
 
-    if (product.image.isNotEmpty) {
-      images.add(product.image);
+    // Use image1 for the carousel's first slide if provided,
+    // otherwise fall back to the card's `image` so products
+    // you haven't updated yet still work.
+    final String firstCarouselImage =
+        (product.image1 != null && product.image1!.isNotEmpty)
+            ? product.image1!
+            : product.image;
+
+    if (firstCarouselImage.isNotEmpty) {
+      images.add(firstCarouselImage);
     }
 
     if (product.image2 != null && product.image2!.isNotEmpty) {
@@ -62,6 +70,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     // ✅ IMAGE 6
     if (product.image6 != null && product.image6!.isNotEmpty) {
       images.add(product.image6!);
+    }
+    if (product.image7 != null && product.image7!.isNotEmpty) {
+      images.add(product.image7!);
     }
 
     if (images.isEmpty) {
@@ -364,7 +375,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                 Positioned.fill(
                   child: Padding(
-                    padding: const EdgeInsets.all(28),
+                    padding: const EdgeInsets.all(58), //padding
 
                     child: PageView.builder(
                       controller: _imagePageController,
@@ -1542,49 +1553,49 @@ class _DataSheetButtonState extends State<_DataSheetButton> {
               ],
             ),
 
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child:
+            // Row(
+            //   mainAxisSize: MainAxisSize.min,
+            //   children: [
+            Text(
+              'DATA SHEET',
 
-              children: [
-                Text(
-                  'DATA SHEET',
+              style: GoogleFonts.manrope(
+                fontSize: 11,
 
-                  style: GoogleFonts.manrope(
-                    fontSize: 11,
+                fontWeight: FontWeight.w800,
 
-                    fontWeight: FontWeight.w800,
+                color: tWhite,
 
-                    color: tWhite,
-
-                    letterSpacing: 0.3,
-                  ),
-                ),
-
-                const SizedBox(width: 7),
-
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-
-                  transform: Matrix4.translationValues(
-                    _isHovered ? 3 : 0,
-                    0,
-                    0,
-                  ),
-
-                  child: SvgPicture.asset(
-                    'icons/arrow.svg',
-
-                    width: 14,
-                    height: 14,
-
-                    colorFilter: const ColorFilter.mode(
-                      tWhite,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ],
+                letterSpacing: 0.3,
+              ),
             ),
+
+            // const SizedBox(width: 7),
+
+            // AnimatedContainer(
+            //   duration: const Duration(milliseconds: 180),
+
+            //   transform: Matrix4.translationValues(
+            //     _isHovered ? 3 : 0,
+            //     0,
+            //     0,
+            //   ),
+
+            //   // child: SvgPicture.asset(
+            //   //   'icons/arrow.svg',
+
+            //   //   width: 14,
+            //   //   height: 14,
+
+            //   //   colorFilter: const ColorFilter.mode(
+            //   //     tWhite,
+            //   //     BlendMode.srcIn,
+            //   //   ),
+            //   // ),
+            // ),
+            // ],
+            // ),
           ),
         ),
       ),

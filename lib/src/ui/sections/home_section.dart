@@ -89,7 +89,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "2,00,000+",
+          value: "5,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -124,7 +124,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "2,00,000+",
+          value: "5,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -159,7 +159,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "2,00,000+",
+          value: "5,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -194,7 +194,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "2,00,000+",
+          value: "5,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -208,7 +208,7 @@ class _HomeSectionState extends State<HomeSection> {
   Timer? _autoSlideTimer;
   int _currentVirtualPage = 0;
   // Live "Device Installed" counter — starts at 200000, +1 every minute.
-  int _deviceCount = 200000;
+  int _deviceCount = 500000;
   Timer? _deviceCountTimer;
   bool _isPrevHovered = false;
   bool _isNextHovered = false;
@@ -693,7 +693,7 @@ class _HomeSectionState extends State<HomeSection> {
                         height: 42,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.transparent,
+                          color: tTransparent,
                           border: Border.all(
                             color: tOrange1.withOpacity(0.7),
                             width: 1.8,
@@ -800,7 +800,7 @@ class _HomeSectionState extends State<HomeSection> {
                           ),
                           child: Icon(
                             CupertinoIcons.chevron_left,
-                            color: _isPrevHovered ? tOrange1 : Colors.white,
+                            color: _isPrevHovered ? tOrange1 : tWhite,
                             size: 18,
                           ),
                         ),
@@ -852,7 +852,7 @@ class _HomeSectionState extends State<HomeSection> {
                           ),
                           child: Icon(
                             CupertinoIcons.chevron_right,
-                            color: _isNextHovered ? tOrange1 : Colors.white,
+                            color: _isNextHovered ? tOrange1 : tWhite,
                             size: 18,
                           ),
                         ),
@@ -930,7 +930,7 @@ class _HomeSectionState extends State<HomeSection> {
                 colors: [
                   tBlue2.withOpacity(0.85),
                   tBlue2.withOpacity(0.55),
-                  Colors.transparent,
+                  tTransparent,
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,

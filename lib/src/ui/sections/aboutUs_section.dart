@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -559,11 +558,11 @@ class _AboutusSectionState extends State<AboutusSection>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.white.withOpacity(0.0),
-            Colors.white.withOpacity(0.25),
+            tWhite.withOpacity(0.0),
+            tWhite.withOpacity(0.25),
             tOrange1,
-            Colors.white.withOpacity(0.25),
-            Colors.white.withOpacity(0.0),
+            tWhite.withOpacity(0.25),
+            tWhite.withOpacity(0.0),
           ],
           stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
         ),
@@ -722,11 +721,11 @@ class _AboutusSectionState extends State<AboutusSection>
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.transparent,
+                          tTransparent,
                           tBlue.withOpacity(0.4),
                           tBlue,
                           tBlue.withOpacity(0.4),
-                          Colors.transparent,
+                          tTransparent,
                         ],
                         stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
                       ),
@@ -1207,7 +1206,7 @@ class _AboutusSectionState extends State<AboutusSection>
               color: tOrange1,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.check, size: 10, color: Colors.white),
+            child: const Icon(Icons.check, size: 10, color: tWhite),
           ),
           const SizedBox(width: 8),
           Expanded(

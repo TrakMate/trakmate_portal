@@ -242,8 +242,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
               steps: const [
                 ProcessStepData(
                   number: '01',
-                  icon: 'icons/globe.svg',
-                  title: 'Requirement Analysis',
+                  icon: 'icons/design.svg',
+                  title: 'Design for Manufacturability',
                   description:
                       'We understand your product requirements, specifications and production goals.',
                 ),

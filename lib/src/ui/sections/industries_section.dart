@@ -17,9 +17,7 @@ class IndustriesSection extends StatefulWidget {
 }
 
 class _IndustriesSectionState extends State<IndustriesSection> {
-  // ========================================================================
   // HERO IMAGE LOADING
-  // ========================================================================
 
   bool _heroImageLoading = true;
 
@@ -229,9 +227,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // HERO SECTION
-  // ========================================================================
 
   Widget _buildHeroSection() {
     return Container(
@@ -374,9 +370,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // HERO FEATURE
-  // ========================================================================
 
   Widget _buildHeroFeature({
     required IconData icon,
@@ -418,9 +412,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // INDUSTRIES SECTION
-  // ========================================================================
 
   Widget _buildIndustriesSection() {
     return Padding(
@@ -493,26 +485,20 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // INDUSTRY CARD
-  // ========================================================================
 
   Widget _buildIndustryCard(_IndustryData data, int index) {
     return _IndustryHoverCard(data: data, index: index);
   }
 
-  // ========================================================================
   // WHY CHOOSE US
-  // ========================================================================
 
   Widget _buildValueSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         children: [
-          // ================================================================
           // WHY CHOOSE US
-          // ================================================================
           Text(
             'WHY CHOOSE US',
             textAlign: TextAlign.center,
@@ -526,9 +512,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
           const SizedBox(height: 12),
 
-          // ================================================================
           // MAIN TITLE
-          // ================================================================
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -552,9 +536,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
           const SizedBox(height: 12),
 
-          // ================================================================
           // THREE-LINE DESCRIPTION
-          // ================================================================
           SizedBox(
             width: 620,
             child: Text(
@@ -572,9 +554,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
           const SizedBox(height: 22),
 
-          // ================================================================
           // CORE ADVANTAGES COUNTER
-          // ================================================================
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
@@ -610,10 +590,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
           ),
 
           const SizedBox(height: 18),
-
-          // ================================================================
           // ZIG ZAG
-          // ================================================================
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 900) {
@@ -628,9 +605,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // DESKTOP ZIG ZAG
-  // ========================================================================
 
   Widget _buildDesktopZigZag(BoxConstraints constraints) {
     const double diagramWidth = 1580;
@@ -648,9 +623,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // ================================================================
           // CONTINUOUS ZIG-ZAG LINE
-          // ================================================================
           Positioned.fill(
             child: IgnorePointer(
               child: CustomPaint(
@@ -659,60 +632,36 @@ class _IndustriesSectionState extends State<IndustriesSection> {
             ),
           ),
 
-          // ================================================================
-          // ITEM 1
-          // RELIABLE BY DESIGN
-          // ================================================================
           _buildDesktopZigZagPositioned(
             index: 0,
             item: _values[3],
             accent: tBlue3,
           ),
 
-          // ================================================================
-          // ITEM 2
-          // BUILT AROUND YOUR INDUSTRY
-          // ================================================================
           _buildDesktopZigZagPositioned(
             index: 1,
             item: _values[0],
             accent: tOrange1,
           ),
 
-          // ================================================================
-          // ITEM 3
-          // READY TO SCALE
-          // ================================================================
           _buildDesktopZigZagPositioned(
             index: 2,
             item: _values[4],
             accent: tBlue3,
           ),
 
-          // ================================================================
-          // ITEM 4
-          // HARDWARE + SOFTWARE
-          // ================================================================
           _buildDesktopZigZagPositioned(
             index: 3,
             item: _values[1],
             accent: tOrange1,
           ),
 
-          // ================================================================
-          // ITEM 5
-          // LONG-TERM PARTNERSHIP
-          // ================================================================
           _buildDesktopZigZagPositioned(
             index: 4,
             item: _values[5],
             accent: tBlue3,
           ),
 
-          // ================================================================
-          // ITEM 6
-          // DATA THAT DRIVES DECISIONS
-          // ================================================================
           _buildDesktopZigZagPositioned(
             index: 5,
             item: _values[2],
@@ -722,10 +671,6 @@ class _IndustriesSectionState extends State<IndustriesSection> {
       ),
     );
   }
-
-  // ========================================================================
-  // DESKTOP ZIG ZAG POSITION
-  // ========================================================================
 
   Widget _buildDesktopZigZagPositioned({
     required int index,
@@ -779,9 +724,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // ZIG ZAG TEXT
-  // ========================================================================
 
   Widget _buildZigZagText({required _ValueItemData item, required bool isTop}) {
     return Column(
@@ -815,9 +758,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // MOBILE / COMPACT VERSION
-  // ========================================================================
 
   Widget _buildMobileZigZag() {
     return Column(
@@ -856,9 +797,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 
-  // ========================================================================
   // COMMON SECTION EYEBROW
-  // ========================================================================
 
   Widget _sectionEyebrow(String text, {bool light = false}) {
     return Text(
@@ -872,10 +811,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
     );
   }
 }
-
-// ============================================================================
 // ZIG ZAG CIRCLE
-// ============================================================================
 
 class _ZigZagCircle extends StatefulWidget {
   final _ValueItemData item;
@@ -939,9 +875,7 @@ class _ZigZagCircleState extends State<_ZigZagCircle> {
   }
 }
 
-// ============================================================================
 // ZIG ZAG PAINTER
-// ============================================================================
 
 class _WhyChooseUsZigZagPainter extends CustomPainter {
   final int itemCount;
@@ -969,9 +903,7 @@ class _WhyChooseUsZigZagPainter extends CustomPainter {
       );
     });
 
-    // ================================================================
     // DRAW EACH SEGMENT
-    // ================================================================
 
     for (int i = 0; i < points.length - 1; i++) {
       final Offset start = points[i];
@@ -1016,9 +948,7 @@ class _WhyChooseUsZigZagPainter extends CustomPainter {
   }
 }
 
-// ============================================================================
 // INDUSTRY HOVER CARD
-// ============================================================================
 
 class _IndustryHoverCard extends StatefulWidget {
   final _IndustryData data;
@@ -1148,9 +1078,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
               ),
             ),
 
-            // ==============================================================
             // INFORMATION
-            // ==============================================================
             Stack(
               clipBehavior: Clip.none,
 
@@ -1205,9 +1133,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
                   ),
                 ),
 
-                // ==========================================================
                 // INDUSTRY ICON
-                // ==========================================================
                 Positioned(
                   top: -25,
                   left: 17,
@@ -1267,9 +1193,7 @@ class _IndustryHoverCardState extends State<_IndustryHoverCard> {
   }
 }
 
-// ============================================================================
 // DATA MODELS
-// ============================================================================
 
 class _IndustryData {
   final String icon;

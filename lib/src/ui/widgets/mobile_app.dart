@@ -65,7 +65,7 @@ class MobileApp extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Material(
-        color: Colors.transparent,
+        color: tTransparent,
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
           borderRadius: BorderRadius.circular(7),

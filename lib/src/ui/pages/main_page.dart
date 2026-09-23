@@ -351,7 +351,7 @@ class _HoverableContactValueState extends State<_HoverableContactValue> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: _hovered ? tBlue3.withOpacity(0.05) : Colors.transparent,
+            color: _hovered ? tBlue3.withOpacity(0.05) : tTransparent,
             borderRadius: BorderRadius.circular(5),
           ),
           child: Text(
@@ -508,7 +508,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
     return Center(
       child: Material(
-        color: Colors.transparent,
+        color: tTransparent,
         child: Container(
           width: compact ? screenSize.width * 0.92 : 1125,
           constraints: BoxConstraints(maxHeight: screenSize.height * 0.88),
@@ -539,7 +539,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 top: 14,
                 right: 14,
                 child: Material(
-                  color: Colors.transparent,
+                  color: tTransparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(30),
                     onTap: () {
@@ -2017,9 +2017,7 @@ class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
                   color: tWhite,
                 ),
               ),
-
               const SizedBox(width: 10),
-
               const _PopupSvgIcon(
                 asset: 'icons/right_arrow.svg',
                 size: 14,
