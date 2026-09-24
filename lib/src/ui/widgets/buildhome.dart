@@ -294,7 +294,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     ),
 
     _ProductItemData(
-      image: "images/tmd364-side1.png",
+      image: "images/tcu1550.png",
       name: "TCU550",
       subtitle: "Advanced Fleet Tracker",
     ),

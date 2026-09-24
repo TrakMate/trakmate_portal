@@ -10,69 +10,9 @@ import 'package:trakmate_portal/src/ui/widgets/solutions_hub.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 // import 'package:video_player/video_player.dart';
 
-// -----------------------------------------------------------------------
-// INTEGRATED: the secondary "attribute" filter bar (Connectivity + Vehicle
-// Type + New Arrivals) has been merged in from the other version of this
-// file, on top of this file's own product data / image field layout
-// (image1..image6, no ProductFilterController). Behavior matches exactly:
-//
-// - ProductData gained two new fields: `connectivity` and `vehicleTypes`,
-//   both defaulted to const [] so existing call sites without them still
-//   compile. Values below are INFERRED from each product's description/
-//   category — double check them against the real datasheets.
-// - Filtering logic: OR within a group (e.g. 4G OR 2G), AND across groups
-//   (connectivity AND vehicleType AND newOnly), on top of the active
-//   category tab.
-// - A small circular filter icon button sits to the right of the category
-//   tabs bar and opens a floating dropdown panel (positioned via a
-//   measured global offset + OverlayEntry, not Composited
-//   Transform/Follower, to avoid Flutter Web leader/follower issues).
-// - While open, the panel tracks the button's live position on every
-//   ancestor-scroll tick (both directions), so it scrolls together with
-//   the page instead of staying pinned to the screen. There is
-//   deliberately NO clamping on its vertical position — it always
-//   anchors directly below the button.
-// - FIX: because an OverlayEntry paints above everything (including the
-//   sticky top nav bar), the panel is wrapped in a ClipRect
-//   (`_BelowHeaderClipper`) using the nav bar's height, so it never
-//   visually stacks on top of the nav bar — it appears to scroll behind
-//   it instead, while still tracking the button continuously/gradually.
-//   See `_kStickyHeaderHeight` below; adjust it to your real header
-//   height, or measure it dynamically with a GlobalKey if it varies.
-// - The panel only closes via the filter icon toggle, the Done button,
-//   or tapping outside it — never automatically from scrolling.
-//
-// NEW (nav dropdown integration): the top nav's "Products & Solutions"
-// dropdown (see MainPage/_navigateToProductTab in nav_page.dart) sets
-// `selectedIndex = 3` (this section) AND calls
-// `ProductFilterController.select(filterKey)` with the clicked item's
-// label — e.g. 'All Products', 'Trackers', 'Diagnostics', 'Gateways',
-// 'Clusters', 'ADAS', 'Solutions Hub'. Those labels are an exact 1:1
-// match with this widget's own `_filterTabs` labels, so no translation
-// table is needed (unlike the footer's `_footerKeyToFilterLabel`, whose
-// footer key names differ from the tab labels).
-//
-// `_handleProductFilterNavigation()` below listens to that same
-// ValueNotifier, jumps the tab bar to the matching tab, consumes the
-// value (sets it back to null) so the same category can be picked again
-// later and still fire, and then — exactly like `_handleFooterNavigation`
-// already does — calls `Scrollable.ensureVisible` on the product-range
-// key so the hero/header collapses out of view and the tab bar + grid
-// fill the screen. Because `IndexedStack` keeps this section mounted even
-// while another tab is showing, this fires immediately on click with no
-// extra wiring needed on the nav side.
-// -----------------------------------------------------------------------
+// Used only to close the product filter overlay when another modal/dialog opens.
+final ValueNotifier<int> productFilterCloseSignal = ValueNotifier<int>(0);
 
-/// Clips overlay content so nothing paints over the sticky top nav bar.
-/// The floating filter panel's `top`/`left` are still computed with NO
-/// clamping (so it keeps tracking the filter button and scrolling
-/// gradually with the page); anything above [headerHeight] in screen
-/// coordinates is simply not painted (or hit-tested), so the panel never
-/// stacks visually on top of the nav bar — it scrolls behind it instead.
-///
-/// If your nav bar's height changes across breakpoints, measure it
-/// dynamically with a GlobalKey on the header widget instead of using a
-/// constant.
 class _BelowHeaderClipper extends CustomClipper<Rect> {
   final double headerHeight;
   const _BelowHeaderClipper(this.headerHeight);
@@ -105,6 +45,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   bool _imagesLoading = true;
   final GlobalKey _productRangeKey = GlobalKey();
   final GlobalKey _filterButtonKey = GlobalKey();
+  final GlobalKey _productCardsKey = GlobalKey();
+  final GlobalKey _filterBarKey = GlobalKey();
 
   // NEW: attribute filter state (connectivity + vehicle type + new-arrivals)
   final Set<String> _selectedConnectivity = {};
@@ -114,6 +56,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   // NEW: small filter icon button + its floating dropdown panel
   OverlayEntry? _filterMenuOverlay;
   bool _filterMenuOpen = false;
+  int _lastFilterCloseSignal = 0;
 
   // Global position of the filter button, used to position the popup.
   // This avoids CompositedTransformTarget/Follower issues on Flutter Web.
@@ -141,7 +84,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     '2 Wheeler',
     '3 Wheeler',
     '4 Wheeler',
-    'Truck',
+    'Commercial Vehicles',
   ];
 
   final List<_FilterTabData> _filterTabs = const [
@@ -175,7 +118,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE modem with 2G fallback, real-time tracking, geo-fencing, and  monitoring.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler', '4 Wheeler', 'Truck'],
+      vehicleTypes: ['2 Wheeler', '3 Wheeler'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -193,17 +136,22 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmd024-vertical-view.png',
       image5: 'images/tmd024-part.png',
       image6: 'images/tmd024-top-view.png',
+
       badge: '4G',
       badgeColor: tBlue3,
-      // secondBadge: '2G',
+      // No 2G badge because TMD004 is 4G only.
       secondBadgeColor: tOrange1,
+
       title: 'TMD004',
       subtitle: 'Advanced GPS Tracker',
       category: 'Trackers',
       description:
           '4G LTE modem with datalogging, CAN/BMS monitoring, BLE sensor integration, and FOTA support.',
-      connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler', '4 Wheeler', 'Truck'],
+
+      // FIX: TMD004 is 4G only.
+      connectivity: ['4G'],
+
+      vehicleTypes: ['2 Wheeler', '3 Wheeler'],
       features: [
         ProductFeature(icon: Icons.hub_outlined, label: 'Multi-Protocol'),
         ProductFeature(
@@ -232,7 +180,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler', '4 Wheeler', 'Truck'],
+      vehicleTypes: ['3 Wheeler', '4 Wheeler'],
       features: [
         ProductFeature(icon: Icons.hub_outlined, label: 'Multi-Protocol'),
         ProductFeature(
@@ -244,19 +192,23 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd006_isometric.png',
-      // image2: 'images/tmd006_front.png',
+      image1: 'images/tmd006_specs.png',
       image2: 'images/tmd006-back.png',
       image3: 'images/tmd006-side.png',
-      // image5: 'images/tmd006-bottom.png',
-      badge: 'new',
-      badgeColor: newbadge,
+      image4: 'images/tmd006-bottom.png',
+      badge: '4G',
+      badgeColor: tBlue3,
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      thirdbadge: 'new',
+      thirdbadgeColor: newbadge,
       title: 'TMD006',
       subtitle: 'Advanced GPS Tracker',
       category: 'Trackers',
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler', '4 Wheeler', 'Truck'],
+      vehicleTypes: ['2 Wheeler'],
       features: [
         ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
         ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
@@ -279,7 +231,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler'],
+      vehicleTypes: ['3 Wheeler', '4 Wheeler'],
       features: [
         ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
         ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
@@ -297,13 +249,15 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image2: 'images/tmd400.png',
       badge: "OBD-II",
       badgeColor: ipbadge,
+      // secondBadge: 'new',
+      // secondBadgeColor: newbadge,
       title: 'TMD400',
       subtitle: 'Industrial IoT Gateway',
       category: 'Diagnostics',
       description:
           'OBD vehicle diagnostics with Bluetooth 5.0, remote diagnostics, and error detection.',
       connectivity: [], // wired OBD-II / Bluetooth — no cellular modem
-      vehicleTypes: ['4 Wheeler', 'Truck'],
+      vehicleTypes: ['4 Wheeler'],
       features: [
         ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
         ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
@@ -317,13 +271,15 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/tmd300.png',
       badge: "OBD-II",
       badgeColor: ipbadge,
+      secondBadge: 'new',
+      secondBadgeColor: newbadge,
       title: 'TMD300',
       subtitle: 'Industrial Vehicle Diagnostics',
       category: 'Diagnostics',
       description:
           '16Pin OBD2 Connector OBDii 16 Pin Adaptor OBD II Male Plug J1962 Car Connector.',
       connectivity: [], // wired OBD-II connector — no cellular modem
-      vehicleTypes: ['4 Wheeler', 'Truck'],
+      vehicleTypes: ['4 Wheeler'],
       features: [
         ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
         ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
@@ -354,7 +310,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE with 2G fallback, CAN/RS232 interfaces, BLE 5.0, motion sensing, and IP67 protection.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler', '4 Wheeler', 'Truck'],
+      vehicleTypes: ['4 Wheeler'],
       features: [
         ProductFeature(icon: Icons.speed_rounded, label: 'High Performance'),
         ProductFeature(icon: Icons.battery_saver_outlined, label: 'Low Power'),
@@ -381,7 +337,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE with 2G fallback, secure communication, ECU monitoring, SD card data logging.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['4 Wheeler', 'Truck'],
+      vehicleTypes: ['Commercial Vehicles'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -409,7 +365,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE with 2G fallback, dual-band Wi-Fi, secure communication, ECU monitoring.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['4 Wheeler', 'Truck'],
+      vehicleTypes: ['Commercial Vehicles'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -420,12 +376,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmd364-side1.png',
-      image1: 'images/tcu550_specs.png',
-      image2: 'images/tmd364-side1.png',
-      image3: 'images/tmd364-top1.png',
-      image4: 'images/tmd364-back1.png',
-      image5: 'images/tmd364-part1.png',
+      image: 'images/tcu550-side-view.png',
+      image1: 'images/tcu550_specs1.png',
+      image2: 'images/tcu550-side-view.png',
+      image3: 'images/tcu1550.png',
+      // image4: 'images/tcu550-side-view.png',
+      image4: 'images/tcu550-part.png',
       video: 'video/tcu550_demo.mp4',
       badge: '4G',
       badgeColor: tBlue3,
@@ -437,7 +393,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '4G LTE with 2G fallback, Ethernet connectivity, CAN interfaces, GPS odometer.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['4 Wheeler', 'Truck'],
+      vehicleTypes: ['Commercial Vehicles'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -460,7 +416,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '5-inch TFT display with 4G LTE Cat 1, 2G fallback, GNSS positioning, and vehicle monitoring',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler'],
+      vehicleTypes: ['2 Wheeler'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -487,7 +443,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '7-inch TFT display with 4G LTE Cat 1, 2G fallback, GNSS positioning, and vehicle monitoring',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler'],
+      vehicleTypes: ['3 Wheeler'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -508,7 +464,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       description:
           '7-inch TFT touchscreen with 4G LTE Cat 4,2G fallback, dual-band Wi-Fi, GNSS.',
       connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler', '3 Wheeler', '4 Wheeler'],
+      vehicleTypes: ['3 Wheeler'],
       features: [
         ProductFeature(icon: Icons.wifi_rounded, label: '4G LTE'),
         ProductFeature(
@@ -603,26 +559,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     _filterMenuOverlay?.markNeedsBuild();
   }
 
-  // NEW: open / close the floating filter dropdown ----------------------
-  //
-  // The filter button's global position is measured directly and the
-  // overlay is placed with Positioned, avoiding CompositedTransform
-  // Target/Follower (which can throw on Flutter Web).
-  //
-  // While the menu is open we also attach a listener to the nearest
-  // ancestor Scrollable's position. Every scroll notification re-measures
-  // the button's current global position (and size) and triggers the
-  // overlay to rebuild, so the panel visually tracks the button as the
-  // page scrolls in BOTH directions (up and down) — it moves together
-  // with the page instead of staying pinned to the screen.
-  //
-  // FIX: the whole overlay Stack is wrapped in a ClipRect using
-  // _BelowHeaderClipper, so the panel's paint (and hit-testing) is
-  // suppressed above the sticky nav bar's height. The position math
-  // itself has NO clamping on `top` — the panel keeps tracking the button
-  // and scrolling gradually with the page; it just no longer stacks
-  // visually on top of the nav bar once it scrolls that far.
-
   void _openFilterMenu() {
     if (_filterMenuOverlay != null) return;
 
@@ -649,32 +585,16 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         const double panelWidth = 270;
         const double panelGap = 10;
 
-        // Align the popup's right edge with the button's right edge.
         double left = position.dx + buttonSize.width - panelWidth;
 
-        // Keep the popup inside the viewport horizontally only.
         left = left.clamp(12.0, mediaSize.width - panelWidth - 12.0);
 
-        // Always anchor the panel BELOW the button, and always at the
-        // button's exact current position — no clamping on `top` at all.
-        // This is what makes the popup scroll together with the page: on
-        // every scroll tick `_filterButtonPosition` is re-measured (see
-        // `_updateFilterButtonGeometry`) and the panel is redrawn at that
-        // exact offset, so it moves up when the page scrolls up and down
-        // when the page scrolls down, in lock-step with the button, the
-        // same way the rest of the page content does. It is never glued
-        // or held in place — if the button scrolls off the top of the
-        // screen, the panel scrolls off with it.
         final double top = position.dy + buttonSize.height + panelGap;
 
-        // FIX: clip everything (barrier + panel) to the area below the
-        // sticky nav bar, so the panel never paints on top of it while
-        // still scrolling continuously/gradually with the page above.
         return ClipRect(
           clipper: const _BelowHeaderClipper(_kStickyHeaderHeight),
           child: Stack(
             children: [
-              // Invisible barrier — tapping anywhere outside the panel closes it.
               Positioned.fill(
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
@@ -698,8 +618,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     overlay.insert(_filterMenuOverlay!);
 
-    // NEW: track the nearest scrollable ancestor so we can keep the panel
-    // glued to the button (moving with it) as the user scrolls up/down.
     _scrollPosition = Scrollable.maybeOf(context)?.position;
     _scrollPosition?.addListener(_onAncestorScroll);
 
@@ -707,22 +625,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     setState(() => _filterMenuOpen = true);
   }
 
-  // NEW: fired on every scroll delta of the ancestor Scrollable while the
-  // menu is open.
   void _onAncestorScroll() {
     _updateFilterButtonGeometry();
   }
 
-  // NEW: re-measures the filter button's current global position/size and
-  // asks the overlay to rebuild so the panel follows it, scrolling up and
-  // down together with the page. If the button is no longer attached to
-  // the render tree at all (e.g. its whole subtree was disposed), the
-  // menu is closed instead of showing a stale panel. Scrolling the button
-  // behind the app bar no longer closes the menu, and — with the FIX
-  // above — no longer stacks the panel over the app bar either; the
-  // ClipRect just stops painting the part that would overlap it. Closing
-  // only happens via the filter icon toggle, the Done button, or tapping
-  // outside the panel.
   void _updateFilterButtonGeometry() {
     if (_filterMenuOverlay == null) return;
 
@@ -737,6 +643,18 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     _filterButtonPosition = buttonBox.localToGlobal(Offset.zero);
     _filterButtonSize = buttonBox.size;
     _filterMenuOverlay?.markNeedsBuild();
+  }
+
+  void _handleExternalFilterClose() {
+    if (_lastFilterCloseSignal == productFilterCloseSignal.value) {
+      return;
+    }
+
+    _lastFilterCloseSignal = productFilterCloseSignal.value;
+
+    if (_filterMenuOverlay != null) {
+      _closeFilterMenu();
+    }
   }
 
   void _closeFilterMenu() {
@@ -766,10 +684,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       _selectedVehicleTypes.isNotEmpty ||
       _newOnly;
 
-  // The Connectivity (4G / 2G) filter matches against the badges actually
-  // displayed on the card (`badge` / `secondBadge`), so a product shows
-  // up under "4G" or "2G" only when that badge is present — not merely
-  // because `connectivity` lists it.
   bool _matchesAttributeFilters(ProductData product) {
     if (_selectedConnectivity.isNotEmpty) {
       final Set<String> displayedConnectivityBadges = {
@@ -777,36 +691,42 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         if (product.secondBadge == '4G' || product.secondBadge == '2G')
           product.secondBadge!,
       };
-      if (!displayedConnectivityBadges.any(_selectedConnectivity.contains)) {
+
+      final bool hasAllSelectedConnectivity = _selectedConnectivity.every(
+        displayedConnectivityBadges.contains,
+      );
+
+      if (!hasAllSelectedConnectivity) {
         return false;
       }
     }
+
     if (_selectedVehicleTypes.isNotEmpty &&
         !product.vehicleTypes.any(_selectedVehicleTypes.contains)) {
       return false;
     }
-    if (_newOnly && product.badge != 'new') {
+
+    if (_newOnly &&
+        product.badge != 'new' &&
+        product.secondBadge != 'new' &&
+        product.thirdbadge != 'new') {
       return false;
     }
+
     return true;
   }
-
-  // ---------------------------------------------------------------------
 
   @override
   void initState() {
     super.initState();
     SectionScrollBus.instance.pendingKey.addListener(_handleFooterNavigation);
-    // NEW: react to the top-nav "Products & Solutions" dropdown.
     ProductFilterController.selectedCategory.addListener(
       _handleProductFilterNavigation,
     );
+    productFilterCloseSignal.addListener(_handleExternalFilterClose);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadProductImages();
       _handleFooterNavigation();
-      // NEW: in case a category was already selected before this section
-      // finished its first frame (e.g. very first navigation into the
-      // Products tab), pick it up immediately as well.
       _handleProductFilterNavigation();
     });
   }
@@ -820,6 +740,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ProductFilterController.selectedCategory.removeListener(
       _handleProductFilterNavigation,
     );
+    productFilterCloseSignal.removeListener(_handleExternalFilterClose);
     // NEW: make sure the scroll listener doesn't outlive this State.
     _scrollPosition?.removeListener(_onAncestorScroll);
     _filterMenuOverlay?.remove();
@@ -842,7 +763,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       _selectFilterIndex(targetIndex);
     }
 
-    // Mark it handled so other sections' listeners don't also react to it.
     SectionScrollBus.instance.pendingKey.value = null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -858,15 +778,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     });
   }
 
-  // NEW: reacts to the top-nav "Products & Solutions" dropdown items
-  // (All Products / Trackers / Diagnostics / Gateways / Clusters / ADAS /
-  // Solutions Hub). `_navigateToProductTab` in MainPage already switches
-  // the IndexedStack to this section and calls
-  // `ProductFilterController.select(filterKey)` — the labels it passes
-  // are an exact match for `_filterTabs` labels, so we jump straight to
-  // the matching tab and then scroll the hero/header out of view exactly
-  // like the footer navigation does, so the tab bar + grid take over the
-  // full screen.
   void _handleProductFilterNavigation() {
     final String? category = ProductFilterController.selectedCategory.value;
     if (category == null) return;
@@ -878,19 +789,30 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       _selectFilterIndex(targetIndex);
     }
 
-    // Consume it so picking the same category again later still fires.
     ProductFilterController.selectedCategory.value = null;
 
+    _scrollToProductCards();
+  }
+  // NEW: scrolls the page so the product cards section is at the top.
+
+  void _scrollToProductCards() {
+    // Wait until the tab switch + filter change have been laid out.
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _productRangeKey.currentContext;
-      if (ctx != null) {
-        Scrollable.ensureVisible(
-          ctx,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-          alignment: 0.05,
-        );
-      }
+      if (!mounted) return;
+
+      final ctx = _filterBarKey.currentContext;
+      if (ctx == null) return;
+
+      Scrollable.ensureVisible(
+        ctx,
+
+        duration: const Duration(milliseconds: 500),
+
+        curve: Curves.easeInOut,
+
+        alignment: 0.0, // 0.0 = cards header at very top of the viewport
+      );
     });
   }
 
@@ -940,12 +862,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                   ),
                   // 1310 = original 1250 tabs-bar budget + 46 icon button + 14 gap
                   child: SizedBox(
+                    key: _filterBarKey,
                     width: 1310,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(child: _buildFilterTabsBar()),
                         const SizedBox(width: 14),
+
                         _buildAttributeFilterButton(),
                       ],
                     ),
@@ -1073,15 +997,17 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       child: Material(
         color: tTransparent,
         child: InkWell(
-          customBorder: const CircleBorder(),
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           mouseCursor: SystemMouseCursors.click,
           onTap: _toggleFilterMenu,
           child: Container(
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: highlighted ? tBlue3 : tWhite,
-              shape: BoxShape.circle,
+              color: highlighted ? tOrange1 : tWhite,
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: tBlack.withOpacity(0.14),
@@ -1094,10 +1020,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
               clipBehavior: Clip.none,
               children: [
                 Center(
-                  child: Icon(
-                    Icons.tune_rounded,
-                    size: 20,
-                    color: highlighted ? tWhite : tBlue3,
+                  child: SvgPicture.asset(
+                    'icons/filter.svg',
+                    width: 20,
+                    height: 20,
+                    color: highlighted ? tWhite : tOrange1,
                   ),
                 ),
                 if (_activeFilterCount > 0)
@@ -1143,7 +1070,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: tWhite,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(
             color: tBlack.withOpacity(0.18),
@@ -1357,6 +1284,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   Widget _buildProductRangeHeader() {
     return Column(
+      key: _productCardsKey,
       children: [
         Text(
           'OUR PRODUCT RANGE',
@@ -2261,48 +2189,76 @@ class _ProductCardState extends State<_ProductCard> {
                       ),
                     ),
 
-                    if (data.badge != null || data.secondBadge != null)
+                    if (data.badge != null ||
+                        data.secondBadge != null ||
+                        data.thirdbadge != null)
                       Positioned(
                         top: 10,
                         right: 10,
-                        child: Row(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            // Existing badge
-                            if (data.badge != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: data.badgeColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  data.badge!,
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: tWhite,
+                            // 4G + 2G
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (data.badge != null)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: data.badgeColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      data.badge!,
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: tWhite,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            const SizedBox(width: 3),
-                            // Second badge
-                            if (data.secondBadge != null) ...[
-                              const SizedBox(height: 6),
+                                if (data.secondBadge != null) ...[
+                                  const SizedBox(width: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: data.secondBadgeColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      data.secondBadge!,
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: tWhite,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+
+                            // NEW badge below 4G + 2G
+                            if (data.thirdbadge != null) ...[
+                              const SizedBox(height: 3),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
+                                  horizontal: 8,
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: data.secondBadgeColor,
+                                  color: data.thirdbadgeColor,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  data.secondBadge!,
+                                  data.thirdbadge!,
                                   style: GoogleFonts.manrope(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -2432,6 +2388,8 @@ class ProductData {
   final Color? badgeColor;
   final String? secondBadge;
   final Color? secondBadgeColor;
+  final String? thirdbadge;
+  final Color? thirdbadgeColor;
   final String title;
   final String subtitle;
   final String category;
@@ -2464,6 +2422,8 @@ class ProductData {
     required this.badgeColor,
     this.secondBadge,
     this.secondBadgeColor,
+    this.thirdbadge,
+    this.thirdbadgeColor,
     required this.title,
     required this.subtitle,
     required this.category,

@@ -73,7 +73,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/cube.svg',
       iconBg: tBlueGradient5,
-      image: 'images/prototype.png',
+      image: 'images/prototype1.png',
       title: 'Prototyping',
       description:
           'Fast and cost-effective prototyping to validate designs, test performance and accelerate time-to-market.',

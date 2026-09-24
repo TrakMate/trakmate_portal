@@ -5,16 +5,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web/helpers.dart' as web;
-//till
+// import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
+
 import '../../utils/colors.dart';
 import '../sections/aboutUs_section.dart';
 import '../sections/engineering_section.dart';
 import '../sections/home_section.dart';
-import '../sections/industries_section.dart';
 import '../sections/manufacturing_section.dart';
 import '../sections/products_section.dart';
-import '../sections/resources_section.dart';
-import '../sections/solutions_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/product_filter_controller.dart';
+import 'package:trakmate_portal/src/ui/widgets/nav_dropdown_menu.dart';
 
 void showGetInTouchDialog(BuildContext context) {
   Future.delayed(const Duration(milliseconds: 180), () {
@@ -56,6 +56,7 @@ void showGetInTouchDialog(BuildContext context) {
 
 class MainPage extends StatefulWidget {
   final int initialIndex;
+
   const MainPage({super.key, this.initialIndex = 0});
 
   @override
@@ -63,24 +64,102 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int? selectedIndex;
+  int selectedIndex = 0;
+  final NavDropdownGroupController _navDropdownGroupController =
+      NavDropdownGroupController();
+
+  List<NavDropdownItem> get _productMenuItems => [
+    NavDropdownItem(
+      label: 'All Products',
+      icon: 'icons/all.svg',
+      onTap: () => _navigateToProductTab('All Products'),
+    ),
+    NavDropdownItem(
+      label: 'Trackers',
+      icon: 'icons/trackers1.svg',
+      onTap: () => _navigateToProductTab('Trackers'),
+    ),
+    NavDropdownItem(
+      label: 'Diagnostics',
+      icon: 'icons/diagnostics.svg',
+      onTap: () => _navigateToProductTab('Diagnostics'),
+    ),
+    NavDropdownItem(
+      label: 'Gateways',
+      icon: 'icons/gateways1.svg',
+      onTap: () => _navigateToProductTab('Gateways'),
+    ),
+    NavDropdownItem(
+      label: 'Clusters',
+      icon: 'icons/cluster.svg',
+      onTap: () => _navigateToProductTab('Clusters'),
+    ),
+    NavDropdownItem(
+      label: 'ADAS',
+      icon: 'icons/car.svg',
+      onTap: () => _navigateToProductTab('ADAS'),
+    ),
+    NavDropdownItem(
+      label: 'Solutions Hub',
+      icon: 'icons/solution_hub.svg',
+      onTap: () => _navigateToProductTab('Solutions Hub'),
+    ),
+  ];
+
+  List<NavDropdownItem> get _aboutUsMenuItems => [
+    NavDropdownItem(
+      label: 'Our Team',
+      icon: 'icons/team.svg', // TODO: replace with a real icon
+      onTap: () => _navigateToSection(4),
+    ),
+    NavDropdownItem(
+      label: 'Infrastructure',
+      icon: 'icons/all.svg', // TODO: replace with a real icon
+      onTap: () => _navigateToSection(4),
+    ),
+    NavDropdownItem(
+      label: 'Careers',
+      icon: 'icons/career.svg', // TODO: replace with a real icon
+      onTap: () => _navigateToSection(4),
+    ),
+    NavDropdownItem(
+      label: 'News & Media',
+      icon: 'icons/news_media.svg', // TODO: replace with a real icon
+      onTap: () => _navigateToSection(4),
+    ),
+    NavDropdownItem(
+      label: 'Contact Us',
+      icon: 'icons/call.svg', // TODO: replace with a real icon
+      onTap: () => _navigateToSection(4),
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    selectedIndex = 0;
+
+    selectedIndex = widget.initialIndex;
   }
 
-  final List<String> menus = [
-    'Home',
-    // 'Solutions',
-    'Engineering',
-    'Manufacturing',
-    'Products & Solutions',
-    // 'Industries',
-    // 'Resources',
-    'About Us',
-  ];
+  @override
+  void dispose() {
+    _navDropdownGroupController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToSection(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
+  void _navigateToProductTab(String filterKey) {
+    setState(() {
+      selectedIndex = 3;
+    });
+
+    ProductFilterController.select(filterKey);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +168,10 @@ class _MainPageState extends State<MainPage> {
       body: Column(
         children: [
           _buildHeader(),
+
           Expanded(
             child: IndexedStack(
-              index: selectedIndex ?? 0,
+              index: selectedIndex,
               children: [
                 HomeSection(
                   isActive: selectedIndex == 0,
@@ -102,14 +182,6 @@ class _MainPageState extends State<MainPage> {
                   },
                 ),
 
-                // SolutionsSection(
-                //   isActive: selectedIndex == 1,
-                //   onNavigate: (index) {
-                //     setState(() {
-                //       selectedIndex = index;
-                //     });
-                //   },
-                // ),
                 EngineeringSection(
                   isActive: selectedIndex == 1,
                   onNavigate: (index) {
@@ -127,6 +199,7 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                 ),
+
                 ProductsSection(
                   isActive: selectedIndex == 3,
                   onNavigate: (index) {
@@ -135,15 +208,7 @@ class _MainPageState extends State<MainPage> {
                     });
                   },
                 ),
-                // IndustriesSection(
-                //   isActive: selectedIndex == 4,
-                // onNavigate: (index) {
-                //   setState(() {
-                //     selectedIndex = index;
-                //   });
-                // },
-                // ),
-                // ResourcesSection(isActive: selectedIndex == 5),
+
                 AboutusSection(
                   isActive: selectedIndex == 4,
                   onNavigate: (index) {
@@ -169,14 +234,73 @@ class _MainPageState extends State<MainPage> {
           SvgPicture.asset('icons/trakmate_logo.svg', height: 60),
 
           Row(
-            children: List.generate(
-              menus.length,
-              (index) => _navButton(menus[index], index),
-            ),
+            children: [
+              _navButton('Home', 0),
+
+              _navButton('Engineering', 1),
+
+              _navButton('Manufacturing', 2),
+
+              NavDropdownMenu(
+                label: 'Products & Solutions',
+                isSelected: selectedIndex == 3,
+                onLabelTap: () => _navigateToSection(3),
+                items: _productMenuItems,
+                // groupController: _navDropdownGroupController,
+              ),
+
+              // ABOUT US — same reusable dropdown widget, different items.
+              NavDropdownMenu(
+                label: 'About Us',
+                isSelected: selectedIndex == 4,
+                onLabelTap: () => _navigateToSection(4),
+                items: _aboutUsMenuItems,
+                groupController: _navDropdownGroupController,
+              ),
+            ],
           ),
 
           _buildGetInTouchButton(),
         ],
+      ),
+    );
+  }
+
+  Widget _navButton(String text, int index) {
+    final bool isSelected = selectedIndex == index;
+
+    return GestureDetector(
+      onTap: () {
+        _navigateToSection(index);
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 250),
+                style: GoogleFonts.manrope(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? tOrange1 : tBlack,
+                ),
+                child: Text(text),
+              ),
+
+              const SizedBox(height: 5),
+
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                height: 2,
+                width: isSelected ? 50 : 0,
+                decoration: const BoxDecoration(color: tOrange1),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -220,7 +344,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  // SHOW GET IN TOUCH DIALOG
   void _showGetInTouchDialog() {
     Future.delayed(const Duration(milliseconds: 180), () {
       if (!mounted) return;
@@ -261,116 +384,7 @@ class _MainPageState extends State<MainPage> {
       );
     });
   }
-  // void _showGetInTouchDialog() {
-  //   showGetInTouchDialog(context);
-  // }
-
-  Widget _navButton(String text, int index) {
-    final bool isSelected = selectedIndex == index;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedIndex = index;
-        });
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20), //header gap
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 250),
-                style: GoogleFonts.manrope(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: isSelected ? tOrange1 : tBlack,
-                ),
-                child: Text(text),
-              ),
-
-              const SizedBox(height: 5),
-
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                height: 2,
-                width: isSelected ? 50 : 0,
-                decoration: const BoxDecoration(color: tOrange1),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
-
-class _PopupSvgIcon extends StatelessWidget {
-  final String asset;
-  final double size;
-  final Color? color;
-
-  const _PopupSvgIcon({required this.asset, this.size = 16, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      asset,
-      width: size,
-      height: size,
-      colorFilter:
-          color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
-    );
-  }
-}
-
-class _HoverableContactValue extends StatefulWidget {
-  final String value;
-  final VoidCallback onTap;
-
-  const _HoverableContactValue({required this.value, required this.onTap});
-
-  @override
-  State<_HoverableContactValue> createState() => _HoverableContactValueState();
-}
-
-class _HoverableContactValueState extends State<_HoverableContactValue> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: _hovered ? tBlue3.withOpacity(0.05) : tTransparent,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Text(
-            widget.value,
-            style: GoogleFonts.manrope(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: tBlue2,
-              height: 1.5,
-              decoration: TextDecoration.none,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// GET IN TOUCH DIALOG
 
 class _GetInTouchDialog extends StatefulWidget {
   const _GetInTouchDialog();
@@ -400,6 +414,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   late Animation<double> _rightFadeAnimation;
 
   late Animation<Offset> _rightSlideAnimation;
+
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri phoneUri = Uri(
       scheme: 'tel',
@@ -412,6 +427,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   }
 
   bool _titleHovered = false;
+
   @override
   void initState() {
     super.initState();
@@ -568,14 +584,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
-  // ============================================================
-  // DESKTOP LAYOUT
-  //
-  // ONLY CHANGE:
-  // The complete "Send us a message" section is moved down
-  // by 105px so it aligns with the Phone details on the left.
-  // ============================================================
-
   Widget _buildDesktopLayout() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,10 +618,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
-  // ============================================================
-  // COMPACT LAYOUT
-  // ============================================================
-
   Widget _buildCompactLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,23 +643,10 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
-  // ============================================================
-  // CONTACT INFORMATION
-  // ============================================================
-
   Widget _buildContactInformation() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Text(
-        //   'Let’s get in touch',
-        //   style: GoogleFonts.manrope(
-        //     fontSize: 30,
-        //     fontWeight: FontWeight.w800,
-        //     color: tBlue2,
-        //     height: 1.12,
-        //   ),
-        // ),
         MouseRegion(
           onEnter: (_) {
             setState(() {
@@ -686,7 +677,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 duration: const Duration(milliseconds: 280),
                 curve: Curves.easeOutCubic,
                 height: 3,
-                // width: _titleHovered ? 90 : 35,
                 width: 65,
                 decoration: BoxDecoration(
                   color: tOrange1,
@@ -713,13 +703,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         const SizedBox(height: 40),
 
-        // _buildContactInfoItem(
-        //   icon: 'icons/phone.svg',
-        //   title: 'Phone',
-        //   content:
-        //       '+91 80 41532112\n'
-        //       '+91 99 00450640',
-        // ),
         _buildClickableContactInfoItem(
           icon: 'icons/phone.svg',
           title: 'Phone',
@@ -728,11 +711,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         ),
         const SizedBox(height: 19),
 
-        // _buildContactInfoItem(
-        //   icon: 'icons/mail.svg',
-        //   title: 'Email',
-        //   content: 'info@trakmate.co.in',
-        // ),
         _buildClickableContactInfoItem(
           icon: 'icons/mail.svg',
           title: 'Email',
@@ -752,9 +730,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         const SizedBox(height: 40),
 
-        /*
-        const _AddressMapCard(),
-        */
         const _GoogleMapCard(),
       ],
     );
@@ -918,10 +893,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
-  // ============================================================
-  // FORM FIELD
-  // ============================================================
-
   Widget _buildFormField({
     required TextEditingController controller,
     required String label,
@@ -936,17 +907,9 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
-  // ============================================================
-  // MESSAGE FIELD
-  // ============================================================
-
   Widget _buildMessageField() {
     return _HoverMessageField(controller: _messageController);
   }
-
-  // ============================================================
-  // SEND BUTTON
-  // ============================================================
 
   Widget _buildSendMessagesButton() {
     return _AnimatedSendButton(
@@ -973,10 +936,6 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 }
-
-// ============================================================================
-// GOOGLE MAP VIEW
-// ============================================================================
 
 class _GoogleMapView extends StatefulWidget {
   const _GoogleMapView();
@@ -1020,10 +979,6 @@ class _GoogleMapViewState extends State<_GoogleMapView> {
     return HtmlElementView(viewType: _viewType);
   }
 }
-
-// ============================================================================
-// GOOGLE MAP CARD
-// ============================================================================
 
 class _GoogleMapCard extends StatefulWidget {
   const _GoogleMapCard();
@@ -1206,298 +1161,68 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
   }
 }
 
-// ============================================================================
-// OLD ADDRESS CARD
-// ============================================================================
+class _PopupSvgIcon extends StatelessWidget {
+  final String asset;
+  final double size;
+  final Color? color;
 
-/*
-class _AddressMapCard extends StatefulWidget {
-  const _AddressMapCard();
+  const _PopupSvgIcon({required this.asset, this.size = 16, this.color});
 
   @override
-  State<_AddressMapCard> createState() =>
-      _AddressMapCardState();
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      asset,
+      width: size,
+      height: size,
+      colorFilter:
+          color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+    );
+  }
 }
 
-class _AddressMapCardState
-    extends State<_AddressMapCard> {
-  bool _isHovered = false;
+class _HoverableContactValue extends StatefulWidget {
+  final String value;
+  final VoidCallback onTap;
 
-  static const String _googleMapsUrl =
-      'https://www.google.com/maps/place/TrakMate/@13.0249319,77.5405993,17z/data=!3m1!4b1!4m6!3m5!1s0x3bae162b0c795555:0x932171032762f6da!8m2!3d13.0249319!4d77.5431742!16s%2Fg%2F11cjnp91m3?entry=ttu&g_ep=EgoyMDI2MDgyNi4wIKXMDSoASAFQAw%3D%3D';
-
-  Future<void> _openGoogleMaps() async {
-    final Uri url =
-        Uri.parse(
-      _googleMapsUrl,
-    );
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(
-        url,
-        mode:
-            LaunchMode.externalApplication,
-      );
-    }
-  }
+  const _HoverableContactValue({required this.value, required this.onTap});
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  State<_HoverableContactValue> createState() => _HoverableContactValueState();
+}
+
+class _HoverableContactValueState extends State<_HoverableContactValue> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
     return MouseRegion(
-      cursor:
-          SystemMouseCursors.click,
-
-      onEnter: (_) {
-        setState(() {
-          _isHovered = true;
-        });
-      },
-
-      onExit: (_) {
-        setState(() {
-          _isHovered = false;
-        });
-      },
-
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: _openGoogleMaps,
-
+        onTap: widget.onTap,
         child: AnimatedContainer(
-          duration:
-              const Duration(
-            milliseconds: 250,
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: _hovered ? tBlue3.withOpacity(0.05) : tTransparent,
+            borderRadius: BorderRadius.circular(5),
           ),
-
-          curve: Curves.easeOut,
-
-          transform:
-              Matrix4.translationValues(
-            0,
-            _isHovered ? -3 : 0,
-            0,
-          ),
-
-          padding:
-              const EdgeInsets.all(14),
-
-          decoration:
-              BoxDecoration(
-            color:
-                tOrange1.withOpacity(
-              0.025,
+          child: Text(
+            widget.value,
+            style: GoogleFonts.manrope(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: tBlue2,
+              height: 1.5,
+              decoration: TextDecoration.none,
             ),
-
-            border: Border.all(
-              color:
-                  _isHovered
-                      ? tOrange1
-                          .withOpacity(
-                        0.20,
-                      )
-                      : tBlue3
-                          .withOpacity(
-                        0.12,
-                      ),
-
-              width:
-                  _isHovered
-                      ? 1.2
-                      : 1,
-            ),
-
-            borderRadius:
-                BorderRadius.circular(
-              10,
-            ),
-
-            boxShadow:
-                _isHovered
-                    ? [
-                      BoxShadow(
-                        color:
-                            tOrange1
-                                .withOpacity(
-                          0.035,
-                        ),
-
-                        blurRadius:
-                            14,
-
-                        offset:
-                            const Offset(
-                          0,
-                          6,
-                        ),
-                      ),
-                    ]
-                    : [],
-          ),
-
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-
-                decoration:
-                    BoxDecoration(
-                  color: tBlue2,
-
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    9,
-                  ),
-                ),
-
-                child: const Center(
-                  child:
-                      _PopupSvgIcon(
-                    asset:
-                        'icons/location.svg',
-
-                    size: 16,
-
-                    color: tWhite,
-                  ),
-                ),
-              ),
-
-              const SizedBox(
-                width: 12,
-              ),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-
-                  children: [
-                    Text(
-                      'For address',
-
-                      style:
-                          GoogleFonts
-                              .manrope(
-                        fontSize: 11,
-                        fontWeight:
-                            FontWeight
-                                .w800,
-                        color:
-                            tBlue2,
-                      ),
-                    ),
-
-                    const SizedBox(
-                      height: 3,
-                    ),
-
-                    Text(
-                      'Click here to view our location on Google Maps.',
-
-                      style:
-                          GoogleFonts
-                              .manrope(
-                        fontSize: 9.5,
-                        fontWeight:
-                            FontWeight
-                                .w500,
-                        color:
-                            tBlack
-                                .withOpacity(
-                          0.52,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(
-                width: 10,
-              ),
-
-              AnimatedContainer(
-                duration:
-                    const Duration(
-                  milliseconds: 250,
-                ),
-
-                transform:
-                    Matrix4.translationValues(
-                  _isHovered
-                      ? 2
-                      : 0,
-                  0,
-                  0,
-                ),
-
-                padding:
-                    const EdgeInsets
-                        .symmetric(
-                  horizontal: 13,
-                  vertical: 9,
-                ),
-
-                decoration:
-                    BoxDecoration(
-                  color: tBlue2,
-
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    6,
-                  ),
-                ),
-
-                child: Row(
-                  mainAxisSize:
-                      MainAxisSize.min,
-
-                  children: [
-                    Text(
-                      'CLICK HERE',
-
-                      style:
-                          GoogleFonts
-                              .manrope(
-                        fontSize: 8.5,
-                        fontWeight:
-                            FontWeight.w800,
-                        color: tWhite,
-                      ),
-                    ),
-
-                    const SizedBox(
-                      width: 5,
-                    ),
-
-                    const _PopupSvgIcon(
-                      asset:
-                          'icons/right_arrow.svg',
-
-                      size: 14,
-
-                      color: tWhite,
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ),
         ),
       ),
     );
   }
 }
-*/
-
-// ============================================================================
-// CONTACT INFO ANIMATION
-// ============================================================================
 
 class _AnimatedContactInfoItem extends StatefulWidget {
   final String icon;
@@ -1688,10 +1413,6 @@ class _AnimatedClickableContactInfoItemState
   }
 }
 
-// ============================================================================
-// HOVER FORM FIELD
-// ============================================================================
-
 class _HoverFormField extends StatefulWidget {
   final TextEditingController controller;
 
@@ -1832,10 +1553,6 @@ class _HoverFormFieldState extends State<_HoverFormField> {
   }
 }
 
-// ============================================================================
-// HOVER MESSAGE FIELD
-// ============================================================================
-
 class _HoverMessageField extends StatefulWidget {
   final TextEditingController controller;
 
@@ -1944,10 +1661,6 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
     );
   }
 }
-
-// ============================================================================
-// SEND BUTTON
-// ============================================================================
 
 class _AnimatedSendButton extends StatefulWidget {
   final VoidCallback onPressed;

@@ -127,11 +127,6 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
     widget.groupController?.close(this);
   }
 
-  // A short delay before the arrow's tap is allowed to toggle again. This
-  // guards against the rare double pointer-event (down+up firing twice in
-  // quick succession on some web/desktop backends) that was flipping the
-  // menu open→closed→open on a single click. Purely a debounce, not a
-  // behavior change.
   bool _toggleLocked = false;
 
   void _toggle() {
@@ -294,11 +289,11 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
                 },
               ),
 
-              if (i != widget.items.length - 1)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Divider(height: 1, color: tBlack.withOpacity(0.06)),
-                ),
+              // if (i != widget.items.length - 1)
+              //   Padding(
+              //     padding: const EdgeInsets.symmetric(horizontal: 10),
+              //     child: Divider(height: 1, color: tBlack.withOpacity(0.06)),
+              //   ),
             ],
           ],
         ),
@@ -336,23 +331,23 @@ class _NavDropdownItemWidgetState extends State<_NavDropdownItemWidget> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          decoration: BoxDecoration(
-            color: _hovered ? tBlue3.withOpacity(0.055) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          // decoration: BoxDecoration(
+          //   color: _hovered ? tBlue3.withOpacity(0.055) : Colors.transparent,
+          //   borderRadius: BorderRadius.circular(8),
+          // ),
           child: Row(
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
                 width: 34,
                 height: 34,
-                decoration: BoxDecoration(
-                  color:
-                      _hovered
-                          ? tBlue3.withOpacity(0.09)
-                          : tBlack.withOpacity(0.035),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                // decoration: BoxDecoration(
+                //   color:
+                //       _hovered
+                //           ? tBlue3.withOpacity(0.09)
+                //           : tBlack.withOpacity(0.035),
+                //   borderRadius: BorderRadius.circular(8),
+                // ),
                 child: Center(
                   child: SvgPicture.asset(
                     widget.item.icon,
@@ -380,15 +375,15 @@ class _NavDropdownItemWidgetState extends State<_NavDropdownItemWidget> {
                 ),
               ),
 
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 160),
-                opacity: _hovered ? 1 : 0,
-                child: const Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 15,
-                  color: tOrange1,
-                ),
-              ),
+              // AnimatedOpacity(
+              //   duration: const Duration(milliseconds: 160),
+              //   opacity: _hovered ? 1 : 0,
+              //   child: const Icon(
+              //     Icons.arrow_forward_rounded,
+              //     size: 15,
+              //     color: tOrange1,
+              //   ),
+              // ),
             ],
           ),
         ),
