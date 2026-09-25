@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
@@ -516,7 +517,9 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                       const SizedBox(height: 16),
 
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showGetInTouchDialog(context);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: tOrange1,
                           foregroundColor: tWhite,

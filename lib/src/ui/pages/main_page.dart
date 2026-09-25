@@ -3,6 +3,7 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web/helpers.dart' as web;
 // import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
@@ -17,6 +18,7 @@ import 'package:trakmate_portal/src/ui/widgets/product_filter_controller.dart';
 import 'package:trakmate_portal/src/ui/widgets/nav_dropdown_menu.dart';
 
 void showGetInTouchDialog(BuildContext context) {
+  productFilterCloseSignal.value++;
   Future.delayed(const Duration(milliseconds: 180), () {
     if (!context.mounted) return;
 
@@ -109,27 +111,27 @@ class _MainPageState extends State<MainPage> {
   List<NavDropdownItem> get _aboutUsMenuItems => [
     NavDropdownItem(
       label: 'Our Team',
-      icon: 'icons/team.svg', // TODO: replace with a real icon
+      icon: 'icons/team.svg',
       onTap: () => _navigateToSection(4),
     ),
     NavDropdownItem(
       label: 'Infrastructure',
-      icon: 'icons/all.svg', // TODO: replace with a real icon
+      icon: 'icons/all.svg',
       onTap: () => _navigateToSection(4),
     ),
     NavDropdownItem(
       label: 'Careers',
-      icon: 'icons/career.svg', // TODO: replace with a real icon
+      icon: 'icons/career.svg',
       onTap: () => _navigateToSection(4),
     ),
     NavDropdownItem(
       label: 'News & Media',
-      icon: 'icons/news_media.svg', // TODO: replace with a real icon
+      icon: 'icons/news_media.svg',
       onTap: () => _navigateToSection(4),
     ),
     NavDropdownItem(
       label: 'Contact Us',
-      icon: 'icons/call.svg', // TODO: replace with a real icon
+      icon: 'icons/call.svg',
       onTap: () => _navigateToSection(4),
     ),
   ];
@@ -310,7 +312,7 @@ class _MainPageState extends State<MainPage> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          _showGetInTouchDialog();
+          showGetInTouchDialog(context);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
@@ -342,47 +344,6 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
-  }
-
-  void _showGetInTouchDialog() {
-    Future.delayed(const Duration(milliseconds: 180), () {
-      if (!mounted) return;
-
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: true,
-        barrierLabel: 'Get in touch',
-        barrierColor: tBlack.withOpacity(0.58),
-        transitionDuration: const Duration(milliseconds: 550),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return const _GetInTouchDialog();
-        },
-        transitionBuilder: (context, animation, secondaryAnimation, child) {
-          final Animation<double> scaleAnimation = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutBack,
-            reverseCurve: Curves.easeInCubic,
-          );
-
-          final Animation<double> fadeAnimation = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOut,
-            reverseCurve: Curves.easeIn,
-          );
-
-          return FadeTransition(
-            opacity: fadeAnimation,
-            child: ScaleTransition(
-              scale: Tween<double>(
-                begin: 0.72,
-                end: 1.0,
-              ).animate(scaleAnimation),
-              child: child,
-            ),
-          );
-        },
-      );
-    });
   }
 }
 
@@ -991,7 +952,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
   bool _isHovered = false;
 
   static const String _googleMapsUrl =
-      'https://www.google.com/maps/place/TrakMate/@13.0226122,77.5423735,21z/data=!4m14!1m7!3m6!1s0x3bae162b0c795555:0x932171032762f6da!2sTrakMate!8m2!3d13.0226462!4d77.54256!16s%2Fg%2F11cjnp91m3!3m5!1s0x3bae162b0c795555:0x932171032762f6da!8m2!3d13.0226462!4d77.54256!16s%2Fg%2F11cjnp91m3?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D';
+      'https://www.google.com/maps?q=TrakMate+Design+Solutions+Pvt+Ltd,+17G%2F46-3+and+17G%2F46-3-1,+1st+%26+2nd+floor,+MEI+Road,+Industrial+Suburb,+Yeshwanthpura,+Bengaluru+560022&z=18&output=embed%27';
 
   Future<void> _openGoogleMaps() async {
     final Uri url = Uri.parse(_googleMapsUrl);

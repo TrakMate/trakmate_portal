@@ -666,3 +666,190 @@ class EngineeringServiceCardShimmer extends StatelessWidget {
     );
   }
 }
+
+//solution hub card shimmer
+class SolutionCardShimmer extends StatelessWidget {
+  const SolutionCardShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 390, // matches _SolutionCard's fixed height
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: tBlack.withOpacity(0.10),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // background image placeholder
+                Container(width: double.infinity, height: 250, color: tWhite),
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 35, 22, 22),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // title
+                      Container(
+                        width: 150,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: tWhite,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // description line 1
+                      Container(
+                        width: double.infinity,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: tWhite,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+
+                      // description line 2
+                      Container(
+                        width: double.infinity,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: tWhite,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+
+                      // description line 3
+                      Container(
+                        width: 160,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: tWhite,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            // icon badge placeholder (matches Positioned(top:225,left:20,...) in _SolutionCard)
+            Positioned(
+              top: 225,
+              left: 20,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: tWhite,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//webapp cards
+class WebServiceCardShimmer extends StatelessWidget {
+  final double width;
+  const WebServiceCardShimmer({super.key, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: tBlack.withOpacity(.10),
+            blurRadius: 26,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: AspectRatio(
+                  aspectRatio: 2.5,
+                  child: Container(color: tWhite),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: 110, height: 17, color: tWhite),
+                  const SizedBox(height: 10),
+                  Container(width: double.infinity, height: 10, color: tWhite),
+                  const SizedBox(height: 7),
+                  Container(width: 160, height: 10, color: tWhite),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: tWhite,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: tWhite,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

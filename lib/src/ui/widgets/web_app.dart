@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 
 import '../../utils/colors.dart';
 
@@ -45,9 +46,7 @@ void showLoginDialog(BuildContext context) {
   });
 }
 
-// =========================================================
 // ACCESS WEBSITE DIALOG
-// =========================================================
 
 class _AccessWebsiteDialog extends StatefulWidget {
   const _AccessWebsiteDialog();
@@ -690,9 +689,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
     );
   }
 
-  // =========================================================
   // VALIDATION MESSAGE
-  // =========================================================
 
   void _showValidationMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -704,9 +701,8 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
     );
   }
 }
-// =========================================================
+
 // WEB APP
-// =========================================================
 
 class WebApp extends StatelessWidget {
   const WebApp({super.key});
@@ -718,9 +714,7 @@ class WebApp extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // =====================================================
             // WEB APPS SECTION
-            // =====================================================
             Container(
               width: double.infinity,
               color: tWhite,
@@ -758,9 +752,7 @@ class WebApp extends StatelessWidget {
 
                   _CardGrid(
                     cards: const [
-                      // =================================================
                       // CARD 1
-                      // =================================================
                       _WebServiceCardData(
                         image: 'images/trakfleet.png',
                         logo: 'icons/trakfleet_logo.svg',
@@ -769,69 +761,21 @@ class WebApp extends StatelessWidget {
                             'Scalable web platforms built around your business workflows, users and operational requirements.',
                       ),
 
-                      // =================================================
                       // CARD 2
-                      // =================================================
                       _WebServiceCardData(
-                        image: 'images/esync_login.png',
-                        logo: 'icons/esync.svg',
-                        title: 'Esync',
+                        image: 'images/fleet_management.png',
+                        logo: 'icons/trakmate_logo.svg',
+                        title: 'Fleet Management',
                         description:
                             'Secure cloud-connected applications with centralized data and easy access from anywhere.',
                       ),
-
-                      // =================================================
-                      // CARD 3
-                      // =================================================
-                      // _WebServiceCardData(
-                      //   image: 'images/trakfleet.png',
-                      //   logo: 'icons/trakfleet_logo.svg',
-                      //   title: 'IoT Integration',
-                      //   description:
-                      //       'Connect web applications with devices, vehicles and real-time IoT data.',
-                      // ),
-
-                      // =================================================
-                      // CARD 4
-                      // =================================================
-                      // _WebServiceCardData(
-                      //   image: 'images/trakfleet.png',
-                      //   logo: 'icons/trakfleet_logo.svg',
-                      //   title: 'Dashboards & Analytics',
-                      //   description:
-                      //       'Transform business and device data into clear dashboards, reports and actionable insights.',
-                      // ),
-
-                      // =================================================
-                      // CARD 5
-                      // =================================================
-                      // _WebServiceCardData(
-                      //   image: 'images/trakfleet.png',
-                      //   logo: 'icons/trakfleet_logo.svg',
-                      //   title: 'Custom Portals',
-                      //   description:
-                      //       'Tailored client and admin portals with role-based access and streamlined workflows.',
-                      // ),
-
-                      // =================================================
-                      // CARD 6
-                      // =================================================
-                      // _WebServiceCardData(
-                      //   image: 'images/trakfleet.png',
-                      //   logo: 'icons/trakfleet_logo.svg',
-                      //   title: 'API & Integrations',
-                      //   description:
-                      //       'Connect your web app to third-party services and internal systems through robust APIs.',
-                      // ),
                     ],
                   ),
                 ],
               ),
             ),
 
-            // =====================================================
             // FOOTER
-            // =====================================================
             const FooterSection(),
           ],
         ),
@@ -840,9 +784,129 @@ class WebApp extends StatelessWidget {
   }
 }
 
-// =========================================================
+// class WebApp extends StatefulWidget {
+//   const WebApp({super.key});
+
+//   @override
+//   State<WebApp> createState() => _WebAppState();
+// }
+
+// class _WebAppState extends State<WebApp> {
+//   bool _imagesLoading = true;
+
+//   final List<_WebServiceCardData> _cards = const [
+//     _WebServiceCardData(
+//       image: 'images/trakfleet.png',
+//       logo: 'icons/trakfleet_logo.svg',
+//       title: 'TrakFleet',
+//       description:
+//           'Scalable web platforms built around your business workflows, users and operational requirements.',
+//     ),
+//     _WebServiceCardData(
+//       image: 'images/trakfleet.png',
+//       logo: 'icons/trakfleet_logo.svg',
+//       title: 'Trakfleet',
+//       description:
+//           'Secure cloud-connected applications with centralized data and easy access from anywhere.',
+//     ),
+//   ];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addPostFrameCallback((_) => _preloadImages());
+//   }
+
+//   Future<void> _preloadImages() async {
+//     try {
+//       final paths = _cards.map((c) => c.image).toSet();
+//       await Future.wait(
+//         paths.map((p) => precacheImage(AssetImage(p), context)),
+//       );
+//     } catch (e) {
+//       debugPrint('Error preloading web app images: $e');
+//     }
+//     if (!mounted) return;
+//     setState(() => _imagesLoading = false);
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: tWhite,
+//       body: SingleChildScrollView(
+//         child: Column(
+//           children: [
+//             Container(
+//               width: double.infinity,
+//               color: tWhite,
+//               padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 30),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   _buildBackButton(context),
+//                   const SizedBox(height: 14),
+//                   Text(
+//                     'Web Apps',
+//                     style: GoogleFonts.manrope(
+//                       fontSize: 38,
+//                       fontWeight: FontWeight.w800,
+//                       color: tOrange1,
+//                     ),
+//                   ),
+//                   const SizedBox(height: 10),
+//                   SizedBox(
+//                     width: 560,
+//                     child: Text(
+//                       'Scalable and secure web applications that transform complex business processes into simple digital experiences.',
+//                       style: GoogleFonts.manrope(
+//                         fontSize: 15,
+//                         color: tBlack.withOpacity(.55),
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 56),
+//                   _imagesLoading
+//                       ? _ShimmerCardGrid(count: _cards.length)
+//                       : _CardGrid(cards: _cards),
+//                 ],
+//               ),
+//             ),
+//             const FooterSection(),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class _ShimmerCardGrid extends StatelessWidget {
+//   final int count;
+//   const _ShimmerCardGrid({required this.count});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         const spacing = 28.0;
+//         final twoCol = constraints.maxWidth > 820;
+//         final cardWidth =
+//             twoCol
+//                 ? (constraints.maxWidth - spacing) / 2
+//                 : constraints.maxWidth;
+//         return Wrap(
+//           spacing: spacing,
+//           runSpacing: spacing,
+//           children: List.generate(
+//             count,
+//             (_) => WebServiceCardShimmer(width: cardWidth),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
 // BACK BUTTON
-// =========================================================
 
 Widget _buildBackButton(BuildContext context) {
   return Align(
@@ -880,42 +944,7 @@ Widget _buildBackButton(BuildContext context) {
   );
 }
 
-// =========================================================
-// SECTION EYEBROW
-// =========================================================
-
-class _SectionEyebrow extends StatelessWidget {
-  final String label;
-
-  const _SectionEyebrow({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(width: 22, height: 2.5, color: tOrange),
-
-        const SizedBox(width: 10),
-
-        Text(
-          label,
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.1,
-            color: tOrange,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// =========================================================
 // DATA MODEL
-// =========================================================
-
 class _WebServiceCardData {
   final String image;
   final String logo;
@@ -930,9 +959,7 @@ class _WebServiceCardData {
   });
 }
 
-// =========================================================
 // CARD GRID
-// =========================================================
 
 class _CardGrid extends StatelessWidget {
   final List<_WebServiceCardData> cards;
@@ -971,9 +998,7 @@ class _CardGrid extends StatelessWidget {
   }
 }
 
-// =========================================================
 // CARD
-// =========================================================
 
 class _WebServiceCard extends StatelessWidget {
   final double width;
@@ -988,9 +1013,7 @@ class _WebServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // =====================================================
     // IMAGE CALCULATIONS
-    // =====================================================
 
     const imageInset = 12.0;
     const imageAspectRatio = 2.5;
@@ -999,9 +1022,7 @@ class _WebServiceCard extends StatelessWidget {
 
     final imageBottom = imageInset + imageInnerWidth / imageAspectRatio;
 
-    // =====================================================
     // CARD
-    // =====================================================
 
     return Container(
       width: width,
@@ -1023,17 +1044,13 @@ class _WebServiceCard extends StatelessWidget {
         clipBehavior: Clip.none,
 
         children: [
-          // =================================================
           // CARD CONTENT
-          // =================================================
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
 
             children: [
-              // =================================================
               // PRODUCT IMAGE
-              // =================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   imageInset,
@@ -1054,12 +1071,14 @@ class _WebServiceCard extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
+                  // child: AspectRatio(
+                  //   aspectRatio: imageAspectRatio,
+                  //   child: ShimmerImage(data.image, fit: BoxFit.cover),
+                  // ),
                 ),
               ),
 
-              // =================================================
               // CARD FOOTER
-              // =================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
 
@@ -1068,9 +1087,7 @@ class _WebServiceCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
 
                   children: [
-                    // ===========================================
                     // TITLE
-                    // ===========================================
                     Text(
                       data.title,
 
@@ -1083,9 +1100,7 @@ class _WebServiceCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // ===========================================
                     // DESCRIPTION
-                    // ===========================================
                     Text(
                       data.description,
 
@@ -1101,14 +1116,10 @@ class _WebServiceCard extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // ===========================================
                     // BUTTONS
-                    // ===========================================
                     Row(
                       children: [
-                        // =======================================
                         // VIEW DEMO
-                        // =======================================
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
@@ -1143,9 +1154,7 @@ class _WebServiceCard extends StatelessWidget {
 
                         const SizedBox(width: 10),
 
-                        // =======================================
                         // VIEW WEBSITE
-                        // =======================================
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () {
@@ -1184,9 +1193,7 @@ class _WebServiceCard extends StatelessWidget {
             ],
           ),
 
-          // =================================================
           // FLOATING LOGO
-          // =================================================
           Positioned(
             right: 28,
             top: imageBottom - 22,
@@ -1199,9 +1206,7 @@ class _WebServiceCard extends StatelessWidget {
   }
 }
 
-// =========================================================
 // FLOATING LOGO BADGE
-// =========================================================
 
 class _TrakmateBadge extends StatelessWidget {
   final String logo;
@@ -1232,9 +1237,7 @@ class _TrakmateBadge extends StatelessWidget {
   }
 }
 
-// =========================================================
 // LOGIN DIALOG
-// =========================================================
 
 class _LoginDialog extends StatefulWidget {
   const _LoginDialog();
@@ -1345,9 +1348,7 @@ class _LoginDialogState extends State<_LoginDialog>
                 ),
               ),
 
-              // =================================================
               // CLOSE BUTTON
-              // =================================================
               Positioned(
                 top: 14,
                 right: 14,
@@ -1387,18 +1388,14 @@ class _LoginDialogState extends State<_LoginDialog>
     );
   }
 
-  // =========================================================
   // LOGIN CONTENT
-  // =========================================================
 
   Widget _buildLoginContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-        // =====================================================
         // TITLE
-        // =====================================================
         Text(
           'Access Website',
 
@@ -1412,9 +1409,7 @@ class _LoginDialogState extends State<_LoginDialog>
 
         const SizedBox(height: 7),
 
-        // =====================================================
         // ORANGE LINE
-        // =====================================================
         Container(
           height: 3,
           width: 65,
@@ -1440,9 +1435,7 @@ class _LoginDialogState extends State<_LoginDialog>
 
         const SizedBox(height: 34),
 
-        // =====================================================
         // EMAIL
-        // =====================================================
         _buildLoginField(
           controller: _emailController,
           label: 'Email *',
@@ -1452,16 +1445,12 @@ class _LoginDialogState extends State<_LoginDialog>
 
         const SizedBox(height: 18),
 
-        // =====================================================
         // PASSWORD
-        // =====================================================
         _buildPasswordField(),
 
         const SizedBox(height: 28),
 
-        // =====================================================
         // LOGIN BUTTON
-        // =====================================================
         Align(
           alignment: Alignment.centerRight,
 
@@ -1540,9 +1529,7 @@ class _LoginDialogState extends State<_LoginDialog>
     );
   }
 
-  // =========================================================
   // EMAIL FIELD
-  // =========================================================
 
   Widget _buildLoginField({
     required TextEditingController controller,
@@ -1731,9 +1718,7 @@ class _LoginDialogState extends State<_LoginDialog>
     );
   }
 
-  // =========================================================
   // LOGIN HANDLER
-  // =========================================================
 
   void _handleLogin() {
     if (_emailController.text.trim().isEmpty ||

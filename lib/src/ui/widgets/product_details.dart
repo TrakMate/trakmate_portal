@@ -375,7 +375,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                 Positioned.fill(
                   child: Padding(
-                    padding: const EdgeInsets.all(58), //padding
+                    padding: const EdgeInsets.all(88), //padding
 
                     child: PageView.builder(
                       controller: _imagePageController,

@@ -795,77 +795,60 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   Widget _buildQualityBar() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: tBlue2.withOpacity(0.18),
-            blurRadius: 25,
-            offset: const Offset(0, 10),
+            color: tBlue2.withOpacity(0.16),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 5),
-            decoration: BoxDecoration(
-              color: tOrange1.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: tOrange1.withOpacity(0.30), width: 1),
-            ),
-            child: Text(
-              'WHY PARTNER WITH US',
-              style: GoogleFonts.manrope(
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                color: tOrange1,
-                letterSpacing: 1.3,
-              ),
+          Text(
+            'WHY PARTNER WITH US',
+            style: GoogleFonts.manrope(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: tOrange1,
+              letterSpacing: 1.1,
             ),
           ),
-          const SizedBox(height: 9),
+
+          const SizedBox(height: 5),
+
           Text(
             'Built on Quality. Driven by Commitment.',
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
               color: tWhite,
-              height: 1.15,
             ),
           ),
-          const SizedBox(height: 5),
-          Text(
-            'Every solution is designed with precision, reliability '
-            'and long-term value in mind.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontSize: 10.5,
-              fontWeight: FontWeight.w500,
-              color: tWhite.withOpacity(0.60),
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 17),
-          SizedBox(
-            width: double.infinity,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (int i = 0; i < _values.length; i++) ...[
-                  Expanded(child: _buildQualityItem(_values[i])),
-                  if (i < _values.length - 1) const SizedBox(width: 8),
-                ],
+
+          const SizedBox(height: 18),
+
+          Row(
+            children: [
+              for (int i = 0; i < _values.length; i++) ...[
+                Expanded(child: _buildQualityItem(_values[i])),
+                if (i < _values.length - 1)
+                  Container(
+                    width: 1,
+                    height: 55,
+                    color: tWhite.withOpacity(0.14),
+                  ),
               ],
-            ),
+            ],
           ),
         ],
       ),
@@ -873,98 +856,48 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   }
 
   Widget _buildQualityItem(_ManufacturingValue value) {
-    return Container(
-      height: 145,
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 12),
-
-      decoration: BoxDecoration(
-        color: tWhite.withOpacity(0.055),
-
-        borderRadius: BorderRadius.circular(13),
-
-        border: Border.all(color: tWhite.withOpacity(0.10), width: 1),
-      ),
-
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // =======================================================
-          // ICON
-          // =======================================================
-          Container(
+          SizedBox(
             width: 40,
             height: 40,
-
-            decoration: BoxDecoration(
-              color: tOrange1.withOpacity(0.10),
-              shape: BoxShape.circle,
-
-              border: Border.all(color: tOrange1.withOpacity(0.28), width: 1),
-            ),
-
-            child: Center(
-              child: SizedBox(
-                width: 20,
-                height: 20,
-
-                child: SvgPicture.asset(value.icon, color: tOrange1),
-              ),
-            ),
+            child: SvgPicture.asset(value.icon, color: tOrange1),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 7),
 
-          // =======================================================
-          // TITLE
-          // =======================================================
           Text(
             value.title,
-
             textAlign: TextAlign.center,
-
             maxLines: 1,
-
             overflow: TextOverflow.ellipsis,
-
             style: GoogleFonts.manrope(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
               color: tWhite,
-              height: 1.15,
             ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(height: 3),
 
-          // =======================================================
-          // DESCRIPTION
-          // EXACTLY 2 LINES
-          // =======================================================
-          SizedBox(
-            height: 30,
-
-            child: Text(
-              value.description,
-
-              textAlign: TextAlign.center,
-
-              maxLines: 2,
-
-              overflow: TextOverflow.ellipsis,
-
-              style: GoogleFonts.manrope(
-                fontSize: 9.5,
-                fontWeight: FontWeight.w500,
-                color: tWhite.withOpacity(0.58),
-                height: 1.35,
-              ),
+          Text(
+            value.description,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: tWhite.withOpacity(0.62),
+              height: 1.3,
             ),
           ),
         ],
       ),
     );
   }
-
   // IMAGE FALLBACK
 
   Widget _buildImageFallback({bool dark = false}) {

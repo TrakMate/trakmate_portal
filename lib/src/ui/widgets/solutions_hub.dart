@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/mobile_app.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart'; // NEW: for SolutionCardShimmer
 import 'package:trakmate_portal/src/ui/widgets/web_app.dart';
 
 import '../../utils/colors.dart';
@@ -9,91 +10,131 @@ import 'solutions_detail.dart';
 // import 'mobile_app.dart';
 // import 'web_app.dart';
 
-class SolutionsHubPage extends StatelessWidget {
+class SolutionsHubPage extends StatefulWidget {
   const SolutionsHubPage({super.key});
 
   @override
+  State<SolutionsHubPage> createState() => _SolutionsHubPageState();
+}
+
+class _SolutionsHubPageState extends State<SolutionsHubPage> {
+  // NEW: mirrors _imagesLoading in BuildProductSection.
+  bool _imagesLoading = true;
+
+  final List<SolutionDetailsData> _solutions = <SolutionDetailsData>[
+    // MOBILE APPS
+    SolutionDetailsData(
+      backgroundImage: 'images/mobileapps1.png',
+      icon: 'icons/mobile.svg',
+      iconBackgroundColor: tOrange1,
+      eyebrow: 'MOBILE APPLICATIONS',
+      title: 'Mobile Apps',
+      description:
+          'Powerful and intuitive mobile applications designed to connect users, devices and businesses on the go.',
+      cards: const [
+        SolutionCardData(
+          'images/mobileapps.jpg',
+          'icons/phone.svg',
+          'Mobile App Development',
+          'Custom mobile applications designed for smooth, intuitive and reliable user experiences.',
+        ),
+        SolutionCardData(
+          'images/mobileapps.jpg',
+          'icons/globe.svg',
+          'Cloud Integration',
+          'Connect mobile applications with cloud platforms, APIs and real-time business data.',
+        ),
+        SolutionCardData(
+          'images/mobileapps.jpg',
+          'icons/iot.svg',
+          'Device Connectivity',
+          'Connect mobile applications with connected devices, vehicles and IoT ecosystems.',
+        ),
+        SolutionCardData(
+          'images/mobileapps.jpg',
+          'icons/globe.svg',
+          'Data & Analytics',
+          'Present meaningful business information through dashboards, reports and analytics.',
+        ),
+      ],
+    ),
+
+    // WEB APPS
+    SolutionDetailsData(
+      backgroundImage: 'images/webapps1.png',
+      icon: 'icons/laptop.svg',
+      iconBackgroundColor: tBlue3,
+      eyebrow: 'WEB APPLICATIONS',
+      title: 'Web Apps',
+      description:
+          'Scalable and secure web applications that transform complex business processes into simple digital experiences.',
+      cards: const [
+        SolutionCardData(
+          'images/trakfleet.png',
+          'icons/laptop.svg',
+          'TrakFleet',
+          'Scalable web platforms built around your business workflows, users and operational requirements.',
+        ),
+        SolutionCardData(
+          'images/trakfleet.png',
+          'icons/globe.svg',
+          'Trakblue',
+          'Secure cloud-connected applications with centralized data and easy access from anywhere.',
+        ),
+        SolutionCardData(
+          'images/trakfleet.png',
+          'icons/iot.svg',
+          'IoT Integration',
+          'Connect web applications with devices, vehicles and real-time IoT data.',
+        ),
+        SolutionCardData(
+          'images/trakfleet.png',
+          'icons/globe.svg',
+          'Dashboards & Analytics',
+          'Transform business and device data into clear dashboards, reports and actionable insights.',
+        ),
+      ],
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadSolutionImages();
+    });
+  }
+
+  // NEW
+  Future<void> _preloadSolutionImages() async {
+    try {
+      final imagePaths = _solutions.map((s) => s.backgroundImage).toSet();
+
+      // await Future.wait(
+      //   imagePaths.map((path) => precacheImage(AssetImage(path), context)),
+      // );
+      // await Future.delayed(const Duration(seconds: 3)); // fr testing
+      await Future.wait([
+        Future.wait(
+          imagePaths.map((path) => precacheImage(AssetImage(path), context)),
+        ),
+
+        Future.delayed(const Duration(seconds: 2)),
+      ]);
+    } catch (e) {
+      debugPrint('Error preloading solution images: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _imagesLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final solutions = <SolutionDetailsData>[
-      // =========================================================
-      // MOBILE APPS
-      // =========================================================
-      SolutionDetailsData(
-        backgroundImage: 'images/mobileapps1.png',
-        icon: 'icons/mobile.svg',
-        iconBackgroundColor: tOrange1,
-        eyebrow: 'MOBILE APPLICATIONS',
-        title: 'Mobile Apps',
-        description:
-            'Powerful and intuitive mobile applications designed to connect users, devices and businesses on the go.',
-        cards: const [
-          SolutionCardData(
-            'images/mobileapps.jpg',
-            'icons/phone.svg',
-            'Mobile App Development',
-            'Custom mobile applications designed for smooth, intuitive and reliable user experiences.',
-          ),
-          SolutionCardData(
-            'images/mobileapps.jpg',
-            'icons/globe.svg',
-            'Cloud Integration',
-            'Connect mobile applications with cloud platforms, APIs and real-time business data.',
-          ),
-          SolutionCardData(
-            'images/mobileapps.jpg',
-            'icons/iot.svg',
-            'Device Connectivity',
-            'Connect mobile applications with connected devices, vehicles and IoT ecosystems.',
-          ),
-          SolutionCardData(
-            'images/mobileapps.jpg',
-            'icons/globe.svg',
-            'Data & Analytics',
-            'Present meaningful business information through dashboards, reports and analytics.',
-          ),
-        ],
-      ),
-
-      // =========================================================
-      // WEB APPS
-      // =========================================================
-      SolutionDetailsData(
-        backgroundImage: 'images/webapps1.png',
-        icon: 'icons/laptop.svg',
-        iconBackgroundColor: tBlue3,
-        eyebrow: 'WEB APPLICATIONS',
-        title: 'Web Apps',
-        description:
-            'Scalable and secure web applications that transform complex business processes into simple digital experiences.',
-        cards: const [
-          SolutionCardData(
-            'images/trakfleet.png',
-            'icons/laptop.svg',
-            'TrakFleet',
-            'Scalable web platforms built around your business workflows, users and operational requirements.',
-          ),
-          SolutionCardData(
-            'images/trakfleet.png',
-            'icons/globe.svg',
-            'Trakblue',
-            'Secure cloud-connected applications with centralized data and easy access from anywhere.',
-          ),
-          SolutionCardData(
-            'images/trakfleet.png',
-            'icons/iot.svg',
-            'IoT Integration',
-            'Connect web applications with devices, vehicles and real-time IoT data.',
-          ),
-          SolutionCardData(
-            'images/trakfleet.png',
-            'icons/globe.svg',
-            'Dashboards & Analytics',
-            'Transform business and device data into clear dashboards, reports and actionable insights.',
-          ),
-        ],
-      ),
-    ];
-
     return Container(
       width: double.infinity,
       color: tWhite,
@@ -104,44 +145,53 @@ class SolutionsHubPage extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: 25,
             runSpacing: 25,
+
             children:
-                solutions.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final solution = entry.value;
+                _imagesLoading
+                    ? List.generate(
+                      _solutions.length,
+                      (_) => const SizedBox(
+                        width: 420, // same card width as the real cards
+                        child: SolutionCardShimmer(),
+                      ),
+                    )
+                    : _solutions.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final solution = entry.value;
 
-                  return SizedBox(
-                    width: 420, // card width
-                    child: _SolutionCard(
-                      backgroundImage: solution.backgroundImage,
-                      icon: solution.icon,
-                      iconBackgroundColor: solution.iconBackgroundColor,
-                      eyebrow: solution.eyebrow,
-                      title: solution.title,
-                      description: solution.description,
+                      return SizedBox(
+                        width: 420, // card width
+                        child: _SolutionCard(
+                          backgroundImage: solution.backgroundImage,
+                          icon: solution.icon,
+                          iconBackgroundColor: solution.iconBackgroundColor,
+                          eyebrow: solution.eyebrow,
+                          title: solution.title,
+                          description: solution.description,
 
-                      // =====================================================
-                      // NAVIGATION
-                      // =====================================================
-                      onTap: () {
-                        if (index == 0) {
-                          // MOBILE APPS
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const MobileApp(),
-                            ),
-                          );
-                        } else if (index == 1) {
-                          // WEB APPS
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const WebApp()),
-                          );
-                        }
-                      },
-                    ),
-                  );
-                }).toList(),
+                          // NAVIGATION
+                          onTap: () {
+                            if (index == 0) {
+                              // MOBILE APPS
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const MobileApp(),
+                                ),
+                              );
+                            } else if (index == 1) {
+                              // WEB APPS
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const WebApp(),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
           ),
         ],
       ),
@@ -206,6 +256,43 @@ class _SolutionCardState extends State<_SolutionCard> {
                     child: Image.asset(
                       widget.backgroundImage,
                       fit: BoxFit.cover,
+                      frameBuilder: (
+                        context,
+                        child,
+                        frame,
+                        wasSynchronouslyLoaded,
+                      ) {
+                        // Already decoded/cached -> show immediately, no shimmer flash.
+                        if (wasSynchronouslyLoaded) return child;
+
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          // Force non-positioned children to fill the Stack with TIGHT
+                          // constraints (StackFit.expand), matching what the parent SizedBox
+                          // gives us. Without this, Stack hands the child LOOSE constraints
+                          // and Image sizes itself to the asset's own aspect ratio instead
+                          // of filling 420x250 — that's what caused the narrower image on revisit.
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child:
+                              frame != null
+                                  ? SizedBox.expand(
+                                    key: const ValueKey('image'),
+                                    child: child,
+                                  )
+                                  : const SizedBox.expand(
+                                    key: ValueKey('shimmer'),
+                                    child: ShimmerBox(height: 250),
+                                  ),
+                        );
+                      },
                       errorBuilder: (_, __, ___) => Container(color: tBlue3),
                     ),
                   ),
@@ -215,15 +302,6 @@ class _SolutionCardState extends State<_SolutionCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Text(
-                        //   widget.eyebrow,
-                        //   style: GoogleFonts.manrope(
-                        //     fontSize: 10.5,
-                        //     fontWeight: FontWeight.w700,
-                        //     color: tOrange1,
-                        //     letterSpacing: 1.1,
-                        //   ),
-                        // ),
                         const SizedBox(height: 1),
 
                         Text(
@@ -253,9 +331,7 @@ class _SolutionCardState extends State<_SolutionCard> {
                 ],
               ),
 
-              // =====================================================
               // ICON
-              // =====================================================
               Positioned(
                 top: 225,
                 left: 20,

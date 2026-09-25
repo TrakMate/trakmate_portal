@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
@@ -58,20 +59,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   bool _filterMenuOpen = false;
   int _lastFilterCloseSignal = 0;
 
-  // Global position of the filter button, used to position the popup.
-  // This avoids CompositedTransformTarget/Follower issues on Flutter Web.
   Offset? _filterButtonPosition;
   Size? _filterButtonSize;
 
-  // NEW: the ancestor ScrollPosition we listen to while the menu is open,
-  // so the panel can re-track the button's position as the page scrolls.
   ScrollPosition? _scrollPosition;
 
-  // Height (in logical pixels) of the sticky top nav bar. The floating
-  // filter panel is clipped so it never paints on top of this region —
-  // it scrolls "behind" it instead of stacking over it. Tweak this to
-  // match your real nav bar height, or measure it dynamically via a
-  // GlobalKey if it isn't fixed across breakpoints.
   static const double _kStickyHeaderHeight = 84;
 
   int get _activeFilterCount =>
@@ -104,7 +96,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmd104_specs.png',
       image2: 'images/tmd104(a).png',
       image3: 'images/tmd024-top-view.png',
-      image4: 'images/tmd024-bottom-view.png',
+      // image4: 'images/tmd024-bottom-view.png',
+      image4: 'images/tmd024_isometric1.png',
+      // image5: 'images/tmd024_isometric2.png',
       image5: 'images/tmd024-vertical-view.png',
       image6: 'images/tmd024-part.png',
 
@@ -133,10 +127,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmd004-24_specs.png',
       image2: 'images/tmd104(a).png',
       image3: 'images/tmd024-bottom-view.png',
-      image4: 'images/tmd024-vertical-view.png',
-      image5: 'images/tmd024-part.png',
-      image6: 'images/tmd024-top-view.png',
+      // image4: 'images/tmd024-vertical-view.png',
+      image4: 'images/tmd024_isometric1.png',
+      image5: 'images/tmd024_isometric2.png',
+      image6: 'images/tmd024-part.png',
 
+      // image7: 'images/tmd024-top-view.png',
       badge: '4G',
       badgeColor: tBlue3,
       // No 2G badge because TMD004 is 4G only.
@@ -166,9 +162,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmd004-024_specs.png',
       image2: 'images/tmd104(a).png',
       image3: 'images/tmd024-bottom-view.png',
-      image4: 'images/tmd024-vertical-view.png',
-      image5: 'images/tmd024_isometric1.png',
-      image6: 'images/tmd024_isometric2.png',
+      // image4: 'images/tmd024-vertical-view.png',
+      image4: 'images/tmd024_isometric1.png',
+      image5: 'images/tmd024_isometric2.png',
       image7: 'images/tmd024-part.png',
       badge: '4G',
       badgeColor: tBlue3,
@@ -376,8 +372,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tcu550-side-view.png',
-      image1: 'images/tcu550_specs1.png',
+      image: 'images/tcu550-side2-view.png',
+      image1: 'images/tcu550_specs2.png',
       image2: 'images/tcu550-side-view.png',
       image3: 'images/tcu1550.png',
       // image4: 'images/tcu550-side-view.png',
@@ -824,7 +820,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         imagePaths.map((path) => precacheImage(AssetImage(path), context)),
       );
 
-      await Future.delayed(const Duration(seconds: 3));
+      // await Future.delayed(const Duration(seconds: 3));//fr testing
     } catch (e) {
       debugPrint('Error preloading product images: $e');
     }
@@ -1329,7 +1325,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     if (selectedLabel == 'Solutions Hub') {
       return SolutionsHubPage();
     }
-
+    if (_imagesLoading) {
+      return ProductShimmer();
+    }
     // ALL PRODUCTS — apply the attribute filters within each category.
 
     if (selectedLabel == 'All Products') {
@@ -1722,7 +1720,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                 const SizedBox(height: 16),
 
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showGetInTouchDialog(context);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: tBlue1,
                     foregroundColor: tWhite,
