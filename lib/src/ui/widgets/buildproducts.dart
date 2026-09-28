@@ -123,7 +123,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmd104(a).png',
+      image: 'images/tmd104b.png',
       image1: 'images/tmd004-24_specs.png',
       image2: 'images/tmd104(a).png',
       image3: 'images/tmd024-bottom-view.png',
@@ -158,7 +158,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
     ),
     ProductData(
-      image: 'images/tmd104(a).png',
+      image: 'images/tmd104b.png',
       image1: 'images/tmd004-024_specs.png',
       image2: 'images/tmd104(a).png',
       image3: 'images/tmd024-bottom-view.png',
@@ -188,7 +188,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd006_isometric.png',
-      image1: 'images/tmd006_specs.png',
+      image1: 'images/tmd006_specs1.png',
       image2: 'images/tmd006-back.png',
       image3: 'images/tmd006-side.png',
       image4: 'images/tmd006-bottom.png',
@@ -217,7 +217,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     ProductData(
       image: 'images/tmb024.png',
-      image1: 'images/tmb024_specs.png',
+      image1: 'images/tmb024_specs1.png',
       image2: 'images/tmb024.png',
       badge: 'new',
       badgeColor: newbadge,
@@ -288,7 +288,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     ProductData(
       image: 'images/tmd364-side1.png',
-      image1: 'images/tmd364_specs.png',
+      image1: 'images/tmd364_specs1.png',
       image2: 'images/tmd364-side1.png',
       image3: 'images/tmd364-top1.png',
       image4: 'images/tmd364-back1.png',
@@ -318,7 +318,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd364-side1.png',
-      image1: 'images/tcu510_specs.png',
+      image1: 'images/tcu510_specs1.png',
       image2: 'images/tmd364-side1.png',
       image3: 'images/tmd364-top1.png',
       image4: 'images/tmd364-back1.png',

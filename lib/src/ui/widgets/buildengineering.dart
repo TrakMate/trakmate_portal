@@ -29,7 +29,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/product.svg',
       iconBg: tOrangeGradient2,
-      image: 'images/product.png',
+      image: 'images/product_design1.png',
       title: 'Product Design',
       description:
           'Innovative product design that combines aesthetics, usability and functionality to create exceptional experiences.',
@@ -37,7 +37,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/mechanical.svg',
       iconBg: tBlueGradient5,
-      image: 'images/mech.png',
+      image: 'images/mechanical_engineering2.png',
       title: 'Mechanical Engineering',
       description:
           'Engineering analysis, simulation and mechanical design for reliable and high-performance products.',

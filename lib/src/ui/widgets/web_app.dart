@@ -55,15 +55,10 @@ class _AccessWebsiteDialog extends StatefulWidget {
   State<_AccessWebsiteDialog> createState() => _AccessWebsiteDialogState();
 }
 
-// =========================================================
 // STATE
-// =========================================================
-
 class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
     with SingleTickerProviderStateMixin {
-  // =======================================================
   // CONTROLLERS
-  // =======================================================
 
   final TextEditingController _fullNameController = TextEditingController();
 
@@ -75,9 +70,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
   final TextEditingController _phoneController = TextEditingController();
 
-  // =======================================================
   // ANIMATION
-  // =======================================================
 
   late AnimationController _animationController;
 
@@ -85,15 +78,11 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
   late Animation<Offset> _slideAnimation;
 
-  // =======================================================
   // BUTTON HOVER
-  // =======================================================
 
   bool _isLoginHovered = false;
 
-  // =======================================================
-  // INIT
-  // =======================================================
+  String? _validationMessage;
 
   @override
   void initState() {
@@ -389,12 +378,24 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           isRequired: true,
         ),
+        if (_validationMessage != null) ...[
+          const SizedBox(height: 8),
 
-        const SizedBox(height: 28),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _validationMessage!,
+              style: GoogleFonts.manrope(
+                fontSize: 12,
+                color: tRed1,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+        const SizedBox(height: 20),
 
-        // =====================================================
         // LOGIN BUTTON
-        // =====================================================
         Align(
           alignment: Alignment.centerRight,
 
@@ -453,8 +454,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
                   children: [
                     Text(
-                      'LOGIN',
-
+                      'ACCESS',
                       style: GoogleFonts.manrope(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -479,9 +479,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
     );
   }
 
-  // =========================================================
   // TEXT FIELD
-  // =========================================================
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -500,9 +498,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-        // =====================================================
         // LABEL
-        // =====================================================
         RichText(
           text: TextSpan(
             children: [
@@ -532,9 +528,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
         const SizedBox(height: 7),
 
-        // =====================================================
         // INPUT
-        // =====================================================
         Container(
           height: 52,
 
@@ -602,55 +596,23 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
   // =========================================================
 
   void _handleAccessWebsite() {
-    // =======================================================
-    // REQUIRED VALIDATION
-    // =======================================================
-
-    if (_fullNameController.text.trim().isEmpty) {
-      _showValidationMessage('Please enter your full name.');
-
+    if (_fullNameController.text.trim().isEmpty ||
+        _cityController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty ||
+        _phoneController.text.trim().isEmpty) {
+      _showValidationMessage();
       return;
     }
 
-    // Company intentionally NOT validated.
-    // It is optional.
+    setState(() {
+      _validationMessage = null;
+    });
 
-    if (_cityController.text.trim().isEmpty) {
-      _showValidationMessage('Please enter your city.');
-
-      return;
-    }
-
-    if (_emailController.text.trim().isEmpty) {
-      _showValidationMessage('Please enter your email.');
-
-      return;
-    }
-
-    if (_phoneController.text.trim().isEmpty) {
-      _showValidationMessage('Please enter your phone number.');
-
-      return;
-    }
-
-    // =======================================================
-    // GET VALUES
-    // =======================================================
-
-    final String fullName = _fullNameController.text.trim();
-
-    final String company = _companyController.text.trim();
-
-    final String city = _cityController.text.trim();
-
-    final String email = _emailController.text.trim();
-
-    final String phone = _phoneController.text.trim();
-
-    // =======================================================
-    // TODO:
-    // SEND THESE VALUES TO YOUR API
-    // =======================================================
+    final fullName = _fullNameController.text.trim();
+    final company = _companyController.text.trim();
+    final city = _cityController.text.trim();
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
 
     print('Full Name: $fullName');
     print('Company: $company');
@@ -658,47 +620,17 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
     print('Email: $email');
     print('Phone: $phone');
 
-    // =======================================================
-    // CLOSE POPUP
-    // =======================================================
-
     Navigator.of(context).pop();
 
-    // =======================================================
-    // AFTER SUCCESSFUL API CALL
-    // NAVIGATE TO WEBSITE HERE
-    // =======================================================
-
-    // Example:
-    //
-    // launchUrl(
-    //   Uri.parse(
-    //     'https://yourwebsite.com',
-    //   ),
-    // );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Details submitted successfully.',
-          style: GoogleFonts.manrope(fontSize: 12),
-        ),
-
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    // TODO: API call / navigation
   }
 
   // VALIDATION MESSAGE
 
-  void _showValidationMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: GoogleFonts.manrope(fontSize: 12)),
-
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  void _showValidationMessage() {
+    setState(() {
+      _validationMessage = 'Please fill every required field.';
+    });
   }
 }
 
@@ -1163,11 +1095,8 @@ class _WebServiceCard extends StatelessWidget {
 
                             style: OutlinedButton.styleFrom(
                               foregroundColor: tBlue3,
-
                               side: BorderSide(color: tBlack.withOpacity(.15)),
-
                               padding: const EdgeInsets.symmetric(vertical: 12),
-
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -1500,11 +1429,9 @@ class _LoginDialogState extends State<_LoginDialog>
 
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-
                   children: [
                     Text(
-                      'LOGIN',
-
+                      'ACCESS',
                       style: GoogleFonts.manrope(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,

@@ -189,6 +189,43 @@ class _AboutusSectionState extends State<AboutusSection>
 
           SizedBox(height: 25),
 
+          SizedBox(height: 25),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 5, child: _infrastructureBrickLayout()),
+
+                const SizedBox(width: 40),
+
+                Expanded(flex: 3, child: _timeline()),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 25),
+
+          _ourTeamSection(),
+
+          SizedBox(height: 25),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: _buildInfrastructureSection(),
+          ),
+
+          SizedBox(height: 35),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: _buildNewsMediaSection(),
+          ),
+
+          const SizedBox(height: 40),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: Container(
@@ -202,7 +239,7 @@ class _AboutusSectionState extends State<AboutusSection>
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: tOrange1, width: 1),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -244,47 +281,6 @@ class _AboutusSectionState extends State<AboutusSection>
                 ],
               ),
             ),
-          ),
-          SizedBox(height: 25),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 5, child: _infrastructureBrickLayout()),
-
-                const SizedBox(width: 40),
-
-                Expanded(flex: 3, child: _timeline()),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 25),
-
-          _ourTeamSection(),
-
-          SizedBox(height: 25),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: _buildInfrastructureSection(),
-          ),
-
-          SizedBox(height: 35),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: _buildNewsMediaSection(),
-          ),
-
-          const SizedBox(height: 40),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: _buildEngineeringCapabilitiesSection(),
           ),
 
           const SizedBox(height: 40),
@@ -891,14 +887,18 @@ class _AboutusSectionState extends State<AboutusSection>
       height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: tWhite,
+        gradient: LinearGradient(
+          colors: [tBlue2.withOpacity(0.92), tBlue2.withOpacity(0.72)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tBlue1.withOpacity(0.15), width: 1),
+        border: Border.all(color: tWhite.withOpacity(0.22), width: 1),
         boxShadow: [
           BoxShadow(
-            color: tBlack.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: tBlue2.withOpacity(0.18),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -908,7 +908,7 @@ class _AboutusSectionState extends State<AboutusSection>
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: tBlue3.withOpacity(0.08),
+              color: tWhite.withOpacity(0.10),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
@@ -933,7 +933,7 @@ class _AboutusSectionState extends State<AboutusSection>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.manrope(
-                    color: tBlack,
+                    color: tWhite,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -946,7 +946,7 @@ class _AboutusSectionState extends State<AboutusSection>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.manrope(
-                    color: tBlue3.withOpacity(0.65),
+                    color: tWhite.withOpacity(0.70),
                     fontSize: 10.5,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1544,169 +1544,6 @@ class _AboutusSectionState extends State<AboutusSection>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildEngineeringCapabilitiesSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(25, 25, 25, 25),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [tBlue2, tBlue3],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'ENGINEERING CAPABILITIES',
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.2,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            'Engineering Ideas into Real-World Products.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontSize: 25,
-              fontWeight: FontWeight.w700,
-              color: tWhite,
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _buildEngineeringCapabilityItem(
-                  icon: Icons.precision_manufacturing_outlined,
-                  title: 'Product Engineering',
-                  description: 'Turning ideas into production-ready products.',
-                ),
-              ),
-
-              _buildEngineeringCapabilityDivider(),
-
-              Expanded(
-                child: _buildEngineeringCapabilityItem(
-                  icon: Icons.lightbulb_outline,
-                  title: 'Innovation Driven',
-                  description:
-                      'Exploring smarter approaches to complex challenges.',
-                ),
-              ),
-
-              _buildEngineeringCapabilityDivider(),
-
-              Expanded(
-                child: _buildEngineeringCapabilityItem(
-                  icon: Icons.lan_outlined,
-                  title: 'Connected Systems',
-                  description:
-                      'Building intelligent and connected product ecosystems.',
-                ),
-              ),
-
-              _buildEngineeringCapabilityDivider(),
-
-              Expanded(
-                child: _buildEngineeringCapabilityItem(
-                  icon: Icons.integration_instructions_outlined,
-                  title: 'End-to-End Expertise',
-                  description:
-                      'Hardware, firmware and software under one roof.',
-                ),
-              ),
-
-              _buildEngineeringCapabilityDivider(),
-
-              Expanded(
-                child: _buildEngineeringCapabilityItem(
-                  icon: Icons.science_outlined,
-                  title: 'Test & Validate',
-                  description:
-                      'Engineering through rigorous testing and refinement.',
-                ),
-              ),
-
-              _buildEngineeringCapabilityDivider(),
-
-              Expanded(
-                child: _buildEngineeringCapabilityItem(
-                  icon: Icons.rocket_launch_outlined,
-                  title: 'Production Ready',
-                  description:
-                      'Designed to move efficiently from prototype to scale.',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEngineeringCapabilityItem({
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        children: [
-          Icon(icon, size: 42, color: tOrange1),
-
-          const SizedBox(height: 14),
-
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: tWhite,
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 12,
-              height: 1.35,
-              fontWeight: FontWeight.w500,
-              color: tWhite.withOpacity(0.65),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEngineeringCapabilityDivider() {
-    return Container(
-      width: 1,
-      height: 70,
-      margin: const EdgeInsets.only(top: 22, left: 8, right: 8),
-      color: tWhite.withOpacity(0.15),
     );
   }
 

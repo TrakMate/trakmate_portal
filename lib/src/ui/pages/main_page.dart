@@ -357,35 +357,33 @@ class _GetInTouchDialog extends StatefulWidget {
 class _GetInTouchDialogState extends State<_GetInTouchDialog>
     with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
-
   final TextEditingController _emailController = TextEditingController();
-
   final TextEditingController _phoneController = TextEditingController();
-
   final TextEditingController _subjectController = TextEditingController();
-
   final TextEditingController _messageController = TextEditingController();
-
   late AnimationController _contentAnimationController;
-
   late Animation<double> _leftFadeAnimation;
-
   late Animation<Offset> _leftSlideAnimation;
-
   late Animation<double> _rightFadeAnimation;
-
   late Animation<Offset> _rightSlideAnimation;
-
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri phoneUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber.replaceAll(' ', ''),
-    );
-
-    if (await canLaunchUrl(phoneUri)) {
-      await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+  String? _messageError;
+  void _clearMessageError() {
+    if (_messageError != null) {
+      setState(() {
+        _messageError = null;
+      });
     }
   }
+  // Future<void> _makePhoneCall(String phoneNumber) async {
+  //   final Uri phoneUri = Uri(
+  //     scheme: 'tel',
+  //     path: phoneNumber.replaceAll(' ', ''),
+  //   );
+
+  //   if (await canLaunchUrl(phoneUri)) {
+  //     await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+  //   }
+  // }
 
   bool _titleHovered = false;
 
@@ -746,6 +744,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Name *',
                     hint: 'Your name',
                     icon: 'icons/person2.svg',
+                    onChanged: _clearMessageError,
                   ),
 
                   const SizedBox(height: 14),
@@ -755,6 +754,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Email *',
                     hint: 'Your email',
                     icon: 'icons/mail.svg',
+                    onChanged: _clearMessageError,
                   ),
                 ],
               );
@@ -768,6 +768,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Name *',
                     hint: 'Your name',
                     icon: 'icons/person2.svg',
+                    onChanged: _clearMessageError,
                   ),
                 ),
 
@@ -779,6 +780,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Email *',
                     hint: 'Your email',
                     icon: 'icons/mail.svg',
+                    onChanged: _clearMessageError,
                   ),
                 ),
               ],
@@ -800,6 +802,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Phone',
                     hint: 'Your phone number',
                     icon: 'icons/phone.svg',
+                    onChanged: _clearMessageError,
                   ),
 
                   const SizedBox(height: 14),
@@ -809,6 +812,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Subject *',
                     hint: 'How can we help?',
                     icon: 'icons/subject.svg',
+                    onChanged: _clearMessageError,
                   ),
                 ],
               );
@@ -822,6 +826,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Phone',
                     hint: 'Your phone number',
                     icon: 'icons/phone.svg',
+                    onChanged: _clearMessageError,
                   ),
                 ),
 
@@ -833,6 +838,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                     label: 'Subject *',
                     hint: 'How can we help?',
                     icon: 'icons/subject.svg',
+                    onChanged: _clearMessageError,
                   ),
                 ),
               ],
@@ -842,7 +848,23 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         const SizedBox(height: 14),
 
-        _buildMessageField(),
+        _buildMessageField(onChanged: _clearMessageError),
+
+        if (_messageError != null) ...[
+          const SizedBox(height: 6),
+
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _messageError!,
+              style: GoogleFonts.manrope(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
 
         const SizedBox(height: 24),
 
@@ -859,38 +881,43 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     required String label,
     required String hint,
     required String icon,
+    VoidCallback? onChanged,
   }) {
     return _HoverFormField(
       controller: controller,
       label: label,
       hint: hint,
       icon: icon,
+      onChanged: onChanged,
     );
   }
 
-  Widget _buildMessageField() {
-    return _HoverMessageField(controller: _messageController);
+  Widget _buildMessageField({VoidCallback? onChanged}) {
+    return _HoverMessageField(
+      controller: _messageController,
+      onChanged: onChanged,
+    );
   }
 
   Widget _buildSendMessagesButton() {
     return _AnimatedSendButton(
       onPressed: () {
-        if (_nameController.text.trim().isEmpty ||
+        final bool hasError =
+            _nameController.text.trim().isEmpty ||
             _emailController.text.trim().isEmpty ||
             _subjectController.text.trim().isEmpty ||
-            _messageController.text.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Please fill in all required fields.',
-                style: GoogleFonts.manrope(fontSize: 12),
-              ),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+            _messageController.text.trim().isEmpty;
 
+        if (hasError) {
+          setState(() {
+            _messageError = 'Please fill every required field.';
+          });
           return;
         }
+
+        setState(() {
+          _messageError = null;
+        });
 
         Navigator.of(context).pop();
       },
@@ -1380,12 +1407,13 @@ class _HoverFormField extends StatefulWidget {
   final String label;
   final String hint;
   final String icon;
-
+  final VoidCallback? onChanged;
   const _HoverFormField({
     required this.controller,
     required this.label,
     required this.hint,
     required this.icon,
+    this.onChanged,
   });
 
   @override
@@ -1451,7 +1479,9 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
               child: TextField(
                 controller: widget.controller,
-
+                onChanged: (_) {
+                  widget.onChanged?.call();
+                },
                 textAlignVertical: TextAlignVertical.center,
 
                 style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
@@ -1516,8 +1546,8 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
 class _HoverMessageField extends StatefulWidget {
   final TextEditingController controller;
-
-  const _HoverMessageField({required this.controller});
+  final VoidCallback? onChanged;
+  const _HoverMessageField({required this.controller, this.onChanged});
 
   @override
   State<_HoverMessageField> createState() => _HoverMessageFieldState();
@@ -1582,10 +1612,11 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
 
               child: TextField(
                 controller: widget.controller,
-
+                onChanged: (_) {
+                  widget.onChanged?.call();
+                },
                 maxLines: null,
                 expands: true,
-
                 textAlignVertical: TextAlignVertical.top,
 
                 style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
