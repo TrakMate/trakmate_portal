@@ -250,9 +250,9 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                 ProcessStepData(
                   number: '02',
                   icon: 'icons/automation.svg',
-                  title: 'Manufacturing Planning',
+                  title: 'Sourcing & Planning',
                   description:
-                      'We design the right solution, features, experience and technology.',
+                      'We source the right materials, components and resources for production.',
                 ),
                 ProcessStepData(
                   number: '03',

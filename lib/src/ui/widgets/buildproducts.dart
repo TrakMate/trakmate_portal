@@ -92,7 +92,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   final List<ProductData> _products = const [
     ProductData(
-      image: 'images/tmd104(a).png',
+      image: 'images/tmd104b.png',
       image1: 'images/tmd104_specs.png',
       image2: 'images/tmd104(a).png',
       image3: 'images/tmd024-top-view.png',
@@ -373,7 +373,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tcu550-side2-view.png',
-      image1: 'images/tcu550_specs2.png',
+      image1: 'images/tcu550_specs3.png',
       image2: 'images/tcu550-side-view.png',
       image3: 'images/tcu1550.png',
       // image4: 'images/tcu550-side-view.png',

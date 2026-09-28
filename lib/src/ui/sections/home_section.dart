@@ -89,7 +89,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "5,00,000+",
+          value: "6,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -124,7 +124,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "5,00,000+",
+          value: "6,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -159,7 +159,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "5,00,000+",
+          value: "6,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -194,7 +194,7 @@ class _HomeSectionState extends State<HomeSection> {
         ),
         _StatData(
           icon: "icons/device2.svg",
-          value: "5,00,000+",
+          value: "6,00,000+",
           label: "Device Installed",
         ),
       ],
@@ -1047,16 +1047,17 @@ class _HomeSectionState extends State<HomeSection> {
                                   if (i != 0) const SizedBox(width: 66),
                                   _buildStatItem(
                                     slide.stats[i].icon,
-                                    slide.stats[i].icon == "icons/device2.svg"
-                                        ? "${_formatIndianNumber(_deviceCount)}+"
-                                        : slide.stats[i].icon ==
-                                            "icons/badge2.svg"
+                                    // slide.stats[i].icon == "icons/device2.svg"
+                                    //     ?
+                                    // "${_formatIndianNumber(_deviceCount)}+"
+                                    // :
+                                    slide.stats[i].icon == "icons/badge2.svg"
                                         ? "${DateTime.now().year - 2013}+"
                                         : slide.stats[i].value,
                                     slide.stats[i].label,
-                                    animated:
-                                        slide.stats[i].icon ==
-                                        "icons/device2.svg",
+                                    // animated:
+                                    //     slide.stats[i].icon ==
+                                    //     "icons/device2.svg",
                                   ),
                                 ],
                               ],
