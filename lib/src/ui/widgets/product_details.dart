@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
@@ -135,6 +136,131 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     _videoController?.dispose();
     super.dispose();
   }
+  //static
+  // Widget _buildSpecsSlide(String productImage) {
+  //   // ====== CONTROLS ======
+  //   const double imagePadding = 108; // padding around the product image
+  //   const double badgeWidth = 110;
+  //   const double badgeHeight = 70;
+  //   const double badgeGap = 9;
+  //   const double badgeRightOffset =
+  //       120; // distance of badges from the right edge (bigger = more left)
+  //   const double badgeVerticalAlign = 0; // -1 = top, 0 = center, 1 = bottom
+
+  //   return Stack(
+  //     children: [
+  //       // Product image — always fills the full slide, untouched by badges
+  //       Padding(
+  //         padding: const EdgeInsets.all(imagePadding),
+  //         child: Image.asset(productImage, fit: BoxFit.contain),
+  //       ),
+
+  //       // Badge column — floats independently, positioned from the right
+  //       Positioned(
+  //         right: badgeRightOffset,
+  //         top: 0,
+  //         bottom: 0,
+  //         child: Align(
+  //           alignment: Alignment(0, badgeVerticalAlign),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               for (int i = 0; i < product.specBadges.length; i++)
+  //                 Padding(
+  //                   padding: EdgeInsets.only(top: i == 0 ? 0 : badgeGap),
+  //                   child: SizedBox(
+  //                     width: badgeWidth,
+  //                     height: badgeHeight,
+  //                     child: Image.asset(
+  //                       product.specBadges[i],
+  //                       fit: BoxFit.contain,
+  //                     ),
+  //                   ),
+  //                 ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+  Widget _buildSpecsSlide(String productImage) {
+    final SpecsSlideStyle s = product.specsStyle;
+
+    return Stack(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(s.imagePadding),
+          child: Image.asset(productImage, fit: BoxFit.contain),
+        ),
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment(1, s.badgeVerticalAlign),
+            child: Padding(
+              padding: EdgeInsets.only(right: s.badgeRightOffset),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (int i = 0; i < product.specBadges.length; i++)
+                    Padding(
+                      padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
+                      child: SizedBox(
+                        width: s.badgeWidth,
+                        height: s.badgeHeight,
+                        child: Image.asset(
+                          product.specBadges[i],
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  // Widget _buildSpecsSlide(String productImage) {
+  //   final layout = product.specsLayout;
+
+  //   return Stack(
+  //     children: [
+  //       // Product image
+  //       Padding(
+  //         padding: EdgeInsets.all(layout.imagePadding),
+  //         child: Image.asset(productImage, fit: BoxFit.contain),
+  //       ),
+
+  //       // Badge column
+  //       Positioned(
+  //         right: layout.badgeRightOffset,
+  //         top: 0,
+  //         bottom: 0,
+  //         child: Align(
+  //           alignment: Alignment(0, layout.badgeVerticalAlign),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               for (int i = 0; i < product.specBadges.length; i++)
+  //                 Padding(
+  //                   padding: EdgeInsets.only(top: i == 0 ? 0 : layout.badgeGap),
+  //                   child: SizedBox(
+  //                     width: layout.badgeWidth,
+  //                     height: layout.badgeHeight,
+  //                     child: Image.asset(
+  //                       product.specBadges[i],
+  //                       fit: BoxFit.contain,
+  //                     ),
+  //                   ),
+  //                 ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -374,47 +500,54 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
 
                 Positioned.fill(
-                  child: Padding(
-                    padding: const EdgeInsets.all(88), //padding
+                  // child: Padding(
+                  //   padding: const EdgeInsets.all(88), //padding
+                  child: PageView.builder(
+                    controller: _imagePageController,
 
-                    child: PageView.builder(
-                      controller: _imagePageController,
+                    itemCount: _carouselItemCount,
 
-                      itemCount: _carouselItemCount,
+                    onPageChanged: (index) {
+                      if (!mounted) return;
 
-                      onPageChanged: (index) {
-                        if (!mounted) return;
+                      setState(() {
+                        _currentImageIndex = index;
+                      });
+                    },
 
-                        setState(() {
-                          _currentImageIndex = index;
-                        });
-                      },
-
-                      itemBuilder: (context, index) {
-                        if (index >= _productImages.length && _hasVideo) {
-                          return _buildVideoSlide();
-                        }
-                        return Image.asset(
+                    itemBuilder: (context, index) {
+                      if (index >= _productImages.length && _hasVideo) {
+                        return Padding(
+                          padding: const EdgeInsets.all(88),
+                          child: _buildVideoSlide(),
+                        );
+                      }
+                      // Specs slide: NO outer padding here.
+                      // Padding for the product image is applied
+                      // INSIDE _buildSpecsSlide, only around the image.
+                      if (index == 0 && product.specBadges.isNotEmpty) {
+                        return _buildSpecsSlide(_productImages[0]);
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.all(88),
+                        child: Image.asset(
                           _productImages[index],
-
                           fit: BoxFit.contain,
-
                           errorBuilder: (context, error, stackTrace) {
                             return Center(
                               child: Icon(
                                 Icons.image_not_supported_outlined,
-
                                 size: 48,
-
                                 color: tBlack.withOpacity(0.20),
                               ),
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
+                // ),
                 //  Positioned.fill(
                 //             // child: Padding(
                 //             //   padding: const EdgeInsets.all(28),
@@ -1321,6 +1454,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
               onTap: () {
                 // CONTACT ACTION
+                showGetInTouchDialog(context);
               },
 
               child: Container(
@@ -1343,7 +1477,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       'Talk to Our Team',
 
                       style: GoogleFonts.manrope(
-                        fontSize: 10.5,
+                        fontSize: 11.5,
 
                         fontWeight: FontWeight.w800,
 

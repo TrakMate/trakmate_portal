@@ -93,15 +93,21 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   final List<ProductData> _products = const [
     ProductData(
       image: 'images/tmd104b.png',
-      image1: 'images/tmd104_specs.png',
-      image2: 'images/tmd104(a).png',
+      image1: 'images/tmd104b.png',
+      image2: 'images/tmd104b.png',
       image3: 'images/tmd024-top-view.png',
       // image4: 'images/tmd024-bottom-view.png',
-      image4: 'images/tmd024_isometric1.png',
+      image4: 'images/tmd024_isometric3.png',
       // image5: 'images/tmd024_isometric2.png',
       image5: 'images/tmd024-vertical-view.png',
       image6: 'images/tmd024-part.png',
+      specBadges: ['images/4g1.png', 'images/ev1.png'],
 
+      specsStyle: SpecsSlideStyle(
+        imagePadding: 108,
+        badgeWidth: 120,
+        badgeRightOffset: 120,
+      ),
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -124,20 +130,24 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd104b.png',
-      image1: 'images/tmd004-24_specs.png',
-      image2: 'images/tmd104(a).png',
+      image1: 'images/tmd104b.png',
+      image2: 'images/tmd104b.png',
       image3: 'images/tmd024-bottom-view.png',
       // image4: 'images/tmd024-vertical-view.png',
-      image4: 'images/tmd024_isometric1.png',
-      image5: 'images/tmd024_isometric2.png',
+      image4: 'images/tmd024_isometric3.png',
+      // image5: 'images/tmd024_isometric2.png',
       image6: 'images/tmd024-part.png',
-
+      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
+      specsStyle: SpecsSlideStyle(
+        imagePadding: 108,
+        badgeWidth: 120,
+        badgeRightOffset: 120,
+      ),
       // image7: 'images/tmd024-top-view.png',
       badge: '4G',
       badgeColor: tBlue3,
       // No 2G badge because TMD004 is 4G only.
       secondBadgeColor: tOrange1,
-
       title: 'TMD004',
       subtitle: 'Advanced GPS Tracker',
       category: 'Trackers',
@@ -159,13 +169,19 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd104b.png',
-      image1: 'images/tmd004-024_specs.png',
-      image2: 'images/tmd104(a).png',
+      image1: 'images/tmd104b.png',
+      image2: 'images/tmd104b.png',
       image3: 'images/tmd024-bottom-view.png',
       // image4: 'images/tmd024-vertical-view.png',
-      image4: 'images/tmd024_isometric1.png',
-      image5: 'images/tmd024_isometric2.png',
+      image4: 'images/tmd024_isometric3.png',
+      // image5: 'images/tmd024_isometric2.png',
       image7: 'images/tmd024-part.png',
+      specsStyle: SpecsSlideStyle(
+        imagePadding: 108,
+        badgeWidth: 120,
+        badgeRightOffset: 120,
+      ),
+      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -188,10 +204,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd006_isometric.png',
-      image1: 'images/tmd006_specs1.png',
-      image2: 'images/tmd006-back.png',
-      image3: 'images/tmd006-side.png',
-      image4: 'images/tmd006-bottom.png',
+      image1: 'images/tmd006_isometric.png',
+      image2: 'images/tmd006_isometric.png',
+      image3: 'images/tmd006-back.png',
+      image4: 'images/tmd006-side.png',
+      image5: 'images/tmd006-bottom.png',
+      // specBadges: ['images/4g1.png'],
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -217,8 +235,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     ProductData(
       image: 'images/tmb024.png',
-      image1: 'images/tmb024_specs1.png',
+      image1: 'images/tmb024.png',
       image2: 'images/tmb024.png',
+      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
       badge: 'new',
       badgeColor: newbadge,
       title: 'TMB024',
@@ -241,8 +260,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ProductData(
       image: 'images/tmd400.png',
 
-      image1: 'images/tmd400_specs.png',
+      image1: 'images/tmd400.png',
       image2: 'images/tmd400.png',
+      // specBadges: ['images/ble1.png'],
       badge: "OBD-II",
       badgeColor: ipbadge,
       // secondBadge: 'new',
@@ -288,11 +308,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     ProductData(
       image: 'images/tmd364-side1.png',
-      image1: 'images/tmd364_specs1.png',
+      image1: 'images/tmd364-side1.png',
       image2: 'images/tmd364-side1.png',
       image3: 'images/tmd364-top1.png',
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
+      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
       // image5: 'images/tmd364-side1.png',
       video: 'video/tmd364_demo.mp4',
 
@@ -318,11 +339,17 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd364-side1.png',
-      image1: 'images/tcu510_specs1.png',
+      image1: 'images/tmd364-side1.png',
       image2: 'images/tmd364-side1.png',
       image3: 'images/tmd364-top1.png',
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
+      specBadges: [
+        'images/4g1.png',
+        'images/ev1.png',
+        'images/ble1.png',
+        'images/linux1.png',
+      ],
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -345,12 +372,18 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd364-side1.png',
-      image1: 'images/tcu520_specs.png',
+      image1: 'images/tmd364-side1.png',
       image2: 'images/tmd364-side1.png',
       image3: 'images/tmd364-top1.png',
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
-
+      specBadges: [
+        'images/4g1.png',
+        'images/ev1.png',
+        'images/ble1.png',
+        'images/linux1.png',
+        'images/wifi1.png',
+      ],
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -373,11 +406,19 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tcu550-side2-view.png',
-      image1: 'images/tcu550_specs3.png',
-      image2: 'images/tcu550-side-view.png',
+      image1: 'images/tcu550-side2-view.png',
+      image2: 'images/tcu550-side2-view.png',
       image3: 'images/tcu1550.png',
       // image4: 'images/tcu550-side-view.png',
       image4: 'images/tcu550-part.png',
+      // specBadges: [
+      //   'images/4g1.png',
+      //   'images/ev1.png',
+      //   'images/ble1.png',
+      //   'images/wifi1.png',
+      //   'images/linux1.png',
+      //   'images/ethernet1.png',
+      // ],
       video: 'video/tcu550_demo.mp4',
       badge: '4G',
       badgeColor: tBlue3,
@@ -401,9 +442,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmdcstrr-5.png',
-      image1: 'images/tmdcstr-5_specs.png',
+      image1: 'images/tmdcstr-5.png',
       image2: 'images/tmdcstrr-5.png',
       image3: 'images/pigtail.jpg',
+      // specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
       badge: null,
       badgeColor: null,
       title: 'TMDCSTR-5',
@@ -424,13 +466,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmdcstrr-7.png',
-      image1: 'images/tmdcstr-7_specs.png',
+      image1: 'images/tmdcstr-7.png',
       image2: 'images/tmdcstrr-7.png',
       image3: 'images/tmdcstr-7-side.png',
       image4: 'images/tmdcstr-7-back.png',
       // image4: 'images/tmdcstr-7-top.png',
       image5: 'images/tmdcstr-7_specs.png',
-
+      // specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
       badge: null,
       badgeColor: null,
       title: 'TMDCSTR-7',
@@ -451,7 +493,16 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/a2.png',
-      image5: 'images/tmdcstr-7a_specs.png',
+      image1: 'images/a2.png',
+      image2: 'images/tmdcstr-7a_specs.png',
+      // specBadges: [
+      //   'images/4g1.png',
+      //   'images/ev1.png',
+      //   'images/ble1.png',
+      //   'images/android1.png',
+      //   'images/hd1.png',
+      //   'images/wifi1.png',
+      // ],
       badge: null,
       badgeColor: null,
       title: 'TMDCSTR-7A',
@@ -2381,6 +2432,25 @@ class _FilterTabData {
   const _FilterTabData({required this.icon, required this.label});
 }
 
+class SpecsSlideStyle {
+  final double imagePadding; // padding around the product image
+  final double badgeWidth;
+  final double badgeHeight;
+  final double badgeGap; // space between badges
+  final double
+  badgeRightOffset; // distance from right edge (bigger = more left)
+  final double badgeVerticalAlign; // -1 = top, 0 = center, 1 = bottom
+
+  const SpecsSlideStyle({
+    this.imagePadding = 108,
+    this.badgeWidth = 110,
+    this.badgeHeight = 70,
+    this.badgeGap = 9,
+    this.badgeRightOffset = 10,
+    this.badgeVerticalAlign = 0,
+  });
+}
+
 class ProductData {
   final String image;
   final String? image1;
@@ -2400,8 +2470,10 @@ class ProductData {
   final String? image5;
   final String? image6;
   final String? image7;
+  final List<String> specBadges;
   final String? video; // ADD THIS
-
+  // final SpecsSlideLayout specsStyle;
+  final SpecsSlideStyle specsStyle;
   // NEW: used by the attribute filter bar (Connectivity + Vehicle Type)
   final List<String> connectivity; // e.g. ['4G', '2G']
   final List<String> vehicleTypes; // e.g. ['2 Wheeler', '3 Wheeler', ...]
@@ -2431,8 +2503,29 @@ class ProductData {
     this.connectivity = const [],
     this.vehicleTypes = const [],
     required this.features,
+    this.specBadges = const [],
+    // this.specsLayout = const SpecsSlideLayout(),
+    this.specsStyle = const SpecsSlideStyle(),
   });
 }
+
+// class SpecsSlideLayout {
+//   final double imagePadding;
+//   final double badgeWidth;
+//   final double badgeHeight;
+//   final double badgeGap;
+//   final double badgeRightOffset;
+//   final double badgeVerticalAlign; // -1 = top, 0 = center, 1 = bottom
+
+//   const SpecsSlideLayout({
+//     this.imagePadding = 108,
+//     this.badgeWidth = 110,
+//     this.badgeHeight = 70,
+//     this.badgeGap = 9,
+//     this.badgeRightOffset = 30,
+//     this.badgeVerticalAlign = 0,
+//   });
+// }
 
 class ProductFeature {
   final IconData icon;

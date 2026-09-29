@@ -378,22 +378,29 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           isRequired: true,
         ),
-        if (_validationMessage != null) ...[
-          const SizedBox(height: 8),
+        const SizedBox(height: 8),
 
-          Align(
+        // Fixed-height slot: always reserves space so the button never shifts
+        SizedBox(
+          height: 18,
+          child: Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              _validationMessage!,
-              style: GoogleFonts.manrope(
-                fontSize: 12,
-                color: tRed1,
-                fontWeight: FontWeight.w500,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: _validationMessage != null ? 1.0 : 0.0,
+              child: Text(
+                _validationMessage ?? '',
+                style: GoogleFonts.manrope(
+                  fontSize: 12,
+                  color: tRed1,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
-        ],
-        const SizedBox(height: 20),
+        ),
+
+        const SizedBox(height: 12),
 
         // LOGIN BUTTON
         Align(
@@ -544,6 +551,11 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
             controller: controller,
 
             keyboardType: keyboardType,
+            onChanged: (_) {
+              if (_validationMessage != null) {
+                setState(() => _validationMessage = null);
+              }
+            },
 
             textAlignVertical: TextAlignVertical.center,
 
@@ -1540,9 +1552,7 @@ class _LoginDialogState extends State<_LoginDialog>
     );
   }
 
-  // =========================================================
   // PASSWORD FIELD
-  // =========================================================
 
   Widget _buildPasswordField() {
     return Column(

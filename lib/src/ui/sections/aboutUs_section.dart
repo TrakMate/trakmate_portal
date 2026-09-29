@@ -794,9 +794,9 @@ class _AboutusSectionState extends State<AboutusSection>
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'INFRASTRUCTURE',
+          'OUR STORY',
           style: GoogleFonts.manrope(
-            color: tBlue,
+            color: tOrange1,
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -809,8 +809,8 @@ class _AboutusSectionState extends State<AboutusSection>
           'Built for Engineering. Designed for Scale.',
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            color: tBlack,
-            fontSize: 27,
+            color: tBlue2,
+            fontSize: 25,
             fontWeight: FontWeight.w700,
             height: 1.05,
           ),
@@ -823,8 +823,8 @@ class _AboutusSectionState extends State<AboutusSection>
             Expanded(
               child: _buildInfrastructureBrick(
                 icon: 'icons/innovation.svg',
-                title: 'R&D & Innovation',
-                description: 'Ideas into solutions.',
+                title: 'Foundation & Vision',
+                description: 'Where our journey began.',
               ),
             ),
 
@@ -833,8 +833,8 @@ class _AboutusSectionState extends State<AboutusSection>
             Expanded(
               child: _buildInfrastructureBrick(
                 icon: 'icons/impact.svg',
-                title: 'Product Design',
-                description: 'Designed for real-world use.',
+                title: 'Innovation & Expansion',
+                description: 'Growing our capabilities through new ideas.',
               ),
             ),
           ],
@@ -846,8 +846,8 @@ class _AboutusSectionState extends State<AboutusSection>
           widthFactor: 0.78,
           child: _buildInfrastructureBrick(
             icon: 'icons/collaboration.svg',
-            title: 'Connected Infrastructure',
-            description: 'Hardware, software and systems working together.',
+            title: 'Connected Growth',
+            description: 'Building stronger solutions and partnerships.',
           ),
         ),
 
@@ -857,9 +857,9 @@ class _AboutusSectionState extends State<AboutusSection>
           children: [
             Expanded(
               child: _buildInfrastructureBrick(
-                icon: 'icons/integrity.svg',
-                title: 'Testing & Quality',
-                description: 'Validated for reliability.',
+                icon: 'icons/globe.svg',
+                title: 'Global Reach',
+                description: 'Expanding our presence across new markets.',
               ),
             ),
 
@@ -868,8 +868,8 @@ class _AboutusSectionState extends State<AboutusSection>
             Expanded(
               child: _buildInfrastructureBrick(
                 icon: 'icons/manufacture.svg',
-                title: 'Production',
-                description: 'Built for consistency and scale.',
+                title: 'Future & Evolution',
+                description: 'Continuously shaping what comes next.',
               ),
             ),
           ],
@@ -885,7 +885,7 @@ class _AboutusSectionState extends State<AboutusSection>
   }) {
     return Container(
       height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2.withOpacity(0.92), tBlue2.withOpacity(0.72)],
@@ -904,9 +904,10 @@ class _AboutusSectionState extends State<AboutusSection>
       ),
       child: Row(
         children: [
+          // LEFT ICON (unchanged)
           Container(
-            width: 42,
-            height: 42,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: tWhite.withOpacity(0.10),
               borderRadius: BorderRadius.circular(10),
@@ -914,8 +915,8 @@ class _AboutusSectionState extends State<AboutusSection>
             child: Center(
               child: SvgPicture.asset(
                 icon,
-                width: 23,
-                height: 23,
+                width: 33,
+                height: 33,
                 color: tOrange1,
               ),
             ),
@@ -923,6 +924,7 @@ class _AboutusSectionState extends State<AboutusSection>
 
           const SizedBox(width: 12),
 
+          // TEXT
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -953,6 +955,17 @@ class _AboutusSectionState extends State<AboutusSection>
                 ),
               ],
             ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // RIGHT ICON: same icon, light blue, big, no background
+          SvgPicture.asset(
+            icon,
+            width: 60,
+            height: 56,
+            fit: BoxFit.contain,
+            color: const Color(0xFF8DB8FF).withOpacity(0.3), // light blue
           ),
         ],
       ),
@@ -1125,15 +1138,15 @@ class _AboutusSectionState extends State<AboutusSection>
                   RichText(
                     text: TextSpan(
                       style: GoogleFonts.manrope(
-                        fontSize: 32,
+                        fontSize: 25,
                         fontWeight: FontWeight.w700,
-                        color: tBlack,
+                        color: tBlue2,
                       ),
                       children: [
                         const TextSpan(text: 'Stay Connected '),
                         TextSpan(
                           text: 'With TrakMate',
-                          style: TextStyle(color: tBlack),
+                          style: TextStyle(color: tBlue2),
                         ),
                       ],
                     ),
@@ -1145,7 +1158,7 @@ class _AboutusSectionState extends State<AboutusSection>
                     'The latest updates, milestones and stories from our engineering journey.',
                     style: GoogleFonts.manrope(
                       fontSize: 13,
-                      color: tBlue3.withOpacity(0.65),
+                      color: tBlack.withOpacity(0.75),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

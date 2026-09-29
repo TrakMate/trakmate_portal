@@ -673,7 +673,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         _buildClickableContactInfoItem(
           icon: 'icons/mail.svg',
           title: 'Email',
-          values: ['info@trakmate.co.in'],
+          values: ['pratheekshap837@gmail.com'],
           scheme: 'mailto',
         ),
         const SizedBox(height: 19),
@@ -899,9 +899,43 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
   }
 
+  // Opens the visitor's mail app / webmail with the form data pre-filled
+  // and addressed to the company mail.
+  Future<void> _sendMail() async {
+    final String subject = _subjectController.text.trim();
+    final String name = _nameController.text.trim();
+    final String phone = _phoneController.text.trim();
+    final String message = _messageController.text.trim();
+
+    // Mail subject: "Request for [Subject/Requirement]"
+    final String mailSubject = 'Request for $subject';
+
+    // Mail body in the professional format. The typed message is pasted
+    // where the request details go; the rest of the format stays default.
+    final String body =
+        'Hi TrakMate,\n\n'
+        // 'I hope you’re doing well.\n\n'
+        'I’m writing regarding $subject.\n\n'
+        '$message\n\n'
+        'Please let me know if you need any additional information from my side.\n\n'
+        'Thanks & Regards,\n'
+        '$name\n'
+        '${phone.isEmpty ? '' : '$phone\n'}';
+    // '[Company]';
+
+    final Uri mailUri = Uri.parse(
+      'mailto:pratheekshap837@gmail.com'
+      '?subject=${Uri.encodeComponent(mailSubject)}'
+      '&body=${Uri.encodeComponent(body)}',
+    );
+
+    // '_self' keeps your website in the same tab; mailto never navigates away.
+    await launchUrl(mailUri, webOnlyWindowName: '_self');
+  }
+
   Widget _buildSendMessagesButton() {
     return _AnimatedSendButton(
-      onPressed: () {
+      onPressed: () async {
         final bool hasError =
             _nameController.text.trim().isEmpty ||
             _emailController.text.trim().isEmpty ||
@@ -919,6 +953,9 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
           _messageError = null;
         });
 
+        await _sendMail();
+
+        if (!mounted) return;
         Navigator.of(context).pop();
       },
     );
