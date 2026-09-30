@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/widgets/all_news.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
+import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
@@ -17,20 +19,8 @@ class AboutusSection extends StatefulWidget {
   State<AboutusSection> createState() => _AboutusSectionState();
 }
 
-class _AboutusSectionState extends State<AboutusSection>
-    with SingleTickerProviderStateMixin {
-  bool _heroImageLoading = true; // NEW
-
-  final ScrollController _certScrollController = ScrollController();
-  late final Ticker _certTicker;
-
-  // Duration _certLastElapsed = Duration.zero;
-  // double _certScrollOffset = 0.0;
-
-  // static const double _certItemWidth = 200.0;
-  // static const double _certSeparatorWidth = 24.0;
-  // static const double _certScrollSpeed = 40.0; //scroll speed
-  // static const int _maxFrameDeltaMs = 100;
+class _AboutusSectionState extends State<AboutusSection> {
+  bool _heroImageLoading = true;
 
   final List<_CertData> _certs = const [
     _CertData(
@@ -76,21 +66,89 @@ class _AboutusSectionState extends State<AboutusSection>
       logoWidth: 42,
     ),
   ];
+  final List<NewsArticle> _news = [
+    NewsArticle(
+      category: 'Company News',
+      date: '25 Sep 2026',
+      publishedAt: DateTime(2026, 9, 25),
+      title:
+          'TrakMate Expands Its Engineering Capabilities with New Innovation Center',
+      summary:
+          'We are excited to announce the expansion of our engineering capabilities with a new state-of-the-art innovation center, strengthening our commitment to build smarter, connected products for a better tomorrow.',
+      image: 'images/engineering1.jpg',
+      author: 'TrakMate Communications',
+      readTime: '3 min read',
+      content: [
+        'Write paragraph 1 of the full article here.',
+        'Write paragraph 2 here.',
+        'Write paragraph 3 here.',
+      ],
+    ),
+
+    NewsArticle(
+      category: 'Engineering',
+      date: '18 Sep 2026',
+      publishedAt: DateTime(2026, 9, 18),
+      title: 'Advancing Embedded Systems for a Smarter Future',
+      summary:
+          'Exploring next-generation embedded solutions for connected mobility and IoT.',
+      image: 'images/pcb.jpg',
+      content: ['Full article paragraph 1...', 'Paragraph 2...'],
+    ),
+    NewsArticle(
+      category: 'Products',
+      date: '12 Sep 2026',
+      publishedAt: DateTime(2026, 9, 12),
+      title: 'New Generation Vehicle Tracker Launched',
+      summary:
+          'Our latest vehicle tracking solution delivers higher accuracy, advanced safety features.',
+      image: 'images/company.png',
+      content: ['Full article paragraph 1...', 'Paragraph 2...'],
+    ),
+    NewsArticle(
+      category: 'Company News',
+      date: '05 Sep 2026',
+      publishedAt: DateTime(2026, 9, 5),
+      title: 'TrakMate Strengthens R&D with New Talent',
+      summary:
+          'We are growing our engineering team to accelerate innovation in IoT, connected products.',
+      image: 'images/company.png',
+      content: ['Full article paragraph 1...', 'Paragraph 2...'],
+    ),
+    NewsArticle(
+      category: 'Events',
+      date: '28 Aug 2026',
+      publishedAt: DateTime(2026, 8, 28),
+      title: 'TrakMate at Auto Expo 2026',
+      summary:
+          'Showcasing our latest innovations in connected mobility, intelligent vehicle solutions.',
+      image: 'images/company.png',
+      content: [
+        'We deliver innovative technology solutions designed to meet evolving business needs.'
+            'Our approach combines engineering expertise, smart technology, and reliable processes.'
+            'We focus on building scalable, efficient, and high-quality solutions for our customers.'
+            'With a commitment to excellence, we turn ideas into practical, connected products.',
+        'Paragraph 2...',
+      ],
+    ),
+  ];
+  List<NewsArticle> get _sortedNews {
+    final list = [..._news];
+    list.sort((a, b) => b.publishedAt.compareTo(a.publishedAt)); // newest first
+    return list;
+  }
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
-      // _startCertAutoScroll();
     });
   }
 
   Future<void> _preloadHeroImage() async {
     try {
       await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      // await Future.delayed(const Duration(seconds: 3)); //  testing only
     } catch (e) {
       debugPrint('Error preloading solutions hero image: $e');
     }
@@ -102,128 +160,49 @@ class _AboutusSectionState extends State<AboutusSection>
   }
 
   @override
-  void dispose() {
-    _certTicker.dispose();
-    _certScrollController.dispose();
-
-    super.dispose();
-  }
-
-  // void _startCertAutoScroll() {
-  //   final singleSetWidth =
-  //       _certs.length * (_certItemWidth + _certSeparatorWidth);
-
-  //   _certTicker = createTicker((elapsed) {
-  //     if (!_certScrollController.hasClients) return;
-
-  //     final deltaMs = (elapsed - _certLastElapsed).inMilliseconds.clamp(
-  //       0,
-  //       _maxFrameDeltaMs,
-  //     );
-
-  //     _certLastElapsed = elapsed;
-
-  //     _certScrollOffset += _certScrollSpeed * deltaMs / 1000;
-
-  //     if (_certScrollOffset >= singleSetWidth) {
-  //       _certScrollOffset -= singleSetWidth;
-  //     }
-
-  //     _certScrollController.jumpTo(_certScrollOffset);
-  //   })..start();
-  // }
-
-  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // _buildAboutUsHeader(),
-          _heroImageLoading
-              ? const HeroHeaderShimmer() // NEW
-              : _buildAboutUsHeader(),
-          SizedBox(height: 25),
+          // 1st: HERO
+          _heroImageLoading ? const HeroHeaderShimmer() : _buildAboutUsHeader(),
+          const SizedBox(height: 25),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: tBlue1.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: buildMissionVisionCard(
-                      icon: 'icons/impact.svg',
-                      title: 'Our Mission',
-                      description:
-                          'To deliver innovative and reliable engineering solutions that empower businesses and improve lives through technology and excellence.',
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 30),
-                    width: 3,
-                    height: 100,
-                    color: tOrange1,
-                  ),
-                  const SizedBox(height: 30),
-
-                  Expanded(
-                    child: buildMissionVisionCard(
-                      icon: 'icons/vision.svg',
-                      title: 'Our Vision',
-                      description:
-                          'To become a global leader in engineering innovation, driving sustainable growth and creating lasting value for our customers.',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SizedBox(height: 25),
-
-          SizedBox(height: 25),
-
+          // 2nd: OUR JOURNEY (right after hero, full width)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            child: _buildStoryTimelineSection(),
+          ),
+          const SizedBox(height: 25),
+
+          // 3rd: MISSION + VISION (stacked, left)  |  OUR STORY (right half)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(flex: 5, child: _infrastructureBrickLayout()),
-
-                const SizedBox(width: 40),
-
-                Expanded(flex: 3, child: _timeline()),
+                Expanded(flex: 3, child: _buildMissionVisionColumn()),
+                const SizedBox(width: 30),
+                Expanded(flex: 8, child: _infrastructureBrickLayout()),
               ],
             ),
           ),
-
-          SizedBox(height: 25),
+          const SizedBox(height: 25),
 
           _ourTeamSection(),
-
-          SizedBox(height: 25),
+          const SizedBox(height: 25),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: _buildInfrastructureSection(),
           ),
-
-          SizedBox(height: 35),
+          const SizedBox(height: 35),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: _buildNewsMediaSection(),
           ),
-
           const SizedBox(height: 40),
 
           Padding(
@@ -282,15 +261,49 @@ class _AboutusSectionState extends State<AboutusSection>
               ),
             ),
           ),
-
           const SizedBox(height: 40),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: _buildCertificationsSection(),
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           FooterSection(onNavigate: widget.onNavigate),
+        ],
+      ),
+    );
+  }
+
+  // Mission on top, Vision under it, same tinted container style
+  Widget _buildMissionVisionColumn() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: tBlue1.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildMissionVisionCard(
+            icon: 'icons/impact.svg',
+            title: 'Our Mission',
+            description:
+                'To deliver innovative and reliable engineering solutions that empower businesses and improve lives through technology and excellence.',
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 22),
+            width: 100,
+            height: 3,
+            color: tOrange1,
+          ),
+          buildMissionVisionCard(
+            icon: 'icons/vision.svg',
+            title: 'Our Vision',
+            description:
+                'To become a global leader in engineering innovation, driving sustainable growth and creating lasting value for our customers.',
+          ),
         ],
       ),
     );
@@ -818,6 +831,7 @@ class _AboutusSectionState extends State<AboutusSection>
 
         const SizedBox(height: 18),
 
+        // ROW 1 - 2 cards
         Row(
           children: [
             Expanded(
@@ -842,17 +856,27 @@ class _AboutusSectionState extends State<AboutusSection>
 
         const SizedBox(height: 12),
 
-        FractionallySizedBox(
-          widthFactor: 0.78,
-          child: _buildInfrastructureBrick(
-            icon: 'icons/collaboration.svg',
-            title: 'Connected Growth',
-            description: 'Building stronger solutions and partnerships.',
-          ),
+        // ROW 2 - 1 card, centered, wider than the row-1 / row-3 cards
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final double cardW =
+                ((constraints.maxWidth - 12) / 2) *
+                1.4; // <-- change 1.4 to adjust the width
+            return Center(
+              child: SizedBox(
+                width: cardW,
+                child: _buildInfrastructureBrick(
+                  icon: 'icons/collaboration.svg',
+                  title: 'Connected Growth',
+                  description: 'Building stronger solutions and partnerships.',
+                ),
+              ),
+            );
+          },
         ),
-
         const SizedBox(height: 12),
 
+        // ROW 3 - 2 cards
         Row(
           children: [
             Expanded(
@@ -875,6 +899,349 @@ class _AboutusSectionState extends State<AboutusSection>
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildStoryTimelineSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'OUR JOURNEY',
+          style: GoogleFonts.manrope(
+            color: tOrange1,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
+
+        const SizedBox(height: 7),
+
+        Text(
+          'Milestones That Shaped Our Journey.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.manrope(
+            color: tBlue2,
+            fontSize: 25,
+            fontWeight: FontWeight.w700,
+            height: 1.05,
+          ),
+        ),
+
+        const SizedBox(height: 25),
+
+        SizedBox(
+          width: double.infinity,
+          height: 250,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double w = constraints.maxWidth;
+
+              // ---- layout constants (tweak these) ----
+              const double cardH = 104; // card height
+              const double pointerH = 10; // arrow height
+              const double nodeSize = 30; // timeline dot size
+              const double cardWidthFactor = 0.27; // card width (fraction)
+              const double stepFactor = 0.23; // distance between cards
+              const double startFactor = 0.02; // left offset of first card
+
+              // vertical center of the timeline line
+              const double lineY = cardH + pointerH + nodeSize / 2;
+
+              final items = [
+                (
+                  '2013',
+                  'The Beginning',
+                  'TrakMate was founded with a vision to innovate',
+                  'icons/innovation.svg',
+                ),
+                (
+                  '2016',
+                  'Expanding Solutions',
+                  'Launched IoT products and embedded solutions',
+                  'icons/manufacture.svg',
+                ),
+                (
+                  '2019',
+                  'Global Growth',
+                  'Expanded into international markets and built strong partnerships',
+                  'icons/globe.svg',
+                ),
+                (
+                  'Today',
+                  'Shaping the Future',
+                  'Continuously innovating to build a smarter, connected world',
+                  'icons/collaboration.svg',
+                ),
+              ];
+
+              final List<Widget> children = [
+                // timeline line
+                Positioned(
+                  left: 30,
+                  right: 30,
+                  top: lineY - 2.5,
+                  child: Container(
+                    height: 5,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [tWhite, tBlue1, tBlue, tBlue1, tWhite],
+                        stops: [0.0, 0.18, 0.50, 0.82, 1.0],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: tBlue.withOpacity(0.35),
+                          blurRadius: 12,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ];
+
+              // cards
+              for (int i = 0; i < items.length; i++) {
+                final bool isAbove = i.isEven;
+                final double left = w * (startFactor + stepFactor * i);
+                final item = items[i];
+
+                children.add(
+                  Positioned(
+                    left: left,
+                    width: w * cardWidthFactor,
+                    top: isAbove ? 0 : lineY + nodeSize / 2 + pointerH,
+                    child: _buildStoryTimelineCard(
+                      year: item.$1,
+                      title: item.$2,
+                      description: item.$3,
+                      icon: item.$4,
+                      isAbove: isAbove,
+                      cardHeight: cardH,
+                      pointerHeight: pointerH,
+                    ),
+                  ),
+                );
+              }
+
+              // nodes (drawn last, centered under/over each card's arrow)
+              for (int i = 0; i < items.length; i++) {
+                final double centerX =
+                    w * (startFactor + stepFactor * i + cardWidthFactor / 2);
+                children.add(
+                  Positioned(
+                    left: centerX - nodeSize / 2,
+                    top: lineY - nodeSize / 2,
+                    child: _buildStoryTimelineNode(size: nodeSize),
+                  ),
+                );
+              }
+
+              return Stack(clipBehavior: Clip.none, children: children);
+            },
+          ),
+        ),
+
+        const SizedBox(height: 5),
+      ],
+    );
+  }
+
+  Widget _buildStoryTimelineCard({
+    required String year,
+    required String title,
+    required String description,
+    required String icon,
+    required bool isAbove,
+    required double cardHeight,
+    required double pointerHeight,
+  }) {
+    const Color cardColor = Color(0xFFF8FBFF);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          height: cardHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: const Color(0xFFB9D9FF).withOpacity(0.65),
+              width: 1.4,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF66AFFF).withOpacity(0.18),
+                blurRadius: 20,
+                spreadRadius: 1,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: const Color(0xFF4C9AFF).withOpacity(0.10),
+                blurRadius: 10,
+                spreadRadius: 1,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const RadialGradient(
+                    colors: [
+                      Color(0xFFFFFFFF),
+                      Color(0xFFF1F7FF),
+                      Color(0xFFE6F1FF),
+                    ],
+                    stops: [0.0, 0.65, 1.0],
+                  ),
+                  border: Border.all(
+                    color: const Color(0xFFD4E9FF),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF5B9CFF).withOpacity(0.16),
+                      blurRadius: 15,
+                      spreadRadius: 3,
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.9),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Container(
+                  margin: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFFF7FBFF),
+                    border: Border.all(
+                      color: const Color(0xFFE0EEFF),
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      icon,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.contain,
+                      color: const Color(0xFF2474EA),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 13),
+
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        year,
+                        style: GoogleFonts.manrope(
+                          color: const Color(0xFF1263E8),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          height: 1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.manrope(
+                          color: const Color(0xFF10284E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.manrope(
+                          color: const Color(0xFF617797),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Arrow: overlaps the card border by 1.5px so it merges with the card
+        Positioned(
+          left: 0,
+          right: 0,
+          top: isAbove ? null : -(pointerHeight - 1.5),
+          bottom: isAbove ? -(pointerHeight - 1.5) : null,
+          child: Center(
+            child: CustomPaint(
+              size: Size(30, pointerHeight),
+              painter: _StoryTimelinePointerPainter(
+                isAbove: isAbove,
+                fillColor: cardColor,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStoryTimelineNode({double size = 34}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFFF7FBFF),
+        border: Border.all(color: const Color(0xFFA8CFFF), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3C8DFF).withOpacity(0.25),
+            blurRadius: 14,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Container(
+          width: size - 12,
+          height: size - 12,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [Color(0xFF3488FF), Color(0xFF1263E8)],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -904,7 +1271,7 @@ class _AboutusSectionState extends State<AboutusSection>
       ),
       child: Row(
         children: [
-          // LEFT ICON (unchanged)
+          // LEFT ICON
           Container(
             width: 52,
             height: 52,
@@ -1115,6 +1482,9 @@ class _AboutusSectionState extends State<AboutusSection>
   }
 
   Widget _buildNewsMediaSection() {
+    final news = _sortedNews;
+    final latest = news[0];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -1128,60 +1498,28 @@ class _AboutusSectionState extends State<AboutusSection>
           ),
         ),
         const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w700,
-                        color: tBlue2,
-                      ),
-                      children: [
-                        const TextSpan(text: 'Stay Connected '),
-                        TextSpan(
-                          text: 'With TrakMate',
-                          style: TextStyle(color: tBlue2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // const SizedBox(height: 10),
-                  // Container(width: 60, height: 3, color: tOrange1),
-                  const SizedBox(height: 6),
-                  Text(
-                    'The latest updates, milestones and stories from our engineering journey.',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tBlack.withOpacity(0.75),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+        RichText(
+          text: TextSpan(
+            style: GoogleFonts.manrope(
+              fontSize: 25,
+              fontWeight: FontWeight.w700,
+              color: tBlue2,
             ),
-            const SizedBox(width: 25),
-            // Row(
-            //   children: [
-            //     _buildNewsFilter('All', active: true),
-            //     const SizedBox(width: 10),
-            //     _buildNewsFilter('Company News'),
-            //     const SizedBox(width: 10),
-            //     _buildNewsFilter('Products'),
-            //     const SizedBox(width: 10),
-            //     _buildNewsFilter('Engineering'),
-            //     const SizedBox(width: 10),
-            //     _buildNewsFilter('Events'),
-            //   ],
-            // ),
-          ],
+            children: const [TextSpan(text: 'Stay Connected With TrakMate')],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'The latest updates, milestones and stories from our engineering journey.',
+          style: GoogleFonts.manrope(
+            fontSize: 13,
+            color: tBlack.withOpacity(0.75),
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 25),
+
+        // ---------- LATEST BANNER ----------
         SizedBox(
           width: double.infinity,
           height: 330,
@@ -1196,7 +1534,7 @@ class _AboutusSectionState extends State<AboutusSection>
               children: [
                 Expanded(
                   flex: 11,
-                  child: Image.asset('images/company.png', fit: BoxFit.cover),
+                  child: Image.asset(latest.image, fit: BoxFit.cover),
                 ),
                 Expanded(
                   flex: 9,
@@ -1246,7 +1584,7 @@ class _AboutusSectionState extends State<AboutusSection>
                         Row(
                           children: [
                             Text(
-                              'Company News',
+                              latest.category,
                               style: GoogleFonts.manrope(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -1261,7 +1599,7 @@ class _AboutusSectionState extends State<AboutusSection>
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              '25 Sep 2026',
+                              latest.date,
                               style: GoogleFonts.manrope(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -1272,7 +1610,9 @@ class _AboutusSectionState extends State<AboutusSection>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'TrakMate Expands Its Engineering\nCapabilities with New Innovation Center',
+                          latest.title,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.manrope(
                             fontSize: 24,
                             height: 1.15,
@@ -1282,7 +1622,9 @@ class _AboutusSectionState extends State<AboutusSection>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'We are excited to announce the expansion of our engineering capabilities with a new state-of-the-art innovation center, strengthening our commitment to build smarter, connected products for a better tomorrow.',
+                          latest.summary,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.manrope(
                             fontSize: 12,
                             height: 1.5,
@@ -1291,7 +1633,11 @@ class _AboutusSectionState extends State<AboutusSection>
                           ),
                         ),
                         const SizedBox(height: 20),
-                        _buildNewsOrangeButton('Read Story'),
+                        _buildNewsOrangeButton(
+                          'Read Story',
+                          onPressed:
+                              () => showNewsArticleDialog(context, latest),
+                        ),
                       ],
                     ),
                   ),
@@ -1301,55 +1647,27 @@ class _AboutusSectionState extends State<AboutusSection>
           ),
         ),
         const SizedBox(height: 25),
+
+        // ---------- 4 NEWS CARDS ----------
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: _buildNewsCard(
-                category: 'Engineering',
-                date: '18 Sep 2026',
-                title: 'Advancing Embedded\nSystems for a Smarter Future',
-                description:
-                    'Exploring next-generation embedded solutions for connected mobility and IoT.',
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: _buildNewsCard(
-                category: 'Products',
-                date: '12 Sep 2026',
-                title: 'New Generation Vehicle\nTracker Launched',
-                description:
-                    'Our latest vehicle tracking solution delivers higher accuracy, advanced safety features.',
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: _buildNewsCard(
-                category: 'Company News',
-                date: '05 Sep 2026',
-                title: 'TrakMate Strengthens R&D\nwith New Talent',
-                description:
-                    'We are growing our engineering team to accelerate innovation in IoT, connected products.',
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: _buildNewsCard(
-                category: 'Events',
-                date: '28 Aug 2026',
-                title: 'TrakMate at Auto Expo 2026',
-                description:
-                    'Showcasing our latest innovations in connected mobility, intelligent vehicle solutions.',
-              ),
-            ),
+            for (int i = 1; i < news.length; i++) ...[
+              Expanded(child: NewsCard(article: news[i])),
+              if (i != news.length - 1) const SizedBox(width: 20),
+            ],
           ],
         ),
         const SizedBox(height: 15),
         Align(
           alignment: Alignment.centerRight,
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => AllNewsPage(articles: news)),
+              );
+            },
             style: OutlinedButton.styleFrom(
               foregroundColor: tOrange1,
               side: BorderSide(color: tOrange1),
@@ -1379,28 +1697,12 @@ class _AboutusSectionState extends State<AboutusSection>
     );
   }
 
-  Widget _buildNewsFilter(String label, {bool active = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-      decoration: BoxDecoration(
-        color: active ? tBlue3 : tWhite,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: active ? tBlue3 : tBlue.withOpacity(0.35)),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.manrope(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: active ? tWhite : tBlue3,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNewsOrangeButton(String label) {
+  Widget _buildNewsOrangeButton(
+    String label, {
+    required VoidCallback onPressed,
+  }) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: tOrange1,
         foregroundColor: tWhite,
@@ -1425,7 +1727,7 @@ class _AboutusSectionState extends State<AboutusSection>
       ),
     );
   }
-
+  
   Widget _buildNewsCard({
     required String category,
     required String date,
@@ -1635,7 +1937,6 @@ class _AboutusSectionState extends State<AboutusSection>
           ),
         ),
 
-        // const SizedBox(height: 2),
         if (cert.code.isNotEmpty) ...[
           Text(
             cert.code,
@@ -1646,7 +1947,6 @@ class _AboutusSectionState extends State<AboutusSection>
               fontWeight: FontWeight.w700,
             ),
           ),
-          // const SizedBox(height: 2),
         ],
 
         Text(
@@ -1663,15 +1963,6 @@ class _AboutusSectionState extends State<AboutusSection>
       ],
     );
   }
-
-  // Widget _certDivider() {
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 15),
-  //     width: 1,
-  //     height: 70,
-  //     color: tBlack1.withOpacity(0.1),
-  //   );
-  // }
 
   Widget _buildInfrastructureSection() {
     return Row(
@@ -1857,6 +2148,62 @@ class _AboutusSectionState extends State<AboutusSection>
       ),
     );
   }
+}
+
+class _StoryTimelinePointerPainter extends CustomPainter {
+  final bool isAbove;
+  final Color fillColor;
+
+  _StoryTimelinePointerPainter({
+    required this.isAbove,
+    this.fillColor = const Color(0xFFF8FBFF),
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint fillPaint = Paint()..color = fillColor;
+
+    final Paint borderPaint =
+        Paint()
+          ..color = const Color(0xFF8FC0FF)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..strokeJoin = StrokeJoin.round;
+
+    final Path fill = Path();
+    final Path edge = Path();
+
+    if (isAbove) {
+      // card is above -> arrow points DOWN
+      fill
+        ..moveTo(0, 0)
+        ..lineTo(size.width, 0)
+        ..lineTo(size.width / 2, size.height)
+        ..close();
+      edge
+        ..moveTo(0, 0)
+        ..lineTo(size.width / 2, size.height)
+        ..lineTo(size.width, 0);
+    } else {
+      // card is below -> arrow points UP
+      fill
+        ..moveTo(0, size.height)
+        ..lineTo(size.width, size.height)
+        ..lineTo(size.width / 2, 0)
+        ..close();
+      edge
+        ..moveTo(0, size.height)
+        ..lineTo(size.width / 2, 0)
+        ..lineTo(size.width, size.height);
+    }
+
+    canvas.drawPath(fill, fillPaint);
+    canvas.drawPath(edge, borderPaint); // only the two slanted sides
+  }
+
+  @override
+  bool shouldRepaint(covariant _StoryTimelinePointerPainter old) =>
+      old.isAbove != isAbove || old.fillColor != fillColor;
 }
 
 class _CertData {

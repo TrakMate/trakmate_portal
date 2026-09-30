@@ -132,7 +132,7 @@ class _MainPageState extends State<MainPage> {
     NavDropdownItem(
       label: 'Contact Us',
       icon: 'icons/call.svg',
-      onTap: () => _navigateToSection(4),
+      onTap: () => showGetInTouchDialog(context),
     ),
   ];
 
@@ -850,21 +850,24 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         _buildMessageField(onChanged: _clearMessageError),
 
-        if (_messageError != null) ...[
-          const SizedBox(height: 6),
-
-          Align(
+        // Fixed slot: always takes the same height, so the button never moves.
+        SizedBox(
+          height: 28,
+          child: Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              _messageError!,
-              style: GoogleFonts.manrope(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: Colors.red,
-              ),
-            ),
+            child:
+                _messageError == null
+                    ? null
+                    : Text(
+                      _messageError!,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red,
+                      ),
+                    ),
           ),
-        ],
+        ),
 
         const SizedBox(height: 24),
 
@@ -1752,7 +1755,6 @@ class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
             children: [
               Text(
                 'SEND MESSAGE',
-
                 style: GoogleFonts.manrope(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,

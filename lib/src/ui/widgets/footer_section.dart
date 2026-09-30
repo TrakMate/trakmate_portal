@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 
@@ -104,15 +106,21 @@ class FooterSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
 
-                    _contact("icons/mail.svg", "info@trakmate.co.in"),
+                    // _contact("icons/mail.svg", "info@trakmate.co.in"),
+                    _contactLinks("icons/mail.svg", [
+                      "info@trakmate.co.in",
+                    ], 'mailto'),
 
                     const SizedBox(height: 10),
 
-                    _contact(
-                      "icons/call.svg",
-                      "+91 80 41532112\n+91 99 00450640",
-                    ),
-
+                    // _contact(
+                    //   "icons/call.svg",
+                    //   "+91 80 41532112\n+91 99 00450640",
+                    // ),
+                    _contactLinks("icons/call.svg", [
+                      "+91 80 41532112",
+                      "+91 99 00450640",
+                    ], 'tel'),
                     const SizedBox(height: 10),
 
                     _contact(
@@ -274,21 +282,28 @@ class FooterSection extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 10),
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  if (sectionIndex != null) {
-                    SectionScrollBus.instance.request(e);
-                    onNavigate?.call(sectionIndex);
-                  }
-                },
-                child: Text(
-                  e,
-                  style: GoogleFonts.manrope(
-                    color: tWhite.withOpacity(0.8),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+              child: Builder(
+                builder:
+                    (context) => GestureDetector(
+                      onTap: () {
+                        if (e == "Contact Us") {
+                          showGetInTouchDialog(context);
+                          return;
+                        }
+                        if (sectionIndex != null) {
+                          SectionScrollBus.instance.request(e);
+                          onNavigate?.call(sectionIndex);
+                        }
+                      },
+                      child: Text(
+                        e,
+                        style: GoogleFonts.manrope(
+                          color: tWhite.withOpacity(0.8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
               ),
             ),
           ),
@@ -342,12 +357,115 @@ class FooterSection extends StatelessWidget {
     );
   }
 
+  Future<void> _openContact(String value, String scheme) async {
+    final Uri uri =
+        scheme == 'tel'
+            ? Uri(scheme: 'tel', path: value.replaceAll(' ', ''))
+            : Uri(scheme: 'mailto', path: value);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _contactLinks(String iconPath, List<String> values, String scheme) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SvgPicture.asset(
+          iconPath,
+          width: 16,
+          height: 16,
+          color: tWhite.withOpacity(0.7),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final value in values)
+                _FooterLink(
+                  text: value,
+                  onTap: () => _openContact(value, scheme),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _divider() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
       width: 1,
       height: 200,
       color: tWhite.withOpacity(0.05),
+    );
+  }
+}
+
+// class _FooterLink extends StatefulWidget {
+//   final String text;
+//   final VoidCallback onTap;
+
+//   const _FooterLink({required this.text, required this.onTap});
+
+//   @override
+//   State<_FooterLink> createState() => _FooterLinkState();
+// }
+
+// class _FooterLinkState extends State<_FooterLink> {
+//   bool _hovered = false;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 1.5),
+//       child: MouseRegion(
+//         cursor: SystemMouseCursors.click,
+//         onEnter: (_) => setState(() => _hovered = true),
+//         onExit: (_) => setState(() => _hovered = false),
+//         child: GestureDetector(
+//           onTap: widget.onTap,
+//           child: Text(
+//             widget.text,
+//             style: GoogleFonts.manrope(
+//               fontSize: 13,
+//               color: _hovered ? tWhite : tWhite.withOpacity(0.7),
+//               decoration:
+//                   _hovered ? TextDecoration.underline : TextDecoration.none,
+//               decorationColor: tWhite,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+class _FooterLink extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
+
+  const _FooterLink({required this.text, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1.5),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Text(
+            text,
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tWhite.withOpacity(0.7),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

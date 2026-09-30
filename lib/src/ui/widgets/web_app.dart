@@ -300,16 +300,14 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           hint: 'John Doe',
 
-          icon: Icons.person_outline_rounded,
+          icon: 'icons/person2.svg',
 
           isRequired: true,
         ),
 
         const SizedBox(height: 18),
 
-        // =====================================================
         // COMPANY
-        // =====================================================
         _buildTextField(
           controller: _companyController,
 
@@ -317,7 +315,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           hint: 'Your company name',
 
-          icon: Icons.business_outlined,
+          icon: 'icons/career1.svg',
 
           // IMPORTANT:
           // Company is NOT required.
@@ -326,9 +324,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
         const SizedBox(height: 18),
 
-        // =====================================================
         // CITY
-        // =====================================================
         _buildTextField(
           controller: _cityController,
 
@@ -336,16 +332,15 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           hint: 'Your city',
 
-          icon: Icons.location_on_outlined,
+          icon: 'icons/location1.svg',
 
           isRequired: true,
         ),
 
         const SizedBox(height: 18),
 
-        // =====================================================
         // EMAIL
-        // =====================================================
+        //
         _buildTextField(
           controller: _emailController,
 
@@ -353,7 +348,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           hint: 'you@example.com',
 
-          icon: Icons.email_outlined,
+          icon: 'icons/mail.svg',
 
           keyboardType: TextInputType.emailAddress,
 
@@ -362,9 +357,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
         const SizedBox(height: 18),
 
-        // =====================================================
         // PHONE
-        // =====================================================
         _buildTextField(
           controller: _phoneController,
 
@@ -372,7 +365,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
           hint: '+1 (555) 000-0000',
 
-          icon: Icons.phone_outlined,
+          icon: 'icons/phone.svg',
 
           keyboardType: TextInputType.phone,
 
@@ -495,7 +488,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
 
     required String hint,
 
-    required IconData icon,
+    required String icon,
 
     bool isRequired = false,
 
@@ -581,7 +574,18 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
               prefixIcon: SizedBox(
                 width: 50,
 
-                child: Center(child: Icon(icon, size: 21, color: tBlue3)),
+                child: Center(
+                  child: SvgPicture.asset(
+                    //svg
+                    icon,
+                    width: 21,
+                    height: 21,
+                    colorFilter: const ColorFilter.mode(
+                      tBlue3,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
               ),
 
               prefixIconConstraints: const BoxConstraints(
