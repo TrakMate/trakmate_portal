@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+// import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
@@ -618,6 +619,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       padding: const EdgeInsets.only(left: 40, right: 40, top: 30),
       child: Column(
         children: [
+          // Marketing3PWidget(),
           _buildServicesSection(),
           const SizedBox(height: 60),
           _buildIndustriesSection(),

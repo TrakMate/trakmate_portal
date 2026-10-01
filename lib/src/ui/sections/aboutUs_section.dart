@@ -176,15 +176,14 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
           const SizedBox(height: 25),
 
-          // 3rd: MISSION + VISION (stacked, left)  |  OUR STORY (right half)
+          // 3rd: MISSION + VISION (side by side), then OUR STORY (full width)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
               children: [
-                Expanded(flex: 3, child: _buildMissionVisionColumn()),
-                const SizedBox(width: 30),
-                Expanded(flex: 8, child: _infrastructureBrickLayout()),
+                _buildMissionVisionColumn(),
+                const SizedBox(height: 35),
+                _infrastructureBrickLayout(),
               ],
             ),
           ),
@@ -274,37 +273,51 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
-  // Mission on top, Vision under it, same tinted container style
+  // Mission and Vision as 2 separate cards, side by side.
   Widget _buildMissionVisionColumn() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: tBlue1.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          buildMissionVisionCard(
+    return Row(
+      children: [
+        Expanded(
+          child: _missionVisionBox(
             icon: 'icons/impact.svg',
             title: 'Our Mission',
             description:
                 'To deliver innovative and reliable engineering solutions that empower businesses and improve lives through technology and excellence.',
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 22),
-            width: 100,
-            height: 3,
-            color: tOrange1,
-          ),
-          buildMissionVisionCard(
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: _missionVisionBox(
             icon: 'icons/vision.svg',
             title: 'Our Vision',
             description:
                 'To become a global leader in engineering innovation, driving sustainable growth and creating lasting value for our customers.',
+            iconRight: true,
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _missionVisionBox({
+    required String icon,
+    required String title,
+    required String description,
+    bool iconRight = false,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 114,
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+      decoration: BoxDecoration(
+        color: tBlue1.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: buildMissionVisionCard(
+        icon: icon,
+        title: title,
+        description: description,
+        iconRight: iconRight,
       ),
     );
   }
@@ -484,48 +497,49 @@ class _AboutusSectionState extends State<AboutusSection> {
     required String icon,
     required String title,
     required String description,
+    bool iconRight = false,
   }) {
+    final Widget iconCircle = Container(
+      width: 70,
+      height: 70,
+      decoration: const BoxDecoration(color: tBlue3, shape: BoxShape.circle),
+      child: Center(
+        child: SvgPicture.asset(icon, width: 35, height: 35, color: tWhite),
+      ),
+    );
+
+    final Widget textBlock = Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.manrope(
+              color: tBlue3,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            description,
+            style: GoogleFonts.manrope(
+              color: tBlue3,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: const BoxDecoration(
-            color: tBlue3,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: SvgPicture.asset(icon, width: 35, height: 35, color: tWhite),
-          ),
-        ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.manrope(
-                  color: tBlue3,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                description,
-                style: GoogleFonts.manrope(
-                  color: tBlue3,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      crossAxisAlignment: CrossAxisAlignment.center, // was .start
+      children:
+          iconRight
+              ? [textBlock, const SizedBox(width: 15), iconCircle]
+              : [iconCircle, const SizedBox(width: 15), textBlock],
     );
   }
 
@@ -802,7 +816,46 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  // ===================== OUR STORY (arrow infographic) =====================
   Widget _infrastructureBrickLayout() {
+    const steps = <_StoryStep>[
+      _StoryStep(
+        icon: 'icons/innovation.svg',
+        title: 'Foundation & Vision',
+        description: 'Where our journey began.',
+        color: Color(0xFFFFCF48),
+        darkColor: Color(0xFFF4BE3F),
+      ),
+      _StoryStep(
+        icon: 'icons/impact.svg',
+        title: 'Innovation & Expansion',
+        description: 'Growing our capabilities through new ideas.',
+        color: Color(0xFF99CC33),
+        darkColor: Color(0xFF98C230),
+      ),
+      _StoryStep(
+        icon: 'icons/collaboration.svg',
+        title: 'Connected Growth',
+        description: 'Building stronger solutions and partnerships.',
+        color: Color(0xFF30B5C8),
+        darkColor: Color(0xFF24A8B5),
+      ),
+      _StoryStep(
+        icon: 'icons/globe.svg',
+        title: 'Global Reach',
+        description: 'Expanding our presence across new markets.',
+        color: Color(0xFFE84C47),
+        darkColor: Color(0xFFD93533),
+      ),
+      _StoryStep(
+        icon: 'icons/manufacture.svg',
+        title: 'Future & Evolution',
+        description: 'Continuously shaping what comes next.',
+        color: Color(0xFFA33572),
+        darkColor: Color(0xFF962D6C),
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -829,78 +882,93 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
         ),
 
-        const SizedBox(height: 18),
+        const SizedBox(height: 25),
 
-        // ROW 1 - 2 cards
-        Row(
-          children: [
-            Expanded(
-              child: _buildInfrastructureBrick(
-                icon: 'icons/innovation.svg',
-                title: 'Foundation & Vision',
-                description: 'Where our journey began.',
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: _buildInfrastructureBrick(
-                icon: 'icons/impact.svg',
-                title: 'Innovation & Expansion',
-                description: 'Growing our capabilities through new ideas.',
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 12),
-
-        // ROW 2 - 1 card, centered, wider than the row-1 / row-3 cards
+        // 5 arrows nested one after another, content inside each arrow
         LayoutBuilder(
           builder: (context, constraints) {
-            final double cardW =
-                ((constraints.maxWidth - 12) / 2) *
-                1.4; // <-- change 1.4 to adjust the width
-            return Center(
-              child: SizedBox(
-                width: cardW,
-                child: _buildInfrastructureBrick(
-                  icon: 'icons/collaboration.svg',
-                  title: 'Connected Growth',
-                  description: 'Building stronger solutions and partnerships.',
-                ),
+            const double arrowH = 190; // arrow height
+            const double notch = 38; // depth of the arrow point / notch
+            const double gap = 6; // space between arrows
+            final double w = constraints.maxWidth;
+            final double arrowW =
+                (w + (steps.length - 1) * (notch - gap)) / steps.length;
+            final double stepX = arrowW - notch + gap;
+
+            return SizedBox(
+              width: w,
+              height: arrowH,
+              child: Stack(
+                children: [
+                  for (int i = 0; i < steps.length; i++)
+                    Positioned(
+                      left: stepX * i,
+                      top: 0,
+                      width: arrowW,
+                      height: arrowH,
+                      child: _buildStoryArrow(steps[i], notch, i, steps.length),
+                    ),
+                ],
               ),
             );
           },
         ),
-        const SizedBox(height: 12),
+      ],
+    );
+  }
 
-        // ROW 3 - 2 cards
-        Row(
+  Widget _buildStoryArrow(_StoryStep s, double notch, int index, int count) {
+    // tOrange1 on the first arrow, fading gradually towards the last one.
+    const double maxFade = 0.50; // 0 = no fade, higher = lighter last arrow
+    final double t = count > 1 ? index / (count - 1) : 0.0;
+    final Color base = Color.lerp(tOrange1, Colors.white, t * maxFade)!;
+    final Color shade = Color.lerp(base, Colors.black, 0.10)!;
+
+    return CustomPaint(
+      painter: _StoryChevronPainter(top: base, bottom: shade, notch: notch),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(notch + 6, 14, notch + 6, 14),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: _buildInfrastructureBrick(
-                icon: 'icons/globe.svg',
-                title: 'Global Reach',
-                description: 'Expanding our presence across new markets.',
+            SvgPicture.asset(
+              s.icon,
+              width: 36,
+              height: 36,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              s.title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                color: Colors.white,
+                fontSize: 14,
+                height: 1.2,
+                fontWeight: FontWeight.w800,
               ),
             ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: _buildInfrastructureBrick(
-                icon: 'icons/manufacture.svg',
-                title: 'Future & Evolution',
-                description: 'Continuously shaping what comes next.',
+            const SizedBox(height: 6),
+            Text(
+              s.description,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                color: Colors.white.withOpacity(0.92),
+                fontSize: 11,
+                height: 1.4,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
+  // =================== END OUR STORY (arrow infographic) ===================
 
   Widget _buildStoryTimelineSection() {
     return Column(
@@ -943,8 +1011,12 @@ class _AboutusSectionState extends State<AboutusSection> {
               const double pointerH = 10; // arrow height
               const double nodeSize = 30; // timeline dot size
               const double cardWidthFactor = 0.27; // card width (fraction)
-              const double stepFactor = 0.23; // distance between cards
-              const double startFactor = 0.02; // left offset of first card
+              const double stepFactor =
+                  0.17; // distance between cards (was 0.23)
+              // total width taken by all 4 cards together
+              const double totalSpan = stepFactor * 3 + cardWidthFactor;
+              // auto-centers the whole timeline (was 0.02)
+              const double startFactor = (1 - totalSpan) / 2;
 
               // vertical center of the timeline line
               const double lineY = cardH + pointerH + nodeSize / 2;
@@ -1727,7 +1799,7 @@ class _AboutusSectionState extends State<AboutusSection> {
       ),
     );
   }
-  
+
   Widget _buildNewsCard({
     required String category,
     required String date,
@@ -2220,4 +2292,66 @@ class _CertData {
     required this.logoWidth,
     required this.logoHeight,
   });
+}
+
+// ---------- Our Story (infographic) helpers ----------
+class _StoryStep {
+  final String icon;
+  final String title;
+  final String description;
+  final Color color;
+  final Color darkColor;
+
+  const _StoryStep({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.darkColor,
+  });
+}
+
+class _StoryChevronPainter extends CustomPainter {
+  final Color top;
+  final Color bottom;
+  final double notch;
+
+  const _StoryChevronPainter({
+    required this.top,
+    required this.bottom,
+    required this.notch,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+
+    final Path path =
+        Path()
+          ..moveTo(0, 0)
+          ..lineTo(w - notch, 0)
+          ..lineTo(w, h / 2)
+          ..lineTo(w - notch, h)
+          ..lineTo(0, h)
+          ..lineTo(notch, h / 2)
+          ..close();
+
+    // soft shadow
+    canvas.drawShadow(path, Colors.black.withOpacity(0.35), 6, false);
+
+    // vertical gradient: lighter top, darker bottom
+    final Paint fill =
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [top, bottom],
+          ).createShader(Rect.fromLTWH(0, 0, w, h));
+    canvas.drawPath(path, fill);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StoryChevronPainter old) =>
+      old.top != top || old.bottom != bottom || old.notch != notch;
 }

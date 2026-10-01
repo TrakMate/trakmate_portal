@@ -4,9 +4,7 @@ import 'package:svg_flutter/svg_flutter.dart';
 
 import '../../utils/colors.dart';
 
-// ============================================================================
 // DATA MODEL — one entry in the dropdown
-// ============================================================================
 
 class NavDropdownItem {
   final String label;
@@ -71,6 +69,11 @@ class NavDropdownMenu extends StatefulWidget {
 }
 
 class _NavDropdownMenuState extends State<NavDropdownMenu> {
+  // Tracks whichever dropdown is currently open, across ALL NavDropdownMenu
+  // instances. Guarantees that hovering a second menu always closes the first,
+  // even when the menus don't share a NavDropdownGroupController.
+  static _NavDropdownMenuState? _activeMenu;
+
   bool _dropdownOpen = false;
 
   final OverlayPortalController _overlayController = OverlayPortalController();
@@ -98,6 +101,7 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
   @override
   void dispose() {
     widget.groupController?.removeListener(_handleGroupChange);
+    if (_activeMenu == this) _activeMenu = null;
     super.dispose();
   }
 
@@ -108,6 +112,12 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
   }
 
   void _open() {
+    // Close any other dropdown that is still open.
+    if (_activeMenu != null && _activeMenu != this) {
+      _activeMenu!._forceClose();
+    }
+    _activeMenu = this;
+
     widget.groupController?.open(this);
     if (!_dropdownOpen) {
       setState(() => _dropdownOpen = true);
@@ -116,6 +126,7 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
   }
 
   void _forceClose() {
+    if (_activeMenu == this) _activeMenu = null;
     if (_dropdownOpen) {
       setState(() => _dropdownOpen = false);
     }
@@ -139,6 +150,13 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
     if (_dropdownOpen) {
       _close();
     } else {
+      _open();
+    }
+  }
+
+  // Hover over the menu label / arrow opens the dropdown.
+  void _handleHoverEnter() {
+    if (!_dropdownOpen) {
       _open();
     }
   }
@@ -180,73 +198,85 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
       child: CompositedTransformTarget(
         link: _layerLink,
 
-        // Opening/closing is purely click-driven: the arrow's onTap toggles
-        // it, and TapRegion.onTapOutside (grouped with the panel above)
-        // closes it when a tap lands on neither the trigger nor the panel.
+        // Opening is hover-driven: moving the pointer onto the label/arrow
+        // opens it. Closing happens when a tap lands on neither the trigger
+        // nor the panel (TapRegion.onTapOutside, grouped with the panel
+        // above), or when a menu item is chosen.
         child: TapRegion(
           groupId: this,
           onTapOutside: (event) {
             if (_dropdownOpen) _close();
           },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // ----------------------------------------------------
-                    // LABEL — tap navigates to the page
-                    // ----------------------------------------------------
-                    GestureDetector(
-                      onTap: widget.onLabelTap,
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 250),
-                          style: GoogleFonts.manrope(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: widget.isSelected ? tOrange1 : tBlack,
-                          ),
-                          child: Text(widget.label),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 5),
-
-                    // ----------------------------------------------------
-                    // ARROW — tap toggles the dropdown open/closed
-                    // ----------------------------------------------------
-                    GestureDetector(
-                      onTap: _toggle,
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: AnimatedRotation(
-                          turns: _dropdownOpen ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            size: 18,
-                            color: widget.isSelected ? tOrange1 : tBlack,
+          child: MouseRegion(
+            onEnter: (_) => _handleHoverEnter(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ----------------------------------------------------
+                      // LABEL — tap navigates to the page
+                      // ----------------------------------------------------
+                      GestureDetector(
+                        onTap: () {
+                          _close();
+                          widget.onLabelTap();
+                        },
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 250),
+                            style: GoogleFonts.manrope(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: widget.isSelected ? tOrange1 : tBlack,
+                            ),
+                            child: Text(widget.label),
                           ),
                         ),
                       ),
+
+                      const SizedBox(width: 5),
+
+                      // ----------------------------------------------------
+                      // ARROW — tap toggles the dropdown open/closed
+                      // ----------------------------------------------------
+                      GestureDetector(
+                        onTap: _toggle,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: AnimatedRotation(
+                            turns: _dropdownOpen ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: widget.isSelected ? tOrange1 : tBlack,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      right: 5 + 18.0,
+                    ), //5 sizedbox+18 padding
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      height: 2,
+                      width: widget.isSelected ? 50 : 0,
+                      decoration: const BoxDecoration(color: tOrange1),
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 5),
-
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  height: 2,
-                  width: widget.isSelected ? 50 : 0,
-                  decoration: const BoxDecoration(color: tOrange1),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

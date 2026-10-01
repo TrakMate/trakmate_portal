@@ -184,8 +184,58 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   //     ],
   //   );
   // }
+
+  // Widget _buildSpecsSlide(String productImage) {
+  //   final SpecsSlideStyle s = product.specsStyle;
+
+  //   return Stack(
+  //     children: [
+  //       Padding(
+  //         padding: EdgeInsets.all(s.imagePadding),
+  //         child: Image.asset(productImage, fit: BoxFit.contain),
+  //       ),
+  //       Positioned.fill(
+  //         child: Align(
+  //           alignment: Alignment(1, s.badgeVerticalAlign),
+  //           child: Padding(
+  //             padding: EdgeInsets.only(right: s.badgeRightOffset),
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 for (int i = 0; i < product.specBadges.length; i++)
+  //                   Padding(
+  //                     padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
+  //                     child: SizedBox(
+  //                       width: s.badgeWidth,
+  //                       height: s.badgeHeight,
+  //                       child: Image.asset(
+  //                         product.specBadges[i],
+  //                         fit: BoxFit.contain,
+  //                       ),
+  //                     ),
+  //                   ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
   Widget _buildSpecsSlide(String productImage) {
     final SpecsSlideStyle s = product.specsStyle;
+
+    final int topCount = s.topRowCount.clamp(0, product.specBadges.length);
+    final List<String> topBadges = product.specBadges.take(topCount).toList();
+    final List<String> columnBadges =
+        product.specBadges.skip(topCount).toList();
+
+    Widget badge(String path) => SizedBox(
+      width: s.badgeWidth,
+      height: s.badgeHeight,
+      child: Image.asset(path, fit: BoxFit.contain),
+    );
 
     return Stack(
       children: [
@@ -193,31 +243,54 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           padding: EdgeInsets.all(s.imagePadding),
           child: Image.asset(productImage, fit: BoxFit.contain),
         ),
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment(1, s.badgeVerticalAlign),
-            child: Padding(
-              padding: EdgeInsets.only(right: s.badgeRightOffset),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (int i = 0; i < product.specBadges.length; i++)
-                    Padding(
-                      padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
-                      child: SizedBox(
-                        width: s.badgeWidth,
-                        height: s.badgeHeight,
-                        child: Image.asset(
-                          product.specBadges[i],
-                          fit: BoxFit.contain,
+
+        // NEW: top row
+        if (topBadges.isNotEmpty)
+          Positioned(
+            top: s.topRowTopOffset,
+            right: s.badgeRightOffset,
+            // left: 0,
+            // right: 0,
+            child: Align(
+              alignment: Alignment(s.topRowAlignX, 0),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: s.topRowSideOffset),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (int i = 0; i < topBadges.length; i++)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: i == 0 ? 0 : s.topRowGap,
                         ),
+                        child: badge(topBadges[i]),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+
+        // Existing column (now only the remaining badges)
+        if (columnBadges.isNotEmpty)
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment(1, s.badgeVerticalAlign),
+              child: Padding(
+                padding: EdgeInsets.only(right: s.badgeRightOffset),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (int i = 0; i < columnBadges.length; i++)
+                      Padding(
+                        padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
+                        child: badge(columnBadges[i]),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
