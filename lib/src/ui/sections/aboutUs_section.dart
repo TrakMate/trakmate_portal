@@ -75,7 +75,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           'TrakMate Expands Its Engineering Capabilities with New Innovation Center',
       summary:
           'We are excited to announce the expansion of our engineering capabilities with a new state-of-the-art innovation center, strengthening our commitment to build smarter, connected products for a better tomorrow.',
-      image: 'images/engineering1.jpg',
+      image: 'images/innovation_center.png',
       author: 'TrakMate Communications',
       readTime: '3 min read',
       content: [
@@ -92,7 +92,7 @@ class _AboutusSectionState extends State<AboutusSection> {
       title: 'Advancing Embedded Systems for a Smarter Future',
       summary:
           'Exploring next-generation embedded solutions for connected mobility and IoT.',
-      image: 'images/pcb.jpg',
+      image: 'images/embedded_systems.png',
       content: ['Full article paragraph 1...', 'Paragraph 2...'],
     ),
     NewsArticle(
@@ -102,7 +102,7 @@ class _AboutusSectionState extends State<AboutusSection> {
       title: 'New Generation Vehicle Tracker Launched',
       summary:
           'Our latest vehicle tracking solution delivers higher accuracy, advanced safety features.',
-      image: 'images/company.png',
+      image: 'images/tracker_launch.png',
       content: ['Full article paragraph 1...', 'Paragraph 2...'],
     ),
     NewsArticle(
@@ -112,7 +112,7 @@ class _AboutusSectionState extends State<AboutusSection> {
       title: 'TrakMate Strengthens R&D with New Talent',
       summary:
           'We are growing our engineering team to accelerate innovation in IoT, connected products.',
-      image: 'images/company.png',
+      image: 'images/R&D_Team.png',
       content: ['Full article paragraph 1...', 'Paragraph 2...'],
     ),
     NewsArticle(
@@ -122,7 +122,7 @@ class _AboutusSectionState extends State<AboutusSection> {
       title: 'TrakMate at Auto Expo 2026',
       summary:
           'Showcasing our latest innovations in connected mobility, intelligent vehicle solutions.',
-      image: 'images/company.png',
+      image: 'images/auto_expo.png',
       content: [
         'We deliver innovative technology solutions designed to meet evolving business needs.'
             'Our approach combines engineering expertise, smart technology, and reliable processes.'
@@ -183,7 +183,7 @@ class _AboutusSectionState extends State<AboutusSection> {
               children: [
                 _buildMissionVisionColumn(),
                 const SizedBox(height: 35),
-                _infrastructureBrickLayout(),
+                // _infrastructureBrickLayout(),
               ],
             ),
           ),
@@ -192,10 +192,10 @@ class _AboutusSectionState extends State<AboutusSection> {
           _ourTeamSection(),
           const SizedBox(height: 25),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: _buildInfrastructureSection(),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 40.0),
+          //   child: _buildInfrastructureSection(),
+          // ),
           const SizedBox(height: 35),
 
           Padding(
@@ -308,7 +308,7 @@ class _AboutusSectionState extends State<AboutusSection> {
     return Container(
       width: double.infinity,
       height: 114,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
         color: tBlue1.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
@@ -1051,10 +1051,11 @@ class _AboutusSectionState extends State<AboutusSection> {
               final List<Widget> children = [
                 // timeline line
                 Positioned(
-                  left: 30,
-                  right: 30,
+                  left: 150,
+                  right: 150,
                   top: lineY - 2.5,
                   child: Container(
+                    // width: 600,
                     height: 5,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(

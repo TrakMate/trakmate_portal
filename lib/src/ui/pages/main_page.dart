@@ -673,7 +673,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         _buildClickableContactInfoItem(
           icon: 'icons/mail.svg',
           title: 'Email',
-          values: ['pratheekshap837@gmail.com'],
+          values: ['info@trakmate.co.in'],
           scheme: 'mailto',
         ),
         const SizedBox(height: 19),
@@ -927,7 +927,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     // '[Company]';
 
     final Uri mailUri = Uri.parse(
-      'mailto:pratheekshap837@gmail.com'
+      'mailto:info@trakmate.co.in'
       '?subject=${Uri.encodeComponent(mailSubject)}'
       '&body=${Uri.encodeComponent(body)}',
     );

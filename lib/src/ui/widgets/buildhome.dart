@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
@@ -334,7 +335,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
 
   final List<_ServiceItemData> _services = const [
     _ServiceItemData(
-      icon: "icons/product_engineering.svg",
+      icon: "icons/product_engineering1.svg",
       title: "Product Engineering",
       points: [
         "CAD Design",
@@ -364,7 +365,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       ],
     ),
     _ServiceItemData(
-      icon: "icons/iot_solutions.svg",
+      icon: "icons/iot_solutions1.svg",
       title: "IoT Solutions",
       points: [
         "GPS / BLE / WIFI / LoRa",

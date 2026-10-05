@@ -1,10 +1,50 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
-class Marketing3PWidget extends StatelessWidget {
+const double _topCrop = 90; // how much empty space to remove from the top
+
+class Marketing3PWidget extends StatefulWidget {
   const Marketing3PWidget({super.key});
+
+  @override
+  State<Marketing3PWidget> createState() => _Marketing3PWidgetState();
+}
+
+class _Marketing3PWidgetState extends State<Marketing3PWidget> {
+  static const _svgPaths = [
+    'icons/product_engineering.svg',
+    'icons/electronics_design.svg',
+    'icons/embedded_systems.svg',
+    'icons/iot_solutions.svg',
+    'icons/software_solutions.svg',
+    'icons/manufacturing.svg',
+  ];
+
+  final Map<String, PictureInfo> _svgs = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSvgs();
+  }
+
+  Future<void> _loadSvgs() async {
+    for (final p in _svgPaths) {
+      _svgs[p] = await vg.loadPicture(SvgAssetLoader(p), null);
+    }
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    for (final i in _svgs.values) {
+      i.picture.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +57,7 @@ class Marketing3PWidget extends StatelessWidget {
           style: GoogleFonts.manrope(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFFFFA300),
+            color: tOrange1,
             letterSpacing: 1.2,
           ),
         ),
@@ -30,25 +70,51 @@ class Marketing3PWidget extends StatelessWidget {
           style: GoogleFonts.manrope(
             fontSize: 25,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF142735),
+            color: tBlue2,
           ),
         ),
 
         // const SizedBox(height: 5),
 
         // Existing design
+        // LayoutBuilder(
+        //   builder: (context, constraints) {
+        //     return SizedBox(
+        //       width: double.infinity,
+        //       child: AspectRatio(
+
+        //         aspectRatio: 1724 / 889,
+        //         child: FittedBox(
+        //           fit: BoxFit.contain,
+        //           child: SizedBox(
+        //             width: 1724,
+        //             height: 889,
+        //             child: CustomPaint(
+        //               painter: _Marketing3PPainter(svgs: _svgs),
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
         LayoutBuilder(
           builder: (context, constraints) {
-            return SizedBox(
-              width: double.infinity,
-              child: AspectRatio(
-                aspectRatio: 1724 / 889,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: SizedBox(
-                    width: 1724,
-                    height: 889,
-                    child: CustomPaint(painter: _Marketing3PPainter()),
+            return ClipRect(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                heightFactor: (889 - _topCrop) / 889,
+                child: AspectRatio(
+                  aspectRatio: 1724 / 889,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: SizedBox(
+                      width: 1724,
+                      height: 889,
+                      child: CustomPaint(
+                        painter: _Marketing3PPainter(svgs: _svgs),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -61,18 +127,12 @@ class Marketing3PWidget extends StatelessWidget {
 }
 
 class _Marketing3PPainter extends CustomPainter {
-  static const Color background = Color(0xFF142735);
   static const Color white = Colors.white;
+  // final Paint _paint = Paint()..isAntiAlias = true;
+  final Map<String, PictureInfo> svgs;
 
-  static const Color product = Color(0xFFFFA300);
-  static const Color price = Color(0xFFFF1230);
-  static const Color promotion = Color(0xFF45C96B);
-
-  final Paint _paint = Paint()..isAntiAlias = true;
-
-  // ---------------------------------------------------------------------------
+  _Marketing3PPainter({required this.svgs});
   // PAINT
-  // ---------------------------------------------------------------------------
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -86,47 +146,33 @@ class _Marketing3PPainter extends CustomPainter {
     // LEFT SIDE
     _drawProductCard(
       canvas,
-      x: 123,
-      y: 320,
-      title: 'Product',
-      color: tOrange1,
-      icon: Icons.inventory_2_outlined,
-      description:
-          'Lorem ipsum dolor sit ametera\n'
-          'consectetuer adipiscing elititas\n'
-          'esed diam nonummy nibh emi\n'
-          'volutpat. Ut wisi enim ad diape\n'
-          'minim veniam quisi',
+      x: 165, //block left/right
+      y: 210, //block up/down
+      title: 'Product Engineering',
+      color: tBlue,
+      svg: 'icons/product_engineering.svg',
+      points: ['CAD Design', 'Industrial Design', 'Product Development'],
     );
 
     _drawProductCard(
       canvas,
-      x: 123,
-      y: 513,
-      title: 'Product',
-      color: tBlue,
-      icon: Icons.inventory_2_outlined,
-      description:
-          'Lorem ipsum dolor sit ametera\n'
-          'consectetuer adipiscing elititas\n'
-          'esed diam nonummy nibh emi\n'
-          'volutpat. Ut wisi enim ad diape\n'
-          'minim veniam quisi',
+      x: 133,
+      y: 480,
+      title: 'Electroinics Design',
+      color: tOrange1,
+      svg: 'icons/electronics_design.svg',
+      points: ['PCB Design', 'Prototype Development', 'Hardware Development'],
     );
 
     _drawProductCard(
       canvas,
       x: 123,
       y: 708,
-      title: 'Price',
-      color: price,
-      icon: Icons.attach_money,
-      description:
-          'Lorem ipsum dolor sit ametera\n'
-          'consectetuer adipiscing elititas\n'
-          'esed diam nonummy nibh emi\n'
-          'volutpat. Ut wisi enim ad diape\n'
-          'minim veniam quisi',
+      title: 'Software Solutions',
+      color: tRed,
+      svg: 'icons/embedded_systems.svg',
+
+      points: ['Web Applications', 'Mobile Apps', 'APIs & Integrations'],
     );
 
     // RIGHT SIDE
@@ -134,45 +180,30 @@ class _Marketing3PPainter extends CustomPainter {
       canvas,
       x: 1137,
       y: 142,
-      title: 'Price',
-      color: price,
-      icon: Icons.attach_money,
-      description:
-          'Lorem ipsum dolor sit ametera\n'
-          'consectetuer adipiscing elititas\n'
-          'esed diam nonummy nibh emi\n'
-          'volutpat. Ut wisi enim ad diape\n'
-          'minim veniam quisi',
+      title: 'IOT Solutions',
+      color: tGreen,
+      svg: 'icons/iot_solutions.svg',
+      points: ['GPS/BLE/WIFI/LoRa', 'Cloud Integration', 'MQTT & Analysis'],
     );
 
     _drawRightCard(
       canvas,
       x: 1199,
       y: 421,
-      title: 'Promotion',
-      color: promotion,
-      icon: Icons.campaign_outlined,
-      description:
-          'Lorem ipsum dolor sit ametera\n'
-          'consectetuer adipiscing elititas\n'
-          'esed diam nonummy nibh emi\n'
-          'volutpat. Ut wisi enim ad diape\n'
-          'minim veniam quisi',
+      title: 'Embedded Systems',
+      color: ipbadge,
+      svg: 'icons/software_solutions.svg',
+      points: ['Firmware Development', 'RTOS / Linux', 'Testing & Validation'],
     );
 
     _drawRightCard(
       canvas,
-      x: 1199,
+      x: 1160,
       y: 661,
-      title: 'Promotion',
-      color: promotion,
-      icon: Icons.campaign_outlined,
-      description:
-          'Lorem ipsum dolor sit ametera\n'
-          'consectetuer adipiscing elititas\n'
-          'esed diam nonummy nibh emi\n'
-          'volutpat. Ut wisi enim ad diape\n'
-          'minim veniam quisi',
+      title: 'Manufacturing',
+      color: tBlueSky,
+      svg: 'icons/manufacturing.svg',
+      points: ['PCB Assembly (PCBA)', 'Testing & Quality', 'Mass Production'],
     );
 
     // CENTER NODES
@@ -180,21 +211,25 @@ class _Marketing3PPainter extends CustomPainter {
       canvas,
       center: const Offset(676, 389),
       radius: 59,
-      color: tBlue.withOpacity(0.3),
+      color: tBlue.withOpacity(0.3), //here
+      label: 'P',
     );
 
     _drawNode(
       canvas,
-      center: const Offset(677, 557),
+      center: const Offset(637, 547),
       radius: 59,
       color: tOrange1.withOpacity(0.6),
+      label: 'E',
     );
 
     _drawNode(
       canvas,
-      center: const Offset(617, 770),
+      // center: const Offset(677, 815),
+      center: const Offset(700, 815),
       radius: 62,
-      color: price.withOpacity(0.3),
+      color: tRed.withOpacity(0.3),
+      label: 'S',
     );
 
     _drawNode(
@@ -202,6 +237,7 @@ class _Marketing3PPainter extends CustomPainter {
       center: const Offset(990, 221),
       radius: 59,
       color: tGreen.withOpacity(0.3),
+      label: 'I',
     );
 
     _drawNode(
@@ -209,13 +245,15 @@ class _Marketing3PPainter extends CustomPainter {
       center: const Offset(1047, 524),
       radius: 61,
       color: ipbadge.withOpacity(0.3),
+      label: 'E',
     );
 
     _drawNode(
       canvas,
-      center: const Offset(1038, 715),
+      center: const Offset(1000, 695),
       radius: 61,
       color: tBlueSky.withOpacity(0.3),
+      label: 'M',
     );
 
     // ARROWS
@@ -236,24 +274,24 @@ class _Marketing3PPainter extends CustomPainter {
   // HEADER
   // ---------------------------------------------------------------------------
 
-  void _drawHeader(Canvas canvas) {
-    _drawText(
-      canvas,
-      '3P’s of Marketing',
-      const Offset(137, 48),
-      fontSize: 39,
-      fontWeight: FontWeight.w700,
-      color: background,
-    );
+  // void _drawHeader(Canvas canvas) {
+  //   _drawText(
+  //     canvas,
+  //     '3P’s of Marketing',
+  //     const Offset(137, 48),
+  //     fontSize: 39,
+  //     fontWeight: FontWeight.w700,
+  //     color: background,
+  //   );
 
-    canvas.drawLine(
-      const Offset(497, 69),
-      const Offset(1587, 69),
-      Paint()
-        ..color = background
-        ..strokeWidth = 5,
-    );
-  }
+  //   canvas.drawLine(
+  //     const Offset(497, 69),
+  //     const Offset(1587, 69),
+  //     Paint()
+  //       ..color = background
+  //       ..strokeWidth = 5,
+  //   );
+  // }
 
   // ---------------------------------------------------------------------------
   // CONNECTION LINES
@@ -262,7 +300,7 @@ class _Marketing3PPainter extends CustomPainter {
   void _drawConnections(Canvas canvas) {
     final paint =
         Paint()
-          ..color = background
+          ..color = tBlack
           ..strokeWidth = 2.5
           ..style = PaintingStyle.stroke;
 
@@ -276,11 +314,11 @@ class _Marketing3PPainter extends CustomPainter {
 
     // canvas.drawLine(const Offset(676, 389), const Offset(677, 557), paint);
 
-    canvas.drawLine(const Offset(660, 614), const Offset(639, 712), paint);
+    canvas.drawLine(const Offset(651, 604), const Offset(686, 755), paint);
 
-    canvas.drawLine(const Offset(677, 557), const Offset(995, 670), paint);
+    canvas.drawLine(const Offset(692, 569), const Offset(944, 672), paint);
 
-    canvas.drawLine(const Offset(617, 770), const Offset(1038, 715), paint);
+    canvas.drawLine(const Offset(758, 792), const Offset(943, 718), paint);
   }
 
   // ---------------------------------------------------------------------------
@@ -292,6 +330,7 @@ class _Marketing3PPainter extends CustomPainter {
     required Offset center,
     required double radius,
     required Color color,
+    required String label,
   }) {
     final glow =
         Paint()
@@ -313,25 +352,15 @@ class _Marketing3PPainter extends CustomPainter {
 
     _drawCenteredText(
       canvas,
-      'P',
+      label,
       center,
       fontSize: radius * .55,
       fontWeight: FontWeight.w700,
-      color: background,
-    );
-    _drawCenteredText(
-      canvas,
-      'R',
-      center,
-      fontSize: radius * .55,
-      fontWeight: FontWeight.w700,
-      color: background,
+      color: tBlack,
     );
   }
 
-  // ---------------------------------------------------------------------------
   // TRIANGLE
-  // ---------------------------------------------------------------------------
 
   void _drawTriangle(
     Canvas canvas, {
@@ -351,9 +380,7 @@ class _Marketing3PPainter extends CustomPainter {
     canvas.drawPath(path, Paint()..color = color);
   }
 
-  // ---------------------------------------------------------------------------
   // LEFT CARD
-  // ---------------------------------------------------------------------------
 
   void _drawProductCard(
     Canvas canvas, {
@@ -361,8 +388,8 @@ class _Marketing3PPainter extends CustomPainter {
     required double y,
     required String title,
     required Color color,
-    required IconData icon,
-    required String description,
+    required String svg,
+    required List<String> points,
   }) {
     final linePaint =
         Paint()
@@ -373,40 +400,35 @@ class _Marketing3PPainter extends CustomPainter {
 
     canvas.drawLine(Offset(x, y + 157), Offset(x + 404, y + 157), linePaint);
 
-    _drawIcon(
+    _drawSvg(
       canvas,
-      icon,
-      Offset(x + 87, y + 70),
-      color: background,
-      size: 65,
+      svg,
+      Offset(x + 67, y + 80),
+      color: tBlack,
+      opacity: 0.15,
+      size: 85,
     );
 
     _drawText(
       canvas,
       title,
-      Offset(x + 284, y + 26),
-      fontSize: 26,
+      Offset(x + 175, y + 26), //title position
+      fontSize: 21,
       fontWeight: FontWeight.w700,
       color: color,
       align: TextAlign.center,
     );
 
-    _drawText(
+    _drawBulletPoints(
       canvas,
-      description,
-      Offset(x + 177, y + 57),
-      fontSize: 14,
-      fontWeight: FontWeight.w400,
-      color: background,
-      align: TextAlign.center,
+      points,
+      Offset(x + 172, y + 62), //points position
       width: 220,
-      lineHeight: 1.15,
+      iconColor: color,
     );
   }
 
-  // ---------------------------------------------------------------------------
   // RIGHT CARD
-  // ---------------------------------------------------------------------------
 
   void _drawRightCard(
     Canvas canvas, {
@@ -414,8 +436,8 @@ class _Marketing3PPainter extends CustomPainter {
     required double y,
     required String title,
     required Color color,
-    required IconData icon,
-    required String description,
+    required String svg,
+    required List<String> points,
   }) {
     final linePaint =
         Paint()
@@ -430,28 +452,30 @@ class _Marketing3PPainter extends CustomPainter {
       canvas,
       title,
       Offset(x + 18, y + 26),
-      fontSize: 26,
+      fontSize: 21,
       fontWeight: FontWeight.w700,
       color: color,
     );
 
-    _drawText(
+    _drawBulletPoints(
       canvas,
-      description,
-      Offset(x + 18, y + 62),
-      fontSize: 14,
-      fontWeight: FontWeight.w400,
-      color: background,
+      points,
+      Offset(x + 18, y + 66),
       width: 245,
-      lineHeight: 1.15,
+      iconColor: color,
     );
 
-    _drawIcon(canvas, icon, Offset(x + 325, y + 84), color: tBlack, size: 62);
+    _drawSvg(
+      canvas,
+      svg,
+      Offset(x + 325, y + 84),
+      size: 85,
+      color: tBlack,
+      opacity: 0.15,
+    );
   }
 
-  // ---------------------------------------------------------------------------
   // ICON
-  // ---------------------------------------------------------------------------
 
   void _drawIcon(
     Canvas canvas,
@@ -481,9 +505,72 @@ class _Marketing3PPainter extends CustomPainter {
     );
   }
 
-  // ---------------------------------------------------------------------------
+  // void _drawSvg(
+  //   Canvas canvas,
+  //   String path,
+  //   Offset center, {
+  //   required double size,
+  //   Color? color, // optional single-colour tint
+  // }) {
+  //   final info = svgs[path];
+  //   if (info == null) return; // not loaded yet
+
+  //   final scale = size / math.max(info.size.width, info.size.height);
+  //   final w = info.size.width * scale;
+  //   final h = info.size.height * scale;
+
+  //   canvas.save();
+  //   canvas.translate(center.dx - w / 2, center.dy - h / 2);
+  //   canvas.scale(scale);
+
+  //   if (color != null) {
+  //     canvas.saveLayer(
+  //       Offset.zero & info.size,
+  //       Paint()..colorFilter = ColorFilter.mode(color, BlendMode.srcIn),
+  //     );
+  //   }
+
+  //   canvas.drawPicture(info.picture);
+
+  //   if (color != null) canvas.restore();
+  //   canvas.restore();
+  // }
+  void _drawSvg(
+    Canvas canvas,
+    String path,
+    Offset center, {
+    required double size,
+    Color? color,
+    double opacity = 1,
+  }) {
+    final info = svgs[path];
+    if (info == null) return; // not loaded yet
+
+    final scale = size / math.max(info.size.width, info.size.height);
+    final w = info.size.width * scale;
+    final h = info.size.height * scale;
+
+    canvas.save();
+    canvas.translate(center.dx - w / 2, center.dy - h / 2);
+    canvas.scale(scale);
+
+    final layerPaint = Paint();
+    if (color != null) {
+      layerPaint.colorFilter = ColorFilter.mode(
+        color.withOpacity(opacity),
+        BlendMode.srcIn,
+      );
+    } else {
+      layerPaint.color = Color.fromRGBO(0, 0, 0, opacity);
+    }
+
+    canvas.saveLayer(Offset.zero & info.size, layerPaint);
+    canvas.drawPicture(info.picture);
+    canvas.restore();
+
+    canvas.restore();
+  }
   // TEXT
-  // ---------------------------------------------------------------------------
 
   void _drawText(
     Canvas canvas,
@@ -499,12 +586,11 @@ class _Marketing3PPainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(
+        style: GoogleFonts.manrope(
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: color,
           height: lineHeight,
-          fontFamily: 'Arial',
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -516,9 +602,49 @@ class _Marketing3PPainter extends CustomPainter {
     painter.paint(canvas, offset);
   }
 
-  // ---------------------------------------------------------------------------
+  void _drawBulletPoints(
+    Canvas canvas,
+    List<String> points,
+    Offset origin, {
+    required double width,
+    required Color iconColor,
+    IconData icon = Icons.check_circle,
+    double fontSize = 15,
+    double iconSize = 16,
+    double spacing = 12,
+  }) {
+    double dy = 0;
+
+    for (final point in points) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: point,
+          style: GoogleFonts.manrope(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+            color: tBlack,
+            height: 1.15,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout(maxWidth: width - iconSize - 8);
+
+      // icon, vertically aligned with the first line of text
+      _drawIcon(
+        canvas,
+        icon,
+        Offset(origin.dx + iconSize / 2, origin.dy + dy + fontSize * 0.65),
+        color: iconColor,
+        size: iconSize,
+      );
+
+      tp.paint(canvas, Offset(origin.dx + iconSize + 8, origin.dy + dy));
+
+      dy += tp.height + spacing;
+    }
+  }
+
   // CENTER TEXT
-  // ---------------------------------------------------------------------------
 
   void _drawCenteredText(
     Canvas canvas,
@@ -531,11 +657,10 @@ class _Marketing3PPainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(
+        style: GoogleFonts.manrope(
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: color,
-          fontFamily: 'Arial',
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -550,7 +675,5 @@ class _Marketing3PPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

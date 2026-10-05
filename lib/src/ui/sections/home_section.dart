@@ -73,12 +73,12 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery1.svg",
+          icon: "icons/delivery3.svg",
           value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake3.svg",
+          icon: "icons/handshake8.svg",
           value: "25+",
           label: "Happy Clients",
         ),
@@ -108,12 +108,12 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery1.svg",
+          icon: "icons/delivery3.svg",
           value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake3.svg",
+          icon: "icons/handshake8.svg",
           value: "25+",
           label: "Happy Clients",
         ),
@@ -143,12 +143,12 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery1.svg",
+          icon: "icons/delivery3.svg",
           value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake3.svg",
+          icon: "icons/handshake8.svg",
           value: "25+",
           label: "Happy Clients",
         ),
@@ -178,12 +178,12 @@ class _HomeSectionState extends State<HomeSection> {
           label: "Years of Experience",
         ),
         _StatData(
-          icon: "icons/delivery1.svg",
+          icon: "icons/delivery3.svg",
           value: "150+",
           label: "Projects Delivered",
         ),
         _StatData(
-          icon: "icons/handshake3.svg",
+          icon: "icons/handshake8.svg",
           value: "25+",
           label: "Happy Clients",
         ),
