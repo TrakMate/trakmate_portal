@@ -55,7 +55,7 @@ class AllNewsPage extends StatelessWidget {
                 const Icon(Icons.arrow_back_rounded, size: 18, color: tBlue3),
                 const SizedBox(width: 7),
                 Text(
-                  'Back to About Us',
+                  'Back',
                   style: GoogleFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

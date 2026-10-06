@@ -1,53 +1,81 @@
+import 'dart:async';
 import 'dart:ui_web' as ui_web;
-
+//hereeeeeeeeeeeeee
 import 'package:flutter/material.dart';
+
 import 'package:google_fonts/google_fonts.dart';
+
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/ui/sections/newssection.dart';
+
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
+
 import 'package:url_launcher/url_launcher.dart';
+
 import 'package:web/helpers.dart' as web;
+
 // import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 
 import '../../utils/colors.dart';
+
 import '../sections/aboutUs_section.dart';
+
 import '../sections/engineering_section.dart';
+
 import '../sections/home_section.dart';
+
 import '../sections/manufacturing_section.dart';
+
 import '../sections/products_section.dart';
+
 import 'package:trakmate_portal/src/ui/widgets/product_filter_controller.dart';
+
 import 'package:trakmate_portal/src/ui/widgets/nav_dropdown_menu.dart';
 
 void showGetInTouchDialog(BuildContext context) {
   productFilterCloseSignal.value++;
+
   Future.delayed(const Duration(milliseconds: 180), () {
     if (!context.mounted) return;
 
     showGeneralDialog(
       context: context,
+
       barrierDismissible: true,
+
       barrierLabel: 'Get in touch',
+
       barrierColor: tBlack.withOpacity(0.58),
+
       transitionDuration: const Duration(milliseconds: 550),
+
       pageBuilder: (context, animation, secondaryAnimation) {
         return const _GetInTouchDialog();
       },
+
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         final Animation<double> scaleAnimation = CurvedAnimation(
           parent: animation,
+
           curve: Curves.easeOutBack,
+
           reverseCurve: Curves.easeInCubic,
         );
 
         final Animation<double> fadeAnimation = CurvedAnimation(
           parent: animation,
+
           curve: Curves.easeOut,
+
           reverseCurve: Curves.easeIn,
         );
 
         return FadeTransition(
           opacity: fadeAnimation,
+
           child: ScaleTransition(
             scale: Tween<double>(begin: 0.72, end: 1.0).animate(scaleAnimation),
+
             child: child,
           ),
         );
@@ -67,43 +95,68 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
+
+  String _currentPath = '/';
+
+  StreamSubscription? _popStateSubscription;
+
   final NavDropdownGroupController _navDropdownGroupController =
       NavDropdownGroupController();
 
   List<NavDropdownItem> get _productMenuItems => [
     NavDropdownItem(
       label: 'All Products',
+
       icon: 'icons/all.svg',
+
       onTap: () => _navigateToProductTab('All Products'),
     ),
+
     NavDropdownItem(
       label: 'Trackers',
+
       icon: 'icons/trackers1.svg',
+
       onTap: () => _navigateToProductTab('Trackers'),
     ),
+
     NavDropdownItem(
       label: 'Diagnostics',
+
       icon: 'icons/diagnostics.svg',
+
       onTap: () => _navigateToProductTab('Diagnostics'),
     ),
+
     NavDropdownItem(
       label: 'Gateways',
+
       icon: 'icons/gateways1.svg',
+
       onTap: () => _navigateToProductTab('Gateways'),
     ),
+
     NavDropdownItem(
       label: 'Clusters',
+
       icon: 'icons/cluster.svg',
+
       onTap: () => _navigateToProductTab('Clusters'),
     ),
+
     NavDropdownItem(
       label: 'ADAS',
+
       icon: 'icons/car.svg',
+
       onTap: () => _navigateToProductTab('ADAS'),
     ),
+
     NavDropdownItem(
       label: 'Solutions Hub',
+
       icon: 'icons/solution_hub.svg',
+
       onTap: () => _navigateToProductTab('Solutions Hub'),
     ),
   ];
@@ -111,27 +164,40 @@ class _MainPageState extends State<MainPage> {
   List<NavDropdownItem> get _aboutUsMenuItems => [
     NavDropdownItem(
       label: 'Our Team',
+
       icon: 'icons/team.svg',
-      onTap: () => _navigateToSection(4),
+
+      onTap: () => _navigateToAboutPath('/about/team'),
     ),
+
     NavDropdownItem(
       label: 'Infrastructure',
+
       icon: 'icons/all.svg',
-      onTap: () => _navigateToSection(4),
+
+      onTap: () => _navigateToAboutPath('/about/infrastructure'),
     ),
+
     NavDropdownItem(
       label: 'Careers',
+
       icon: 'icons/career.svg',
-      onTap: () => _navigateToSection(4),
+
+      onTap: () => _navigateToAboutPath('/about/careers'),
     ),
-    NavDropdownItem(
-      label: 'News & Media',
-      icon: 'icons/news_media.svg',
-      onTap: () => _navigateToSection(4),
-    ),
+
+    // NavDropdownItem(
+    //   label: 'News & Media',
+
+    //   icon: 'icons/news_media.svg',
+
+    //   onTap: () => _navigateToAboutPath('/about/news-media'),
+    // ),
     NavDropdownItem(
       label: 'Contact Us',
+
       icon: 'icons/call.svg',
+
       onTap: () => showGetInTouchDialog(context),
     ),
   ];
@@ -141,32 +207,211 @@ class _MainPageState extends State<MainPage> {
     super.initState();
 
     selectedIndex = widget.initialIndex;
+    _currentPath = _normalizePath(web.window.location.pathname);
+
+    // If the website is opened at the root URL (/),
+    // immediately show /home in the browser URL.
+    // if (_currentPath == '/') {
+    //   web.window.history.replaceState(null, '', '/home');
+
+    //   _currentPath = '/home';
+    // }
+
+    _applyPath(_currentPath, updateUrl: false);
+
+    _popStateSubscription = web.window.onPopState.listen((_) {
+      if (!mounted) return;
+
+      final path = _normalizePath(web.window.location.pathname);
+
+      setState(() {
+        _applyPath(path, updateUrl: false);
+      });
+    });
   }
 
   @override
   void dispose() {
+    _popStateSubscription?.cancel();
     _navDropdownGroupController.dispose();
     super.dispose();
   }
 
+  String _normalizePath(String? path) {
+    if (path == null || path.isEmpty) {
+      return '/';
+    }
+
+    final normalized =
+        path.length > 1 && path.endsWith('/')
+            ? path.substring(0, path.length - 1)
+            : path;
+
+    return normalized.isEmpty ? '/' : normalized;
+  }
+
+  int _indexFromPath(String path) {
+    switch (path) {
+      case '/':
+        return 0;
+      case '/engineering':
+        return 1;
+      case '/manufacturing':
+        return 2;
+      case '/products':
+      case '/products/trackers':
+      case '/products/diagnostics':
+      case '/products/gateways':
+      case '/products/clusters':
+      case '/products/adas':
+      case '/solutions-hub':
+        return 3;
+      case '/news-media':
+        return 4;
+      case '/about':
+      case '/about/team':
+      case '/about/infrastructure':
+      case '/about/careers':
+      case '/about/news-media':
+        return 5;
+      default:
+        return widget.initialIndex;
+    }
+  }
+
+  String? _productFilterFromPath(String path) {
+    switch (path) {
+      case '/products':
+        return 'All Products';
+      case '/products/trackers':
+        return 'Trackers';
+      case '/products/diagnostics':
+        return 'Diagnostics';
+      case '/products/gateways':
+        return 'Gateways';
+      case '/products/clusters':
+        return 'Clusters';
+      case '/products/adas':
+        return 'ADAS';
+      case '/solutions-hub':
+        return 'Solutions Hub';
+      default:
+        return null;
+    }
+  }
+
+  void _applyPath(String path, {required bool updateUrl}) {
+    final normalizedPath = _normalizePath(path);
+    final productFilter = _productFilterFromPath(normalizedPath);
+
+    selectedIndex = _indexFromPath(normalizedPath);
+    _currentPath = normalizedPath;
+
+    if (productFilter != null) {
+      ProductFilterController.select(productFilter);
+    }
+
+    if (updateUrl) {
+      _updateUrl(normalizedPath);
+    }
+  }
+
+  void _updateUrl(String path) {
+    final normalizedPath = _normalizePath(path);
+
+    if (web.window.location.pathname == normalizedPath) {
+      _currentPath = normalizedPath;
+      return;
+    }
+
+    web.window.history.pushState(null, '', normalizedPath);
+
+    _currentPath = normalizedPath;
+  }
+
   void _navigateToSection(int index) {
+    String path;
+
+    switch (index) {
+      case 0:
+        path = '/';
+        break;
+      case 1:
+        path = '/engineering';
+        break;
+      case 2:
+        path = '/manufacturing';
+        break;
+      case 3:
+        path = '/products';
+        break;
+      case 4:
+        path = '/news-media';
+        break;
+      case 5:
+        path = '/about';
+        break;
+      default:
+        path = '/';
+    }
+
     setState(() {
       selectedIndex = index;
     });
+
+    _updateUrl(path);
   }
 
   void _navigateToProductTab(String filterKey) {
+    String path;
+
+    switch (filterKey) {
+      case 'All Products':
+        path = '/products';
+        break;
+      case 'Trackers':
+        path = '/products/trackers';
+        break;
+      case 'Diagnostics':
+        path = '/products/diagnostics';
+        break;
+      case 'Gateways':
+        path = '/products/gateways';
+        break;
+      case 'Clusters':
+        path = '/products/clusters';
+        break;
+      case 'ADAS':
+        path = '/products/adas';
+        break;
+      case 'Solutions Hub':
+        path = '/solutions-hub';
+        break;
+      default:
+        path = '/products';
+    }
+
     setState(() {
       selectedIndex = 3;
     });
 
+    _updateUrl(path);
     ProductFilterController.select(filterKey);
+  }
+
+  void _navigateToAboutPath(String path) {
+    setState(() {
+      selectedIndex = 5;
+    });
+
+    _updateUrl(path);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: tWhite,
+
       body: Column(
         children: [
           _buildHeader(),
@@ -174,49 +419,51 @@ class _MainPageState extends State<MainPage> {
           Expanded(
             child: IndexedStack(
               index: selectedIndex,
+
               children: [
                 HomeSection(
                   isActive: selectedIndex == 0,
+
                   onNavigate: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+                    _navigateToSection(index);
                   },
                 ),
 
                 EngineeringSection(
                   isActive: selectedIndex == 1,
+
                   onNavigate: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+                    _navigateToSection(index);
                   },
                 ),
 
                 ManufacturingSection(
                   isActive: selectedIndex == 2,
+
                   onNavigate: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+                    _navigateToSection(index);
                   },
                 ),
 
                 ProductsSection(
                   isActive: selectedIndex == 3,
+
                   onNavigate: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+                    _navigateToSection(index);
                   },
                 ),
-
-                AboutusSection(
+                NewsAndMediaSection(
+                  // 👈 index 4
                   isActive: selectedIndex == 4,
                   onNavigate: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+                    _navigateToSection(index);
+                  },
+                ),
+                AboutusSection(
+                  isActive: selectedIndex == 5,
+
+                  onNavigate: (index) {
+                    _navigateToSection(index);
                   },
                 ),
               ],
@@ -230,8 +477,10 @@ class _MainPageState extends State<MainPage> {
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
         children: [
           SvgPicture.asset('icons/trakmate_logo.svg', height: 60),
 
@@ -245,18 +494,26 @@ class _MainPageState extends State<MainPage> {
 
               NavDropdownMenu(
                 label: 'Products & Solutions',
+
                 isSelected: selectedIndex == 3,
+
                 onLabelTap: () => _navigateToSection(3),
+
                 items: _productMenuItems,
+
                 // groupController: _navDropdownGroupController,
               ),
-
+              _navButton('News & Blogs', 4),
               // ABOUT US — same reusable dropdown widget, different items.
               NavDropdownMenu(
                 label: 'About Us',
-                isSelected: selectedIndex == 4,
-                onLabelTap: () => _navigateToSection(4),
+
+                isSelected: selectedIndex == 5,
+
+                onLabelTap: () => _navigateToSection(5),
+
                 items: _aboutUsMenuItems,
+
                 groupController: _navDropdownGroupController,
               ),
             ],
@@ -275,20 +532,28 @@ class _MainPageState extends State<MainPage> {
       onTap: () {
         _navigateToSection(index);
       },
+
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
+
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
+
           child: Column(
             mainAxisSize: MainAxisSize.min,
+
             children: [
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 250),
+
                 style: GoogleFonts.manrope(
                   fontSize: 14,
+
                   fontWeight: FontWeight.w700,
+
                   color: isSelected ? tOrange1 : tBlack,
                 ),
+
                 child: Text(text),
               ),
 
@@ -296,8 +561,11 @@ class _MainPageState extends State<MainPage> {
 
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
+
                 height: 2,
+
                 width: isSelected ? 50 : 0,
+
                 decoration: const BoxDecoration(color: tOrange1),
               ),
             ],
@@ -310,23 +578,31 @@ class _MainPageState extends State<MainPage> {
   Widget _buildGetInTouchButton() {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+
       child: GestureDetector(
         onTap: () {
           showGetInTouchDialog(context);
         },
+
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+
           decoration: BoxDecoration(
             gradient: tOrangeGradient2,
+
             borderRadius: BorderRadius.circular(5),
           ),
+
           child: Row(
             children: [
               Text(
                 'Get in Touch',
+
                 style: GoogleFonts.manrope(
                   color: tWhite,
+
                   fontSize: 14,
+
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -335,8 +611,11 @@ class _MainPageState extends State<MainPage> {
 
               SvgPicture.asset(
                 'icons/right_arrow.svg',
+
                 width: 22,
+
                 height: 22,
+
                 colorFilter: const ColorFilter.mode(tWhite, BlendMode.srcIn),
               ),
             ],
@@ -357,16 +636,27 @@ class _GetInTouchDialog extends StatefulWidget {
 class _GetInTouchDialogState extends State<_GetInTouchDialog>
     with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
+
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _phoneController = TextEditingController();
+
   final TextEditingController _subjectController = TextEditingController();
+
   final TextEditingController _messageController = TextEditingController();
+
   late AnimationController _contentAnimationController;
+
   late Animation<double> _leftFadeAnimation;
+
   late Animation<Offset> _leftSlideAnimation;
+
   late Animation<double> _rightFadeAnimation;
+
   late Animation<Offset> _rightSlideAnimation;
+
   String? _messageError;
+
   void _clearMessageError() {
     if (_messageError != null) {
       setState(() {
@@ -374,15 +664,23 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
       });
     }
   }
+
   // Future<void> _makePhoneCall(String phoneNumber) async {
+
   //   final Uri phoneUri = Uri(
+
   //     scheme: 'tel',
+
   //     path: phoneNumber.replaceAll(' ', ''),
+
   //   );
 
   //   if (await canLaunchUrl(phoneUri)) {
+
   //     await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+
   //   }
+
   // }
 
   bool _titleHovered = false;
@@ -393,35 +691,42 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
     _contentAnimationController = AnimationController(
       vsync: this,
+
       duration: const Duration(milliseconds: 700),
     );
 
     _leftFadeAnimation = CurvedAnimation(
       parent: _contentAnimationController,
+
       curve: const Interval(0.10, 0.70, curve: Curves.easeOut),
     );
 
     _leftSlideAnimation = Tween<Offset>(
       begin: const Offset(-0.06, 0),
+
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _contentAnimationController,
+
         curve: const Interval(0.10, 0.70, curve: Curves.easeOutCubic),
       ),
     );
 
     _rightFadeAnimation = CurvedAnimation(
       parent: _contentAnimationController,
+
       curve: const Interval(0.25, 0.95, curve: Curves.easeOut),
     );
 
     _rightSlideAnimation = Tween<Offset>(
       begin: const Offset(0.06, 0),
+
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _contentAnimationController,
+
         curve: const Interval(0.25, 0.95, curve: Curves.easeOutCubic),
       ),
     );
@@ -438,9 +743,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     _contentAnimationController.dispose();
 
     _nameController.dispose();
+
     _emailController.dispose();
+
     _phoneController.dispose();
+
     _subjectController.dispose();
+
     _messageController.dispose();
 
     super.dispose();
@@ -462,15 +771,22 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
   Widget _buildClickableContactInfoItem({
     required String icon,
+
     required String title,
+
     required List<String> values,
+
     required String scheme,
   }) {
     return _AnimatedClickableContactInfoItem(
       icon: icon,
+
       title: title,
+
       values: values,
+
       scheme: scheme,
+
       onOpen: _openContact,
     );
   }
@@ -484,26 +800,36 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     return Center(
       child: Material(
         color: tTransparent,
+
         child: Container(
           width: compact ? screenSize.width * 0.92 : 1125,
+
           constraints: BoxConstraints(maxHeight: screenSize.height * 0.88),
+
           decoration: BoxDecoration(
             color: tWhite,
+
             borderRadius: BorderRadius.circular(22),
+
             boxShadow: [
               BoxShadow(
                 color: tBlack.withOpacity(0.22),
+
                 blurRadius: 35,
+
                 offset: const Offset(0, 18),
               ),
             ],
           ),
+
           clipBehavior: Clip.antiAlias,
+
           child: Stack(
             children: [
               SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(34, 38, 34, 34),
+
                   child:
                       compact ? _buildCompactLayout() : _buildDesktopLayout(),
                 ),
@@ -512,24 +838,35 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
               // CLOSE BUTTON
               Positioned(
                 top: 14,
+
                 right: 14,
+
                 child: Material(
                   color: tTransparent,
+
                   child: InkWell(
                     borderRadius: BorderRadius.circular(30),
+
                     onTap: () {
                       Navigator.of(context).pop();
                     },
+
                     child: Container(
                       width: 34,
+
                       height: 34,
+
                       decoration: const BoxDecoration(
                         color: tBlue2,
+
                         shape: BoxShape.circle,
                       ),
+
                       child: const Icon(
                         Icons.close_rounded,
+
                         color: tWhite,
+
                         size: 20,
                       ),
                     ),
@@ -546,13 +883,17 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   Widget _buildDesktopLayout() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Expanded(
           flex: 4,
+
           child: FadeTransition(
             opacity: _leftFadeAnimation,
+
             child: SlideTransition(
               position: _leftSlideAnimation,
+
               child: _buildContactInformation(),
             ),
           ),
@@ -562,12 +903,16 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         Expanded(
           flex: 6,
+
           child: Padding(
             padding: const EdgeInsets.only(top: 110),
+
             child: FadeTransition(
               opacity: _rightFadeAnimation,
+
               child: SlideTransition(
                 position: _rightSlideAnimation,
+
                 child: _buildContactForm(),
               ),
             ),
@@ -580,11 +925,14 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   Widget _buildCompactLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         FadeTransition(
           opacity: _leftFadeAnimation,
+
           child: SlideTransition(
             position: _leftSlideAnimation,
+
             child: _buildContactInformation(),
           ),
         ),
@@ -593,8 +941,10 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         FadeTransition(
           opacity: _rightFadeAnimation,
+
           child: SlideTransition(
             position: _rightSlideAnimation,
+
             child: _buildContactForm(),
           ),
         ),
@@ -605,6 +955,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   Widget _buildContactInformation() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         MouseRegion(
           onEnter: (_) {
@@ -612,20 +963,27 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
               _titleHovered = true;
             });
           },
+
           onExit: (_) {
             setState(() {
               _titleHovered = false;
             });
           },
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text(
                 'Let’s get in touch',
+
                 style: GoogleFonts.manrope(
                   fontSize: 30,
+
                   fontWeight: FontWeight.w800,
+
                   color: tBlue2,
+
                   height: 1.12,
                 ),
               ),
@@ -634,11 +992,16 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
               AnimatedContainer(
                 duration: const Duration(milliseconds: 280),
+
                 curve: Curves.easeOutCubic,
+
                 height: 3,
+
                 width: 65,
+
                 decoration: BoxDecoration(
                   color: tOrange1,
+
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -652,10 +1015,14 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         Text(
           'We’d love to hear from you. Reach out to our team and let’s discuss how we can help.',
+
           style: GoogleFonts.manrope(
             fontSize: 13,
+
             fontWeight: FontWeight.w500,
+
             color: tBlack.withOpacity(0.55),
+
             height: 1.55,
           ),
         ),
@@ -664,23 +1031,33 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         _buildClickableContactInfoItem(
           icon: 'icons/phone.svg',
+
           title: 'Phone',
+
           values: ['+91 80 41532112', '+91 99 00450640'],
+
           scheme: 'tel',
         ),
+
         const SizedBox(height: 19),
 
         _buildClickableContactInfoItem(
           icon: 'icons/mail.svg',
+
           title: 'Email',
+
           values: ['info@trakmate.co.in'],
+
           scheme: 'mailto',
         ),
+
         const SizedBox(height: 19),
 
         _buildContactInfoItem(
           icon: 'icons/location.svg',
+
           title: 'Office',
+
           content:
               'TrakMate Design Solutions Pvt Ltd\n'
               '17G/46-3 and 17G/46-3-1\n'
@@ -698,7 +1075,9 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
   Widget _buildContactInfoItem({
     required String icon,
+
     required String title,
+
     required String content,
   }) {
     return _AnimatedContactInfoItem(icon: icon, title: title, content: content);
@@ -709,12 +1088,16 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   Widget _buildContactForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Text(
           'Send us a message',
+
           style: GoogleFonts.manrope(
             fontSize: 23,
+
             fontWeight: FontWeight.w800,
+
             color: tBlue2,
           ),
         ),
@@ -723,9 +1106,12 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         Text(
           'Fill in the details below and our team will get in touch with you.',
+
           style: GoogleFonts.manrope(
             fontSize: 13,
+
             fontWeight: FontWeight.w500,
+
             color: tBlack.withOpacity(0.48),
           ),
         ),
@@ -741,9 +1127,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 children: [
                   _buildFormField(
                     controller: _nameController,
+
                     label: 'Name *',
+
                     hint: 'Your name',
+
                     icon: 'icons/person2.svg',
+
                     onChanged: _clearMessageError,
                   ),
 
@@ -751,9 +1141,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
                   _buildFormField(
                     controller: _emailController,
+
                     label: 'Email *',
+
                     hint: 'Your email',
+
                     icon: 'icons/mail.svg',
+
                     onChanged: _clearMessageError,
                   ),
                 ],
@@ -765,9 +1159,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 Expanded(
                   child: _buildFormField(
                     controller: _nameController,
+
                     label: 'Name *',
+
                     hint: 'Your name',
+
                     icon: 'icons/person2.svg',
+
                     onChanged: _clearMessageError,
                   ),
                 ),
@@ -777,9 +1175,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 Expanded(
                   child: _buildFormField(
                     controller: _emailController,
+
                     label: 'Email *',
+
                     hint: 'Your email',
+
                     icon: 'icons/mail.svg',
+
                     onChanged: _clearMessageError,
                   ),
                 ),
@@ -799,9 +1201,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 children: [
                   _buildFormField(
                     controller: _phoneController,
+
                     label: 'Phone',
+
                     hint: 'Your phone number',
+
                     icon: 'icons/phone.svg',
+
                     onChanged: _clearMessageError,
                   ),
 
@@ -809,9 +1215,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
                   _buildFormField(
                     controller: _subjectController,
+
                     label: 'Subject *',
+
                     hint: 'How can we help?',
+
                     icon: 'icons/subject.svg',
+
                     onChanged: _clearMessageError,
                   ),
                 ],
@@ -823,9 +1233,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 Expanded(
                   child: _buildFormField(
                     controller: _phoneController,
+
                     label: 'Phone',
+
                     hint: 'Your phone number',
+
                     icon: 'icons/phone.svg',
+
                     onChanged: _clearMessageError,
                   ),
                 ),
@@ -835,9 +1249,13 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                 Expanded(
                   child: _buildFormField(
                     controller: _subjectController,
+
                     label: 'Subject *',
+
                     hint: 'How can we help?',
+
                     icon: 'icons/subject.svg',
+
                     onChanged: _clearMessageError,
                   ),
                 ),
@@ -853,16 +1271,21 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         // Fixed slot: always takes the same height, so the button never moves.
         SizedBox(
           height: 28,
+
           child: Align(
             alignment: Alignment.centerLeft,
+
             child:
                 _messageError == null
                     ? null
                     : Text(
                       _messageError!,
+
                       style: GoogleFonts.manrope(
                         fontSize: 11.5,
+
                         fontWeight: FontWeight.w600,
+
                         color: Colors.red,
                       ),
                     ),
@@ -873,6 +1296,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
         Align(
           alignment: Alignment.bottomRight,
+
           child: _buildSendMessagesButton(),
         ),
       ],
@@ -881,16 +1305,24 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
 
   Widget _buildFormField({
     required TextEditingController controller,
+
     required String label,
+
     required String hint,
+
     required String icon,
+
     VoidCallback? onChanged,
   }) {
     return _HoverFormField(
       controller: controller,
+
       label: label,
+
       hint: hint,
+
       icon: icon,
+
       onChanged: onChanged,
     );
   }
@@ -898,23 +1330,32 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   Widget _buildMessageField({VoidCallback? onChanged}) {
     return _HoverMessageField(
       controller: _messageController,
+
       onChanged: onChanged,
     );
   }
 
   // Opens the visitor's mail app / webmail with the form data pre-filled
+
   // and addressed to the company mail.
+
   Future<void> _sendMail() async {
     final String subject = _subjectController.text.trim();
+
     final String name = _nameController.text.trim();
+
     final String phone = _phoneController.text.trim();
+
     final String message = _messageController.text.trim();
 
     // Mail subject: "Request for [Subject/Requirement]"
+
     final String mailSubject = 'Request for $subject';
 
     // Mail body in the professional format. The typed message is pasted
+
     // where the request details go; the rest of the format stays default.
+
     final String body =
         'Hi TrakMate,\n\n'
         // 'I hope you’re doing well.\n\n'
@@ -924,6 +1365,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         'Thanks & Regards,\n'
         '$name\n'
         '${phone.isEmpty ? '' : '$phone\n'}';
+
     // '[Company]';
 
     final Uri mailUri = Uri.parse(
@@ -933,6 +1375,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     );
 
     // '_self' keeps your website in the same tab; mailto never navigates away.
+
     await launchUrl(mailUri, webOnlyWindowName: '_self');
   }
 
@@ -949,6 +1392,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
           setState(() {
             _messageError = 'Please fill every required field.';
           });
+
           return;
         }
 
@@ -959,6 +1403,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         await _sendMail();
 
         if (!mounted) return;
+
         Navigator.of(context).pop();
       },
     );
@@ -974,7 +1419,7 @@ class _GoogleMapView extends StatefulWidget {
 
 class _GoogleMapViewState extends State<_GoogleMapView> {
   static const String _googleMapEmbedUrl =
-      'https://www.google.com/maps?q=TrakMate+Design+Solutions+Pvt+Ltd,+17G%2F46-3+and+17G%2F46-3-1,+1st+%26+2nd+floor,+MEI+Road,+Industrial+Suburb,+Yeshwanthpura,+Bengaluru+560022&z=18&output=embed';
+      'https\://www.google.com/maps?q=TrakMate+Design+Solutions+Pvt+Ltd,+17G%2F46-3+and+17G%2F46-3-1,+1st+%26+2nd+floor,+MEI+Road,+Industrial+Suburb,+Yeshwanthpura,+Bengaluru+560022&z=18&output=embed';
 
   late final String _viewType;
 
@@ -990,12 +1435,17 @@ class _GoogleMapViewState extends State<_GoogleMapView> {
       iframe.src = _googleMapEmbedUrl;
 
       iframe.style.border = '0';
+
       iframe.style.width = '100%';
+
       iframe.style.height = '100%';
+
       iframe.style.display = 'block';
 
       iframe.setAttribute('allowfullscreen', 'true');
+
       iframe.setAttribute('loading', 'lazy');
+
       iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
 
       return iframe;
@@ -1019,7 +1469,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
   bool _isHovered = false;
 
   static const String _googleMapsUrl =
-      'https://www.google.com/maps?q=TrakMate+Design+Solutions+Pvt+Ltd,+17G%2F46-3+and+17G%2F46-3-1,+1st+%26+2nd+floor,+MEI+Road,+Industrial+Suburb,+Yeshwanthpura,+Bengaluru+560022&z=18&output=embed%27';
+      'https\://www.google.com/maps?q=TrakMate+Design+Solutions+Pvt+Ltd,+17G%2F46-3+and+17G%2F46-3-1,+1st+%26+2nd+floor,+MEI+Road,+Industrial+Suburb,+Yeshwanthpura,+Bengaluru+560022&z=18&output=embed%27';
 
   Future<void> _openGoogleMaps() async {
     final Uri url = Uri.parse(_googleMapsUrl);
@@ -1063,6 +1513,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                 _isHovered
                     ? tOrange1.withOpacity(0.60)
                     : tBlue3.withOpacity(0.12),
+
             width: _isHovered ? 1.2 : 1,
           ),
 
@@ -1071,7 +1522,9 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                   ? [
                     BoxShadow(
                       color: tOrange1.withOpacity(0.10),
+
                       blurRadius: 16,
+
                       offset: const Offset(0, 6),
                     ),
                   ]
@@ -1086,10 +1539,13 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
             Positioned(
               top: 10,
+
               left: 10,
+
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
+
                   vertical: 7,
                 ),
 
@@ -1101,7 +1557,9 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                   boxShadow: [
                     BoxShadow(
                       color: tBlack.withOpacity(0.14),
+
                       blurRadius: 8,
+
                       offset: const Offset(0, 3),
                     ),
                   ],
@@ -1109,10 +1567,13 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
+
                   children: [
                     const _PopupSvgIcon(
                       asset: 'icons/location.svg',
+
                       size: 14,
+
                       color: tBlue2,
                     ),
 
@@ -1120,9 +1581,12 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
                     Text(
                       'TrakMate',
+
                       style: GoogleFonts.manrope(
                         fontSize: 10,
+
                         fontWeight: FontWeight.w800,
+
                         color: tBlue2,
                       ),
                     ),
@@ -1133,14 +1597,18 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
             Positioned(
               right: 10,
+
               bottom: 10,
+
               child: GestureDetector(
                 onTap: _openGoogleMaps,
+
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
 
                   padding: const EdgeInsets.symmetric(
                     horizontal: 11,
+
                     vertical: 7,
                   ),
 
@@ -1152,7 +1620,9 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                     boxShadow: [
                       BoxShadow(
                         color: tBlack.withOpacity(0.18),
+
                         blurRadius: 8,
+
                         offset: const Offset(0, 3),
                       ),
                     ],
@@ -1160,12 +1630,16 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
+
                     children: [
                       Text(
                         'OPEN IN MAPS',
+
                         style: GoogleFonts.manrope(
                           fontSize: 9.5,
+
                           fontWeight: FontWeight.w800,
+
                           color: tWhite,
                         ),
                       ),
@@ -1174,7 +1648,9 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
                       const _PopupSvgIcon(
                         asset: 'icons/right_arrow.svg',
+
                         size: 12,
+
                         color: tWhite,
                       ),
                     ],
@@ -1191,7 +1667,9 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
 
 class _PopupSvgIcon extends StatelessWidget {
   final String asset;
+
   final double size;
+
   final Color? color;
 
   const _PopupSvgIcon({required this.asset, this.size = 16, this.color});
@@ -1200,8 +1678,11 @@ class _PopupSvgIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return SvgPicture.asset(
       asset,
+
       width: size,
+
       height: size,
+
       colorFilter:
           color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
     );
@@ -1210,6 +1691,7 @@ class _PopupSvgIcon extends StatelessWidget {
 
 class _HoverableContactValue extends StatefulWidget {
   final String value;
+
   final VoidCallback onTap;
 
   const _HoverableContactValue({required this.value, required this.onTap});
@@ -1225,24 +1707,37 @@ class _HoverableContactValueState extends State<_HoverableContactValue> {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+
       onEnter: (_) => setState(() => _hovered = true),
+
       onExit: (_) => setState(() => _hovered = false),
+
       child: GestureDetector(
         onTap: widget.onTap,
+
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
+
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+
           decoration: BoxDecoration(
             color: _hovered ? tBlue3.withOpacity(0.05) : tTransparent,
+
             borderRadius: BorderRadius.circular(5),
           ),
+
           child: Text(
             widget.value,
+
             style: GoogleFonts.manrope(
               fontSize: 12,
+
               fontWeight: FontWeight.w600,
+
               color: tBlue2,
+
               height: 1.5,
+
               decoration: TextDecoration.none,
             ),
           ),
@@ -1254,12 +1749,16 @@ class _HoverableContactValueState extends State<_HoverableContactValue> {
 
 class _AnimatedContactInfoItem extends StatefulWidget {
   final String icon;
+
   final String title;
+
   final String content;
 
   const _AnimatedContactInfoItem({
     required this.icon,
+
     required this.title,
+
     required this.content,
   });
 
@@ -1299,6 +1798,7 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
           children: [
             Container(
               width: 42,
+
               height: 42,
 
               decoration: BoxDecoration(
@@ -1310,7 +1810,9 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
               child: Center(
                 child: _PopupSvgIcon(
                   asset: widget.icon,
+
                   size: 23,
+
                   color: tBlue3,
                 ),
               ),
@@ -1325,9 +1827,12 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
                 children: [
                   Text(
                     widget.title,
+
                     style: GoogleFonts.manrope(
                       fontSize: 12.5,
+
                       fontWeight: FontWeight.w600,
+
                       color: tBlack.withOpacity(0.52),
                     ),
                   ),
@@ -1336,10 +1841,14 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
 
                   Text(
                     widget.content,
+
                     style: GoogleFonts.manrope(
                       fontSize: 12,
+
                       fontWeight: FontWeight.w600,
+
                       color: tBlue2,
+
                       height: 1.5,
                     ),
                   ),
@@ -1355,16 +1864,24 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
 
 class _AnimatedClickableContactInfoItem extends StatefulWidget {
   final String icon;
+
   final String title;
+
   final List<String> values;
+
   final String scheme;
+
   final Future<void> Function(String value, String scheme) onOpen;
 
   const _AnimatedClickableContactInfoItem({
     required this.icon,
+
     required this.title,
+
     required this.values,
+
     required this.scheme,
+
     required this.onOpen,
   });
 
@@ -1381,25 +1898,37 @@ class _AnimatedClickableContactInfoItemState
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
+
       onEnter: (_) => setState(() => _hovered = true),
+
       onExit: (_) => setState(() => _hovered = false),
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
+
         transform: Matrix4.translationValues(_hovered ? 3 : 0, 0, 0),
+
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Container(
               width: 42,
+
               height: 42,
+
               decoration: BoxDecoration(
                 color: tBlue3.withOpacity(0.08),
+
                 borderRadius: BorderRadius.circular(10),
               ),
+
               child: Center(
                 child: _PopupSvgIcon(
                   asset: widget.icon,
+
                   size: 23,
+
                   color: tBlue3,
                 ),
               ),
@@ -1410,12 +1939,16 @@ class _AnimatedClickableContactInfoItemState
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   Text(
                     widget.title,
+
                     style: GoogleFonts.manrope(
                       fontSize: 12.5,
+
                       fontWeight: FontWeight.w600,
+
                       color: tBlack.withOpacity(0.52),
                     ),
                   ),
@@ -1425,8 +1958,10 @@ class _AnimatedClickableContactInfoItemState
                   ...widget.values.map(
                     (value) => Padding(
                       padding: const EdgeInsets.only(bottom: 3),
+
                       child: _HoverableContactValue(
                         value: value,
+
                         onTap: () => widget.onOpen(value, widget.scheme),
                       ),
                     ),
@@ -1445,14 +1980,22 @@ class _HoverFormField extends StatefulWidget {
   final TextEditingController controller;
 
   final String label;
+
   final String hint;
+
   final String icon;
+
   final VoidCallback? onChanged;
+
   const _HoverFormField({
     required this.controller,
+
     required this.label,
+
     required this.hint,
+
     required this.icon,
+
     this.onChanged,
   });
 
@@ -1487,7 +2030,9 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
             style: GoogleFonts.manrope(
               fontSize: 13,
+
               fontWeight: FontWeight.w600,
+
               color: tBlack.withOpacity(0.70),
             ),
           ),
@@ -1519,9 +2064,11 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
               child: TextField(
                 controller: widget.controller,
+
                 onChanged: (_) {
                   widget.onChanged?.call();
                 },
+
                 textAlignVertical: TextAlignVertical.center,
 
                 style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
@@ -1543,19 +2090,25 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
                   contentPadding: const EdgeInsets.only(
                     left: 4,
+
                     right: 12,
+
                     top: 0,
+
                     bottom: 0,
                   ),
 
                   prefixIcon: SizedBox(
                     width: 46,
+
                     height: 48,
 
                     child: Center(
                       child: _PopupSvgIcon(
                         asset: widget.icon,
+
                         size: 23,
+
                         color: tBlue3,
                       ),
                     ),
@@ -1563,8 +2116,11 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
                   prefixIconConstraints: const BoxConstraints(
                     minWidth: 46,
+
                     maxWidth: 46,
+
                     minHeight: 48,
+
                     maxHeight: 48,
                   ),
 
@@ -1572,6 +2128,7 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
                   hintStyle: GoogleFonts.manrope(
                     fontSize: 13,
+
                     color: tBlack.withOpacity(0.30),
                   ),
                 ),
@@ -1586,7 +2143,9 @@ class _HoverFormFieldState extends State<_HoverFormField> {
 
 class _HoverMessageField extends StatefulWidget {
   final TextEditingController controller;
+
   final VoidCallback? onChanged;
+
   const _HoverMessageField({required this.controller, this.onChanged});
 
   @override
@@ -1620,7 +2179,9 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
 
             style: GoogleFonts.manrope(
               fontSize: 13.5,
+
               fontWeight: FontWeight.w600,
+
               color: tBlack.withOpacity(0.70),
             ),
           ),
@@ -1652,11 +2213,15 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
 
               child: TextField(
                 controller: widget.controller,
+
                 onChanged: (_) {
                   widget.onChanged?.call();
                 },
+
                 maxLines: null,
+
                 expands: true,
+
                 textAlignVertical: TextAlignVertical.top,
 
                 style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
@@ -1682,6 +2247,7 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
 
                   hintStyle: GoogleFonts.manrope(
                     fontSize: 13.5,
+
                     color: tBlack.withOpacity(0.30),
                   ),
                 ),
@@ -1755,16 +2321,23 @@ class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
             children: [
               Text(
                 'SEND MESSAGE',
+
                 style: GoogleFonts.manrope(
                   fontSize: 11,
+
                   fontWeight: FontWeight.w800,
+
                   color: tWhite,
                 ),
               ),
+
               const SizedBox(width: 10),
+
               const _PopupSvgIcon(
                 asset: 'icons/right_arrow.svg',
+
                 size: 14,
+
                 color: tWhite,
               ),
             ],

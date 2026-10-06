@@ -1,12 +1,36 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:svg_flutter/svg.dart';
+// import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
+
+class _SpecBadgeInfo {
+  final String title;
+  final Color tint; // soft circle colour
+  const _SpecBadgeInfo(this.title, this.tint);
+}
+
+// Key = the asset path used in specBadges. Edit titles/tints here.
+const Map<String, _SpecBadgeInfo> _kSpecBadgeInfo = {
+  'images/4g1.png': _SpecBadgeInfo('4G+2G', Color(0xFFE3EAF5)),
+  'images/4g2.png': _SpecBadgeInfo('4G', Color(0xFFE3EAF5)),
+  'images/ev1.png': _SpecBadgeInfo('EV Compatible', Color(0xFFDDF1DD)),
+  'images/ble1.png': _SpecBadgeInfo(
+    'Bluetooth Connectivity',
+    Color(0xFFDCE9FA),
+  ),
+  'images/wifi1.png': _SpecBadgeInfo('Wi-Fi', Color(0xFFE3EAF5)),
+  'images/linux1.png': _SpecBadgeInfo('Linux OS', Color(0xFFF1EBDD)),
+  'images/android1.png': _SpecBadgeInfo('Android OS', Color(0xFFDDF1DD)),
+  'images/hd1.png': _SpecBadgeInfo('HD Display', Color(0xFFE3EAF5)),
+  'images/ethernet1.png': _SpecBadgeInfo('Ethernet', Color(0xFFE3EAF5)),
+};
 
 class ProductDetailsPage extends StatefulWidget {
   final ProductData product;
@@ -136,57 +160,31 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     _videoController?.dispose();
     super.dispose();
   }
-  //static
-  // Widget _buildSpecsSlide(String productImage) {
-  //   // ====== CONTROLS ======
-  //   const double imagePadding = 108; // padding around the product image
-  //   const double badgeWidth = 110;
-  //   const double badgeHeight = 70;
-  //   const double badgeGap = 9;
-  //   const double badgeRightOffset =
-  //       120; // distance of badges from the right edge (bigger = more left)
-  //   const double badgeVerticalAlign = 0; // -1 = top, 0 = center, 1 = bottom
 
-  //   return Stack(
-  //     children: [
-  //       // Product image — always fills the full slide, untouched by badges
-  //       Padding(
-  //         padding: const EdgeInsets.all(imagePadding),
-  //         child: Image.asset(productImage, fit: BoxFit.contain),
-  //       ),
+  // Slide size on YOUR screen (the "perfect" look). Scale = 1.0 at this size.
+  static const double _kRefSlideWidth = 900; //900,862
+  static const double _kRefSlideHeight = 660; //660,598
 
-  //       // Badge column — floats independently, positioned from the right
-  //       Positioned(
-  //         right: badgeRightOffset,
-  //         top: 0,
-  //         bottom: 0,
-  //         child: Align(
-  //           alignment: Alignment(0, badgeVerticalAlign),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               for (int i = 0; i < product.specBadges.length; i++)
-  //                 Padding(
-  //                   padding: EdgeInsets.only(top: i == 0 ? 0 : badgeGap),
-  //                   child: SizedBox(
-  //                     width: badgeWidth,
-  //                     height: badgeHeight,
-  //                     child: Image.asset(
-  //                       product.specBadges[i],
-  //                       fit: BoxFit.contain,
-  //                     ),
-  //                   ),
-  //                 ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
+  double _slideScale(BoxConstraints c) {
+    final double s = math.min(
+      c.maxWidth / _kRefSlideWidth,
+      c.maxHeight / _kRefSlideHeight,
+    );
+    return s.clamp(0.45, 1.0);
+  }
   // Widget _buildSpecsSlide(String productImage) {
   //   final SpecsSlideStyle s = product.specsStyle;
+
+  //   final int topCount = s.topRowCount.clamp(0, product.specBadges.length);
+  //   final List<String> topBadges = product.specBadges.take(topCount).toList();
+  //   final List<String> columnBadges =
+  //       product.specBadges.skip(topCount).toList();
+
+  //   Widget badge(String path) => SizedBox(
+  //     width: s.badgeWidth,
+  //     height: s.badgeHeight,
+  //     child: Image.asset(path, fit: BoxFit.contain),
+  //   );
 
   //   return Stack(
   //     children: [
@@ -194,34 +192,114 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   //         padding: EdgeInsets.all(s.imagePadding),
   //         child: Image.asset(productImage, fit: BoxFit.contain),
   //       ),
-  //       Positioned.fill(
-  //         child: Align(
-  //           alignment: Alignment(1, s.badgeVerticalAlign),
-  //           child: Padding(
-  //             padding: EdgeInsets.only(right: s.badgeRightOffset),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 for (int i = 0; i < product.specBadges.length; i++)
-  //                   Padding(
-  //                     padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
-  //                     child: SizedBox(
-  //                       width: s.badgeWidth,
-  //                       height: s.badgeHeight,
-  //                       child: Image.asset(
-  //                         product.specBadges[i],
-  //                         fit: BoxFit.contain,
+
+  //       // NEW: top row
+  //       if (topBadges.isNotEmpty)
+  //         Positioned(
+  //           top: s.topRowTopOffset,
+  //           right: s.badgeRightOffset,
+  //           // left: 0,
+  //           // right: 0,
+  //           child: Align(
+  //             alignment: Alignment(s.topRowAlignX, 0),
+  //             child: Padding(
+  //               padding: EdgeInsets.symmetric(horizontal: s.topRowSideOffset),
+  //               child: Row(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   for (int i = 0; i < topBadges.length; i++)
+  //                     Padding(
+  //                       padding: EdgeInsets.only(
+  //                         left: i == 0 ? 0 : s.topRowGap,
   //                       ),
+  //                       child: badge(topBadges[i]),
   //                     ),
-  //                   ),
-  //               ],
+  //                 ],
+  //               ),
   //             ),
   //           ),
   //         ),
-  //       ),
+
+  //       // Existing column (now only the remaining badges)
+  //       if (columnBadges.isNotEmpty)
+  //         Positioned.fill(
+  //           child: Align(
+  //             alignment: Alignment(1, s.badgeVerticalAlign),
+  //             child: Padding(
+  //               padding: EdgeInsets.only(right: s.badgeRightOffset),
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   for (int i = 0; i < columnBadges.length; i++)
+  //                     Padding(
+  //                       padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
+  //                       child: badge(columnBadges[i]),
+  //                     ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
   //     ],
   //   );
   // }
+  Widget _buildSpecBadgeItem(String path, double kb) {
+    final _SpecBadgeInfo info =
+        _kSpecBadgeInfo[path] ??
+        _SpecBadgeInfo(
+          path
+              .split('/')
+              .last
+              .split('.')
+              .first
+              .replaceAll(RegExp(r'\d+$'), '')
+              .toUpperCase(),
+          tBlue3.withOpacity(0.10),
+        );
+
+    final double circle = 96 * kb; //circle size
+
+    return SizedBox(
+      width: 132 * kb,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: circle,
+            height: circle,
+            padding: EdgeInsets.all(circle * 0.1), //icon size
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [tWhite, info.tint],
+                stops: const [0.5, 1.0],
+              ),
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: info.tint.withOpacity(0.9),
+              //     blurRadius: 18 * kb,
+              //     offset: Offset(0, 6 * kb),
+              //   ),
+              // ],
+            ),
+            child: Image.asset(path, fit: BoxFit.contain),
+          ),
+          SizedBox(height: 8 * kb),
+          Text(
+            info.title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            style: GoogleFonts.manrope(
+              fontSize: 13 * math.max(kb, 0.85),
+              fontWeight: FontWeight.w800,
+              color: tBlue2,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSpecsSlide(String productImage) {
     final SpecsSlideStyle s = product.specsStyle;
@@ -231,109 +309,215 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     final List<String> columnBadges =
         product.specBadges.skip(topCount).toList();
 
-    Widget badge(String path) => SizedBox(
-      width: s.badgeWidth,
-      height: s.badgeHeight,
-      child: Image.asset(path, fit: BoxFit.contain),
-    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double k = _slideScale(constraints);
+        debugPrint(
+          'SLIDE SIZE: ${constraints.maxWidth} x ${constraints.maxHeight}',
+        );
+        // ===== TUNE THESE =====
+        const double kMinBadgeScale = 0.75; // badges never shrink below 75%
+        const double kImageBadgeGap = 28; // gap image <-> badges (at k = 1)
+        // ======================
 
-    return Stack(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(s.imagePadding),
-          child: Image.asset(productImage, fit: BoxFit.contain),
-        ),
+        final double badgeRight = math.max(s.badgeRightOffset * k, 40);
+        final double gap = kImageBadgeGap * k;
+        final double imagePad = s.imagePadding * k;
+        final double leftPad = math.max(56, imagePad * 0.6);
+        final int n = columnBadges.length;
+        final bool both = topBadges.isNotEmpty && n > 0;
+        double kb = math.max(k, kMinBadgeScale);
+        // Extra top gap on smaller screens (only row + column slides)
+        double imageTopPad = imagePad;
+        if (both && s.imagePaddingSmall != null) {
+          // t = 0 on your screen, 1 on the smallest screen
+          final double t = ((1 - k) / (1 - 0.45)).clamp(0.0, 1.0);
+          imageTopPad =
+              s.imagePadding + (s.imagePaddingSmall! - s.imagePadding) * t;
+        }
+        // ONLY for slides that have BOTH a top row and a column:
+        // use one shared scale that fits both, so circles match in size.
+        if (topBadges.isNotEmpty && n > 0) {
+          const double itemH =
+              136; // approx badge height at full size (circle + title)
+          final int t = topBadges.length;
 
-        // NEW: top row
-        if (topBadges.isNotEmpty)
-          Positioned(
-            top: s.topRowTopOffset,
-            right: s.badgeRightOffset,
-            // left: 0,
-            // right: 0,
-            child: Align(
-              alignment: Alignment(s.topRowAlignX, 0),
+          // largest scale at which the column fits under the top row
+          final double fitH =
+              (constraints.maxHeight - 104 - s.topRowTopOffset * k) /
+              (n * itemH + (n - 1) * s.badgeGap + 150);
+
+          // largest scale at which the top row fits across the width
+          final double fitW =
+              (constraints.maxWidth - leftPad - badgeRight) /
+              (t * 132 + (t - 1) * s.topRowGap);
+
+          kb = math.min(kb, math.min(fitH, fitW)).clamp(0.3, 1.0);
+        }
+
+        final double itemW = 132 * kb;
+
+        // If there is a top row, push the column below it.
+        final double topReserve =
+            topBadges.isEmpty ? 0 : (s.topRowTopOffset * k) + (150 * kb);
+
+        return Stack(
+          children: [
+            Positioned.fill(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: s.topRowSideOffset),
+                // bottom 80 keeps everything clear of the thumbnails
+                padding: EdgeInsets.fromLTRB(
+                  leftPad,
+                  24,
+                  n > 0 ? badgeRight : leftPad,
+                  80,
+                ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (int i = 0; i < topBadges.length; i++)
-                      Padding(
+                    Expanded(
+                      child: Padding(
                         padding: EdgeInsets.only(
-                          left: i == 0 ? 0 : s.topRowGap,
+                          // top: math.max(imagePad - 24, 0),
+                          top: math.max(imageTopPad - 24, 0),
+                          bottom: math.max(imagePad - 80, 0),
                         ),
-                        child: badge(topBadges[i]),
+                        child: Image.asset(
+                          productImage,
+                          fit: BoxFit.contain,
+                          alignment:
+                              n > 0 ? Alignment.centerRight : Alignment.center,
+                        ),
                       ),
+                    ),
+                    if (n > 0) ...[
+                      SizedBox(width: gap),
+                      SizedBox(
+                        width: itemW,
+                        // child: Padding(
+                        //   padding: EdgeInsets.only(top: topReserve),
+                        child:
+                            both
+                                ? const SizedBox.shrink()
+                                : Padding(
+                                  padding: EdgeInsets.only(top: topReserve),
+                                  child: Align(
+                                    alignment: Alignment(
+                                      -1,
+                                      s.badgeVerticalAlign,
+                                    ),
+                                    // Shrinks the whole column only if it can't fit
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          for (int i = 0; i < n; i++)
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top:
+                                                    i == 0
+                                                        ? 0
+                                                        : s.badgeGap * kb,
+                                              ),
+                                              child: _buildSpecBadgeItem(
+                                                columnBadges[i],
+                                                kb,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
-          ),
 
-        // Existing column (now only the remaining badges)
-        if (columnBadges.isNotEmpty)
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment(1, s.badgeVerticalAlign),
-              child: Padding(
-                padding: EdgeInsets.only(right: s.badgeRightOffset),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (int i = 0; i < columnBadges.length; i++)
-                      Padding(
-                        padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
-                        child: badge(columnBadges[i]),
-                      ),
-                  ],
+            // Top row (only products with topRowCount > 0)
+            // if (topBadges.isNotEmpty)
+            if (topBadges.isNotEmpty && !both)
+              Positioned(
+                top: s.topRowTopOffset * k,
+                left: leftPad,
+                right: badgeRight,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (int i = 0; i < topBadges.length; i++)
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: i == 0 ? 0 : s.topRowGap * kb,
+                            ),
+                            child: _buildSpecBadgeItem(topBadges[i], kb),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-      ],
+            // Row + column as ONE block: same right edge, same scale.
+            if (both)
+              Positioned(
+                top: s.topRowTopOffset * k,
+                bottom: 80, // keeps clear of the thumbnails
+                left: leftPad,
+                right: badgeRight,
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.topRight,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment:
+                          CrossAxisAlignment
+                              .end, // column sits under row's LAST badge
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (int i = 0; i < topBadges.length; i++)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: i == 0 ? 0 : s.topRowGap * kb,
+                                ),
+                                child: _buildSpecBadgeItem(topBadges[i], kb),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: s.badgeGap * kb),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (int i = 0; i < n; i++)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: i == 0 ? 0 : s.badgeGap * kb,
+                                ),
+                                child: _buildSpecBadgeItem(columnBadges[i], kb),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
-  // Widget _buildSpecsSlide(String productImage) {
-  //   final layout = product.specsLayout;
-
-  //   return Stack(
-  //     children: [
-  //       // Product image
-  //       Padding(
-  //         padding: EdgeInsets.all(layout.imagePadding),
-  //         child: Image.asset(productImage, fit: BoxFit.contain),
-  //       ),
-
-  //       // Badge column
-  //       Positioned(
-  //         right: layout.badgeRightOffset,
-  //         top: 0,
-  //         bottom: 0,
-  //         child: Align(
-  //           alignment: Alignment(0, layout.badgeVerticalAlign),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               for (int i = 0; i < product.specBadges.length; i++)
-  //                 Padding(
-  //                   padding: EdgeInsets.only(top: i == 0 ? 0 : layout.badgeGap),
-  //                   child: SizedBox(
-  //                     width: layout.badgeWidth,
-  //                     height: layout.badgeHeight,
-  //                     child: Image.asset(
-  //                       product.specBadges[i],
-  //                       fit: BoxFit.contain,
-  //                     ),
-  //                   ),
-  //                 ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -589,82 +773,50 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     },
 
                     itemBuilder: (context, index) {
-                      if (index >= _productImages.length && _hasVideo) {
-                        return Padding(
-                          padding: const EdgeInsets.all(88),
-                          child: _buildVideoSlide(),
-                        );
-                      }
-                      // Specs slide: NO outer padding here.
-                      // Padding for the product image is applied
-                      // INSIDE _buildSpecsSlide, only around the image.
-                      if (index == 0 && product.specBadges.isNotEmpty) {
-                        return _buildSpecsSlide(_productImages[0]);
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.all(88),
-                        child: Image.asset(
-                          _productImages[index],
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
-                              child: Icon(
-                                Icons.image_not_supported_outlined,
-                                size: 48,
-                                color: tBlack.withOpacity(0.20),
-                              ),
+                      return LayoutBuilder(
+                        builder: (context, c) {
+                          final double pad =
+                              120 * _slideScale(c); //product image padding
+
+                          if (index >= _productImages.length && _hasVideo) {
+                            return Padding(
+                              padding: EdgeInsets.all(pad),
+                              child: _buildVideoSlide(),
                             );
-                          },
-                        ),
+                          }
+
+                          if (index == 0 && product.specBadges.isNotEmpty) {
+                            return _buildSpecsSlide(_productImages[0]);
+                          }
+
+                          return Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              math.max(pad, 56),
+                              pad,
+                              math.max(pad, 56),
+                              math.max(pad, 72),
+                            ),
+                            child: Image.asset(
+                              _productImages[index],
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    Icons.image_not_supported_outlined,
+                                    size: 48,
+                                    color: tBlack.withOpacity(0.20),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
                 ),
+
                 // ),
-                //  Positioned.fill(
-                //             // child: Padding(
-                //             //   padding: const EdgeInsets.all(28),
-                //             child: PageView.builder(
-                //               controller: _imagePageController,
-
-                //               itemCount: _carouselItemCount,
-
-                //               onPageChanged: (index) {
-                //                 if (!mounted) return;
-
-                //                 setState(() {
-                //                   _currentImageIndex = index;
-                //                 });
-                //               },
-
-                //               itemBuilder: (context, index) {
-                //                 if (index >= _productImages.length && _hasVideo) {
-                //                   return _buildVideoSlide();
-                //                 }
-                //                 return Padding(
-                //                   padding: const EdgeInsets.all(28),
-                //                   child: Image.asset(
-                //                     _productImages[index],
-
-                //                     fit: BoxFit.contain,
-
-                //                     errorBuilder: (context, error, stackTrace) {
-                //                       return Center(
-                //                         child: Icon(
-                //                           Icons.image_not_supported_outlined,
-
-                //                           size: 48,
-
-                //                           color: tBlack.withOpacity(0.20),
-                //                         ),
-                //                       );
-                //                     },
-                //                   ),
-                //                 );
-                //               },
-                //             ),
-                //             // ),
-                //           ),
                 Positioned(
                   left: 5,
                   top: 0,
@@ -805,66 +957,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
     );
   }
-  // Widget _buildVideoSlide() {
-  //     if (_videoController == null || !_videoController!.value.isInitialized) {
-  //       return const Center(child: CircularProgressIndicator());
-  //     }
 
-  //     final size = _videoController!.value.size;
-
-  //     return SizedBox.expand(
-  //       child: Stack(
-  //         alignment: Alignment.center,
-  //         children: [
-  //           ClipRect(
-  //             child: FittedBox(
-  //               fit:
-  //                   BoxFit
-  //                       .cover, // <-- CHANGE THIS: cover = crop, contain = whole video
-  //               child: SizedBox(
-  //                 width: size.width,
-  //                 height: size.height,
-  //                 child: VideoPlayer(_videoController!),
-  //               ),
-  //             ),
-  //           ),
-  //           GestureDetector(
-  //             onTap: () {
-  //               final value = _videoController!.value;
-  //               final bool isFinished =
-  //                   value.position >= value.duration &&
-  //                   value.duration > Duration.zero;
-
-  //               if (isFinished) {
-  //                 _videoController!.seekTo(Duration.zero);
-  //                 _videoController!.play();
-  //               } else if (value.isPlaying) {
-  //                 _videoController!.pause();
-  //               } else {
-  //                 _videoController!.play();
-  //               }
-  //             },
-  //             child: AnimatedOpacity(
-  //               opacity: _videoController!.value.isPlaying ? 0 : 1,
-  //               duration: const Duration(milliseconds: 200),
-  //               child: Container(
-  //                 decoration: BoxDecoration(
-  //                   color: tBlack.withOpacity(0.35),
-  //                   shape: BoxShape.circle,
-  //                 ),
-  //                 padding: const EdgeInsets.all(14),
-  //                 child: const Icon(
-  //                   Icons.play_arrow_rounded,
-  //                   color: Colors.white,
-  //                   size: 36,
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
   Widget _buildProductThumbnail(int index) {
     final bool isSelected = _currentImageIndex == index;
 

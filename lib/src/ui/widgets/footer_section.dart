@@ -63,7 +63,7 @@ class FooterSection extends StatelessWidget {
 
               _menu("Products", [
                 "All Products",
-                "Vehicle Trackers",
+                "Telematics",
                 "Vehicle Diagnostics",
                 "Gateways",
                 "Clusters",
@@ -80,19 +80,26 @@ class FooterSection extends StatelessWidget {
               //   "Downloads",
               //   "FAQs",
               // ]),
+              // _menu("Company", [
+              //   "About Us",
+              //   "Our Team",
+              //   "Infrastructure",
+              //   "Careers",
+              //   "News & Media",
+              //   "Contact Us",
+              // ], sectionIndex: 5),
               _menu("Company", [
                 "About Us",
+                "Our Journey",
+                "Vision & Mission",
                 "Our Team",
-                "Infrastructure",
-                "Careers",
-                "News & Media",
+                "Certifictations",
                 "Contact Us",
-              ], sectionIndex: 4),
-
+              ], sectionIndex: 5),
               _divider(),
 
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

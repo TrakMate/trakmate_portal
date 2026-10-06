@@ -81,7 +81,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   final List<_FilterTabData> _filterTabs = const [
     _FilterTabData(icon: "icons/all.svg", label: 'All Products'),
-    _FilterTabData(icon: "icons/trackers1.svg", label: 'Trackers'),
+    _FilterTabData(icon: "icons/trackers1.svg", label: 'Telematics'),
     _FilterTabData(icon: "icons/diagnostics.svg", label: 'Diagnostics'),
 
     _FilterTabData(icon: "icons/gateways1.svg", label: 'Gateways'),
@@ -115,7 +115,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadgeColor: tOrange1,
       title: 'TMD104',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      category: 'Telematics',
       description:
           '4G LTE modem with 2G fallback, real-time tracking, geo-fencing, and  monitoring.',
       connectivity: ['4G', '2G'],
@@ -144,6 +144,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeWidth: 120,
         badgeRightOffset: 120,
         badgeGap: 25,
+        badgeHeight: 70,
       ),
       // image7: 'images/tmd024-top-view.png',
       badge: '4G',
@@ -152,7 +153,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadgeColor: tOrange1,
       title: 'TMD004',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      category: 'Telematics',
       description:
           '4G LTE modem with datalogging, CAN/BMS monitoring, BLE sensor integration, and FOTA support.',
 
@@ -191,7 +192,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadgeColor: tOrange1,
       title: 'TMD024',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      category: 'Telematics',
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       connectivity: ['4G', '2G'],
@@ -212,13 +213,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd006-back.png',
       image4: 'images/tmd006-side.png',
       image5: 'images/tmd006-bottom.png',
-      specBadges: ['images/4g1.png'],
+      specBadges: ['images/4g1.png', 'images/ble1.png'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 118,
         badgeWidth: 120,
-        badgeRightOffset: 80,
+        badgeRightOffset: 100,
         badgeHeight: 70,
-        badgeVerticalAlign: -0.4,
+        badgeVerticalAlign: 0,
+        badgeGap: 25,
       ),
       badge: '4G',
       badgeColor: tBlue3,
@@ -228,7 +230,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       thirdbadgeColor: newbadge,
       title: 'TMD006',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      category: 'Telematics',
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       connectivity: ['4G', '2G'],
@@ -260,7 +262,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       badgeColor: newbadge,
       title: 'TMB024',
       subtitle: 'Advanced GPS Tracker',
-      category: 'Trackers',
+      category: 'Telematics',
       description:
           '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
       connectivity: ['4G', '2G'],
@@ -286,7 +288,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeWidth: 120,
         badgeRightOffset: 100,
         badgeHeight: 70,
-
+        badgeGap: 25,
         badgeVerticalAlign: -0.4,
       ),
       badge: "OBD-II",
@@ -294,7 +296,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       // secondBadge: 'new',
       // secondBadgeColor: newbadge,
       title: 'TMD400',
-      subtitle: 'Industrial IoT Gateway',
+      subtitle: 'Advanced IoT Gateway',
       category: 'Diagnostics',
       description:
           'OBD vehicle diagnostics with Bluetooth 5.0, remote diagnostics, and error detection.',
@@ -311,12 +313,22 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd300.png',
+      image1: 'images/tmd300.png',
+      specBadges: ['images/ble1.png', 'images/ev1.png'],
+      specsStyle: SpecsSlideStyle(
+        imagePadding: 118,
+        badgeWidth: 120,
+        badgeRightOffset: 100,
+        badgeHeight: 70,
+        badgeGap: 25,
+        badgeVerticalAlign: -0.4,
+      ),
       badge: "OBD-II",
       badgeColor: ipbadge,
       secondBadge: 'new',
       secondBadgeColor: newbadge,
       title: 'TMD300',
-      subtitle: 'Industrial Vehicle Diagnostics',
+      subtitle: 'Advanced Vehicle Diagnostics',
       category: 'Diagnostics',
       description:
           '16Pin OBD2 Connector OBDii 16 Pin Adaptor OBD II Male Plug J1962 Car Connector.',
@@ -346,6 +358,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeRightOffset: 90,
         badgeHeight: 70,
         badgeVerticalAlign: 0,
+        badgeGap: 25,
       ),
       // image5: 'images/tmd364-side1.png',
       video: 'video/tmd364_demo.mp4',
@@ -355,8 +368,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD364',
-      subtitle: 'Industrial IoT Gateway',
-      category: 'Trackers',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Telematics',
       description:
           '4G LTE with 2G fallback, CAN/RS232 interfaces, BLE 5.0, motion sensing, and IP67 protection.',
       connectivity: ['4G', '2G'],
@@ -389,13 +402,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeRightOffset: 90,
         badgeHeight: 70,
         badgeVerticalAlign: 0,
+        badgeGap: 25,
       ),
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TCU510',
-      subtitle: 'Industrial IoT Gateway',
+      subtitle: 'Advanced IoT Gateway',
       category: 'Gateways',
       description:
           '4G LTE with 2G fallback, secure communication, ECU monitoring, SD card data logging.',
@@ -426,17 +440,19 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
-        badgeWidth: 120,
+        // badgeWidth: 120,
         badgeRightOffset: 90,
-        badgeHeight: 70,
+        // badgeHeight: 70,
         badgeVerticalAlign: 0,
+        topRowCount: 3,
+        badgeGap: 25,
       ),
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TCU520',
-      subtitle: 'Industrial IoT Gateway',
+      subtitle: 'Advanced IoT Gateway',
       category: 'Gateways',
       description:
           '4G LTE with 2G fallback, dual-band Wi-Fi, secure communication, ECU monitoring.',
@@ -467,13 +483,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         'images/ethernet1.png',
       ],
       specsStyle: SpecsSlideStyle(
-        imagePadding: 128,
+        imagePadding: 128, //168
+        imagePaddingSmall: 168,
         badgeWidth: 120,
         badgeRightOffset: 70,
-        badgeHeight: 70,
+        badgeHeight: 90,
         badgeVerticalAlign: 0,
-        badgeGap: 40,
-        topRowCount: 3,
+        badgeGap: 25,
+        topRowCount: 4,
       ),
       video: 'video/tcu550_demo.mp4',
       badge: '4G',
@@ -481,7 +498,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TCU550',
-      subtitle: 'Industrial IoT Gateway',
+      subtitle: 'Advanced IoT Gateway',
       category: 'Gateways',
       description:
           '4G LTE with 2G fallback, Ethernet connectivity, CAN interfaces, GPS odometer.',
@@ -506,7 +523,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         imagePadding: 128,
         badgeWidth: 120,
         badgeRightOffset: 70,
-        badgeGap: 20,
+        badgeGap: 25,
         badgeVerticalAlign: 0,
       ),
       badge: null,
@@ -540,7 +557,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         imagePadding: 138,
         badgeWidth: 120,
         badgeRightOffset: 50,
-        badgeGap: 20,
+        badgeGap: 25,
         badgeVerticalAlign: 0,
       ),
       badge: null,
@@ -575,12 +592,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 148,
+        imagePaddingSmall: 168,
         badgeWidth: 120,
         badgeRightOffset: 50,
-        badgeGap: 30,
+        badgeGap: 25,
         badgeVerticalAlign: 0,
-        topRowCount: 3,
-        topRowTopOffset: 0,
+        topRowCount: 4,
+        topRowTopOffset: 25,
       ),
       badge: null,
       badgeColor: null,
@@ -627,7 +645,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   static const Map<String, String> _footerKeyToFilterLabel = {
     'All Products': 'All Products',
-    'Vehicle Trackers': 'Trackers',
+    'Telematics': 'Telematics',
     'Vehicle Diagnostics': 'Diagnostics',
     'Gateways': 'Gateways',
     'Clusters': 'Clusters',
@@ -1462,7 +1480,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
     if (selectedLabel == 'All Products') {
       final List<String> categories = [
-        'Trackers',
+        'Telematics',
         'Diagnostics',
         'Gateways',
         'Clusters',
@@ -2536,7 +2554,8 @@ class SpecsSlideStyle {
   final double badgeGap;
   final double badgeRightOffset;
   final double badgeVerticalAlign;
-
+  final double?
+  imagePaddingSmall; // top gap on smaller screens (null = no change)
   // NEW: how many of the FIRST specBadges go in a top row.
   // 0 = all badges stay in the column (current behaviour).
   final int topRowCount;
@@ -2557,6 +2576,7 @@ class SpecsSlideStyle {
     this.topRowTopOffset = 24,
     this.topRowAlignX = 0,
     this.topRowSideOffset = 0,
+    this.imagePaddingSmall,
   });
 }
 

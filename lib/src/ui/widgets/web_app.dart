@@ -531,74 +531,76 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
         // INPUT
         Container(
           height: 52,
-
           decoration: BoxDecoration(
             color: tWhite,
-
             borderRadius: BorderRadius.circular(10),
-
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(color: tBlack.withOpacity(0.10), width: 1),
           ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: TextField(
+              controller: controller,
 
-          child: TextField(
-            controller: controller,
+              keyboardType: keyboardType,
+              onChanged: (_) {
+                if (_validationMessage != null) {
+                  setState(() => _validationMessage = null);
+                }
+              },
 
-            keyboardType: keyboardType,
-            onChanged: (_) {
-              if (_validationMessage != null) {
-                setState(() => _validationMessage = null);
-              }
-            },
+              textAlignVertical: TextAlignVertical.center,
 
-            textAlignVertical: TextAlignVertical.center,
+              style: GoogleFonts.manrope(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: tBlack,
+              ),
 
-            style: GoogleFonts.manrope(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: tBlack,
-            ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
 
-            decoration: InputDecoration(
-              border: InputBorder.none,
+                enabledBorder: InputBorder.none,
 
-              enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
 
-              focusedBorder: InputBorder.none,
+                filled: true,
 
-              filled: true,
+                fillColor: tWhite,
 
-              fillColor: tWhite,
+                contentPadding: const EdgeInsets.only(right: 14),
 
-              contentPadding: const EdgeInsets.only(right: 14),
+                prefixIcon: SizedBox(
+                  width: 50,
 
-              prefixIcon: SizedBox(
-                width: 50,
-
-                child: Center(
-                  child: SvgPicture.asset(
-                    //svg
-                    icon,
-                    width: 21,
-                    height: 21,
-                    colorFilter: const ColorFilter.mode(
-                      tBlue3,
-                      BlendMode.srcIn,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      //svg
+                      icon,
+                      width: 21,
+                      height: 21,
+                      colorFilter: const ColorFilter.mode(
+                        tBlue3,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              prefixIconConstraints: const BoxConstraints(
-                minWidth: 50,
-                maxWidth: 50,
-              ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 50,
+                  maxWidth: 50,
+                ),
 
-              hintText: hint,
+                hintText: hint,
 
-              hintStyle: GoogleFonts.manrope(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: tBlack.withOpacity(0.30),
+                hintStyle: GoogleFonts.manrope(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: tBlack.withOpacity(0.30),
+                ),
               ),
             ),
           ),
@@ -702,7 +704,7 @@ class WebApp extends StatelessWidget {
                     cards: const [
                       // CARD 1
                       _WebServiceCardData(
-                        image: 'images/trakfleet.png',
+                        image: 'images/trakfleet5.png',
                         logo: 'icons/trakfleet_logo.svg',
                         title: 'TrakFleet',
                         description:
@@ -711,7 +713,7 @@ class WebApp extends StatelessWidget {
 
                       // CARD 2
                       _WebServiceCardData(
-                        image: 'images/fleet_management.png',
+                        image: 'images/fleet_management2.png',
                         logo: 'icons/trakmate_logo.svg',
                         title: 'Fleet Management',
                         description:
@@ -863,7 +865,7 @@ Widget _buildBackButton(BuildContext context) {
       color: tTransparent,
       child: InkWell(
         mouseCursor: SystemMouseCursors.click,
-        borderRadius: BorderRadius.circular(7),
+        borderRadius: BorderRadius.circular(10),
         onTap: () {
           Navigator.pop(context);
         },
@@ -936,6 +938,8 @@ class _CardGrid extends StatelessWidget {
 
             return _WebServiceCard(
               width: cardWidth,
+              height:
+                  500, // Set a fixed height or calculate it based on your needs
               data: cards[index],
               accentColor: accent,
             );
@@ -950,11 +954,14 @@ class _CardGrid extends StatelessWidget {
 
 class _WebServiceCard extends StatelessWidget {
   final double width;
+  final double height;
+
   final _WebServiceCardData data;
   final Color accentColor;
 
   const _WebServiceCard({
     required this.width,
+    required this.height,
     required this.data,
     required this.accentColor,
   });
@@ -974,6 +981,7 @@ class _WebServiceCard extends StatelessWidget {
 
     return Container(
       width: width,
+      height: height,
 
       decoration: BoxDecoration(
         color: tWhite,
@@ -1267,7 +1275,7 @@ class _LoginDialogState extends State<_LoginDialog>
             boxShadow: [
               BoxShadow(
                 color: tBlack.withOpacity(0.22),
-                blurRadius: 35,
+                blurRadius: 40,
                 offset: const Offset(0, 18),
               ),
             ],

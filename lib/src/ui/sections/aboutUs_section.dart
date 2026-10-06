@@ -128,7 +128,7 @@ class _AboutusSectionState extends State<AboutusSection> {
             'Our approach combines engineering expertise, smart technology, and reliable processes.'
             'We focus on building scalable, efficient, and high-quality solutions for our customers.'
             'With a commitment to excellence, we turn ideas into practical, connected products.',
-        'Paragraph 2...',
+        // 'Paragraph 2...',
       ],
     ),
   ];
@@ -198,12 +198,11 @@ class _AboutusSectionState extends State<AboutusSection> {
           // ),
           const SizedBox(height: 35),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: _buildNewsMediaSection(),
-          ),
-          const SizedBox(height: 40),
-
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 40.0),
+          //   child: _buildNewsMediaSection(),
+          // ),
+          // const SizedBox(height: 40),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: Container(
