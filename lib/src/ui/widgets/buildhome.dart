@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
-import 'package:trakmate_portal/src/ui/widgets/services.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+// import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
@@ -287,7 +288,10 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       label: "Energy",
     ),
   ];
-
+  late final List<ImageProvider> _industryProviders =
+      _industries
+          .map((e) => ResizeImage(AssetImage(e.image), width: 400))
+          .toList();
   final List<_ProductItemData> _products = const [
     _ProductItemData(
       image: "images/tmd104(a).png",
@@ -510,6 +514,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   ];
   int? _hoveredServiceIndex;
   int? _hoveredIndustryIndex;
+  bool _industriesImagesLoaded = false;
   final ScrollController _productsScrollController = ScrollController();
   final ScrollController _clientsScrollController = ScrollController();
   // Timer? _clientsAutoScrollTimer;
@@ -592,12 +597,28 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     })..start();
   }
 
+  Future<void> _preloadIndustryImages() async {
+    await Future.wait(
+      _industryProviders.map(
+        (provider) => precacheImage(
+          provider,
+          context,
+          onError: (e, s) => debugPrint('Failed to load $e'),
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    setState(() => _industriesImagesLoaded = true);
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startClientsAutoScroll();
       _startIndustriesAutoScroll();
+      _preloadIndustryImages();
     });
   }
 
@@ -663,22 +684,36 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
 
         SizedBox(
           height: 240, //card height
-          child: ListView.separated(
-            controller: _industriesScrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const NeverScrollableScrollPhysics(),
-            clipBehavior: Clip.none,
-            cacheExtent: 1000,
-            itemCount: _industries.length * 3,
-            separatorBuilder:
-                (_, __) => const SizedBox(width: _industrySeparatorWidth),
-            itemBuilder: (context, index) {
-              final industry = _industries[index % _industries.length];
-              return SizedBox(
-                width: _industryItemWidth,
-                child: _buildIndustryCard(industry, index % _industries.length),
-              );
-            },
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 350),
+            child:
+                !_industriesImagesLoaded
+                    ? const IndustriesShimmer(
+                      key: ValueKey('industries_shimmer'),
+                    )
+                    : ListView.separated(
+                      key: const ValueKey('industries_list'),
+                      controller: _industriesScrollController,
+                      scrollDirection: Axis.horizontal,
+                      physics: const NeverScrollableScrollPhysics(),
+                      clipBehavior: Clip.none,
+                      cacheExtent: 1000,
+                      itemCount: _industries.length * 3,
+                      separatorBuilder:
+                          (_, __) =>
+                              const SizedBox(width: _industrySeparatorWidth),
+                      itemBuilder: (context, index) {
+                        final industry =
+                            _industries[index % _industries.length];
+                        return SizedBox(
+                          width: _industryItemWidth,
+                          child: _buildIndustryCard(
+                            industry,
+                            index % _industries.length,
+                          ),
+                        );
+                      },
+                    ),
           ),
         ),
 
@@ -726,13 +761,29 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
 
                   children: [
                     Positioned.fill(
-                      child: Image.asset(
-                        industry.image,
-                        fit: BoxFit.cover,
-                        cacheWidth: 400,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(color: tBlue3.withOpacity(0.15));
-                        },
+                      child: ColoredBox(
+                        color: tBlue3.withOpacity(0.08),
+                        child: Image(
+                          image: _industryProviders[index],
+                          fit: BoxFit.cover,
+                          gaplessPlayback: true,
+                          frameBuilder: (
+                            context,
+                            child,
+                            frame,
+                            wasSynchronouslyLoaded,
+                          ) {
+                            if (wasSynchronouslyLoaded) return child;
+                            return AnimatedOpacity(
+                              opacity: frame == null ? 0 : 1,
+                              duration: const Duration(milliseconds: 300),
+                              child: child,
+                            );
+                          },
+                          errorBuilder:
+                              (context, error, stackTrace) =>
+                                  Container(color: tBlue3.withOpacity(0.15)),
+                        ),
                       ),
                     ),
 

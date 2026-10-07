@@ -31,14 +31,16 @@ class HeroSlide {
 class HeroSlider extends StatefulWidget {
   final bool isActive;
   final List<HeroSlide> slides;
-  final double height;
+  final double? height; // optional fixed override
+  final double heightFactor; // fraction of screen height
   final Duration autoPlayInterval;
 
   const HeroSlider({
     super.key,
     required this.isActive,
     required this.slides,
-    this.height = 400, //header height
+    this.height, // null -> use screen height
+    this.heightFactor = 0.71, //header height
     this.autoPlayInterval = const Duration(seconds: 5), //duration interval
   });
 
@@ -125,15 +127,28 @@ class _HeroSliderState extends State<HeroSlider> {
     _restartTimer(); // reset the countdown after the user interacts
   }
 
+  double _resolveHeight(BuildContext context) {
+    return widget.height ??
+        MediaQuery.of(context).size.height * widget.heightFactor;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const HeroHeaderShimmer();
+    final double h = _resolveHeight(context);
+
+    if (_loading) {
+      return SizedBox(
+        width: double.infinity,
+        height: h,
+        child: const HeroSliderShimmer(),
+      );
+    }
 
     final int count = widget.slides.length;
 
     return SizedBox(
       width: double.infinity,
-      height: widget.height,
+      height: h,
       child: Stack(
         children: [
           // ---------- SLIDES ----------
@@ -256,18 +271,18 @@ class _HeroSliderState extends State<HeroSlider> {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                tBlack.withOpacity(0.72),
-                tBlack.withOpacity(0.35),
-                tBlack.withOpacity(0.05),
+                tBlue2.withOpacity(0.85),
+                tBlue2.withOpacity(0.55),
+                tTransparent,
               ],
-              stops: const [0.0, 0.55, 1.0],
+              stops: const [0.0, 0.45, 1.0],
             ),
           ),
         ),
 
         // two-line text stacked above the image
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 80),
+          padding: const EdgeInsets.symmetric(horizontal: 80), //text position
           child: Align(
             alignment: Alignment.centerLeft,
             child: AnimatedSlide(
@@ -306,7 +321,7 @@ class _HeroSliderState extends State<HeroSlider> {
                       slide.line2,
                       style: GoogleFonts.manrope(
                         fontSize: 48,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         height: 1.15,
                         color: tOrange1,
                       ),

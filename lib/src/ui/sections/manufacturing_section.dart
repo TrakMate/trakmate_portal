@@ -290,8 +290,6 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   Widget _buildHero() {
     return Container(
       width: double.infinity,
-      // height: 400,
-      // constraints: const BoxConstraints(minHeight: 365),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -299,156 +297,203 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           end: Alignment.bottomRight,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-      child: Row(
-        children: [
-          Expanded(
-            // flex: 5,
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // How much of the hero width the image covers (from the right).
+          // Increase for a bigger image / longer blend, decrease for smaller.
+          final double imageWidth = constraints.maxWidth * 0.62;
+
+          return Stack(
+            children: [
+              // 1) IMAGE LAYER (behind the text), blended into the blue
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                width: imageWidth,
+                child: _buildBlendedHeroImage(),
+              ),
+
+              // 2) CONTENT LAYER (text + cards) on top
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 400),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 25,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _buildHeroTextColumn()),
+                      const SizedBox(width: 40),
+                      // Empty half: the image shows through behind this space.
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Hero image with its LEFT edge (and a bit of the BOTTOM edge)
+  /// faded to transparent, so it melts into the blue background.
+  Widget _buildBlendedHeroImage() {
+    // Horizontal fade: left = invisible -> right = fully visible
+    final Widget horizontallyFaded = ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Colors.transparent, Colors.black54, Colors.black],
+          // 0.00 -> 0.55 is the blend zone. Bigger last value = softer,
+          // longer blend. Smaller = sharper edge.
+          stops: [0.0, 0.30, 0.55],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        _heroImage,
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildImageFallback(dark: true);
+        },
+      ),
+    );
+
+    // Vertical fade: softens the bottom edge into the blue.
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          // Fully visible until 80% height, then fades out.
+          stops: [0.0, 0.80, 1.0],
+        ).createShader(rect);
+      },
+      child: horizontallyFaded,
+    );
+  }
+
+  /// Left side: label, title, description and the 4 hero points.
+  /// (Same content as before, just moved into its own method.)
+  Widget _buildHeroTextColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 20,
+          child: Text(
+            'MANUFACTURING EXCELLENCE',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: tOrange1,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 15),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 120,
+          child: RichText(
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 48,
+                fontWeight: FontWeight.w600,
+                height: 1.15,
+                color: tWhite,
+              ),
               children: [
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 20,
-                  child: Text(
-                    'MANUFACTURING EXCELLENCE',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: tOrange1,
-                      letterSpacing: 1.2,
-                    ),
+                const TextSpan(text: 'Precision Manufacturing.\n'),
+                TextSpan(
+                  text: 'Trusted Delivery.',
+                  style: TextStyle(
+                    color: tOrange1,
+                    fontWeight: FontWeight.w800,
                   ),
-                ),
-
-                const SizedBox(height: 15),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 120,
-                  child: RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w600,
-                        height: 1.15,
-                        color: tWhite,
-                      ),
-                      children: [
-                        const TextSpan(text: 'Precision Manufacturing.\n'),
-                        TextSpan(
-                          text: 'Trusted Delivery.',
-                          style: TextStyle(
-                            color: tOrange1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 320,
-                  child: Text(
-                    'End-to-end manufacturing solutions designed to deliver reliable, scalable and quality-focused products.',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tWhite,
-                      fontWeight: FontWeight.w400,
-                      height: 1.55,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 520,
-                        child: _buildHeroPoint(
-                          icon: 'icons/laptop.svg',
-                          title: 'Advanced Infrastructure',
-                          subtitle:
-                              'Modern facilities for efficient production',
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 720,
-                        child: _buildHeroPoint(
-                          icon: 'icons/team.svg',
-                          title: 'Skilled Workforce',
-                          subtitle: 'Experienced teams focused on precision',
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 920,
-                        child: _buildHeroPoint(
-                          icon: 'icons/quality1.svg',
-                          title: 'Quality Focus',
-                          subtitle: 'Consistent quality at every stage',
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 1120,
-                        child: _buildHeroPoint(
-                          icon: 'icons/ontime.svg',
-                          title: 'On-Time Delivery',
-                          subtitle: 'Reliable production and timely delivery',
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
+        ),
 
-          const SizedBox(width: 40),
-
-          Expanded(
-            // flex: 4,
-            child: Container(
-              height: 350,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: tBlack.withOpacity(0.25),
-                    blurRadius: 28,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.asset(
-                _heroImage,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildImageFallback(dark: true);
-                },
-              ),
+        const SizedBox(height: 18),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 320,
+          child: Text(
+            'End-to-end manufacturing solutions designed to deliver reliable, scalable and quality-focused products.',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tWhite,
+              fontWeight: FontWeight.w400,
+              height: 1.55,
             ),
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 32),
+
+        Row(
+          children: [
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 520,
+                child: _buildHeroPoint(
+                  icon: 'icons/laptop.svg',
+                  title: 'Advanced Infrastructure',
+                  subtitle: 'Modern facilities for efficient production',
+                ),
+              ),
+            ),
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 720,
+                child: _buildHeroPoint(
+                  icon: 'icons/team.svg',
+                  title: 'Skilled Workforce',
+                  subtitle: 'Experienced teams focused on precision',
+                ),
+              ),
+            ),
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 920,
+                child: _buildHeroPoint(
+                  icon: 'icons/quality1.svg',
+                  title: 'Quality Focus',
+                  subtitle: 'Consistent quality at every stage',
+                ),
+              ),
+            ),
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 1120,
+                child: _buildHeroPoint(
+                  icon: 'icons/ontime.svg',
+                  title: 'On-Time Delivery',
+                  subtitle: 'Reliable production and timely delivery',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

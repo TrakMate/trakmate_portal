@@ -274,24 +274,24 @@ class _HomeSectionState extends State<HomeSection> {
 
     final List<String> imagePaths = [
       // industries
-      'images/automotive.jpg',
-      'images/ev.jpg',
-      'images/fleet_logistics.jpg',
-      'images/industrial.jpg',
-      'images/smartcity.jpg',
-      'images/agriculture.jpg',
-      'images/healthcare.png',
-      'images/supplychain.png',
-      'images/retail1.png',
-      'images/energy.png',
-      // products
-      'images/tmd104.png',
-      'images/tmd364-side1.png',
-      'images/tmdcstrr-5.png',
-      'images/tmd400.png',
-      'images/tmb024.png',
-      'images/a1.png',
-      'images/a2.png',
+      // 'images/automotive.jpg',
+      // 'images/ev.jpg',
+      // 'images/fleet_logistics.jpg',
+      // 'images/industrial.jpg',
+      // 'images/smartcity.jpg',
+      // 'images/agriculture.jpg',
+      // 'images/healthcare.png',
+      // 'images/supplychain.png',
+      // 'images/retail1.png',
+      // 'images/energy.png',
+      // // products
+      // 'images/tmd104.png',
+      // 'images/tmd364-side1.png',
+      // 'images/tmdcstrr-5.png',
+      // 'images/tmd400.png',
+      // 'images/tmb024.png',
+      // 'images/a1.png',
+      // 'images/a2.png',
     ];
 
     for (final path in imagePaths) {

@@ -120,11 +120,12 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     );
   }
 
-  // HEADER
+  // ───────────────────────────────────────────────────────────────
+  // HEADER  ← THIS WHOLE METHOD IS THE CHANGE
+  // ───────────────────────────────────────────────────────────────
   Widget _buildEngineeringHeader() {
     return Container(
       width: double.infinity,
-      // height: 400,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -132,155 +133,205 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           end: Alignment.bottomRight,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            // flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // How much of the hero width the image covers (from the right).
+          // Increase for a bigger image / longer blend, decrease for smaller.
+          final double imageWidth = constraints.maxWidth * 0.62;
+
+          return Stack(
+            children: [
+              // ── 1) IMAGE LAYER (behind the text), blended into the blue ──
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                width: imageWidth,
+                child: _buildBlendedHeroImage(),
+              ),
+
+              // ── 2) CONTENT LAYER (text + cards) on top ──
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 400),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 25,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _buildHeroTextColumn()),
+                      const SizedBox(width: 40),
+                      // Empty half: the image is visible behind this space.
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// The hero image with its LEFT edge (and a bit of the BOTTOM edge)
+  /// faded to transparent, so it melts into the blue background.
+  Widget _buildBlendedHeroImage() {
+    // Horizontal fade: left = invisible → right = fully visible
+    final Widget horizontallyFaded = ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Colors.transparent, Colors.black54, Colors.black],
+          // 0.00 → 0.55 is the blend zone. Make 0.55 bigger for a softer,
+          // longer blend; smaller for a sharper edge.
+          stops: [0.0, 0.30, 0.55],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        'images/hero_engineering.png',
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: tBlack.withOpacity(0.05),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 50,
+              color: tWhite.withOpacity(0.6),
+            ),
+          );
+        },
+      ),
+    );
+
+    // Vertical fade: softens the bottom (and top) edge into the blue.
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          // Image is fully visible until 80% height, then fades out.
+          stops: [0.0, 0.80, 1.0],
+        ).createShader(rect);
+      },
+      child: horizontallyFaded,
+    );
+  }
+
+  /// Left side: label, title, description and the 4 intro cards.
+  /// (Same content as before, just moved into its own method.)
+  Widget _buildHeroTextColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 20,
+          child: Text(
+            'ENGINEERING',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: tOrange1,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 20),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 120,
+          child: RichText(
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 48,
+                fontWeight: FontWeight.w600,
+                height: 1.15,
+                color: tWhite,
+              ),
               children: [
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 20,
-                  child: Text(
-                    'ENGINEERING',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: tOrange1,
-                      letterSpacing: 1.2,
-                    ),
+                const TextSpan(text: 'Engineering Innovation.\n'),
+                TextSpan(
+                  text: 'Built to Perform.',
+                  style: TextStyle(
+                    color: tOrange1,
+                    fontWeight: FontWeight.w800,
                   ),
-                ),
-
-                const SizedBox(height: 20),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 120,
-                  child: RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w600,
-                        height: 1.15,
-                        color: tWhite,
-                      ),
-                      children: [
-                        const TextSpan(text: 'Engineering Innovation.\n'),
-                        TextSpan(
-                          text: 'Built to Perform.',
-                          style: TextStyle(
-                            color: tOrange1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 320,
-                  child: Text(
-                    'From concept to production, we deliver end-to-end engineering solutions that bring your ideas to life with precision, quality and efficiency.',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tWhite,
-                      fontWeight: FontWeight.w400,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 35),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 520,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/location.svg',
-                        title: 'End-to-End Expertise',
-                        description:
-                            'Complete engineering support to production',
-                      ),
-                    ),
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 720,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/laptop.svg',
-                        title: 'Advanced Engineering',
-                        description: 'Modern tools for precise engineering',
-                      ),
-                    ),
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 920,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/collaboration.svg',
-                        title: 'Expert Team',
-                        description:
-                            'Skilled engineers focused on quality and innovation',
-                      ),
-                    ),
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 1120,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/quality.svg',
-                        title: 'Quality & Reliability',
-                        description:
-                            'Engineered for consistent performance & reliability',
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
+        ),
 
-          const SizedBox(width: 40),
-
-          Expanded(
-            // flex: 4,
-            child: Container(
-              height: 350,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: tBlack.withOpacity(0.25),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.asset(
-                'images/hero_engineering.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: tBlack.withOpacity(0.05),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 50,
-                      color: tWhite.withOpacity(0.6),
-                    ),
-                  );
-                },
-              ),
+        const SizedBox(height: 20),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 320,
+          child: Text(
+            'From concept to production, we deliver end-to-end engineering solutions that bring your ideas to life with precision, quality and efficiency.',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tWhite,
+              fontWeight: FontWeight.w400,
+              height: 1.5,
             ),
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 35),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 520,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/location.svg',
+                title: 'End-to-End Expertise',
+                description: 'Complete engineering support to production',
+              ),
+            ),
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 720,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/laptop.svg',
+                title: 'Advanced Engineering',
+                description: 'Modern tools for precise engineering',
+              ),
+            ),
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 920,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/collaboration.svg',
+                title: 'Expert Team',
+                description:
+                    'Skilled engineers focused on quality and innovation',
+              ),
+            ),
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 1120,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/quality.svg',
+                title: 'Quality & Reliability',
+                description:
+                    'Engineered for consistent performance & reliability',
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

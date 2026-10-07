@@ -164,17 +164,35 @@ class _AboutusSectionState extends State<AboutusSection> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // 1st: HERO
-          _heroImageLoading ? const HeroHeaderShimmer() : _buildAboutUsHeader(),
-          const SizedBox(height: 25),
+          // 1st: HERO + ACHIEVEMENTS OVERLAP
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // HERO
+              _heroImageLoading
+                  ? const HeroHeaderShimmer()
+                  : _buildAboutUsHeader(),
 
-          // 2nd: OUR JOURNEY (right after hero, full width)
+              // ACHIEVEMENTS CARD
+              Positioned(
+                left: 80,
+                right: 80,
+                bottom: -65,
+                child: _buildAchievementsRibbon(),
+              ),
+            ],
+          ),
+
+          // Space occupied by the overlapping achievements ribbon
+          const SizedBox(height: 100),
+
+          // 2nd: OUR JOURNEY
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
             child: _buildStoryTimelineSection(),
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 40),
 
           // 3rd: MISSION + VISION (side by side), then OUR STORY (full width)
           Padding(
@@ -203,62 +221,6 @@ class _AboutusSectionState extends State<AboutusSection> {
           //   child: _buildNewsMediaSection(),
           // ),
           // const SizedBox(height: 40),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [tBlue2, tBlue3],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: tOrange1, width: 1),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buildAchievementsCard(
-                    icon: 'icons/collaboration.svg',
-                    title: '110+',
-                    subtitle: 'Team Members',
-                  ),
-                  _divider(),
-                  buildAchievementsCard(
-                    icon: 'icons/badge.svg',
-                    title: '12+',
-                    subtitle: 'Years of excellence',
-                  ),
-                  _divider(),
-                  buildAchievementsCard(
-                    icon: 'icons/globe.svg',
-                    title: '6+',
-                    subtitle: 'Countries Served',
-                  ),
-                  _divider(),
-                  buildAchievementsCard(
-                    icon: 'icons/delivery.svg',
-                    title: '750+',
-                    subtitle: 'Products Delivered',
-                  ),
-                  _divider(),
-                  buildAchievementsCard(
-                    icon: 'icons/manufacture.svg',
-                    title: '2L+',
-                    subtitle: 'Units Manufactured',
-                  ),
-                  _divider(),
-                  buildAchievementsCard(
-                    icon: 'icons/handshake.svg',
-                    title: '25+',
-                    subtitle: 'Happy Clients',
-                  ),
-                ],
-              ),
-            ),
-          ),
           const SizedBox(height: 40),
 
           Padding(
@@ -267,6 +229,70 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
           const SizedBox(height: 40),
           FooterSection(onNavigate: widget.onNavigate),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAchievementsRibbon() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tWhite, tWhite],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: tOrange1, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: tBlack.withOpacity(0.15),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          buildAchievementsCard(
+            icon: 'icons/collaboration.svg',
+            title: '110+',
+            subtitle: 'Team Members',
+          ),
+          _divider(),
+          buildAchievementsCard(
+            icon: 'icons/badge.svg',
+            title: '12+',
+            subtitle: 'Years of excellence',
+          ),
+          _divider(),
+          buildAchievementsCard(
+            icon: 'icons/globe.svg',
+            title: '6+',
+            subtitle: 'Countries Served',
+          ),
+          _divider(),
+          buildAchievementsCard(
+            icon: 'icons/delivery.svg',
+            title: '750+',
+            subtitle: 'Products Delivered',
+          ),
+          _divider(),
+          buildAchievementsCard(
+            icon: 'icons/manufacture.svg',
+            title: '2L+',
+            subtitle: 'Units Manufactured',
+          ),
+          _divider(),
+          buildAchievementsCard(
+            icon: 'icons/handshake.svg',
+            title: '25+',
+            subtitle: 'Happy Clients',
+          ),
         ],
       ),
     );
@@ -367,128 +393,198 @@ class _AboutusSectionState extends State<AboutusSection> {
           end: Alignment.bottomRight,
         ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 20,
-                  child: Text(
-                    'About TrakMate',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: tOrange1,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 120,
-                  child: RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w600,
-                        height: 1.15,
-                        color: tWhite,
-                      ),
-                      children: [
-                        const TextSpan(text: "Engineering Innovation.\n"),
-                        TextSpan(
-                          text: "Building a Smarter Tomorrow.",
-                          style: TextStyle(
-                            color: tOrange1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // How much of the hero width the image covers (from the right).
+          // Increase for a bigger image / longer blend, decrease for smaller.
+          final double imageWidth = constraints.maxWidth * 0.62;
 
-                const SizedBox(height: 20),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 320,
-                  child: Text(
-                    'TrakMate is a product engineering and manufacturing company delivering end-to-end solutions in IoT, Embedded Systems, Software, Hardware Design and Manufacturing.',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tWhite,
-                      fontWeight: FontWeight.w400,
-                    ),
+          return Stack(
+            children: [
+              // 1) IMAGE LAYER (behind the text), blended into the blue
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                width: imageWidth,
+                child: _buildBlendedAboutImage(),
+              ),
+
+              // 2) CONTENT LAYER (text + cards) on top
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 400),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 25,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _buildAboutHeroTextColumn()),
+                      const SizedBox(width: 40),
+                      // Empty half: the image shows through behind this space.
+                      const Expanded(child: SizedBox()),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 520,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/innovation.svg',
-                        title: 'Innovation',
-                        description: 'At the core of everything we do',
-                      ),
-                    ),
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 720,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/integrity.svg',
-                        title: 'Integrity',
-                        description: 'We build trust through transparency',
-                      ),
-                    ),
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 920,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/collaboration.svg',
-                        title: 'Collaboration',
-                        description: 'Stronger together, better outcomes',
-                      ),
-                    ),
-                    HeroAnimatedText(
-                      isActive: widget.isActive,
-                      delay: 1120,
-                      child: _buildHeaderIntroCard(
-                        icon: 'icons/impact.svg',
-                        title: 'Impact',
-                        description: 'Technology that makes a difference',
-                      ),
-                    ),
-                  ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Hero image with its LEFT edge (and a bit of the BOTTOM edge)
+  /// faded to transparent, so it melts into the blue background.
+  Widget _buildBlendedAboutImage() {
+    // Horizontal fade: left = invisible -> right = fully visible
+    final Widget horizontallyFaded = ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Colors.transparent, Colors.black54, Colors.black],
+          // 0.00 -> 0.55 is the blend zone. Bigger last value = softer,
+          // longer blend. Smaller = sharper edge.
+          stops: [0.0, 0.30, 0.55],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        'images/company.png',
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: tBlack.withOpacity(0.05),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 50,
+              color: tWhite.withOpacity(0.6),
+            ),
+          );
+        },
+      ),
+    );
+
+    // Vertical fade: softens the bottom edge into the blue.
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          // Fully visible until 80% height, then fades out.
+          stops: [0.0, 0.80, 1.0],
+        ).createShader(rect);
+      },
+      child: horizontallyFaded,
+    );
+  }
+
+  /// Left side: label, title, description and the 4 value cards.
+  /// (Same content as before, just moved into its own method.)
+  Widget _buildAboutHeroTextColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 20,
+          child: Text(
+            'About TrakMate',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: tOrange1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 120,
+          child: RichText(
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 48,
+                fontWeight: FontWeight.w600,
+                height: 1.15,
+                color: tWhite,
+              ),
+              children: [
+                const TextSpan(text: 'Engineering Innovation.\n'),
+                TextSpan(
+                  text: 'Building a Smarter Tomorrow.',
+                  style: TextStyle(
+                    color: tOrange1,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 40),
-          Expanded(
-            child: Container(
-              height: 350,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("images/company.png"),
-                  fit: BoxFit.cover,
-                  alignment: Alignment.center,
-                ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(75),
-                  bottomRight: Radius.circular(75),
-                ),
-              ),
+        ),
+        const SizedBox(height: 20),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 320,
+          child: Text(
+            'TrakMate is a product engineering and manufacturing company delivering end-to-end solutions in IoT, Embedded Systems, Software, Hardware Design and Manufacturing.',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tWhite,
+              fontWeight: FontWeight.w400,
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 40),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 520,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/innovation.svg',
+                title: 'Innovation',
+                description: 'At the core of everything we do',
+              ),
+            ),
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 720,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/integrity.svg',
+                title: 'Integrity',
+                description: 'We build trust through transparency',
+              ),
+            ),
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 920,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/collaboration.svg',
+                title: 'Collaboration',
+                description: 'Stronger together, better outcomes',
+              ),
+            ),
+            HeroAnimatedText(
+              isActive: widget.isActive,
+              delay: 1120,
+              child: _buildHeaderIntroCard(
+                icon: 'icons/impact.svg',
+                title: 'Impact',
+                description: 'Technology that makes a difference',
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -558,7 +654,7 @@ class _AboutusSectionState extends State<AboutusSection> {
             Text(
               title,
               style: GoogleFonts.manrope(
-                color: tWhite,
+                color: tBlue2,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -567,7 +663,7 @@ class _AboutusSectionState extends State<AboutusSection> {
             Text(
               subtitle,
               style: GoogleFonts.manrope(
-                color: tWhite,
+                color: tBlue2,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 height: 1.5,

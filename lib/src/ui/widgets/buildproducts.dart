@@ -101,7 +101,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       // image5: 'images/tmd024_isometric2.png',
       image5: 'images/tmd024-vertical-view.png',
       image6: 'images/tmd024-part.png',
-      specBadges: ['images/4g1.png', 'images/ev1.png'],
+      specBadges: ['icons/4gg1.svg', 'icons/evv1.svg'],
 
       specsStyle: SpecsSlideStyle(
         imagePadding: 108,
@@ -138,7 +138,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmd024_isometric3.png',
       // image5: 'images/tmd024_isometric2.png',
       image6: 'images/tmd024-part.png',
-      specBadges: ['images/4g2.png', 'images/ev1.png', 'images/ble1.png'],
+      specBadges: ['icons/4gg.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 108,
         badgeWidth: 120,
@@ -185,7 +185,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeRightOffset: 120,
         badgeGap: 25,
       ),
-      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
+      specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -213,7 +213,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd006-back.png',
       image4: 'images/tmd006-side.png',
       image5: 'images/tmd006-bottom.png',
-      specBadges: ['images/4g1.png', 'images/ble1.png'],
+      specBadges: ['icons/4gg1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 118,
         badgeWidth: 120,
@@ -249,7 +249,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image: 'images/tmb024.png',
       image1: 'images/tmb024.png',
       image2: 'images/tmb024.png',
-      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
+      specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
         badgeWidth: 120,
@@ -282,7 +282,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
       image1: 'images/tmd400.png',
       image2: 'images/tmd400.png',
-      specBadges: ['images/ble1.png'],
+      specBadges: ['icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 118,
         badgeWidth: 120,
@@ -313,8 +313,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     ),
     ProductData(
       image: 'images/tmd300.png',
-      image1: 'images/tmd300.png',
-      specBadges: ['images/ble1.png', 'images/ev1.png'],
+      image2: 'images/tmd300.png',
+      specBadges: ['icons/ble1.svg', 'icons/evv1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 118,
         badgeWidth: 120,
@@ -351,7 +351,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image3: 'images/tmd364-top1.png',
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
-      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
+      specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
         badgeWidth: 120,
@@ -391,10 +391,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
       specBadges: [
-        'images/4g1.png',
-        'images/ev1.png',
-        'images/ble1.png',
-        'images/linux1.png',
+        'icons/4gg1.svg',
+        'icons/evv1.svg',
+        'icons/ble1.svg',
+        'icons/linux1.svg',
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
@@ -432,11 +432,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
       specBadges: [
-        'images/4g1.png',
-        'images/ev1.png',
-        'images/ble1.png',
-        'images/linux1.png',
-        'images/wifi1.png',
+        'icons/4g1.svg',
+        'icons/evv1.svg',
+        'icons/ble1.svg',
+        'icons/linux1.svg',
+        'icons/wifi1.svg',
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
@@ -475,12 +475,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       // image4: 'images/tcu550-side-view.png',
       image4: 'images/tcu550-part.png',
       specBadges: [
-        'images/4g1.png',
-        'images/ev1.png',
-        'images/ble1.png',
-        'images/wifi1.png',
-        'images/linux1.png',
-        'images/ethernet1.png',
+        'icons/4gg1.svg',
+        'icons/evv1.svg',
+        'icons/ble1.svg',
+        'icons/wifi1.svg',
+        'icons/linux1.svg',
+        'icons/ethernet1.svg',
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128, //168
@@ -518,7 +518,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmdcstrr-5.png',
       image2: 'images/tmdcstrr-5.png',
       image3: 'images/pigtail.jpg',
-      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
+      specBadges: ['icons/4g1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
         badgeWidth: 120,
@@ -552,7 +552,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmdcstr-7-back.png',
       // image4: 'images/tmdcstr-7-top.png',
       image5: 'images/tmdcstr-7_specs.png',
-      specBadges: ['images/4g1.png', 'images/ev1.png', 'images/ble1.png'],
+      specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 138,
         badgeWidth: 120,
@@ -583,12 +583,12 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/a2.png',
       image2: 'images/a2.png',
       specBadges: [
-        'images/4g1.png',
-        'images/ev1.png',
-        'images/ble1.png',
-        'images/android1.png',
-        'images/hd1.png',
-        'images/wifi1.png',
+        'icons/4gg1.svg',
+        'icons/evv1.svg',
+        'icons/ble1.svg',
+        'icons/android1.svg',
+        'icons/hd1.svg',
+        'icons/wifi1.svg',
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 148,
@@ -1657,7 +1657,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           const SizedBox(height: 22),
 
           Text(
-            'No products in this category yet',
+            'Products Coming Soon',
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
               fontSize: 15.5,

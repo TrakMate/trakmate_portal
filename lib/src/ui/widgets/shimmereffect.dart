@@ -853,3 +853,267 @@ class WebServiceCardShimmer extends StatelessWidget {
     );
   }
 }
+
+//product details specs slide shimmer
+class SpecsSlideShimmer extends StatelessWidget {
+  final int badgeCount;
+  final int topRowCount;
+
+  const SpecsSlideShimmer({
+    super.key,
+    required this.badgeCount,
+    this.topRowCount = 0,
+  });
+
+  Widget _badgePlaceholder() {
+    return SizedBox(
+      width: 84,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: const BoxDecoration(
+              color: tWhite,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: 64,
+            height: 10,
+            decoration: BoxDecoration(
+              color: tWhite,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final int topCount = topRowCount.clamp(0, badgeCount);
+    final int colCount = badgeCount - topCount;
+    final bool both = topCount > 0 && colCount > 0;
+
+    // Same split as the real slide: first `topCount` badges in a row,
+    // the rest in a column under the row's LAST badge.
+    final Widget badgeBlock = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (topCount > 0)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (int i = 0; i < topCount; i++) ...[
+                if (i > 0) const SizedBox(width: 12),
+                _badgePlaceholder(),
+              ],
+            ],
+          ),
+        if (both) const SizedBox(height: 22),
+        if (colCount > 0)
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < colCount; i++) ...[
+                if (i > 0) const SizedBox(height: 22),
+                _badgePlaceholder(),
+              ],
+            ],
+          ),
+      ],
+    );
+
+    return Padding(
+      // same clearances as the real slide (thumbnails at the bottom)
+      padding: const EdgeInsets.fromLTRB(56, 24, 56, 80),
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Stack(
+          children: [
+            // product image placeholder (leaves room for the badge column)
+            Positioned.fill(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: 84 + 28,
+                  top: both ? 120 : 40,
+                  bottom: 40,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: tWhite,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
+
+            // badges: top-right, scales down if it doesn't fit
+            Positioned.fill(
+              child: Align(
+                alignment:
+                    both || topCount > 0
+                        ? Alignment.topRight
+                        : Alignment.centerRight,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment:
+                      both || topCount > 0
+                          ? Alignment.topRight
+                          : Alignment.centerRight,
+                  child: badgeBlock,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// //product details specs slide shimmer (fills the whole slide)
+// class SpecsSlideShimmer extends StatelessWidget {
+//   const SpecsSlideShimmer({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Shimmer.fromColors(
+//       baseColor: tGrey1.shade300,
+//       highlightColor: tGrey1.shade100,
+//       child: Container(
+//         width: double.infinity,
+//         height: double.infinity,
+//         decoration: BoxDecoration(
+//           color: tWhite,
+//           borderRadius: BorderRadius.circular(
+//             2,
+//           ), // matches the slide container's radius
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+//hero slider shimmer (matches HeroSlider layout, no loader)
+//hero slider shimmer (grey sweep + visible text placeholders)
+class HeroSliderShimmer extends StatelessWidget {
+  const HeroSliderShimmer({super.key});
+
+  Widget _bar(double width, double height, {double radius = 8}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: Stack(
+        children: [
+          // LAYER 1: grey background sweep
+          Positioned.fill(
+            child: Shimmer.fromColors(
+              baseColor: tGrey1.shade300,
+              highlightColor: tGrey1.shade100,
+              direction: ShimmerDirection.ltr,
+              period: const Duration(milliseconds: 1600),
+              child: Container(color: tWhite),
+            ),
+          ),
+
+          // LAYER 2: text placeholders, lighter than the background
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 80,
+            ), // same as slide
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Shimmer.fromColors(
+                baseColor: tWhite.withOpacity(0.45),
+                highlightColor: tWhite.withOpacity(0.85),
+                direction: ShimmerDirection.ltr,
+                period: const Duration(milliseconds: 1600),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _bar(130, 14, radius: 4), // label (COMPANY NEWS)
+                    const SizedBox(height: 22),
+                    _bar(640, 44), // heading line 1
+                    const SizedBox(height: 14),
+                    _bar(560, 44), // heading line 2
+                    const SizedBox(height: 14),
+                    _bar(380, 44), // heading line 3
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+//industries section shimmer
+class IndustriesShimmer extends StatelessWidget {
+  const IndustriesShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      clipBehavior: Clip.none,
+      itemCount: 10,
+      separatorBuilder:
+          (_, __) => const SizedBox(width: 12), // _industrySeparatorWidth
+      itemBuilder: (context, index) {
+        return SizedBox(
+          width: 200, // _industryItemWidth
+          child: Shimmer.fromColors(
+            baseColor: tGrey1.shade300,
+            highlightColor: tGrey1.shade100,
+            child: Column(
+              children: [
+                // square image placeholder (AspectRatio 1, same as real card)
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: tWhite,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // label placeholder
+                Container(
+                  width: 90,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: tWhite,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

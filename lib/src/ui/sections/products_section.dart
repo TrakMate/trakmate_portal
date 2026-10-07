@@ -66,7 +66,6 @@ class _ProductsSectionState extends State<ProductsSection> {
   Widget _buildProductsHeader() {
     return Container(
       width: double.infinity,
-      // height: 400,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -74,164 +73,212 @@ class _ProductsSectionState extends State<ProductsSection> {
           end: Alignment.bottomRight,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            // flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // How much of the hero width the image covers (from the right).
+          // Increase for a bigger image / longer blend, decrease for smaller.
+          final double imageWidth = constraints.maxWidth * 0.62;
+
+          return Stack(
+            children: [
+              // 1) IMAGE LAYER (behind the text), blended into the blue
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                width: imageWidth,
+                child: _buildBlendedHeroImage(),
+              ),
+
+              // 2) CONTENT LAYER (text + cards) on top
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 400),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 25,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: _buildHeroTextColumn()),
+                      const SizedBox(width: 40),
+                      // Empty half: the image shows through behind this space.
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Hero image with its LEFT edge (and a bit of the BOTTOM edge)
+  /// faded to transparent, so it melts into the blue background.
+  Widget _buildBlendedHeroImage() {
+    // Horizontal fade: left = invisible -> right = fully visible
+    final Widget horizontallyFaded = ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Colors.transparent, Colors.black54, Colors.black],
+          // 0.00 -> 0.55 is the blend zone. Bigger last value = softer,
+          // longer blend. Smaller = sharper edge.
+          stops: [0.0, 0.30, 0.55],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        'images/hero_products2.png',
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: tBlack.withOpacity(0.05),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 50,
+              color: tWhite.withOpacity(0.6),
+            ),
+          );
+        },
+      ),
+    );
+
+    // Vertical fade: softens the bottom edge into the blue.
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          // Fully visible until 80% height, then fades out.
+          stops: [0.0, 0.80, 1.0],
+        ).createShader(rect);
+      },
+      child: horizontallyFaded,
+    );
+  }
+
+  /// Left side: label, title, description and the 4 intro cards.
+  /// (Same content as before, just moved into its own method.)
+  Widget _buildHeroTextColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 20,
+          child: Text(
+            ' OUR PRODUCTS',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: tOrange1,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 20),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 120,
+          child: RichText(
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 48,
+                fontWeight: FontWeight.w600,
+                height: 1.15,
+                color: tWhite,
+              ),
               children: [
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 20,
-                  child: Text(
-                    ' OUR PRODUCTS',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: tOrange1,
-                      letterSpacing: 1.2,
-                    ),
+                const TextSpan(text: 'Innovative Products.\n'),
+                TextSpan(
+                  text: 'Built for Performance.',
+                  style: TextStyle(
+                    color: tOrange1,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-
-                const SizedBox(height: 20),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 120,
-                  child: RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.manrope(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w600,
-                        height: 1.15,
-                        color: tWhite,
-                      ),
-                      children: [
-                        const TextSpan(text: 'Innovative Products.\n'),
-                        TextSpan(
-                          text: 'Built for Performance.',
-                          style: TextStyle(
-                            color: tOrange1,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                HeroAnimatedText(
-                  isActive: widget.isActive,
-                  delay: 320,
-                  child: Text(
-                    'Explore our range of hardware and software products engineered to help businesses automate, connect and scale with confidence.',
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tWhite,
-                      fontWeight: FontWeight.w400,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 35),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 520,
-                        child: _buildHeaderIntroCard(
-                          icon: 'icons/performance1.svg',
-                          title: 'High Performance',
-                          description: 'Built for reliable performance.',
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 720,
-                        child: _buildHeaderIntroCard(
-                          icon: 'icons/secured.svg',
-                          title: 'Reliable & Secure',
-                          description: 'Built for secure performanceble ',
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 920,
-                        child: _buildHeaderIntroCard(
-                          icon: 'icons/integration1.svg',
-                          title: 'Easy Integration',
-                          description: 'Simple integration with your systems',
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: HeroAnimatedText(
-                        isActive: widget.isActive,
-                        delay: 1120,
-                        child: _buildHeaderIntroCard(
-                          icon: 'icons/scalability.svg',
-                          title: 'Built for Scale',
-                          description: 'Designed to grow with your needs',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25),
               ],
             ),
           ),
+        ),
 
-          const SizedBox(width: 40),
-
-          Expanded(
-            // flex: 4,
-            child: Container(
-              height: 350,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: tBlack.withOpacity(0.25),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.asset(
-                'images/hero_products2.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: tBlack.withOpacity(0.05),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 50,
-                      color: tWhite.withOpacity(0.6),
-                    ),
-                  );
-                },
-              ),
+        const SizedBox(height: 20),
+        HeroAnimatedText(
+          isActive: widget.isActive,
+          delay: 320,
+          child: Text(
+            'Explore our range of hardware and software products engineered to help businesses automate, connect and scale with confidence.',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tWhite,
+              fontWeight: FontWeight.w400,
+              height: 1.5,
             ),
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 35),
+
+        Row(
+          children: [
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 520,
+                child: _buildHeaderIntroCard(
+                  icon: 'icons/performance1.svg',
+                  title: 'High Performance',
+                  description: 'Built for reliable performance.',
+                ),
+              ),
+            ),
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 720,
+                child: _buildHeaderIntroCard(
+                  icon: 'icons/secured.svg',
+                  title: 'Reliable & Secure',
+                  description: 'Built for secure performanceble ',
+                ),
+              ),
+            ),
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 920,
+                child: _buildHeaderIntroCard(
+                  icon: 'icons/integration1.svg',
+                  title: 'Easy Integration',
+                  description: 'Simple integration with your systems',
+                ),
+              ),
+            ),
+            Expanded(
+              child: HeroAnimatedText(
+                isActive: widget.isActive,
+                delay: 1120,
+                child: _buildHeaderIntroCard(
+                  icon: 'icons/scalability.svg',
+                  title: 'Built for Scale',
+                  description: 'Designed to grow with your needs',
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 25),
+      ],
     );
   }
 

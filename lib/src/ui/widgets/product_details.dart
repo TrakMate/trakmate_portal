@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:svg_flutter/svg.dart';
 // import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
@@ -18,18 +20,29 @@ class _SpecBadgeInfo {
 
 // Key = the asset path used in specBadges. Edit titles/tints here.
 const Map<String, _SpecBadgeInfo> _kSpecBadgeInfo = {
-  'images/4g1.png': _SpecBadgeInfo('4G+2G', Color(0xFFE3EAF5)),
-  'images/4g2.png': _SpecBadgeInfo('4G', Color(0xFFE3EAF5)),
-  'images/ev1.png': _SpecBadgeInfo('EV Compatible', Color(0xFFDDF1DD)),
-  'images/ble1.png': _SpecBadgeInfo(
-    'Bluetooth Connectivity',
-    Color(0xFFDCE9FA),
-  ),
-  'images/wifi1.png': _SpecBadgeInfo('Wi-Fi', Color(0xFFE3EAF5)),
-  'images/linux1.png': _SpecBadgeInfo('Linux OS', Color(0xFFF1EBDD)),
-  'images/android1.png': _SpecBadgeInfo('Android OS', Color(0xFFDDF1DD)),
-  'images/hd1.png': _SpecBadgeInfo('HD Display', Color(0xFFE3EAF5)),
-  'images/ethernet1.png': _SpecBadgeInfo('Ethernet', Color(0xFFE3EAF5)),
+  'icons/4gg1.svg': _SpecBadgeInfo('4G+2G', Color(0xFFE3EAF5)),
+  'icons/4gg.svg': _SpecBadgeInfo('4G', Color(0xFFE3EAF5)),
+  'icons/evv1.svg': _SpecBadgeInfo('EV Compatible', Color(0xFFDDF1DD)),
+  'icons/ble1.svg': _SpecBadgeInfo('Bluetooth Connectivity', Color(0xFFDCE9FA)),
+  'icons/wifi1.svg': _SpecBadgeInfo('Wi-Fi', Color(0xFFE3EAF5)),
+  'icons/linux1.svg': _SpecBadgeInfo('Linux OS', Color(0xFFF1EBDD)),
+  'icons/android1.svg': _SpecBadgeInfo('Android OS', Color(0xFFDDF1DD)),
+  'icons/hd1.svg': _SpecBadgeInfo('HD Display', Color(0xFFE3EAF5)),
+  'icons/ethernet1.svg': _SpecBadgeInfo('Ethernet', Color(0xFFE3EAF5)),
+};
+// Icon size inside the circle, as a fraction of the circle.
+// 1.0 = fills the whole circle, 0.6 = 60%. Default is 0.8 (same as padding 0.1).
+const double _kDefaultIconFraction = 0.8;
+
+const Map<String, double> _kIconFraction = {
+  'icons/4gg.svg': 0.68, // icon size
+  'icons/4gg1.svg': 0.80,
+  'icons/ble1.svg': 0.78,
+  'icons/linux1.svg': 0.90,
+  'icons/ethernet1.svg': 0.78,
+  'icons/wifi1.svg': 0.85,
+  'icons/hd1.svg': 0.88,
+  // 'images/ev1.png': 0.8,
 };
 
 class ProductDetailsPage extends StatefulWidget {
@@ -46,7 +59,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   bool _specificationsExpanded = false;
   bool _connectivityExpanded = false;
   bool _applicationsExpanded = false;
-
+  bool _specsLoading = true;
   final ScrollController _rightScrollController = ScrollController();
   final FocusNode _carouselFocusNode = FocusNode();
   final GlobalKey _featuresKey = GlobalKey();
@@ -61,6 +74,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int _currentImageIndex = 0;
   VideoPlayerController? _videoController;
   bool get _hasVideo => product.video != null && product.video!.isNotEmpty;
+
   List<String> get _productImages {
     final List<String> images = [];
 
@@ -136,6 +150,65 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     setState(() {});
   }
 
+  // Future<void> _preloadSpecsSlideAssets() async {
+  //   // nothing to wait for if this product has no specs slide
+  //   if (product.specBadges.isEmpty) {
+  //     if (mounted) setState(() => _specsLoading = false);
+  //     return;
+  //   }
+
+  //   final List<String> paths =
+  //       {
+  //         _productImages[0], // the product image shown on the specs slide
+  //         ...product.specBadges, // every badge icon
+  //       }.where((p) => !_isSvg(p)).toList();
+
+  //   await Future.wait(
+  //     paths.map(
+  //       (path) => precacheImage(
+  //         AssetImage(path),
+  //         context,
+  //         onError: (e, s) => debugPrint('Preload failed: $path'), // never hang
+  //       ),
+  //     ),
+  //   );
+  //   await Future.delayed(const Duration(seconds: 3)); // fr testing
+
+  //   if (!mounted) return;
+  //   setState(() => _specsLoading = false);
+  // }
+  Future<void> _preloadSpecsSlideAssets() async {
+    if (product.specBadges.isEmpty) {
+      if (mounted) setState(() => _specsLoading = false);
+      return;
+    }
+
+    final List<String> allPaths =
+        {_productImages[0], ...product.specBadges}.toList();
+
+    await Future.wait(
+      allPaths.map((path) async {
+        try {
+          if (_isSvg(path)) {
+            // warm the SVG cache, same key SvgPicture.asset will use
+            final loader = SvgAssetLoader(path);
+            await svg.cache.putIfAbsent(
+              loader.cacheKey(null),
+              () => loader.loadBytes(null),
+            );
+          } else {
+            await precacheImage(AssetImage(path), context);
+          }
+        } catch (e) {
+          debugPrint('Preload failed: $path ($e)'); // never hang the shimmer
+        }
+      }),
+    );
+
+    if (!mounted) return;
+    setState(() => _specsLoading = false);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -149,6 +222,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             })
             ..addListener(_onVideoStateChanged);
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadSpecsSlideAssets();
+    });
   }
 
   @override
@@ -243,9 +319,41 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   //     ],
   //   );
   // }
+
+  bool _isSvg(String path) => path.toLowerCase().endsWith('.svg');
+  _SpecBadgeInfo? _lookupBadgeInfo(String path) {
+    String stripExt(String p) => p.replaceFirst(RegExp(r'\.[^./]+$'), '');
+    final String base = stripExt(path);
+
+    for (final entry in _kSpecBadgeInfo.entries) {
+      if (stripExt(entry.key) == base) return entry.value;
+    }
+    return null;
+  }
+
+  double _iconFraction(String path) =>
+      _kIconFraction[path] ?? _kDefaultIconFraction;
+  Widget _buildBadgeGraphic(String path) {
+    if (_isSvg(path)) {
+      return SvgPicture.asset(path, fit: BoxFit.contain);
+    }
+
+    return Image.asset(
+      path,
+      fit: BoxFit.contain,
+      filterQuality: FilterQuality.high, // smooth downscaling for PNGs
+      isAntiAlias: true,
+      errorBuilder:
+          (context, error, stackTrace) => Icon(
+            Icons.image_not_supported_outlined,
+            color: tBlack.withOpacity(0.25),
+          ),
+    );
+  }
+
   Widget _buildSpecBadgeItem(String path, double kb) {
     final _SpecBadgeInfo info =
-        _kSpecBadgeInfo[path] ??
+        _lookupBadgeInfo(path) ??
         _SpecBadgeInfo(
           path
               .split('/')
@@ -267,22 +375,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           Container(
             width: circle,
             height: circle,
-            padding: EdgeInsets.all(circle * 0.1), //icon size
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [tWhite, info.tint],
                 stops: const [0.5, 1.0],
               ),
-              // boxShadow: [
-              //   BoxShadow(
-              //     color: info.tint.withOpacity(0.9),
-              //     blurRadius: 18 * kb,
-              //     offset: Offset(0, 6 * kb),
-              //   ),
-              // ],
             ),
-            child: Image.asset(path, fit: BoxFit.contain),
+            child: Center(
+              child: SizedBox(
+                width: circle * _iconFraction(path),
+                height: circle * _iconFraction(path),
+                child: _buildBadgeGraphic(path),
+              ),
+            ),
           ),
           SizedBox(height: 8 * kb),
           Text(
@@ -312,13 +418,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double k = _slideScale(constraints);
-        debugPrint(
-          'SLIDE SIZE: ${constraints.maxWidth} x ${constraints.maxHeight}',
-        );
-        // ===== TUNE THESE =====
+        // debugPrint(
+        //   'SLIDE SIZE: ${constraints.maxWidth} x ${constraints.maxHeight}',
+        // );
+
         const double kMinBadgeScale = 0.75; // badges never shrink below 75%
         const double kImageBadgeGap = 28; // gap image <-> badges (at k = 1)
-        // ======================
 
         final double badgeRight = math.max(s.badgeRightOffset * k, 40);
         final double gap = kImageBadgeGap * k;
@@ -786,6 +891,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           }
 
                           if (index == 0 && product.specBadges.isNotEmpty) {
+                            if (_specsLoading) {
+                              return SpecsSlideShimmer(
+                                badgeCount: product.specBadges.length,
+                                topRowCount: product.specsStyle.topRowCount,
+                              );
+                            }
                             return _buildSpecsSlide(_productImages[0]);
                           }
 

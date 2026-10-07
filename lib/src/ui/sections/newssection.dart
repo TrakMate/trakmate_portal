@@ -104,25 +104,25 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
             isActive: widget.isActive,
             slides: [
               HeroSlide(
-                // image: _sortedNews[0].image,
-                image: 'images/auto_expo.png',
-                label: 'NEWS & MEDIA',
-                line1: 'Engineering Innovation.',
-                line2: 'Building a Smarter Tomorrow.',
+                // image: _sortedNews[1].image,
+                image: 'images/auto_expo1.png',
+                label: 'COMPANY NEWS',
+                line1: 'Showcasing our latest innovations',
+                line2: 'in connected mobility, intelligent\nvehicle solutions.',
               ),
               HeroSlide(
-                // image: _sortedNews[1].image,
-                image: 'images/auto_expo.png',
-                label: 'NEWS & MEDIA',
-                line1: 'Advancing Embedded Systems.',
-                line2: 'For a Smarter Future.',
+                // image: _sortedNews[0].image,
+                image: 'images/innovation_center1.png',
+                label: 'EVENTS',
+                line1: 'TrakMate Expands Its Engineering',
+                line2: 'Capabilities with New Innovation\nCenter.',
               ),
               HeroSlide(
                 // image: _sortedNews[2].image,
-                image: 'images/auto_expo.png',
-                label: 'NEWS & MEDIA',
-                line1: 'New Generation Trackers.',
-                line2: 'Built for Performance.',
+                image: 'images/R&D_Team2.png',
+                label: 'PRODUCTS',
+                line1: 'Our latest vehicle tracking solution',
+                line2: 'delivers higher accuracy, advanced\nsafety features.',
               ),
             ],
           ),
@@ -147,7 +147,7 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'NEWS & BLOGS',
+          'OUR UPDATES',
           style: GoogleFonts.manrope(
             fontSize: 13,
             fontWeight: FontWeight.w700,

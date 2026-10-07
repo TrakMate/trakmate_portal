@@ -30,16 +30,15 @@ class FooterSection extends StatelessWidget {
 
               _divider(),
 
-              _menu("Solutions", [
-                "IoT Solutions",
-                "Embedded Systems",
-                "Software Development",
-                "Cloud & AI",
-                "Mobile Apps",
-                "Web Applications",
-              ], sectionIndex: 1),
-              _divider(),
-
+              // _menu("Solutions", [
+              //   "IoT Solutions",
+              //   "Embedded Systems",
+              //   "Software Development",
+              //   "Cloud & AI",
+              //   "Mobile Apps",
+              //   "Web Applications",
+              // ], sectionIndex: 1),
+              // _divider(),
               _menu("Engineering", [
                 "CAD Design",
                 "Product Design",
@@ -61,7 +60,7 @@ class FooterSection extends StatelessWidget {
               ], sectionIndex: 2),
               _divider(),
 
-              _menu("Products", [
+              _menu("Products&Solutions", [
                 "All Products",
                 "Telematics",
                 "Vehicle Diagnostics",
@@ -69,6 +68,8 @@ class FooterSection extends StatelessWidget {
                 "Clusters",
                 "ADAS",
                 "Solution Hub",
+                // "Mobile Apps",
+                // "Web Applications",
               ], sectionIndex: 3),
               _divider(),
 
@@ -92,7 +93,7 @@ class FooterSection extends StatelessWidget {
                 "About Us",
                 "Our Journey",
                 "Vision & Mission",
-                "Our Team",
+                "Leadership",
                 "Certifictations",
                 "Contact Us",
               ], sectionIndex: 5),

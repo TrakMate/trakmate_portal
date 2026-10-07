@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
@@ -76,11 +78,18 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
 
   bool _dropdownOpen = false;
 
+  // Hover tracking: the menu stays open while the cursor is over EITHER the
+  // trigger (label/arrow) or the dropdown panel.
+  bool _hoverTrigger = false;
+  bool _hoverPanel = false;
+  Timer? _closeTimer;
+
+  // Delay that lets the cursor cross the small gap between trigger and panel.
+  static const Duration _closeDelay = Duration(milliseconds: 150);
+
   final OverlayPortalController _overlayController = OverlayPortalController();
   final LayerLink _layerLink = LayerLink();
 
-  // Key on the panel's own boundary — kept only so the panel can be built;
-  // no manual hit-testing happens against it anymore.
   final GlobalKey _panelKey = GlobalKey();
 
   @override
@@ -100,6 +109,7 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
 
   @override
   void dispose() {
+    _closeTimer?.cancel();
     widget.groupController?.removeListener(_handleGroupChange);
     if (_activeMenu == this) _activeMenu = null;
     super.dispose();
@@ -112,6 +122,8 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
   }
 
   void _open() {
+    _closeTimer?.cancel();
+
     // Close any other dropdown that is still open.
     if (_activeMenu != null && _activeMenu != this) {
       _activeMenu!._forceClose();
@@ -126,8 +138,12 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
   }
 
   void _forceClose() {
+    _closeTimer?.cancel();
+    _hoverTrigger = false;
+    _hoverPanel = false;
+
     if (_activeMenu == this) _activeMenu = null;
-    if (_dropdownOpen) {
+    if (_dropdownOpen && mounted) {
       setState(() => _dropdownOpen = false);
     }
     _overlayController.hide();
@@ -154,11 +170,41 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
     }
   }
 
-  // Hover over the menu label / arrow opens the dropdown.
-  void _handleHoverEnter() {
+  // ---------------------------------------------------------------------------
+  // HOVER HANDLING
+  // ---------------------------------------------------------------------------
+
+  void _onTriggerEnter() {
+    _hoverTrigger = true;
+    _closeTimer?.cancel();
     if (!_dropdownOpen) {
       _open();
     }
+  }
+
+  void _onTriggerExit() {
+    _hoverTrigger = false;
+    _scheduleClose();
+  }
+
+  void _onPanelEnter() {
+    _hoverPanel = true;
+    _closeTimer?.cancel();
+  }
+
+  void _onPanelExit() {
+    _hoverPanel = false;
+    _scheduleClose();
+  }
+
+  void _scheduleClose() {
+    _closeTimer?.cancel();
+    _closeTimer = Timer(_closeDelay, () {
+      if (!mounted) return;
+      if (!_hoverTrigger && !_hoverPanel && _dropdownOpen) {
+        _close();
+      }
+    });
   }
 
   @override
@@ -172,12 +218,6 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
         return SizedBox(
           width: screenSize.width,
           height: screenSize.height,
-          // No full-screen Listener anymore. TapRegion (below, on both the
-          // trigger and the panel, sharing the same groupId) is the single
-          // mechanism that detects outside taps — it's purpose-built for
-          // this and, unlike a Listener/GestureDetector combo, it never
-          // enters the tap gesture arena, so it can't race with the
-          // arrow's onTap or a menu item's onTap.
           child: CompositedTransformFollower(
             link: _layerLink,
             targetAnchor: Alignment.bottomCenter,
@@ -188,7 +228,12 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
               groupId: this,
               child: Align(
                 alignment: Alignment.topCenter,
-                child: _buildDropdownMenu(),
+                // Hover tracking for the panel itself.
+                child: MouseRegion(
+                  onEnter: (_) => _onPanelEnter(),
+                  onExit: (_) => _onPanelExit(),
+                  child: _buildDropdownMenu(),
+                ),
               ),
             ),
           ),
@@ -198,17 +243,15 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
       child: CompositedTransformTarget(
         link: _layerLink,
 
-        // Opening is hover-driven: moving the pointer onto the label/arrow
-        // opens it. Closing happens when a tap lands on neither the trigger
-        // nor the panel (TapRegion.onTapOutside, grouped with the panel
-        // above), or when a menu item is chosen.
         child: TapRegion(
           groupId: this,
           onTapOutside: (event) {
             if (_dropdownOpen) _close();
           },
           child: MouseRegion(
-            onEnter: (_) => _handleHoverEnter(),
+            // Hover tracking for the trigger (label + arrow).
+            onEnter: (_) => _onTriggerEnter(),
+            onExit: (_) => _onTriggerExit(),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -217,9 +260,7 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // ----------------------------------------------------
                       // LABEL — tap navigates to the page
-                      // ----------------------------------------------------
                       GestureDetector(
                         onTap: () {
                           _close();
@@ -241,9 +282,7 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
 
                       const SizedBox(width: 5),
 
-                      // ----------------------------------------------------
                       // ARROW — tap toggles the dropdown open/closed
-                      // ----------------------------------------------------
                       GestureDetector(
                         onTap: _toggle,
                         child: MouseRegion(
@@ -318,12 +357,6 @@ class _NavDropdownMenuState extends State<NavDropdownMenu> {
                   widget.items[i].onTap();
                 },
               ),
-
-              // if (i != widget.items.length - 1)
-              //   Padding(
-              //     padding: const EdgeInsets.symmetric(horizontal: 10),
-              //     child: Divider(height: 1, color: tBlack.withOpacity(0.06)),
-              //   ),
             ],
           ],
         ),
@@ -361,23 +394,12 @@ class _NavDropdownItemWidgetState extends State<_NavDropdownItemWidget> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          // decoration: BoxDecoration(
-          //   color: _hovered ? tBlue3.withOpacity(0.055) : Colors.transparent,
-          //   borderRadius: BorderRadius.circular(8),
-          // ),
           child: Row(
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
                 width: 34,
                 height: 34,
-                // decoration: BoxDecoration(
-                //   color:
-                //       _hovered
-                //           ? tBlue3.withOpacity(0.09)
-                //           : tBlack.withOpacity(0.035),
-                //   borderRadius: BorderRadius.circular(8),
-                // ),
                 child: Center(
                   child: SvgPicture.asset(
                     widget.item.icon,
@@ -404,16 +426,6 @@ class _NavDropdownItemWidgetState extends State<_NavDropdownItemWidget> {
                   child: Text(widget.item.label),
                 ),
               ),
-
-              // AnimatedOpacity(
-              //   duration: const Duration(milliseconds: 160),
-              //   opacity: _hovered ? 1 : 0,
-              //   child: const Icon(
-              //     Icons.arrow_forward_rounded,
-              //     size: 15,
-              //     color: tOrange1,
-              //   ),
-              // ),
             ],
           ),
         ),
