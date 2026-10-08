@@ -27,8 +27,7 @@ class AppRouter {
     initialLocation: '/home',
     routes: [
       // "/" -> "/home"
-      GoRoute(path: '/', redirect: (context, state) => '/home'),
-
+      // GoRoute(path: '/', redirect: (context, state) => '/home'),
       for (final entry in _pages.entries)
         GoRoute(
           path: entry.key,
