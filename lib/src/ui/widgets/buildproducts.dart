@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
@@ -652,12 +653,49 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     'ADAS': 'ADAS',
     'Solution Hub': 'Solutions Hub',
   };
-  void _selectFilterIndex(int index) {
-    if (index == _selectedFilterIndex) return;
+  String _pathFromFilterLabel(String label) {
+    switch (label) {
+      case 'All Products':
+        return '/products';
+      case 'Telematics':
+        // Keep the existing public route used by MainPage for the tracker
+        // category. The visible product filter is still named Telematics.
+        return '/products/trackers';
+      case 'Diagnostics':
+        return '/products/diagnostics';
+      case 'Gateways':
+        return '/products/gateways';
+      case 'Clusters':
+        return '/products/clusters';
+      case 'ADAS':
+        return '/products/adas';
+      case 'Solutions Hub':
+        return '/solutions-hub';
+      default:
+        return '/products';
+    }
+  }
 
-    setState(() {
-      _selectedFilterIndex = index;
-    });
+  void _selectFilterIndex(int index, {bool updateUrl = true}) {
+    if (index < 0 || index >= _filterTabs.length) return;
+
+    if (index != _selectedFilterIndex) {
+      setState(() {
+        _selectedFilterIndex = index;
+      });
+    }
+
+    if (!updateUrl) return;
+
+    final String targetPath = _pathFromFilterLabel(
+      _filterTabs[index].label,
+    );
+
+    final String currentPath = GoRouterState.of(context).uri.path;
+
+    if (currentPath != targetPath) {
+      context.go(targetPath);
+    }
   }
 
   // NEW: attribute filter toggles -------------------------------------
@@ -897,14 +935,15 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     if (request == null) return;
 
     final filterLabel = _footerKeyToFilterLabel[request.key];
-    if (filterLabel == null)
+    if (filterLabel == null) {
       return; // not meant for this section, leave it alone
+    }
 
     final targetIndex = _filterTabs.indexWhere(
       (tab) => tab.label == filterLabel,
     );
     if (targetIndex != -1) {
-      _selectFilterIndex(targetIndex);
+      _selectFilterIndex(targetIndex, updateUrl: false);
     }
 
     SectionScrollBus.instance.pendingKey.value = null;
@@ -926,11 +965,16 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     final String? category = ProductFilterController.selectedCategory.value;
     if (category == null) return;
 
+    // MainPage historically uses 'Trackers' for the Telematics category.
+    // Normalize that value here so both navigation paths select the same tab.
+    final String normalizedCategory =
+        category == 'Trackers' ? 'Telematics' : category;
+
     final int targetIndex = _filterTabs.indexWhere(
-      (tab) => tab.label == category,
+      (tab) => tab.label == normalizedCategory,
     );
     if (targetIndex != -1) {
-      _selectFilterIndex(targetIndex);
+      _selectFilterIndex(targetIndex, updateUrl: false);
     }
 
     ProductFilterController.selectedCategory.value = null;

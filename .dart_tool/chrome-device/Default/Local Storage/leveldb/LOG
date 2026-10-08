@@ -1,20 +1,51 @@
-2026/09/28-15:39:04.998 3334 Reusing MANIFEST C:\Users\Keerthi.M\AppData\Local\Temp\flutter_tools.344d4807\flutter_tools_chrome_device.949c88eb\Default\Local Storage\leveldb/MANIFEST-000001
-2026/09/28-15:39:05.000 3334 Recovering log #58
-2026/09/28-15:39:05.003 3334 Reusing old log C:\Users\Keerthi.M\AppData\Local\Temp\flutter_tools.344d4807\flutter_tools_chrome_device.949c88eb\Default\Local Storage\leveldb/000058.log 
-2026/09/28-15:39:05.004 3334 Delete type=2 #3
-2026/09/28-15:39:05.004 3334 Delete type=0 #3
-2026/09/28-15:39:05.004 3334 Delete type=2 #4
-2026/09/28-15:39:05.004 3334 Delete type=2 #5
-2026/09/28-15:39:05.004 3334 Delete type=2 #14
-2026/09/28-15:39:05.004 3334 Delete type=2 #17
-2026/09/28-15:39:05.004 3334 Delete type=2 #19
-2026/09/28-15:39:05.005 3334 Delete type=0 #35
-2026/09/28-15:39:05.005 3334 Delete type=0 #38
-2026/09/28-15:39:05.005 3334 Delete type=0 #40
-2026/09/28-15:39:05.005 3334 Delete type=2 #41
-2026/09/28-15:39:05.005 3334 Delete type=0 #43
-2026/09/28-15:39:05.005 3334 Delete type=2 #45
-2026/09/28-15:39:05.005 3334 Delete type=0 #48
-2026/09/28-15:39:05.005 3334 Delete type=0 #50
-2026/09/28-15:39:05.005 3334 Delete type=0 #52
-2026/09/28-15:39:05.005 3334 Delete type=0 #55
+2026/10/08-10:55:20.288 4220 Reusing MANIFEST C:\Users\Keerthi.M\AppData\Local\Temp\flutter_tools.92c57401\flutter_tools_chrome_device.41d2ea8e\Default\Local Storage\leveldb/MANIFEST-000001
+2026/10/08-10:55:20.291 4220 Recovering log #58
+2026/10/08-10:55:20.291 4220 Level-0 table #61: started
+2026/10/08-10:55:20.298 4220 Level-0 table #61: 2715 bytes OK
+2026/10/08-10:55:20.299 4220 Recovering log #61
+2026/10/08-10:55:20.299 4220 Level-0 table #62: started
+2026/10/08-10:55:20.305 4220 Level-0 table #62: 8323 bytes OK
+2026/10/08-10:55:20.305 4220 Recovering log #63
+2026/10/08-10:55:20.306 4220 Level-0 table #63: started
+2026/10/08-10:55:20.311 4220 Level-0 table #63: 7067 bytes OK
+2026/10/08-10:55:20.312 4220 Recovering log #64
+2026/10/08-10:55:20.312 4220 Level-0 table #64: started
+2026/10/08-10:55:20.320 4220 Level-0 table #64: 8386 bytes OK
+2026/10/08-10:55:20.321 4220 Recovering log #68
+2026/10/08-10:55:20.321 4220 Level-0 table #65: started
+2026/10/08-10:55:20.327 4220 Level-0 table #65: 8666 bytes OK
+2026/10/08-10:55:20.328 4220 Recovering log #71
+2026/10/08-10:55:20.331 4220 Reusing old log C:\Users\Keerthi.M\AppData\Local\Temp\flutter_tools.92c57401\flutter_tools_chrome_device.41d2ea8e\Default\Local Storage\leveldb/000071.log 
+2026/10/08-10:55:20.335 4220 Delete type=2 #3
+2026/10/08-10:55:20.335 4220 Delete type=0 #3
+2026/10/08-10:55:20.335 4220 Delete type=2 #4
+2026/10/08-10:55:20.335 4220 Delete type=2 #5
+2026/10/08-10:55:20.335 4220 Delete type=2 #14
+2026/10/08-10:55:20.335 4220 Delete type=2 #17
+2026/10/08-10:55:20.335 4220 Delete type=2 #19
+2026/10/08-10:55:20.335 4220 Delete type=0 #35
+2026/10/08-10:55:20.335 4220 Delete type=0 #38
+2026/10/08-10:55:20.335 4220 Delete type=0 #40
+2026/10/08-10:55:20.335 4220 Delete type=2 #41
+2026/10/08-10:55:20.335 4220 Delete type=0 #43
+2026/10/08-10:55:20.335 4220 Delete type=2 #45
+2026/10/08-10:55:20.335 4220 Delete type=0 #48
+2026/10/08-10:55:20.335 4220 Delete type=0 #50
+2026/10/08-10:55:20.335 4220 Delete type=0 #52
+2026/10/08-10:55:20.335 4220 Delete type=0 #55
+2026/10/08-10:55:20.335 4220 Delete type=0 #58
+2026/10/08-10:55:20.335 4220 Delete type=0 #61
+2026/10/08-10:55:20.335 4220 Delete type=0 #63
+2026/10/08-10:55:20.335 4220 Delete type=0 #64
+2026/10/08-10:55:20.335 4220 Delete type=0 #68
+2026/10/08-10:55:20.344 1268 Compacting 6@0 + 1@1 files
+2026/10/08-10:55:20.350 1268 Generated table #72@0: 397 keys, 14166 bytes
+2026/10/08-10:55:20.350 1268 Compacted 6@0 + 1@1 files => 14166 bytes
+2026/10/08-10:55:20.351 1268 compacted to: files[ 0 1 0 0 0 0 0 ]
+2026/10/08-10:55:20.352 1268 Delete type=2 #56
+2026/10/08-10:55:20.352 1268 Delete type=2 #59
+2026/10/08-10:55:20.352 1268 Delete type=2 #61
+2026/10/08-10:55:20.352 1268 Delete type=2 #62
+2026/10/08-10:55:20.352 1268 Delete type=2 #63
+2026/10/08-10:55:20.352 1268 Delete type=2 #64
+2026/10/08-10:55:20.352 1268 Delete type=2 #65

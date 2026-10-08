@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import 'src/ui/pages/main_page.dart';
 
-// All URLs that MainPage understands (matches _indexFromPath in main_page.dart)
+// All URLs that MainPage understands.
 const List<String> _mainPaths = [
   '/',
   '/home',
@@ -49,13 +49,13 @@ final GoRouter _router = GoRouter(
 );
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // ADD
+  WidgetsFlutterBinding.ensureInitialized();
   PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
 
-  // WidgetsFlutterBinding.ensureInitialized();
-
   if (kIsWeb) {
-    usePathUrlStrategy(); // clean URLs: /products instead of /#/products
+    // Clean URLs such as /trakmate_portal/products/gateways
+    // instead of hash URLs such as /#/products/gateways.
+    usePathUrlStrategy();
   } else {
     // ... your existing orientation code unchanged ...
   }
