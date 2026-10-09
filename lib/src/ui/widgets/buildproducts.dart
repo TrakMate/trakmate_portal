@@ -15,6 +15,11 @@ import 'package:trakmate_portal/src/utils/colors.dart';
 // Used only to close the product filter overlay when another modal/dialog opens.
 final ValueNotifier<int> productFilterCloseSignal = ValueNotifier<int>(0);
 
+// Remembers the last selected filter tab. context.go() can rebuild the page
+// with a brand-new State (which would reset the tab to "All Products"), so a
+// freshly created State reads this to start on the tab the user just chose.
+int _lastSelectedFilterIndex = 0;
+
 class _BelowHeaderClipper extends CustomClipper<Rect> {
   final double headerHeight;
   const _BelowHeaderClipper(this.headerHeight);
@@ -433,7 +438,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image4: 'images/tmd364-back1.png',
       image5: 'images/tmd364-part1.png',
       specBadges: [
-        'icons/4g1.svg',
+        'icons/4gg1.svg',
         'icons/evv1.svg',
         'icons/ble1.svg',
         'icons/linux1.svg',
@@ -519,7 +524,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmdcstrr-5.png',
       image2: 'images/tmdcstrr-5.png',
       image3: 'images/pigtail.jpg',
-      specBadges: ['icons/4g1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
+      specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
         badgeWidth: 120,
@@ -653,49 +658,36 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     'ADAS': 'ADAS',
     'Solution Hub': 'Solutions Hub',
   };
-  String _pathFromFilterLabel(String label) {
-    switch (label) {
-      case 'All Products':
-        return '/products';
-      case 'Telematics':
-        // Keep the existing public route used by MainPage for the tracker
-        // category. The visible product filter is still named Telematics.
-        return '/products/trackers';
-      case 'Diagnostics':
-        return '/products/diagnostics';
-      case 'Gateways':
-        return '/products/gateways';
-      case 'Clusters':
-        return '/products/clusters';
-      case 'ADAS':
-        return '/products/adas';
-      case 'Solutions Hub':
-        return '/solutions-hub';
-      default:
-        return '/products';
+
+  // Tab label -> URL. Must match the paths used in MainPage.
+  static const Map<String, String> _filterLabelToPath = {
+    'All Products': '/products',
+    'Telematics': '/products/telematics',
+    'Diagnostics': '/products/diagnostics',
+    'Gateways': '/products/gateways',
+    'Clusters': '/products/clusters',
+    'ADAS': '/products/adas',
+    'Solutions Hub': '/solutions-hub',
+  };
+
+  // Called only when the user taps a tab in the filter bar.
+  void _onFilterTabTap(int index) {
+    _selectFilterIndex(index);
+
+    final String? path = _filterLabelToPath[_filterTabs[index].label];
+    if (path != null) {
+      context.go(path);
     }
   }
 
-  void _selectFilterIndex(int index, {bool updateUrl = true}) {
-    if (index < 0 || index >= _filterTabs.length) return;
+  void _selectFilterIndex(int index) {
+    _lastSelectedFilterIndex = index;
 
-    if (index != _selectedFilterIndex) {
-      setState(() {
-        _selectedFilterIndex = index;
-      });
-    }
+    if (index == _selectedFilterIndex) return;
 
-    if (!updateUrl) return;
-
-    final String targetPath = _pathFromFilterLabel(
-      _filterTabs[index].label,
-    );
-
-    final String currentPath = GoRouterState.of(context).uri.path;
-
-    if (currentPath != targetPath) {
-      context.go(targetPath);
-    }
+    setState(() {
+      _selectedFilterIndex = index;
+    });
   }
 
   // NEW: attribute filter toggles -------------------------------------
@@ -750,7 +742,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     if (buttonBox == null || !buttonBox.hasSize) return;
 
     final Offset position = buttonBox.localToGlobal(Offset.zero);
-    final Size size = buttonBox.size;
+    final Size size = buttonBox.size; 
 
     _filterButtonPosition = position;
     _filterButtonSize = size;
@@ -901,6 +893,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   @override
   void initState() {
     super.initState();
+
+    // Start on the tab the user last chose (survives a page rebuild).
+    _selectedFilterIndex = _lastSelectedFilterIndex;
+
     SectionScrollBus.instance.pendingKey.addListener(_handleFooterNavigation);
     ProductFilterController.selectedCategory.addListener(
       _handleProductFilterNavigation,
@@ -935,15 +931,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     if (request == null) return;
 
     final filterLabel = _footerKeyToFilterLabel[request.key];
-    if (filterLabel == null) {
+    if (filterLabel == null)
       return; // not meant for this section, leave it alone
-    }
 
     final targetIndex = _filterTabs.indexWhere(
       (tab) => tab.label == filterLabel,
     );
     if (targetIndex != -1) {
-      _selectFilterIndex(targetIndex, updateUrl: false);
+      _selectFilterIndex(targetIndex);
     }
 
     SectionScrollBus.instance.pendingKey.value = null;
@@ -965,21 +960,30 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     final String? category = ProductFilterController.selectedCategory.value;
     if (category == null) return;
 
-    // MainPage historically uses 'Trackers' for the Telematics category.
-    // Normalize that value here so both navigation paths select the same tab.
-    final String normalizedCategory =
-        category == 'Trackers' ? 'Telematics' : category;
-
     final int targetIndex = _filterTabs.indexWhere(
-      (tab) => tab.label == normalizedCategory,
+      (tab) => tab.label == category,
     );
+
+    // If the tab is already selected (user just tapped it in the bar),
+    // don't scroll the page again.
+    final bool alreadySelected = targetIndex == _selectedFilterIndex;
+
     if (targetIndex != -1) {
-      _selectFilterIndex(targetIndex, updateUrl: false);
+      _selectFilterIndex(targetIndex);
     }
 
-    ProductFilterController.selectedCategory.value = null;
+    // Clear the value AFTER the frame, not immediately. Clearing it right away
+    // starves any other live listener (e.g. the outgoing page while the router
+    // swaps pages), which is what sent the tab back to "All Products".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ProductFilterController.selectedCategory.value == category) {
+        ProductFilterController.selectedCategory.value = null;
+      }
+    });
 
-    _scrollToProductCards();
+    if (!alreadySelected) {
+      _scrollToProductCards();
+    }
   }
   // NEW: scrolls the page so the product cards section is at the top.
 
@@ -1134,7 +1138,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         mouseCursor: SystemMouseCursors.click,
-        onTap: () => _selectFilterIndex(index),
+        onTap: () => _onFilterTabTap(index),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,

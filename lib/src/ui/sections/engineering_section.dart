@@ -90,10 +90,13 @@ class _EngineeringSectionState extends State<EngineeringSection> {
 
   Future<void> _preloadHeroImage() async {
     try {
-      await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      // await Future.delayed(const Duration(seconds: 3)); //  testing only
+      await precacheImage(
+        const AssetImage('images/hero_engineering.png'),
+        context,
+        onError: (e, s) => debugPrint('Failed to load engineering hero: $e'),
+      ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      debugPrint('Error preloading solutions hero image: $e');
+      debugPrint('Error preloading engineering hero image: $e');
     }
 
     if (!mounted) return;
@@ -109,7 +112,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         children: [
           // _buildEngineeringHeader(),
           _heroImageLoading
-              ? const HeroHeaderShimmer() // NEW
+              ? const HeroHeaderShimmer()
               : _buildEngineeringHeader(),
           const SizedBox(height: 30),
           BuildEngineeringSection(serviceKeys: _serviceKeys),

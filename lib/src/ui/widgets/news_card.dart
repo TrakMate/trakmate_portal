@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 
 /// Reusable news card. Tapping it opens the article popup.
@@ -38,7 +39,7 @@ class NewsCard extends StatelessWidget {
                 SizedBox(
                   height: 180,
                   width: double.infinity,
-                  child: Image.asset(article.image, fit: BoxFit.cover),
+                  child: shimmerImage(article.image),
                 ),
                 Expanded(
                   child: Padding(

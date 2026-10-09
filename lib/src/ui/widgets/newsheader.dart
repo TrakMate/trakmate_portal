@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import '../../utils/colors.dart';
@@ -57,8 +58,9 @@ class _HeroSliderState extends State<HeroSlider> {
   // the real slide number (0..count-1)
   int get _index =>
       widget.slides.isEmpty ? 0 : _virtualPage % widget.slides.length;
-  bool _isPrevHovered = false; // <-- ADD
-  bool _isNextHovered = false; // <-- ADD
+  bool _isPrevHovered = false;
+  bool _isNextHovered = false;
+  final FocusNode _focusNode = FocusNode();
   @override
   void initState() {
     super.initState();
@@ -85,6 +87,7 @@ class _HeroSliderState extends State<HeroSlider> {
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -100,6 +103,9 @@ class _HeroSliderState extends State<HeroSlider> {
     if (!mounted) return;
     setState(() {
       _loading = false;
+    }); //1
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && widget.isActive) _focusNode.requestFocus();
     });
     _restartTimer();
   }
@@ -146,97 +152,131 @@ class _HeroSliderState extends State<HeroSlider> {
 
     final int count = widget.slides.length;
 
-    return SizedBox(
-      width: double.infinity,
-      height: h,
-      child: Stack(
-        children: [
-          // ---------- SLIDES ----------
-          PageView.builder(
-            controller: _controller,
-            // no itemCount -> infinite
-            onPageChanged: (i) => setState(() => _virtualPage = i),
-            itemBuilder: (context, i) {
-              final int real = i % count;
-              return _buildSlide(widget.slides[real], real);
-            },
-          ),
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: (node, event) {
+        if (!widget.isActive || count < 2) return KeyEventResult.ignored;
 
-          // ---------- ARROWS ----------
-          if (count > 1) ...[
-            Positioned(
-              left: 20,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: _arrow(
-                  CupertinoIcons.chevron_left,
-                  _isPrevHovered,
-                  (v) => setState(() => _isPrevHovered = v),
-                  () => _onManualMove(_virtualPage - 1),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 20,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: _arrow(
-                  CupertinoIcons.chevron_right,
-                  _isNextHovered,
-                  (v) => setState(() => _isNextHovered = v),
-                  () => _onManualMove(_virtualPage + 1),
-                ),
-              ),
-            ),
-          ],
+        // Swallow up/down so the arrow keys don't scroll the page
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown ||
+            event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          return KeyEventResult.handled;
+        }
 
-          // ---------- DOTS ----------
-          if (count > 1)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 12,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(count, (i) {
-                  final bool isActive = (i == _index);
-                  return MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => _onManualMove(_virtualPage + (i - _index)),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        width: isActive ? 13 : 10,
-                        height: isActive ? 13 : 10,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color:
-                                isActive ? tOrange1 : tWhite.withOpacity(0.5),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Center(
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          _onManualMove(_virtualPage - 1);
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          _onManualMove(_virtualPage + 1);
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: MouseRegion(
+        onEnter: (_) => _focusNode.requestFocus(),
+        // onHover: (_) {
+        //   // keep reclaiming focus while the cursor moves over the slider
+        //   if (!_focusNode.hasFocus) _focusNode.requestFocus();
+        // },//2
+        child: SizedBox(
+          width: double.infinity,
+          height: h,
+          child: Stack(
+            children: [
+              //  SLIDES
+              PageView.builder(
+                controller: _controller,
+                // no itemCount -> infinite
+                onPageChanged: (i) => setState(() => _virtualPage = i),
+                itemBuilder: (context, i) {
+                  final int real = i % count;
+                  return _buildSlide(widget.slides[real], real);
+                },
+              ),
+
+              // ---------- ARROWS ----------
+              if (count > 1) ...[
+                Positioned(
+                  left: 20,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _arrow(
+                      CupertinoIcons.chevron_left,
+                      _isPrevHovered,
+                      (v) => setState(() => _isPrevHovered = v),
+                      () => _onManualMove(_virtualPage - 1),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 20,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _arrow(
+                      CupertinoIcons.chevron_right,
+                      _isNextHovered,
+                      (v) => setState(() => _isNextHovered = v),
+                      () => _onManualMove(_virtualPage + 1),
+                    ),
+                  ),
+                ),
+              ],
+
+              // ---------- DOTS ----------
+              if (count > 1)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 12,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(count, (i) {
+                      final bool isActive = (i == _index);
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap:
+                              () => _onManualMove(_virtualPage + (i - _index)),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
-                            width: isActive ? 6 : 0,
-                            height: isActive ? 6 : 0,
-                            decoration: const BoxDecoration(
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            width: isActive ? 13 : 10,
+                            height: isActive ? 13 : 10,
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: tOrange1,
+                              border: Border.all(
+                                color:
+                                    isActive
+                                        ? tOrange1
+                                        : tWhite.withOpacity(0.5),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Center(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                width: isActive ? 6 : 0,
+                                height: isActive ? 6 : 0,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: tOrange1,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-        ],
+                      );
+                    }),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

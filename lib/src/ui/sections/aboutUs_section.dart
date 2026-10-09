@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:ui' show PathMetric;
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/all_news.dart';
+import 'package:trakmate_portal/src/ui/widgets/careers_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
@@ -21,6 +24,99 @@ class AboutusSection extends StatefulWidget {
 
 class _AboutusSectionState extends State<AboutusSection> {
   bool _heroImageLoading = true;
+  bool _teamImagesLoading = true;
+
+  // Selected CV file (PDF, DOC, or DOCX; maximum 5 MB).
+  PlatformFile? _selectedCv;
+  bool _isPickingCv = false;
+
+  // ---------- Careers colors (all taken from colors.dart) ----------
+  static const Color _cNavy = tBlue2; // headings / job titles
+  static const Color _cBlue = tBlue1; // accents, eyebrow lines, buttons
+  // Body-text grey: softened tBlackLight (closest to the design's slate grey)
+  final Color _cGrey = tBlackLight.withOpacity(0.7);
+
+  // ---------- Careers data ----------
+  // One colour (`accent`) per job: the light background of the icon box and of
+  // the experience pill is derived from it automatically (see _JobData).
+  final List<_JobData> _jobs = const [
+    _JobData(
+      title: 'Flutter Developer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '2 - 5 Yrs',
+      icon: Icons.code_rounded,
+      accent: tBlue1,
+    ),
+    _JobData(
+      title: 'Embedded Systems Engineer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '3 - 6 Yrs',
+      icon: Icons.settings_outlined,
+      accent: tOrange1,
+    ),
+    _JobData(
+      title: 'Product Manager',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '4 - 7 Yrs',
+      icon: Icons.bar_chart_rounded,
+      accent: newbadge,
+    ),
+  ];
+
+  // Shown in the "View All Openings" pop up (the first 3 + more)
+  final List<_JobData> _allJobs = const [
+    _JobData(
+      title: 'Flutter Developer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '2 - 5 Yrs',
+      icon: Icons.code_rounded,
+      accent: tBlue1,
+    ),
+    _JobData(
+      title: 'Embedded Systems Engineer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '3 - 6 Yrs',
+      icon: Icons.settings_outlined,
+      accent: tOrange1,
+    ),
+    _JobData(
+      title: 'Product Manager',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '4 - 7 Yrs',
+      icon: Icons.bar_chart_rounded,
+      accent: newbadge,
+    ),
+    _JobData(
+      title: 'Backend Developer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '3 - 6 Yrs',
+      icon: Icons.storage_rounded,
+      accent: ipbadge,
+    ),
+    _JobData(
+      title: 'QA Engineer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '2 - 4 Yrs',
+      icon: Icons.verified_outlined,
+      accent: tBlueSky,
+    ),
+    _JobData(
+      title: 'Hardware Design Engineer',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '3 - 7 Yrs',
+      icon: Icons.memory_rounded,
+      accent: tPink1,
+    ),
+  ];
 
   final List<_CertData> _certs = const [
     _CertData(
@@ -143,20 +239,40 @@ class _AboutusSectionState extends State<AboutusSection> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
+      _preloadTeamImages();
     });
   }
 
   Future<void> _preloadHeroImage() async {
     try {
-      await precacheImage(const AssetImage('images/sol3.jpg'), context);
+      await precacheImage(
+        const AssetImage('images/company.png'),
+        context,
+        onError: (e, s) => debugPrint('Failed to load about hero: $e'),
+      ).timeout(const Duration(seconds: 10));
     } catch (e) {
-      debugPrint('Error preloading solutions hero image: $e');
+      debugPrint('Error preloading about hero image: $e');
     }
-
     if (!mounted) return;
-    setState(() {
-      _heroImageLoading = false;
-    });
+    setState(() => _heroImageLoading = false);
+  }
+
+  Future<void> _preloadTeamImages() async {
+    try {
+      await Future.wait(
+        ['images/img1.jpg', 'images/img2.jpg'].map(
+          (path) => precacheImage(
+            AssetImage(path),
+            context,
+            onError: (e, s) => debugPrint('FAILED to load $path: $e'),
+          ),
+        ),
+      ).timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint('Error preloading team images: $e');
+    }
+    if (!mounted) return;
+    setState(() => _teamImagesLoading = false);
   }
 
   @override
@@ -207,7 +323,14 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
           const SizedBox(height: 25),
 
-          _ourTeamSection(),
+          _teamImagesLoading ? const TeamSectionShimmer() : _ourTeamSection(),
+          const SizedBox(height: 25),
+
+          // CAREERS (under Meet Our Leadership)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: _buildCareersSection(),
+          ),
           const SizedBox(height: 25),
 
           // Padding(
@@ -233,6 +356,782 @@ class _AboutusSectionState extends State<AboutusSection> {
       ),
     );
   }
+
+  // =====================================================================
+  //                              CAREERS SECTION
+  // =====================================================================
+
+  Widget _buildCareersSection() {
+    return Container(
+      width: double.infinity,
+      height: 525,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: _cBlue.withOpacity(0.10),
+            // blurRadius: 10,
+            spreadRadius: 1,
+            // offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(26),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(flex: 47, child: _buildCareersLeftPanel()),
+            Expanded(flex: 53, child: _buildCareersRightPanel()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------- LEFT PANEL ----------------------------
+  Widget _buildCareersLeftPanel() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [tWhite, tBlueSky1],
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(40, 38, 40, 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // eyebrow label with line
+          Row(
+            children: [
+              Container(width: 28, height: 2, color: _cBlue),
+              const SizedBox(width: 12),
+              Text(
+                'CURRENT OPENINGS',
+                style: GoogleFonts.manrope(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _cGrey,
+                  letterSpacing: 3,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          RichText(
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 33,
+                fontWeight: FontWeight.w800,
+                height: 1.1,
+                color: tBlue2,
+              ),
+              children: const [
+                TextSpan(text: 'Be a part of '),
+                TextSpan(
+                  text: 'something bigger',
+                  style: TextStyle(color: tOrange1),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Explore exciting career opportunities and help us build smarter,\nconnected solutions for a better and safer tomorrow.',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
+              color: _cGrey,
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          for (int i = 0; i < _jobs.length; i++) ...[
+            _buildJobCard(_jobs[i]),
+            if (i != _jobs.length - 1) const SizedBox(height: 10),
+          ],
+
+          const Spacer(),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const CareersPage()));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _cBlue,
+              foregroundColor: tWhite,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'View All Openings',
+                  style: GoogleFonts.manrope(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: tWhite,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildJobCard(_JobData job, {VoidCallback? onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap ?? _showAllOpeningsDialog,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: tBlue3.withOpacity(0.06),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: job.background,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(job.icon, size: 28, color: job.accent),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      job.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: _cNavy,
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 15,
+                          color: _cGrey,
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            job.location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: _cGrey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 9),
+                        Container(
+                          width: 1,
+                          height: 12,
+                          color: _cGrey.withOpacity(0.5),
+                        ),
+                        const SizedBox(width: 9),
+                        Icon(
+                          Icons.work_outline_rounded,
+                          size: 15,
+                          color: _cGrey,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          job.type,
+                          style: GoogleFonts.manrope(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: _cGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: job.background,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  job.experience,
+                  style: GoogleFonts.manrope(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: job.accent,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Icon(Icons.chevron_right_rounded, size: 24, color: _cGrey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------- RIGHT PANEL ----------------------------
+  Widget _buildCareersRightPanel() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double w = constraints.maxWidth;
+        final double h = constraints.maxHeight;
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(tBlue1.withOpacity(0.14), tWhite),
+                Color.alphaBlend(tBlue1.withOpacity(0.24), tWhite),
+              ],
+            ),
+          ),
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              // big soft circle (back)
+              Positioned(
+                right: -w * 0.05,
+                top: -h * 0.16,
+                child: Container(
+                  width: w * 0.62,
+                  height: w * 0.62,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: tBlue1.withOpacity(0.16),
+                  ),
+                ),
+              ),
+              // brighter circle (front)
+              Positioned(
+                right: -w * 0.12,
+                top: -h * 0.30,
+                child: Container(
+                  width: w * 0.55,
+                  height: w * 0.55,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [
+                        tBlue1.withOpacity(0.80),
+                        tBlue1.withOpacity(0.30),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // IMAGE (company.png) - bottom right, curved top-left & blended
+              Positioned(
+                right: 0,
+                bottom: 0,
+                width: w * 0.58,
+                height: h * 0.72,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(230),
+                  ),
+                  child: ShaderMask(
+                    blendMode: BlendMode.dstIn,
+                    shaderCallback: (Rect rect) {
+                      return const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black54,
+                          Colors.black,
+                        ],
+                        stops: [0.0, 0.18, 0.40],
+                      ).createShader(rect);
+                    },
+                    child: Image.asset(
+                      'images/company.png',
+                      fit: BoxFit.cover,
+                      alignment: Alignment.centerRight,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: tBlack.withOpacity(0.05),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 50,
+                            color: tWhite.withOpacity(0.6),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+
+              // CONTENT
+              Padding(
+                padding: const EdgeInsets.fromLTRB(40, 70, 20, 36),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(width: 28, height: 2, color: _cBlue),
+                        const SizedBox(width: 12),
+                        Text(
+                          'CAREERS AT TRAKMATE',
+                          style: GoogleFonts.manrope(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _cGrey,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.manrope(
+                          fontSize: 62,
+                          fontWeight: FontWeight.w800,
+                          height: 0.95,
+                          letterSpacing: -1.5,
+                          color: tBlue2,
+                        ),
+                        children: const [
+                          TextSpan(text: 'Join our\n'),
+                          TextSpan(
+                            text: 'team',
+                            style: TextStyle(color: tBlue1),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: w * 0.46,
+                      child: Text(
+                        'Bring your skills, passion and ideas to a team that’s building the future of connected mobility. Let’s create smarter solutions together.',
+                        style: GoogleFonts.manrope(
+                          fontSize: 14,
+                          height: 1.55,
+                          fontWeight: FontWeight.w500,
+                          color: _cGrey,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    _buildCvUploadBox(width: w * 0.37),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickCvFile() async {
+    if (_isPickingCv) return;
+
+    setState(() => _isPickingCv = true);
+
+    try {
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx'],
+        allowMultiple: false,
+        withData: true,
+      );
+
+      if (!mounted) return;
+      if (result == null || result.files.isEmpty) return;
+
+      final PlatformFile file = result.files.single;
+      const int maxFileSize = 5 * 1024 * 1024;
+
+      if (file.size > maxFileSize) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('File size must not exceed 5 MB.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final String extension = file.extension?.toLowerCase() ?? '';
+      if (!['pdf', 'doc', 'docx'].contains(extension)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a PDF, DOC, or DOCX file.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      setState(() => _selectedCv = file);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${file.name} selected successfully.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to select file: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isPickingCv = false);
+    }
+  }
+
+  void _removeCvFile() {
+    setState(() => _selectedCv = null);
+  }
+
+  Widget _buildCvUploadBox({required double width}) {
+    final bool hasSelectedFile = _selectedCv != null;
+
+    return CustomPaint(
+      painter: _DashedBorderPainter(
+        color: tBlue1.withOpacity(0.6),
+        radius: 16,
+        dashWidth: 5,
+        dashGap: 4,
+        strokeWidth: 1.2,
+      ),
+      child: Container(
+        width: width,
+        height: 100,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: tWhite.withOpacity(0.35),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: _isPickingCv ? null : _pickCvFile,
+            child:
+                hasSelectedFile
+                    ? Row(
+                      children: [
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.description_rounded,
+                          size: 30,
+                          color: tBlue1.withOpacity(0.9),
+                        ),
+                        const SizedBox(width: 9),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _selectedCv!.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: _cNavy,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${(_selectedCv!.size / (1024 * 1024)).toStringAsFixed(2)} MB · Tap to replace',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: _cGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Remove selected CV',
+                          onPressed: _removeCvFile,
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.close_rounded, size: 19),
+                          color: Colors.redAccent,
+                        ),
+                      ],
+                    )
+                    : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_isPickingCv)
+                          SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(tBlue1),
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.cloud_upload_rounded,
+                            size: 38,
+                            color: tBlue1.withOpacity(0.8),
+                          ),
+                        const SizedBox(height: 6),
+                        Text(
+                          _isPickingCv
+                              ? 'Opening file picker...'
+                              : 'Upload / Submit your CV',
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: _cNavy,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'PDF, DOC or DOCX (Max 5 MB)',
+                          style: GoogleFonts.manrope(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            color: _cGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------- VIEW ALL OPENINGS POP UP ----------------------
+  void _showAllOpeningsDialog() {
+    showDialog(
+      context: context,
+      barrierColor: _cNavy.withOpacity(0.45),
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: tWhite,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 40,
+            vertical: 40,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760, maxHeight: 640),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(32, 26, 20, 20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        tBlueSky1,
+                        Color.alphaBlend(tBlue1.withOpacity(0.14), tWhite),
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(width: 28, height: 2, color: _cBlue),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'CURRENT OPENINGS',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: _cGrey,
+                                    letterSpacing: 3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            RichText(
+                              text: TextSpan(
+                                style: GoogleFonts.manrope(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: _cNavy,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'All open '),
+                                  const TextSpan(
+                                    text: 'positions',
+                                    style: TextStyle(color: _cBlue),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${_allJobs.length} roles available at TrakMate',
+                              style: GoogleFonts.manrope(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w500,
+                                color: _cGrey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        icon: const Icon(Icons.close_rounded, color: _cNavy),
+                        splashRadius: 20,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // list
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.fromLTRB(32, 22, 32, 10),
+                    itemCount: _allJobs.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: _cBlue.withOpacity(0.10)),
+                        ),
+                        child: _buildJobCard(
+                          _allJobs[index],
+                          onTap: () {
+                            // TODO: open the job details / apply page
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // footer
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(32, 6, 32, 24),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Can’t find the right role? Send us your CV and we’ll get in touch.',
+                          style: GoogleFonts.manrope(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: _cGrey,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _cBlue,
+                          side: const BorderSide(color: _cBlue),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          'Close',
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: _cBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // =====================================================================
+  //                           END CAREERS SECTION
+  // =====================================================================
 
   Widget _buildAchievementsRibbon() {
     return Container(
@@ -266,7 +1165,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           _divider(),
           buildAchievementsCard(
             icon: 'icons/badge.svg',
-            title: '12+',
+            title: '13+',
             subtitle: 'Years of excellence',
           ),
           _divider(),
@@ -278,13 +1177,13 @@ class _AboutusSectionState extends State<AboutusSection> {
           _divider(),
           buildAchievementsCard(
             icon: 'icons/delivery.svg',
-            title: '750+',
+            title: '150+',
             subtitle: 'Products Delivered',
           ),
           _divider(),
           buildAchievementsCard(
             icon: 'icons/manufacture.svg',
-            title: '2L+',
+            title: '6L+',
             subtitle: 'Units Manufactured',
           ),
           _divider(),
@@ -1614,7 +2513,34 @@ class _AboutusSectionState extends State<AboutusSection> {
             SizedBox(
               height: 150,
               width: double.infinity,
-              child: Image.asset(image, fit: BoxFit.cover),
+              child: Image.asset(
+                image,
+                fit: BoxFit.cover,
+                frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                  if (wasSynchronouslyLoaded) return child;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const ShimmerBox(height: double.infinity),
+                      AnimatedOpacity(
+                        opacity: frame == null ? 0 : 1,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                        child: child,
+                      ),
+                    ],
+                  );
+                },
+                errorBuilder:
+                    (context, error, stackTrace) => Container(
+                      color: tBlack.withOpacity(0.04),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: tBlack.withOpacity(0.25),
+                      ),
+                    ),
+              ),
             ),
             Container(
               width: double.infinity,
@@ -2388,6 +3314,76 @@ class _CertData {
     required this.logoWidth,
     required this.logoHeight,
   });
+}
+
+// ---------- Careers helpers ----------
+class _JobData {
+  final String title;
+  final String location;
+  final String type;
+  final String experience;
+  final IconData icon;
+  final Color accent;
+
+  const _JobData({
+    required this.title,
+    required this.location,
+    required this.type,
+    required this.experience,
+    required this.icon,
+    required this.accent,
+  });
+
+  /// Soft tint of [accent] used behind the icon and in the experience pill.
+  Color get background => accent.withOpacity(0.12);
+}
+
+/// Draws a dashed rounded-rectangle border (used by the CV upload box).
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double radius;
+  final double dashWidth;
+  final double dashGap;
+  final double strokeWidth;
+
+  const _DashedBorderPainter({
+    required this.color,
+    this.radius = 16,
+    this.dashWidth = 5,
+    this.dashGap = 4,
+    this.strokeWidth = 1.2,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth;
+
+    final Path path =
+        Path()..addRRect(
+          RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)),
+        );
+
+    for (final PathMetric metric in path.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final double end = (distance + dashWidth).clamp(0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end.toDouble()), paint);
+        distance += dashWidth + dashGap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedBorderPainter old) =>
+      old.color != color ||
+      old.radius != radius ||
+      old.dashWidth != dashWidth ||
+      old.dashGap != dashGap ||
+      old.strokeWidth != strokeWidth;
 }
 
 // ---------- Our Story (infographic) helpers ----------

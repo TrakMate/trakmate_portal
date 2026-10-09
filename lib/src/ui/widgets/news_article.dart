@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import '../../utils/colors.dart';
 
 //here
@@ -181,7 +182,7 @@ class NewsArticleDialog extends StatelessWidget {
                       SizedBox(
                         height: 350,
                         width: double.infinity,
-                        child: Image.asset(article.image, fit: BoxFit.cover),
+                        child: shimmerImage(article.image),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(40, 28, 40, 32),

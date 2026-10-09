@@ -21,7 +21,7 @@ dependencies:
   url_launcher:
   shared_preferences: ^2.2.0
   go_router: 
-
+  file_picker: ^10.3.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

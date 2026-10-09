@@ -1117,3 +1117,353 @@ class IndustriesShimmer extends StatelessWidget {
     );
   }
 }
+
+//featured products section shimmer (horizontal row, matches _buildProductCard)
+class FeaturedProductsShimmer extends StatelessWidget {
+  const FeaturedProductsShimmer({super.key});
+
+  Widget _bar(double width, double height) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      clipBehavior: Clip.hardEdge,
+      itemCount: 8,
+      separatorBuilder: (_, __) => const SizedBox(width: 16),
+      itemBuilder: (context, index) {
+        return SizedBox(
+          width: 220,
+          height: 210,
+          child: Shimmer.fromColors(
+            baseColor: tGrey1.shade300,
+            highlightColor: tGrey1.shade100,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: tWhite,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                children: [
+                  // image placeholder
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: tWhite,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _bar(80, 13), // name
+                  const SizedBox(height: 6),
+                  _bar(120, 11), // subtitle
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+//news latest banner shimmer
+class NewsBannerShimmer extends StatelessWidget {
+  const NewsBannerShimmer({super.key});
+
+  Widget _bar(double? w, double h, {double r = 4}) => Container(
+    width: w ?? double.infinity,
+    height: h,
+    decoration: BoxDecoration(
+      color: tWhite,
+      borderRadius: BorderRadius.circular(r),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 330,
+      decoration: BoxDecoration(
+        color: tBlue1.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(flex: 11, child: Container(color: tWhite)), // image
+            Expanded(
+              flex: 9,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(35, 25, 35, 25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _bar(80, 24, r: 20), // LATEST pill
+                    const SizedBox(height: 18),
+                    _bar(170, 12), // category | date
+                    const SizedBox(height: 12),
+                    _bar(null, 24), // title line 1
+                    const SizedBox(height: 8),
+                    _bar(260, 24), // title line 2
+                    const SizedBox(height: 12),
+                    _bar(null, 12), // summary 1
+                    const SizedBox(height: 7),
+                    _bar(null, 12), // summary 2
+                    const SizedBox(height: 7),
+                    _bar(180, 12), // summary 3
+                    const SizedBox(height: 20),
+                    _bar(125, 40, r: 7), // Read Story button
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//news card shimmer (matches NewsCard: 350 tall, 180 image)
+class NewsCardShimmer extends StatelessWidget {
+  final double height;
+  const NewsCardShimmer({super.key, this.height = 350});
+
+  Widget _bar(double? w, double h) => Container(
+    width: w ?? double.infinity,
+    height: h,
+    decoration: BoxDecoration(
+      color: tWhite,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: tGrey1.shade200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(height: 180, width: double.infinity, color: tWhite),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _bar(130, 11), // category | date
+                    const SizedBox(height: 10),
+                    _bar(null, 16), // title 1
+                    const SizedBox(height: 6),
+                    _bar(180, 16), // title 2
+                    const SizedBox(height: 8),
+                    _bar(null, 12), // summary 1
+                    const SizedBox(height: 6),
+                    _bar(150, 12), // summary 2
+                    const Spacer(),
+                    _bar(80, 11), // Read More
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//all-news left list shimmer
+class NewsListItemShimmer extends StatelessWidget {
+  const NewsListItemShimmer({super.key});
+
+  Widget _bar(double? w, double h) => Container(
+    width: w ?? double.infinity,
+    height: h,
+    decoration: BoxDecoration(
+      color: tWhite,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: tGrey1.shade300,
+      highlightColor: tGrey1.shade100,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _bar(140, 11),
+            const SizedBox(height: 8),
+            _bar(null, 14),
+            const SizedBox(height: 6),
+            _bar(200, 14),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//image with shimmer until first frame is painted
+Widget shimmerImage(String path, {BoxFit fit = BoxFit.cover}) {
+  return Image.asset(
+    path,
+    fit: fit,
+    frameBuilder: (context, child, frame, wasSyncLoaded) {
+      if (wasSyncLoaded || frame != null) return child;
+      return const ShimmerBox(height: double.infinity);
+    },
+  );
+}
+
+//our team (leadership) section shimmer(about us page)
+class TeamSectionShimmer extends StatelessWidget {
+  const TeamSectionShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // LEFT: heading + underline + paragraph
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                ShimmerBox(
+                  width: 260,
+                  height: 30,
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                ),
+                SizedBox(height: 10),
+                ShimmerBox(width: 75, height: 2),
+                SizedBox(height: 20),
+                ShimmerBox(
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                SizedBox(height: 7),
+                ShimmerBox(
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                SizedBox(height: 7),
+                ShimmerBox(
+                  width: 160,
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                SizedBox(height: 15),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 80),
+
+          // RIGHT: 3 profile cards
+          Expanded(
+            flex: 4,
+            child: Row(
+              children: [
+                for (int i = 0; i < 3; i++) ...[
+                  if (i > 0) const SizedBox(width: 20),
+                  const Expanded(child: _TeamCardShimmer()),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TeamCardShimmer extends StatelessWidget {
+  const _TeamCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tGrey1.shade200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // photo (matches the 150px image)
+            Container(height: 150, width: double.infinity, color: tWhite),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Column(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: tWhite,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: 130,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: tWhite,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

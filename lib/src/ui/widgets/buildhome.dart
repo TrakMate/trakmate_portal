@@ -336,7 +336,11 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       subtitle: "Connected Vehicle Tracker",
     ),
   ];
-
+  // Same size as cacheWidth used in the card, so precache == what is displayed
+  late final List<ImageProvider> _productProviders =
+      _products
+          .map((e) => ResizeImage(AssetImage(e.image), width: 340))
+          .toList();
   final List<_ServiceItemData> _services = const [
     _ServiceItemData(
       icon: "icons/product_engineering1.svg",
@@ -515,6 +519,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   int? _hoveredServiceIndex;
   int? _hoveredIndustryIndex;
   bool _industriesImagesLoaded = false;
+  bool _productsImagesLoaded = false;
   final ScrollController _productsScrollController = ScrollController();
   final ScrollController _clientsScrollController = ScrollController();
   // Timer? _clientsAutoScrollTimer;
@@ -536,6 +541,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   static const double _industrySeparatorWidth = 12.0;
   static const double _industriesScrollSpeed = 30.0; // pixels per second
   void _scrollProducts(double delta) {
+    if (!_productsScrollController.hasClients) return; // ADD (shimmer showing)
     final target = (_productsScrollController.offset + delta).clamp(
       0.0,
       _productsScrollController.position.maxScrollExtent,
@@ -612,6 +618,25 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     setState(() => _industriesImagesLoaded = true);
   }
 
+  Future<void> _preloadProductImages() async {
+    try {
+      await Future.wait(
+        _productProviders.map(
+          (provider) => precacheImage(
+            provider,
+            context,
+            onError: (e, s) => debugPrint('Failed to load product image: $e'),
+          ),
+        ),
+      ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
+    } catch (e) {
+      debugPrint('Product preload issue: $e');
+    }
+
+    if (!mounted) return;
+    setState(() => _productsImagesLoaded = true);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -619,6 +644,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       _startClientsAutoScroll();
       _startIndustriesAutoScroll();
       _preloadIndustryImages();
+      _preloadProductImages();
     });
   }
 
@@ -761,30 +787,37 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
 
                   children: [
                     Positioned.fill(
-                      child: ColoredBox(
-                        color: tBlue3.withOpacity(0.08),
-                        child: Image(
-                          image: _industryProviders[index],
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                          frameBuilder: (
-                            context,
-                            child,
-                            frame,
-                            wasSynchronouslyLoaded,
-                          ) {
-                            if (wasSynchronouslyLoaded) return child;
-                            return AnimatedOpacity(
-                              opacity: frame == null ? 0 : 1,
-                              duration: const Duration(milliseconds: 300),
-                              child: child,
-                            );
-                          },
-                          errorBuilder:
-                              (context, error, stackTrace) =>
-                                  Container(color: tBlue3.withOpacity(0.15)),
-                        ),
+                      // child: ColoredBox(
+                      //   color: tBlue3.withOpacity(0.08),
+                      child: Image(
+                        image: _industryProviders[index],
+                        fit: BoxFit.cover,
+                        gaplessPlayback: true,
+                        frameBuilder: (
+                          context,
+                          child,
+                          frame,
+                          wasSynchronouslyLoaded,
+                        ) {
+                          if (wasSynchronouslyLoaded) return child;
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              if (frame == null)
+                                const ShimmerBox(height: double.infinity),
+                              AnimatedOpacity(
+                                opacity: frame == null ? 0 : 1,
+                                duration: const Duration(milliseconds: 300),
+                                child: child,
+                              ),
+                            ],
+                          );
+                        },
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                                Container(color: tBlue3.withOpacity(0.15)),
                       ),
+                      // ),
                     ),
 
                     Positioned(
@@ -877,20 +910,32 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
             Expanded(
               child: SizedBox(
                 height: 240,
-                child: ListView.separated(
-                  controller: _productsScrollController,
-                  scrollDirection: Axis.horizontal,
-                  // Space for the card shadow at top and bottom
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  clipBehavior: Clip.hardEdge,
-                  itemCount: _products.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 16),
-                  itemBuilder:
-                      (context, index) => SizedBox(
-                        width: 220,
-                        height: 210,
-                        child: _buildProductCard(_products[index]),
-                      ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 350),
+                  child:
+                      !_productsImagesLoaded
+                          ? const FeaturedProductsShimmer(
+                            key: ValueKey('products_shimmer'),
+                          )
+                          : ListView.separated(
+                            key: const ValueKey('products_list'),
+                            controller: _productsScrollController,
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            clipBehavior: Clip.hardEdge,
+                            itemCount: _products.length,
+                            separatorBuilder:
+                                (_, __) => const SizedBox(width: 16),
+                            itemBuilder:
+                                (context, index) => SizedBox(
+                                  width: 220,
+                                  height: 210,
+                                  child: _buildProductCard(
+                                    _products[index],
+                                    index,
+                                  ),
+                                ),
+                          ),
                 ),
               ),
             ),
@@ -912,7 +957,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     );
   }
 
-  Widget _buildProductCard(_ProductItemData product) {
+  Widget _buildProductCard(_ProductItemData product, int index) {
     return Container(
       decoration: BoxDecoration(
         color: tWhite,
@@ -943,15 +988,45 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           //   ),
           // ),
           Expanded(
+            //from here
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Center(
-                child: Image.asset(
-                  product.image,
+                child: Image(
+                  image: _productProviders[index],
                   fit: BoxFit.contain,
                   width: 170,
                   height: 130,
-                  cacheWidth: 340,
+                  gaplessPlayback: true,
+                  frameBuilder: (
+                    context,
+                    child,
+                    frame,
+                    wasSynchronouslyLoaded,
+                  ) {
+                    if (wasSynchronouslyLoaded) return child;
+                    return SizedBox(
+                      width: 170,
+                      height: 130,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (frame == null)
+                            const ShimmerBox(
+                              height: double.infinity,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8),
+                              ),
+                            ),
+                          AnimatedOpacity(
+                            opacity: frame == null ? 0 : 1,
+                            duration: const Duration(milliseconds: 300),
+                            child: child,
+                          ),
+                        ],
+                      ),
+                    );
+                  }, //till here
                   errorBuilder:
                       (context, error, stackTrace) =>
                           Container(color: tBlue3.withOpacity(0.1)),

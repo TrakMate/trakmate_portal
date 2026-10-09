@@ -6,7 +6,6 @@ import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
 import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
-
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -87,10 +86,13 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
   Future<void> _preloadHeroImage() async {
     try {
-      await precacheImage(const AssetImage('images/sol3.jpg'), context);
-      // await Future.delayed(const Duration(seconds: 3)); //  testing only
+      await precacheImage(
+        const AssetImage(_heroImage), // images/manufacturing.jpg
+        context,
+        onError: (e, s) => debugPrint('Failed to load manufacturing hero: $e'),
+      ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      debugPrint('Error preloading solutions hero image: $e');
+      debugPrint('Error preloading manufacturing hero image: $e');
     }
 
     if (!mounted) return;
@@ -102,16 +104,19 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   Future<void> _preloadServiceImages() async {
     try {
       await Future.wait(
-        _services.map((s) => precacheImage(AssetImage(s.image), context)),
+        _services.map(
+          (s) => precacheImage(
+            AssetImage(s.image),
+            context,
+            onError: (e, st) => debugPrint('FAILED to load ${s.image}: $e'),
+          ),
+        ),
       );
     } catch (e) {
       debugPrint('Error preloading service images: $e');
     }
-
     if (!mounted) return;
-    setState(() {
-      _cardsLoading = false;
-    });
+    setState(() => _cardsLoading = false);
   }
 
   static const String _heroImage = 'images/manufacturing.jpg';
@@ -693,9 +698,33 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                       child: Image.asset(
                         service.image,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildImageFallback();
+                        frameBuilder: (
+                          context,
+                          child,
+                          frame,
+                          wasSynchronouslyLoaded,
+                        ) {
+                          // Cached / instantly available: show immediately
+                          if (wasSynchronouslyLoaded) return child;
+
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // shimmer stays until the first frame is decoded
+                              // if (frame == null)
+                              const ShimmerBox(height: double.infinity),
+                              AnimatedOpacity(
+                                opacity: frame == null ? 0 : 1,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                                child: child,
+                              ),
+                            ],
+                          );
                         },
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                                _buildImageFallback(),
                       ),
                     ),
                   ],

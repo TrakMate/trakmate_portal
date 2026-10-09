@@ -39,7 +39,7 @@ import 'src/utils/app_router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
+  // PaintingBinding.instance.imageCache.maximumSizeBytes = 300 * 1024 * 1024;
 
   runApp(const TrakMatePortal());
 }

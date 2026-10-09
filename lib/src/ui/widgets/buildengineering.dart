@@ -302,6 +302,27 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                 child: Image.asset(
                   item.image,
                   fit: BoxFit.cover,
+                  frameBuilder: (
+                    context,
+                    child,
+                    frame,
+                    wasSynchronouslyLoaded,
+                  ) {
+                    if (wasSynchronouslyLoaded) return child;
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // shimmer stays until the first frame is decoded
+                        if (frame == null)
+                          const ShimmerBox(height: double.infinity),
+                        AnimatedOpacity(
+                          opacity: frame == null ? 0 : 1,
+                          duration: const Duration(milliseconds: 250),
+                          child: child,
+                        ),
+                      ],
+                    );
+                  },
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: tBlack.withOpacity(0.05),

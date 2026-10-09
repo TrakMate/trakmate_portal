@@ -88,9 +88,9 @@ class _MainPageState extends State<MainPage> {
       onTap: () => _navigateToProductTab('All Products'),
     ),
     NavDropdownItem(
-      label: 'Trackers',
+      label: 'Telematics',
       icon: 'icons/trackers1.svg',
-      onTap: () => _navigateToProductTab('Trackers'),
+      onTap: () => _navigateToProductTab('Telematics'),
     ),
     NavDropdownItem(
       label: 'Diagnostics',
@@ -156,7 +156,7 @@ class _MainPageState extends State<MainPage> {
     // Derive the section from the URL itself, not only from initialIndex.
     selectedIndex = _indexFromPath(_currentPath);
 
-    // Deep link such as /products/trackers: select the right filter tab.
+    // Deep link such as /products/telematics: select the right filter tab.
     final String? filter = _productFilterFromPath(_currentPath);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -216,7 +216,8 @@ class _MainPageState extends State<MainPage> {
         return 2;
 
       case '/products':
-      case '/products/trackers':
+      case '/products/telematics':
+      // case '/products/trackers':
       case '/products/diagnostics':
       case '/products/gateways':
       case '/products/clusters':
@@ -270,8 +271,9 @@ class _MainPageState extends State<MainPage> {
       case '/products':
         return 'All Products';
 
-      case '/products/trackers':
-        return 'Trackers';
+      case '/products/telematics':
+        // case '/products/telematics':
+        return 'Telematics';
 
       case '/products/diagnostics':
         return 'Diagnostics';
@@ -360,8 +362,8 @@ class _MainPageState extends State<MainPage> {
       case 'All Products':
         path = '/products';
         break;
-      case 'Trackers':
-        path = '/products/trackers';
+      case 'Telematics':
+        path = '/products/telematics';
         break;
       case 'Diagnostics':
         path = '/products/diagnostics';

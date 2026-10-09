@@ -45,11 +45,22 @@
 //   );
 // }
 
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 
 class AppRouter {
+  // Every route shows the SAME MainPage and uses this SAME page key, so
+  // go_router keeps the existing MainPage alive and only hands it the new path
+  // (MainPage.didUpdateWidget handles it). The hero/header is therefore NOT
+  // rebuilt when you switch filter tabs - only the products content changes.
+  static const ValueKey<String> _mainPageKey = ValueKey<String>('main-page');
+
+  static Page<void> _mainPage(Widget child) {
+    return NoTransitionPage<void>(key: _mainPageKey, child: child);
+  }
+
   static final GoRouter router = GoRouter(
     initialLocation: '/',
 
@@ -60,8 +71,8 @@ class AppRouter {
       GoRoute(
         path: '/',
         name: 'home',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 0, path: '/');
+        pageBuilder: (context, state) {
+          return _mainPage(const MainPage(initialIndex: 0, path: '/'));
         },
       ),
 
@@ -69,8 +80,8 @@ class AppRouter {
       GoRoute(
         path: '/home',
         name: 'homeAlias',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 0, path: '/home');
+        pageBuilder: (context, state) {
+          return _mainPage(const MainPage(initialIndex: 0, path: '/home'));
         },
       ),
 
@@ -80,8 +91,10 @@ class AppRouter {
       GoRoute(
         path: '/engineering',
         name: 'engineering',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 1, path: '/engineering');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 1, path: '/engineering'),
+          );
         },
       ),
 
@@ -91,8 +104,10 @@ class AppRouter {
       GoRoute(
         path: '/manufacturing',
         name: 'manufacturing',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 2, path: '/manufacturing');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 2, path: '/manufacturing'),
+          );
         },
       ),
 
@@ -102,48 +117,58 @@ class AppRouter {
       GoRoute(
         path: '/products',
         name: 'products',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/products');
+        pageBuilder: (context, state) {
+          return _mainPage(const MainPage(initialIndex: 3, path: '/products'));
         },
       ),
 
       GoRoute(
-        path: '/products/trackers',
-        name: 'trackers',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/products/trackers');
+        path: '/products/telematics',
+        name: 'telematics',
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 3, path: '/products/telematics'),
+          );
         },
       ),
 
       GoRoute(
         path: '/products/diagnostics',
         name: 'diagnostics',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/products/diagnostics');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 3, path: '/products/diagnostics'),
+          );
         },
       ),
 
       GoRoute(
         path: '/products/gateways',
         name: 'gateways',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/products/gateways');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 3, path: '/products/gateways'),
+          );
         },
       ),
 
       GoRoute(
         path: '/products/clusters',
         name: 'clusters',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/products/clusters');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 3, path: '/products/clusters'),
+          );
         },
       ),
 
       GoRoute(
         path: '/products/adas',
         name: 'adas',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/products/adas');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 3, path: '/products/adas'),
+          );
         },
       ),
 
@@ -153,8 +178,10 @@ class AppRouter {
       GoRoute(
         path: '/solutions-hub',
         name: 'solutionsHub',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 3, path: '/solutions-hub');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 3, path: '/solutions-hub'),
+          );
         },
       ),
 
@@ -164,8 +191,10 @@ class AppRouter {
       GoRoute(
         path: '/news-blogs',
         name: 'newsBlogs',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 4, path: '/news-blogs');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 4, path: '/news-blogs'),
+          );
         },
       ),
 
@@ -175,40 +204,48 @@ class AppRouter {
       GoRoute(
         path: '/about',
         name: 'about',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 5, path: '/about');
+        pageBuilder: (context, state) {
+          return _mainPage(const MainPage(initialIndex: 5, path: '/about'));
         },
       ),
 
       GoRoute(
         path: '/about/team',
         name: 'aboutTeam',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 5, path: '/about/team');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 5, path: '/about/team'),
+          );
         },
       ),
 
       GoRoute(
         path: '/about/infrastructure',
         name: 'aboutInfrastructure',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 5, path: '/about/infrastructure');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 5, path: '/about/infrastructure'),
+          );
         },
       ),
 
       GoRoute(
         path: '/about/careers',
         name: 'aboutCareers',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 5, path: '/about/careers');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 5, path: '/about/careers'),
+          );
         },
       ),
 
       GoRoute(
         path: '/about/news-blogs',
         name: 'aboutNewsBlogs',
-        builder: (context, state) {
-          return const MainPage(initialIndex: 5, path: '/about/news-blogs');
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 5, path: '/about/news-blogs'),
+          );
         },
       ),
     ],

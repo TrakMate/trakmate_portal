@@ -5,6 +5,7 @@ import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
 
 import 'package:trakmate_portal/src/ui/widgets/newsheader.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -80,13 +81,37 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
           'Showcasing our latest innovations in connected mobility, intelligent vehicle solutions.',
       image: 'images/auto_expo.png',
       content: [
-        'We deliver innovative technology solutions designed to meet evolving business needs.'
-            'Our approach combines engineering expertise, smart technology, and reliable processes.'
-            'We focus on building scalable, efficient, and high-quality solutions for our customers.'
-            'With a commitment to excellence, we turn ideas into practical, connected products.',
+        "TrakMate participated in Auto Expo 2026, bringing together automotive innovation, connected technologies, and the future of intelligent mobility. The event provided an opportunity to showcase how modern telematics solutions are transforming vehicle management and helping businesses gain greater visibility into their operations.",
+        "As the automotive industry continues to evolve, connectivity and real-time data are becoming essential for efficient transportation. From monitoring vehicle locations to analyzing trip activity and performance, connected vehicle technologies enable businesses to make informed decisions and manage their fleets more effectively.",
+
+        "During the event, TrakMate highlighted its approach to simplifying fleet management through intelligent vehicle monitoring and data-driven insights. By bringing essential information together in one platform, businesses can track their vehicles, review operational activity, receive important alerts, and gain a clearer understanding of fleet performance.",
+
+        "Real-time visibility plays an important role in improving operational efficiency. Access to vehicle movement, trip history, and status information helps fleet operators coordinate activities, identify irregularities, and respond to changing situations more efficiently. These capabilities can reduce the complexity of fleet operations while supporting better planning and resource utilization.",
+
+        "The growing adoption of electric vehicles is also creating new opportunities for connected mobility solutions. Battery monitoring, charging information, and vehicle performance insights can help businesses better understand their electric fleets and plan their operations with greater confidence. Technology that brings these insights together is becoming increasingly valuable as transportation moves towards more connected and sustainable systems.",
+
+        "Auto Expo 2026 also offered an opportunity to connect with industry professionals, exchange ideas, and understand the changing requirements of modern fleet operators. Conversations around connectivity, automation, and operational visibility reinforced the importance of developing solutions that are reliable, scalable, and adaptable to different business needs.",
+
+        "At TrakMate, we remain committed to building technology that connects vehicles, data, and businesses. Our focus is on making vehicle operations more transparent, accessible, and efficient through practical solutions that address real-world challenges.",
+
+        "We thank everyone who connected with us and shared their perspectives during Auto Expo 2026. These interactions inspire us to continue innovating and contributing to a smarter, more connected mobility ecosystem.",
       ],
     ),
   ];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNews();
+  }
+
+  Future<void> _loadNews() async {
+    await Future.delayed(
+      const Duration(milliseconds: 1200),
+    ); // replace with your API call later
+    if (mounted) setState(() => _isLoading = false);
+  }
 
   List<NewsArticle> get _sortedNews {
     final list = [..._news];
@@ -146,211 +171,248 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'OUR UPDATES',
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tOrange1,
-            letterSpacing: 1.2,
+        if (_isLoading) ...[
+          const ShimmerBox(
+            width: 90,
+            height: 13,
+            borderRadius: BorderRadius.all(Radius.circular(4)),
           ),
-        ),
-        const SizedBox(height: 8),
-        RichText(
-          text: TextSpan(
+          const SizedBox(height: 8),
+          const ShimmerBox(
+            width: 260,
+            height: 25,
+            borderRadius: BorderRadius.all(Radius.circular(4)),
+          ),
+          const SizedBox(height: 6),
+          const ShimmerBox(
+            width: 380,
+            height: 13,
+            borderRadius: BorderRadius.all(Radius.circular(4)),
+          ),
+        ] else ...[
+          Text(
+            'OUR UPDATES',
             style: GoogleFonts.manrope(
-              fontSize: 25,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: tBlue2,
+              color: tOrange1,
+              letterSpacing: 1.2,
             ),
-            children: const [TextSpan(text: 'Stay Connected With TrakMate')],
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'The latest updates, milestones and stories from our engineering journey.',
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            color: tBlack.withOpacity(0.75),
-            fontWeight: FontWeight.w500,
+          const SizedBox(height: 8),
+          RichText(
+            text: TextSpan(
+              style: GoogleFonts.manrope(
+                fontSize: 25,
+                fontWeight: FontWeight.w700,
+                color: tBlue2,
+              ),
+              children: const [TextSpan(text: 'Stay Connected With TrakMate')],
+            ),
           ),
-        ),
-        const SizedBox(height: 25),
+          const SizedBox(height: 6),
+          Text(
+            'The latest updates, milestones and stories from our engineering journey.',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              color: tBlack.withOpacity(0.75),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 25),
 
-        // ---------- LATEST BANNER ----------
-        SizedBox(
-          width: double.infinity,
-          height: 330,
-          child: Container(
-            decoration: BoxDecoration(
-              color: tBlue1.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 11,
-                  child: Image.asset(latest.image, fit: BoxFit.cover),
+          // ---------- LATEST BANNER ----------
+          if (_isLoading)
+            const NewsBannerShimmer()
+          else
+            SizedBox(
+              width: double.infinity,
+              height: 330,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: tBlue1.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                Expanded(
-                  flex: 9,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(35, 25, 35, 25),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: tWhite,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: tOrange1.withOpacity(0.65),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 7,
-                                height: 7,
-                                decoration: const BoxDecoration(
-                                  color: tOrange1,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 7),
-                              Text(
-                                'LATEST',
-                                style: GoogleFonts.manrope(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: tOrange1,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Row(
+                clipBehavior: Clip.antiAlias,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(flex: 11, child: shimmerImage(latest.image)),
+                    Expanded(
+                      flex: 9,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(35, 25, 35, 25),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              latest.category,
-                              style: GoogleFonts.manrope(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: tBlue,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
                             Container(
-                              width: 1,
-                              height: 14,
-                              color: tBlue3.withOpacity(0.25),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: tWhite,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: tOrange1.withOpacity(0.65),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 7,
+                                    height: 7,
+                                    decoration: const BoxDecoration(
+                                      color: tOrange1,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 7),
+                                  Text(
+                                    'LATEST',
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: tOrange1,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(height: 18),
+                            Row(
+                              children: [
+                                Text(
+                                  latest.category,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: tBlue,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  width: 1,
+                                  height: 14,
+                                  color: tBlue3.withOpacity(0.25),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  latest.date,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: tBlue3.withOpacity(0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
                             Text(
-                              latest.date,
+                              latest.title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.manrope(
+                                fontSize: 24,
+                                height: 1.15,
+                                fontWeight: FontWeight.w800,
+                                color: tBlack,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              latest.summary,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.manrope(
                                 fontSize: 12,
+                                height: 1.5,
                                 fontWeight: FontWeight.w500,
-                                color: tBlue3.withOpacity(0.6),
+                                color: tBlue3.withOpacity(0.65),
                               ),
+                            ),
+                            const SizedBox(height: 20),
+                            _buildNewsOrangeButton(
+                              'Read Story',
+                              onPressed:
+                                  () => showNewsArticleDialog(context, latest),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          latest.title,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.manrope(
-                            fontSize: 24,
-                            height: 1.15,
-                            fontWeight: FontWeight.w800,
-                            color: tBlack,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          latest.summary,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.manrope(
-                            fontSize: 12,
-                            height: 1.5,
-                            fontWeight: FontWeight.w500,
-                            color: tBlue3.withOpacity(0.65),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        _buildNewsOrangeButton(
-                          'Read Story',
-                          onPressed:
-                              () => showNewsArticleDialog(context, latest),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 25),
-
-        // ---------- 4 NEWS CARDS ----------
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (int i = 1; i < news.length; i++) ...[
-              Expanded(child: NewsCard(article: news[i])),
-              if (i != news.length - 1) const SizedBox(width: 20),
-            ],
-          ],
-        ),
-        const SizedBox(height: 15),
-        Align(
-          alignment: Alignment.centerRight,
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => AllNewsPage(articles: news)),
-              );
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: tOrange1,
-              side: BorderSide(color: tOrange1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+          const SizedBox(height: 25),
+
+          // ---------- 4 NEWS CARDS ----------
+          if (_isLoading)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'View All News',
-                  style: GoogleFonts.manrope(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: tOrange1,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward, size: 16),
+                for (int i = 0; i < 3; i++) ...[
+                  const Expanded(child: NewsCardShimmer()),
+                  if (i != 2) const SizedBox(width: 20),
+                ],
+              ],
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int i = 1; i < news.length; i++) ...[
+                  Expanded(child: NewsCard(article: news[i])),
+                  if (i != news.length - 1) const SizedBox(width: 20),
+                ],
               ],
             ),
-          ),
-        ),
+          const SizedBox(height: 15),
+          if (!_isLoading)
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AllNewsPage(articles: news),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: tOrange1,
+                  side: BorderSide(color: tOrange1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 12,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'View All News',
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: tOrange1,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward, size: 16),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ],
     );
   }
