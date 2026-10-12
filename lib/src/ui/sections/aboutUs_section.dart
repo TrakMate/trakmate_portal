@@ -29,6 +29,9 @@ class _AboutusSectionState extends State<AboutusSection> {
   // Selected CV file (PDF, DOC, or DOCX; maximum 5 MB).
   PlatformFile? _selectedCv;
   bool _isPickingCv = false;
+  String? _cvToastMessage;
+  bool _cvToastIsSuccess = true;
+  Timer? _cvToastTimer;
 
   // ---------- Careers colors (all taken from colors.dart) ----------
   static const Color _cNavy = tBlue2; // headings / job titles
@@ -273,6 +276,27 @@ class _AboutusSectionState extends State<AboutusSection> {
     }
     if (!mounted) return;
     setState(() => _teamImagesLoading = false);
+  }
+
+  void _showCvToast(String message, {bool isSuccess = true}) {
+    _cvToastTimer?.cancel();
+    if (!mounted) return;
+
+    setState(() {
+      _cvToastMessage = message;
+      _cvToastIsSuccess = isSuccess;
+    });
+
+    _cvToastTimer = Timer(const Duration(seconds: 4), () {
+      if (!mounted) return;
+      setState(() => _cvToastMessage = null);
+    });
+  }
+
+  @override
+  void dispose() {
+    _cvToastTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -766,7 +790,20 @@ class _AboutusSectionState extends State<AboutusSection> {
                       ),
                     ),
                     const Spacer(),
-                    _buildCvUploadBox(width: w * 0.37),
+                    SizedBox(
+                      width: w * 0.37,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_cvToastMessage != null) ...[
+                            _buildCvToast(),
+                            const SizedBox(height: 10),
+                          ],
+                          _buildCvUploadBox(width: w * 0.37),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -797,44 +834,92 @@ class _AboutusSectionState extends State<AboutusSection> {
       const int maxFileSize = 5 * 1024 * 1024;
 
       if (file.size > maxFileSize) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('File size must not exceed 5 MB.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showCvToast('File size must not exceed 5 MB.', isSuccess: false);
         return;
       }
 
       final String extension = file.extension?.toLowerCase() ?? '';
       if (!['pdf', 'doc', 'docx'].contains(extension)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a PDF, DOC, or DOCX file.'),
-            backgroundColor: Colors.red,
-          ),
+        _showCvToast(
+          'Please select a PDF, DOC, or DOCX file.',
+          isSuccess: false,
         );
         return;
       }
 
       setState(() => _selectedCv = file);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${file.name} selected successfully.'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      _showCvToast('CV selected successfully.');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Unable to select file: $e'),
-          backgroundColor: Colors.red,
-        ),
+      debugPrint('Unable to select CV: $e');
+      _showCvToast(
+        'Unable to select the file. Please try again.',
+        isSuccess: false,
       );
     } finally {
       if (mounted) setState(() => _isPickingCv = false);
     }
+  }
+
+  Widget _buildCvToast() {
+    final Color accent = _cvToastIsSuccess ? const Color(0xFF23865A) : tRed;
+    final IconData icon =
+        _cvToastIsSuccess ? Icons.check_circle_rounded : Icons.error_rounded;
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 180),
+        opacity: _cvToastMessage == null ? 0 : 1,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: accent.withOpacity(0.24)),
+            boxShadow: [
+              BoxShadow(
+                color: tBlue2.withOpacity(0.10),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: accent, size: 19),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  _cvToastMessage ?? '',
+                  style: GoogleFonts.manrope(
+                    color: _cNavy,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              InkWell(
+                onTap: () {
+                  _cvToastTimer?.cancel();
+                  setState(() => _cvToastMessage = null);
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Icon(Icons.close_rounded, size: 15, color: _cGrey),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _removeCvFile() {

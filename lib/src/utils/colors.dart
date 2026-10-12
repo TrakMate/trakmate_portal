@@ -211,7 +211,7 @@ const tGrey1 = Colors.grey;
 
 const tTransparent = Colors.transparent;
 
-const background = Color(0xff050816);
+const background = Color.fromARGB(255, 8, 9, 14);
 
 const surface = Color(0xff0B1220);
 
