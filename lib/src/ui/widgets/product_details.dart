@@ -7,10 +7,34 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 // import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
-import 'package:trakmate_portal/src/ui/widgets/buildproducts.dart';
+import 'package:trakmate_portal/src/ui/widgets/build_products.dart';
+import 'dart:js_interop';
+import 'package:web/web.dart' as web;
+
+Future<void> _downloadAsset(String assetPath, String fileName) async {
+  final ByteData data = await rootBundle.load(assetPath);
+  final Uint8List bytes = data.buffer.asUint8List(
+    data.offsetInBytes,
+    data.lengthInBytes,
+  );
+
+  final blob = web.Blob(
+    [bytes.toJS].toJS,
+    web.BlobPropertyBag(type: 'application/pdf'),
+  );
+  final String url = web.URL.createObjectURL(blob);
+
+  final anchor =
+      web.HTMLAnchorElement()
+        ..href = url
+        ..download = fileName;
+  anchor.click();
+
+  web.URL.revokeObjectURL(url);
+}
 
 class _SpecBadgeInfo {
   final String title;
@@ -884,9 +908,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               120 * _slideScale(c); //product image padding
 
                           if (index >= _productImages.length && _hasVideo) {
+                            final double videoPad =
+                                product.videoPadding != null
+                                    ? product.videoPadding! * _slideScale(c)
+                                    : pad;
+
+                            final double videoOffsetY =
+                                product.videoOffsetY * _slideScale(c);
+
                             return Padding(
-                              padding: EdgeInsets.all(pad),
-                              child: _buildVideoSlide(),
+                              padding: EdgeInsets.all(videoPad),
+                              child: Transform.translate(
+                                offset: Offset(0, videoOffsetY),
+                                child: _buildVideoSlide(),
+                              ),
                             );
                           }
 
@@ -1257,7 +1292,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
 
-            const _DataSheetButton(),
+            // const _DataSheetButton(),
+            _DataSheetButton(
+              datasheetPath: product.datasheet,
+              productTitle: product.title,
+            ),
           ],
         ),
 
@@ -1464,7 +1503,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
             secondChild: Container(
               width: double.infinity,
-
               padding: const EdgeInsets.fromLTRB(20, 2, 20, 20),
 
               child: child,
@@ -1783,7 +1821,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 }
 
 class _DataSheetButton extends StatefulWidget {
-  const _DataSheetButton();
+  final String? datasheetPath;
+  final String productTitle;
+
+  const _DataSheetButton({
+    required this.datasheetPath,
+    required this.productTitle,
+  });
 
   @override
   State<_DataSheetButton> createState() => _DataSheetButtonState();
@@ -1792,121 +1836,282 @@ class _DataSheetButton extends StatefulWidget {
 class _DataSheetButtonState extends State<_DataSheetButton> {
   bool _isHovered = false;
 
+  // Replace the whole `_openDataSheetPlaceholder()` method inside
+  // `_DataSheetButtonState` with this version. No new imports needed.
+
   void _openDataSheetPlaceholder() {
+    final String? path = widget.datasheetPath;
+    final bool available = path != null && path.isNotEmpty;
+    final String fileName =
+        '${widget.productTitle.replaceAll(RegExp(r'[^\w\-]+'), '_')}_Datasheet.pdf';
+
     showDialog(
       context: context,
+      barrierColor: Colors.black.withOpacity(0.45),
+      builder: (dialogContext) {
+        bool downloading = false;
 
-      builder: (context) {
-        return Dialog(
-          backgroundColor: tWhite,
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> onDownload() async {
+              if (downloading) return;
+              setDialogState(() => downloading = true);
+              try {
+                await _downloadAsset(path!, fileName);
+              } catch (e) {
+                debugPrint('Datasheet download failed: $e');
+              }
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+            }
 
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+            return Dialog(
+              backgroundColor: tWhite,
+              elevation: 0,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 380),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(28, 32, 28, 22),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Icon circle
+                          Center(
+                            child: Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: tOrange1.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                available
+                                    ? Icons.file_download_outlined
+                                    : Icons.hourglass_empty_rounded,
+                                color: tOrange1,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
 
-          child: Container(
-            width: 420,
+                          // Title
+                          Text(
+                            available ? 'Data sheet' : 'Coming soon',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.manrope(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: tBlack,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
 
-            padding: const EdgeInsets.all(30),
+                          // Subtitle
+                          Text(
+                            available
+                                ? 'Get the full specifications for\n${widget.productTitle}.'
+                                : 'The data sheet for ${widget.productTitle}\nisn\'t available yet.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: tBlack.withOpacity(0.55),
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
 
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+                          // File card (only when available)
+                          if (available) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF7F9FD),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: tBlack.withOpacity(0.06),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 44,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFCEBEB),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      'PDF',
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                        color: const Color(0xFF791F1F),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          fileName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.manrope(
+                                            fontSize: 13.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: tBlack,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          downloading
+                                              ? 'Downloading…'
+                                              : 'Ready to download',
+                                          style: GoogleFonts.manrope(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: tBlack.withOpacity(0.5),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    downloading
+                                        ? Icons.more_horiz_rounded
+                                        : Icons.check_circle_rounded,
+                                    size: 20,
+                                    color:
+                                        downloading
+                                            ? tBlack.withOpacity(0.35)
+                                            : const Color(0xFF2E9E5B),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
 
-              children: [
-                Container(
-                  width: 55,
-                  height: 55,
+                          // Main button
+                          Material(
+                            color: tOrange1,
+                            borderRadius: BorderRadius.circular(10),
+                            child: InkWell(
+                              mouseCursor: SystemMouseCursors.click,
+                              borderRadius: BorderRadius.circular(10),
+                              onTap:
+                                  available
+                                      ? onDownload
+                                      : () => Navigator.pop(dialogContext),
+                              child: SizedBox(
+                                height: 46,
+                                child: Center(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (downloading)
+                                        const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: tWhite,
+                                          ),
+                                        )
+                                      else if (available)
+                                        const Icon(
+                                          Icons.download_rounded,
+                                          size: 18,
+                                          color: tWhite,
+                                        ),
+                                      if (downloading || available)
+                                        const SizedBox(width: 8),
+                                      Text(
+                                        downloading
+                                            ? 'Downloading…'
+                                            : available
+                                            ? 'Download PDF'
+                                            : 'Got it',
+                                        style: GoogleFonts.manrope(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: tWhite,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
 
-                  decoration: BoxDecoration(
-                    color: tBlue2.withOpacity(0.08),
-
-                    shape: BoxShape.circle,
-                  ),
-
-                  child: const Icon(
-                    Icons.description_outlined,
-
-                    color: tBlue2,
-
-                    size: 28,
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                Text(
-                  'DATA SHEET',
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 17,
-
-                    fontWeight: FontWeight.w800,
-
-                    color: tBlack,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                Text(
-                  'Data sheet will be available here.',
-
-                  textAlign: TextAlign.center,
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-
-                    fontWeight: FontWeight.w500,
-
-                    color: tBlack.withOpacity(0.55),
-
-                    height: 1.5,
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                Material(
-                  color: tTransparent,
-
-                  child: InkWell(
-                    mouseCursor: SystemMouseCursors.click,
-
-                    borderRadius: BorderRadius.circular(4),
-
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 11,
-                      ),
-
-                      decoration: BoxDecoration(
-                        color: tBlue2,
-
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-
-                      child: Text(
-                        'CLOSE',
-
-                        style: GoogleFonts.manrope(
-                          fontSize: 10.5,
-
-                          fontWeight: FontWeight.w800,
-
-                          color: tWhite,
-                        ),
+                          // Secondary link
+                          if (available) ...[
+                            const SizedBox(height: 8),
+                            Center(
+                              child: TextButton(
+                                onPressed:
+                                    downloading
+                                        ? null
+                                        : () => Navigator.pop(dialogContext),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: tBlack.withOpacity(0.55),
+                                  enabledMouseCursor: SystemMouseCursors.click,
+                                  disabledMouseCursor: SystemMouseCursors.basic,
+                                ),
+                                child: Text(
+                                  'Maybe later',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                  ),
+
+                    // Close (X)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        mouseCursor: SystemMouseCursors.click,
+                        tooltip: 'Close',
+                        icon: Icon(
+                          Icons.close_rounded,
+                          size: 20,
+                          color: tBlack.withOpacity(0.45),
+                        ),
+                        onPressed:
+                            downloading
+                                ? null
+                                : () => Navigator.pop(dialogContext),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

@@ -1,5 +1,7 @@
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/colors.dart';
 
@@ -8,6 +10,7 @@ import '../../utils/colors.dart';
 /// Requires in pubspec.yaml:
 ///   file_picker: ^8.0.0
 ///   google_fonts: ^6.0.0
+///   go_router
 /// Assets should be registered in pubspec.yaml (for example, `images/`).
 /// Configure images when creating this page:
 /// CareersPage(heroImageAsset: 'images/careers_hero.png',
@@ -57,6 +60,7 @@ class _CareersPageState extends State<CareersPage> {
     'Design',
     'Operations',
     'Business',
+    'Mechanical',
   ];
   static const List<String> _locations = ['All Locations', 'Bengaluru, India'];
   // NOTE: responsibilities / requirements below are placeholder content –
@@ -194,6 +198,74 @@ class _CareersPageState extends State<CareersPage> {
       ],
       icon: Icons.brush_outlined,
     ),
+
+    // ───────────── MECHANICAL ─────────────
+    _Job(
+      title: 'Mechanical Design Engineer – Devices',
+      category: 'Mechanical',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '3 - 6 Yrs',
+      description:
+          'Design robust, manufacturable enclosures and mechanical assemblies for our telematics and tracking devices.',
+      responsibilities: [
+        'Design device enclosures, brackets, seals and mounting mechanisms in 3D CAD.',
+        'Run tolerance stack-ups, thermal and ingress-protection (IP) checks.',
+        'Work with electronics teams on PCB fit, connector placement and heat dissipation.',
+        'Support prototyping, DFM / DFA reviews and vendor tooling discussions.',
+      ],
+      requirements: [
+        '3 - 6 years of experience in mechanical product design.',
+        'Proficiency in SolidWorks, Creo, CATIA or similar CAD tools.',
+        'Good knowledge of plastic injection moulding and sheet metal design.',
+        'Experience with automotive or consumer electronics enclosures is a plus.',
+      ],
+      icon: Icons.precision_manufacturing_outlined,
+    ),
+    _Job(
+      title: 'Instrument Cluster Mechanical Engineer',
+      category: 'Mechanical',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '3 - 7 Yrs',
+      description:
+          'Own the mechanical design of vehicle instrument clusters, from housing and display assembly to dial and bezel integration.',
+      responsibilities: [
+        'Design cluster housings, bezels, lenses, light guides and display mounting.',
+        'Handle stepper-motor gauge, pointer and dial mechanics.',
+        'Ensure vibration, sealing and thermal performance in the vehicle environment.',
+        'Coordinate with suppliers on tooling, materials and assembly processes.',
+      ],
+      requirements: [
+        '3 - 7 years of experience in automotive or consumer product mechanical design.',
+        'Strong command of 3D CAD and GD&T.',
+        'Understanding of plastics, adhesives, gaskets and optical parts.',
+        'Instrument cluster or dashboard component experience is a plus.',
+      ],
+      icon: Icons.speed_rounded,
+    ),
+    _Job(
+      title: 'Mechanical Validation & Reliability Engineer',
+      category: 'Mechanical',
+      location: 'Bengaluru, India',
+      type: 'Full Time',
+      experience: '2 - 5 Yrs',
+      description:
+          'Plan and run mechanical and environmental validation so our devices and clusters survive real road conditions.',
+      responsibilities: [
+        'Prepare and execute vibration, shock, thermal cycling and ingress tests.',
+        'Analyse failures and work with design teams on corrective actions.',
+        'Create test plans and reports aligned with automotive standards.',
+        'Maintain test fixtures and coordinate with external test labs.',
+      ],
+      requirements: [
+        '2 - 5 years of experience in mechanical testing or reliability engineering.',
+        'Familiarity with AIS / IEC / ISO environmental test standards.',
+        'Hands-on with test chambers, shakers and measurement equipment.',
+        'Basic CAD or FEA exposure is a plus.',
+      ],
+      icon: Icons.build_circle_outlined,
+    ),
   ];
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _openingsKey = GlobalKey();
@@ -201,10 +273,18 @@ class _CareersPageState extends State<CareersPage> {
   int _selectedTab = 0;
   String _selectedLocation = _locations.first;
   String _query = '';
-  PlatformFile? _cvFile;
+  PlatformFile? _cvFile; // used by the "Don't see a suitable role?" card
+
+  /// CV chosen for each specific opening (key = job title).
+  final Map<String, PlatformFile> _jobCvFiles = {};
 
   /// Title of the opening whose details are currently expanded (null = none).
   String? _expandedJob;
+
+  /// Which drop zone a file is currently being dragged over:
+  /// 'general' for the "Don't see a suitable role?" box, or a job title.
+  String? _draggingTarget;
+  bool _uploadHovered = false;
   @override
   void dispose() {
     _scrollController.dispose();
@@ -245,7 +325,7 @@ class _CareersPageState extends State<CareersPage> {
     });
   }
 
-  Future<void> _pickCv() async {
+  Future<void> _pickCv({String? jobTitle}) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -258,11 +338,57 @@ class _CareersPageState extends State<CareersPage> {
         _toast('File is too large. Maximum allowed size is 5 MB.');
         return;
       }
-      setState(() => _cvFile = file);
+      setState(() {
+        if (jobTitle != null) {
+          _jobCvFiles[jobTitle] = file; // CV for a specific opening
+        } else {
+          _cvFile = file; // general CV card
+        }
+      });
       _toast('CV selected: ${file.name}');
-      // TODO: upload file.bytes / file.path to your backend here.
+      // TODO: upload file.bytes / file.path to your backend here
+      // (send jobTitle along when it is not null).
     } catch (_) {
       _toast('Could not open the file picker. Please try again.');
+    }
+  }
+
+  /// Handles a CV file dropped onto an upload area. Same rules as [_pickCv]:
+  /// PDF, DOC or DOCX only, maximum 5 MB.
+  Future<void> _handleDroppedCv(
+    DropDoneDetails details, {
+    String? jobTitle,
+  }) async {
+    if (details.files.isEmpty) return;
+    try {
+      final dropped = details.files.first;
+      final String name = dropped.name;
+      final String ext =
+          name.contains('.') ? name.split('.').last.toLowerCase() : '';
+      if (!['pdf', 'doc', 'docx'].contains(ext)) {
+        _toast('Please select a PDF, DOC or DOCX file.');
+        return;
+      }
+      final int size = await dropped.length();
+      if (size > _maxCvBytes) {
+        _toast('File is too large. Maximum allowed size is 5 MB.');
+        return;
+      }
+      final bytes = await dropped.readAsBytes();
+      if (!mounted) return;
+      final file = PlatformFile(name: name, size: size, bytes: bytes);
+      setState(() {
+        if (jobTitle != null) {
+          _jobCvFiles[jobTitle] = file; // CV for a specific opening
+        } else {
+          _cvFile = file; // general CV card
+        }
+      });
+      _toast('CV selected: ${file.name}');
+      // TODO: upload file.bytes to your backend here
+      // (send jobTitle along when it is not null).
+    } catch (_) {
+      _toast('Could not read the dropped file. Please try again.');
     }
   }
 
@@ -328,7 +454,14 @@ class _CareersPageState extends State<CareersPage> {
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
           borderRadius: BorderRadius.circular(7),
-          onTap: () => Navigator.of(context).maybePop(),
+          onTap: () {
+            if (context.canPop()) {
+              context.pop(); // came from About Us: go back to it
+            } else {
+              // opened or refreshed directly on /about_us/careers
+              context.go('/about');
+            }
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
             child: Row(
@@ -821,77 +954,122 @@ class _CareersPageState extends State<CareersPage> {
               bottom: -16,
               child: Container(width: 1.5, color: tBlueLight.withOpacity(0.7)),
             ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _iconCircle(job, 66),
-              const SizedBox(width: 30),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 66),
-                  padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
-                  decoration: BoxDecoration(
-                    border:
-                        isLast
-                            ? null
-                            : Border(
-                              bottom: BorderSide(
-                                color: tBlueLight.withOpacity(0.45),
-                              ),
-                            ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              job.title,
-                              style: GoogleFonts.manrope(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: tBlue4,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            _metaRow(job),
-                            const SizedBox(height: 8),
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 520),
-                              child: Text(
-                                job.description,
-                                style: GoogleFonts.manrope(
-                                  fontSize: 13,
-                                  height: 1.5,
-                                  color: tBlue4.withOpacity(0.7),
+          // Whole opening is clickable.
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _toggleJob(job),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _iconCircle(job, 66),
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 66),
+                      padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
+                      decoration: BoxDecoration(
+                        border:
+                            isLast
+                                ? null
+                                : Border(
+                                  bottom: BorderSide(
+                                    color: tBlueLight.withOpacity(0.45),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            // Expandable details – opens right below the opening.
-                            AnimatedSize(
-                              duration: const Duration(milliseconds: 280),
-                              curve: Curves.easeInOut,
-                              alignment: Alignment.topCenter,
-                              child:
-                                  expanded
-                                      ? _buildDetailsPanel(job)
-                                      : const SizedBox(width: double.infinity),
-                            ),
-                          ],
-                        ),
                       ),
-                      const SizedBox(width: 16),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14),
-                        child: _viewDetails(job, expanded),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  job.title,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: tBlue4,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                _metaRow(job),
+                                const SizedBox(height: 8),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 520,
+                                  ),
+                                  child: Text(
+                                    job.description,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 13,
+                                      height: 1.5,
+                                      color: tBlue4.withOpacity(0.7),
+                                    ),
+                                  ),
+                                ),
+                                // Expandable details – opens right below the opening.
+                                AnimatedSize(
+                                  duration: const Duration(milliseconds: 280),
+                                  curve: Curves.easeInOut,
+                                  alignment: Alignment.topCenter,
+                                  child:
+                                      expanded
+                                          ? GestureDetector(
+                                            // Absorb taps inside the panel so
+                                            // clicking its text doesn't collapse it.
+                                            behavior: HitTestBehavior.opaque,
+                                            onTap: () {},
+                                            child: MouseRegion(
+                                              cursor: SystemMouseCursors.basic,
+                                              child: DropTarget(
+                                                onDragEntered:
+                                                    (_) => setState(
+                                                      () =>
+                                                          _draggingTarget =
+                                                              job.title,
+                                                    ),
+                                                onDragExited:
+                                                    (_) => setState(
+                                                      () =>
+                                                          _draggingTarget =
+                                                              null,
+                                                    ),
+                                                onDragDone: (details) {
+                                                  setState(
+                                                    () =>
+                                                        _draggingTarget = null,
+                                                  );
+                                                  _handleDroppedCv(
+                                                    details,
+                                                    jobTitle: job.title,
+                                                  );
+                                                },
+                                                child: _buildDetailsPanel(job),
+                                              ),
+                                            ),
+                                          )
+                                          : const SizedBox(
+                                            width: double.infinity,
+                                          ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 14),
+                            child: _viewDetails(job, expanded),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -899,6 +1077,9 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   Widget _buildDetailsPanel(_Job job) {
+    final PlatformFile? appliedFile = _jobCvFiles[job.title];
+    final bool uploaded = appliedFile != null;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 16),
@@ -906,7 +1087,12 @@ class _CareersPageState extends State<CareersPage> {
       decoration: BoxDecoration(
         color: tBlueSky1,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: tBlueLight.withOpacity(0.7)),
+        border: Border.all(
+          color:
+              _draggingTarget == job.title
+                  ? tBlueDark
+                  : tBlueLight.withOpacity(0.7),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -915,43 +1101,144 @@ class _CareersPageState extends State<CareersPage> {
           const SizedBox(height: 18),
           _detailSection('Requirements', job.requirements, tOrange1),
           const SizedBox(height: 20),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: _pickCv,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 13,
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child:
+                uploaded
+                    ? _buildUploadedButton(job, appliedFile)
+                    : _buildApplyButton(job),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Default state: "Apply with CV".
+  Widget _buildApplyButton(_Job job) {
+    return Align(
+      key: const ValueKey('apply'),
+      alignment: Alignment.centerLeft,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => _pickCv(jobTitle: job.title),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
+            decoration: BoxDecoration(
+              color: tBlueDark,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.cloud_upload_outlined,
+                  size: 18,
+                  color: tWhite,
                 ),
-                decoration: BoxDecoration(
-                  color: tBlueDark,
-                  borderRadius: BorderRadius.circular(30),
+                const SizedBox(width: 10),
+                Text(
+                  'Apply with CV',
+                  style: GoogleFonts.manrope(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: tWhite,
+                  ),
                 ),
-                child: Row(
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// After a file is picked: "CV Uploaded" + file name, with Change / Remove.
+  Widget _buildUploadedButton(_Job job, PlatformFile file) {
+    return Wrap(
+      key: const ValueKey('uploaded'),
+      spacing: 14,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Container(
+          constraints: const BoxConstraints(maxWidth: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+          decoration: BoxDecoration(
+            color: tBlueDark.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: tBlueDark, width: 1.4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.check_circle_rounded,
+                size: 20,
+                color: tBlueDark,
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.cloud_upload_outlined,
-                      size: 18,
-                      color: tWhite,
-                    ),
-                    const SizedBox(width: 10),
                     Text(
-                      'Apply with CV',
+                      'CV Uploaded',
                       style: GoogleFonts.manrope(
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: tWhite,
+                        fontWeight: FontWeight.w800,
+                        color: tBlueDark,
+                      ),
+                    ),
+                    Text(
+                      file.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11,
+                        color: tBlue4.withOpacity(0.65),
                       ),
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => _pickCv(jobTitle: job.title),
+            child: Text(
+              'Change',
+              style: GoogleFonts.manrope(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: tBlueDark,
+                // decoration: TextDecoration.underline,
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => setState(() => _jobCvFiles.remove(job.title)),
+            child: Text(
+              'Remove',
+              style: GoogleFonts.manrope(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: tOrange1,
+                // decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1005,41 +1292,37 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   Widget _viewDetails(_Job job, bool expanded) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => _toggleJob(job),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              expanded ? 'Close' : 'View Details',
-              style: GoogleFonts.manrope(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: tBlueDark,
-              ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!expanded) ...[
+          Text(
+            'View Details',
+            style: GoogleFonts.manrope(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: tBlueDark,
             ),
-            const SizedBox(width: 14),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: expanded ? tOrange1 : tOrange1.withOpacity(0.12),
-              ),
-              child: Icon(
-                expanded
-                    ? Icons.keyboard_arrow_up_rounded
-                    : Icons.keyboard_arrow_down_rounded,
-                size: expanded ? 22 : 18,
-                color: expanded ? tWhite : tOrange1,
-              ),
-            ),
-          ],
+          ),
+          const SizedBox(width: 14),
+        ],
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: expanded ? tOrange1 : tOrange1.withOpacity(0.12),
+          ),
+          child: Icon(
+            expanded
+                ? Icons.keyboard_arrow_up_rounded
+                : Icons.keyboard_arrow_down_rounded,
+            size: expanded ? 22 : 18,
+            color: expanded ? tWhite : tOrange1,
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -1117,7 +1400,15 @@ class _CareersPageState extends State<CareersPage> {
             ),
           ),
           const SizedBox(height: 18),
-          _buildUploadBox(),
+          DropTarget(
+            onDragEntered: (_) => setState(() => _draggingTarget = 'general'),
+            onDragExited: (_) => setState(() => _draggingTarget = null),
+            onDragDone: (details) {
+              setState(() => _draggingTarget = null);
+              _handleDroppedCv(details);
+            },
+            child: _buildUploadBox(),
+          ),
         ],
       ),
     );
@@ -1125,83 +1416,135 @@ class _CareersPageState extends State<CareersPage> {
 
   Widget _buildUploadBox() {
     final hasFile = _cvFile != null;
+    final bool dragging = _draggingTarget == 'general';
+    final bool active = _uploadHovered || dragging;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _uploadHovered = true),
+      onExit: (_) => setState(() => _uploadHovered = false),
       child: GestureDetector(
-        onTap: _pickCv,
-        child: CustomPaint(
-          painter: _DashedRRectPainter(
-            color: tBlueDark.withOpacity(0.55),
-            radius: 12,
-          ),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-            decoration: BoxDecoration(
-              color: tWhite.withOpacity(0.35),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: tBlueDark.withOpacity(0.12),
-                  ),
-                  child: Icon(
-                    hasFile
-                        ? Icons.description_outlined
-                        : Icons.cloud_upload_outlined,
-                    size: 26,
-                    color: tBlueDark,
-                  ),
+        onTap: () => _pickCv(),
+        // Whole box grows slightly on hover.
+        child: AnimatedScale(
+          scale: active ? 1.02 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          // t goes 0 → 1 on hover and drives every colour / shadow change.
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: active ? 1 : 0),
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            builder: (context, t, _) {
+              return CustomPaint(
+                painter: _DashedRRectPainter(
+                  color: tBlueDark.withOpacity(0.55 + 0.45 * t),
+                  radius: 12,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        hasFile ? _cvFile!.name : 'Upload Your CV',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w800,
-                          color: tBlue4,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        hasFile
-                            ? 'Tap to replace your CV'
-                            : 'PDF, DOC or DOCX (Max 5 MB)',
-                        style: GoogleFonts.manrope(
-                          fontSize: 11.5,
-                          color: tBlue4.withOpacity(0.6),
-                        ),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 18,
+                  ),
+                  decoration: BoxDecoration(
+                    color: tWhite.withOpacity(0.35 + 0.40 * t),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: tBlueDark.withOpacity(0.18 * t),
+                        blurRadius: 18 * t,
+                        offset: Offset(0, 6 * t),
                       ),
                     ],
                   ),
-                ),
-                if (hasFile)
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () => setState(() => _cvFile = null),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 18,
-                        color: tOrange1,
+                  child: Row(
+                    children: [
+                      // Icon circle fills with blue and the icon floats up.
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color.lerp(
+                            tBlueDark.withOpacity(0.12),
+                            tBlueDark,
+                            t,
+                          ),
+                        ),
+                        child: Transform.translate(
+                          offset: Offset(0, -3 * t),
+                          child: Icon(
+                            hasFile
+                                ? Icons.description_outlined
+                                : Icons.cloud_upload_outlined,
+                            size: 26,
+                            color: Color.lerp(tBlueDark, tWhite, t),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              hasFile ? _cvFile!.name : 'Upload Your CV',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.manrope(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w800,
+                                color: Color.lerp(tBlue4, tBlueDark, t),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              hasFile
+                                  ? 'Tap to replace your CV'
+                                  : (dragging
+                                      ? 'Drop your file here'
+                                      : 'PDF, DOC or DOCX (Max 5 MB)'),
+                              style: GoogleFonts.manrope(
+                                fontSize: 11.5,
+                                color: tBlue4.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (hasFile)
+                        InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () => setState(() => _cvFile = null),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: tOrange1,
+                            ),
+                          ),
+                        ),
+                      // Arrow slides in from the left on hover.
+                      if (!hasFile)
+                        Opacity(
+                          opacity: t,
+                          child: Transform.translate(
+                            offset: Offset(8 * (1 - t), 0),
+                            child: Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 18,
+                              color: tBlueDark,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

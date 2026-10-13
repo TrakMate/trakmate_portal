@@ -3,11 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
-import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
+import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/product_filter_controller.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/ui/widgets/solutions_hub.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 // import 'package:video_player/video_player.dart';
@@ -368,7 +368,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ),
       // image5: 'images/tmd364-side1.png',
       video: 'video/tmd364_demo.mp4',
-
+      datasheet: 'datasheets/tmd364_datasheet.pdf',
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -498,7 +498,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeGap: 25,
         topRowCount: 4,
       ),
-      video: 'video/tcu550_demo.mp4',
+      video: 'video/tcu550.webm',
+      videoPadding: 40,
+      videoOffsetY: -45,
       badge: '4G',
       badgeColor: tBlue3,
       secondBadge: '2G',
@@ -742,7 +744,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     if (buttonBox == null || !buttonBox.hasSize) return;
 
     final Offset position = buttonBox.localToGlobal(Offset.zero);
-    final Size size = buttonBox.size; 
+    final Size size = buttonBox.size;
 
     _filterButtonPosition = position;
     _filterButtonSize = size;
@@ -2648,7 +2650,10 @@ class ProductData {
   final String? image6;
   final String? image7;
   final List<String> specBadges;
-  final String? video; // ADD THIS
+  final String? video;
+  final double? videoPadding;
+  final double videoOffsetY;
+  final String? datasheet; // e.g. 'datasheets/TMD104.pdf'
   // final SpecsSlideLayout specsStyle;
   final SpecsSlideStyle specsStyle;
   // NEW: used by the attribute filter bar (Connectivity + Vehicle Type)
@@ -2666,7 +2671,10 @@ class ProductData {
     this.image5,
     this.image6,
     this.image7,
-    this.video, // ADD THIS
+    this.video,
+    this.videoPadding,
+    this.videoOffsetY = 0.0,
+    this.datasheet,
     required this.badge,
     required this.badgeColor,
     this.secondBadge,

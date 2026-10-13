@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
-import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
+import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
@@ -94,7 +94,8 @@ class FooterSection extends StatelessWidget {
                 "Our Journey",
                 "Vision & Mission",
                 "Leadership",
-                "Certifictations",
+                "Careers",
+                "Certifications",
                 "Contact Us",
               ], sectionIndex: 5),
               _divider(),

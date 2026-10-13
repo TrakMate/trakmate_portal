@@ -4,8 +4,8 @@ import 'package:trakmate_portal/src/ui/widgets/all_news.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
 
-import 'package:trakmate_portal/src/ui/widgets/newsheader.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/news_header.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 

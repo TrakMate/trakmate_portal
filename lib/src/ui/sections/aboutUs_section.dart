@@ -1,15 +1,24 @@
 import 'dart:async';
 import 'dart:ui' show PathMetric;
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/all_news.dart';
 import 'package:trakmate_portal/src/ui/widgets/careers_details.dart';
-import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
+import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
+// import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
+
+import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
+
+// import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+
+// import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -25,10 +34,30 @@ class AboutusSection extends StatefulWidget {
 class _AboutusSectionState extends State<AboutusSection> {
   bool _heroImageLoading = true;
   bool _teamImagesLoading = true;
+  // ---------- Footer scroll-to-section ----------
+  final ScrollController _scrollController = ScrollController();
 
+  final GlobalKey _journeyKey = GlobalKey();
+  final GlobalKey _missionKey = GlobalKey();
+  final GlobalKey _leadershipKey = GlobalKey();
+  final GlobalKey _careersKey = GlobalKey();
+  final GlobalKey _certificationsKey = GlobalKey();
+
+  // Footer label -> section key. Labels must match the footer text exactly.
+  late final Map<String, GlobalKey> _scrollTargets = {
+    'Our Journey': _journeyKey,
+    'Vision & Mission': _missionKey,
+    'Leadership': _leadershipKey,
+    'Careers': _careersKey,
+    'Certifications': _certificationsKey,
+  };
+
+  String? _pendingScrollKey;
   // Selected CV file (PDF, DOC, or DOCX; maximum 5 MB).
   PlatformFile? _selectedCv;
   bool _isPickingCv = false;
+  // True while a file is being dragged over the CV upload box.
+  bool _isDraggingCv = false;
   String? _cvToastMessage;
   bool _cvToastIsSuccess = true;
   Timer? _cvToastTimer;
@@ -126,8 +155,8 @@ class _AboutusSectionState extends State<AboutusSection> {
       logo: 'icons/ais.svg',
       code: 'AIS 140',
       label: 'Vehicle Tracking & Telematics',
-      logoHeight: 42,
-      logoWidth: 42,
+      logoHeight: 46,
+      logoWidth: 46,
     ),
     _CertData(
       logo: 'icons/iso.svg',
@@ -151,11 +180,11 @@ class _AboutusSectionState extends State<AboutusSection> {
       logoWidth: 42,
     ),
     _CertData(
-      logo: 'icons/rohs.svg',
+      logo: 'icons/rohs2.svg',
       code: 'ROHS',
       label: 'Vehicle Tracking & Telematics',
-      logoHeight: 62,
-      logoWidth: 62,
+      logoHeight: 46,
+      logoWidth: 46,
     ),
     _CertData(
       logo: 'icons/ce.svg',
@@ -240,10 +269,68 @@ class _AboutusSectionState extends State<AboutusSection> {
   @override
   void initState() {
     super.initState();
+    SectionScrollBus.instance.pendingKey.addListener(_onScrollRequest);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
       _preloadTeamImages();
     });
+  }
+
+  void _onScrollRequest() {
+    final ScrollRequest? request = SectionScrollBus.instance.pendingKey.value;
+    if (request == null) return;
+
+    // Ignore keys meant for other pages (e.g. "CAD Design").
+    final bool isMine =
+        request.key == 'About Us' || _scrollTargets.containsKey(request.key);
+    if (!isMine) return;
+
+    _pendingScrollKey = request.key;
+    SectionScrollBus.instance.pendingKey.value = null; // consume it
+
+    // Already visible: scroll now. Otherwise didUpdateWidget does it.
+    if (widget.isActive) _runPendingScroll();
+  }
+
+  void _runPendingScroll() {
+    final String? key = _pendingScrollKey;
+    if (key == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      if (key == 'About Us') {
+        _pendingScrollKey = null;
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOutCubic,
+          );
+        }
+        return;
+      }
+
+      final BuildContext? ctx = _scrollTargets[key]?.currentContext;
+      if (ctx == null) return; // still loading (shimmer): stay pending
+
+      _pendingScrollKey = null;
+      await Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.0,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant AboutusSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // About Us just became visible and a footer click is waiting.
+    if (!oldWidget.isActive && widget.isActive && _pendingScrollKey != null) {
+      Future.delayed(const Duration(milliseconds: 120), _runPendingScroll);
+    }
   }
 
   Future<void> _preloadHeroImage() async {
@@ -258,6 +345,7 @@ class _AboutusSectionState extends State<AboutusSection> {
     }
     if (!mounted) return;
     setState(() => _heroImageLoading = false);
+    _runPendingScroll();
   }
 
   Future<void> _preloadTeamImages() async {
@@ -276,6 +364,7 @@ class _AboutusSectionState extends State<AboutusSection> {
     }
     if (!mounted) return;
     setState(() => _teamImagesLoading = false);
+    _runPendingScroll();
   }
 
   void _showCvToast(String message, {bool isSuccess = true}) {
@@ -295,6 +384,9 @@ class _AboutusSectionState extends State<AboutusSection> {
 
   @override
   void dispose() {
+    SectionScrollBus.instance.pendingKey.removeListener(_onScrollRequest);
+    _scrollController.dispose();
+    _cvToastTimer?.cancel();
     _cvToastTimer?.cancel();
     super.dispose();
   }
@@ -302,6 +394,7 @@ class _AboutusSectionState extends State<AboutusSection> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Column(
         children: [
           // 1st: HERO + ACHIEVEMENTS OVERLAP
@@ -328,6 +421,7 @@ class _AboutusSectionState extends State<AboutusSection> {
 
           // 2nd: OUR JOURNEY
           Container(
+            key: _journeyKey,
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
             child: _buildStoryTimelineSection(),
@@ -336,6 +430,7 @@ class _AboutusSectionState extends State<AboutusSection> {
 
           // 3rd: MISSION + VISION (side by side), then OUR STORY (full width)
           Padding(
+            key: _missionKey,
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: Column(
               children: [
@@ -347,13 +442,23 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
           const SizedBox(height: 25),
 
-          _teamImagesLoading ? const TeamSectionShimmer() : _ourTeamSection(),
+          KeyedSubtree(
+            key: _leadershipKey,
+            child:
+                _teamImagesLoading
+                    ? const TeamSectionShimmer()
+                    : _ourTeamSection(),
+          ),
           const SizedBox(height: 25),
 
           // CAREERS (under Meet Our Leadership)
           Padding(
+            key: _careersKey,
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: _buildCareersSection(),
+            child:
+                _heroImageLoading
+                    ? const CareersSectionShimmer()
+                    : _buildCareersSection(),
           ),
           const SizedBox(height: 25),
 
@@ -371,6 +476,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           const SizedBox(height: 40),
 
           Padding(
+            key: _certificationsKey,
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
             child: _buildCertificationsSection(),
           ),
@@ -518,10 +624,11 @@ class _AboutusSectionState extends State<AboutusSection> {
 
   Widget _buildJobCard(_JobData job, {VoidCallback? onTap}) {
     return Material(
-      color: Colors.transparent,
+      color: tTransparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: onTap ?? _showAllOpeningsDialog,
+        // onTap: onTap ?? _showAllOpeningsDialog,
+        onTap: () {},
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
@@ -628,8 +735,8 @@ class _AboutusSectionState extends State<AboutusSection> {
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
-              Icon(Icons.chevron_right_rounded, size: 24, color: _cGrey),
+              // const SizedBox(width: 14),
+              // Icon(Icons.chevron_right_rounded, size: 24, color: _cGrey),
             ],
           ),
         ),
@@ -861,6 +968,53 @@ class _AboutusSectionState extends State<AboutusSection> {
     }
   }
 
+  // Handles a file dropped onto the CV upload box. Applies the same rules as
+  // _pickCvFile (PDF, DOC or DOCX only, max 5 MB).
+  Future<void> _handleDroppedCv(DropDoneDetails details) async {
+    if (_isPickingCv) return;
+    if (details.files.isEmpty) return;
+
+    try {
+      final dropped = details.files.first;
+      const int maxFileSize = 5 * 1024 * 1024;
+
+      final String name = dropped.name;
+      final String extension =
+          name.contains('.') ? name.split('.').last.toLowerCase() : '';
+
+      if (!['pdf', 'doc', 'docx'].contains(extension)) {
+        _showCvToast(
+          'Please select a PDF, DOC, or DOCX file.',
+          isSuccess: false,
+        );
+        return;
+      }
+
+      final int size = await dropped.length();
+      if (!mounted) return;
+
+      if (size > maxFileSize) {
+        _showCvToast('File size must not exceed 5 MB.', isSuccess: false);
+        return;
+      }
+
+      final bytes = await dropped.readAsBytes();
+      if (!mounted) return;
+
+      setState(() {
+        _selectedCv = PlatformFile(name: name, size: size, bytes: bytes);
+      });
+      _showCvToast('CV selected successfully.');
+    } catch (e) {
+      if (!mounted) return;
+      debugPrint('Unable to read dropped CV: $e');
+      _showCvToast(
+        'Unable to select the file. Please try again.',
+        isSuccess: false,
+      );
+    }
+  }
+
   Widget _buildCvToast() {
     final Color accent = _cvToastIsSuccess ? const Color(0xFF23865A) : tRed;
     final IconData icon =
@@ -929,116 +1083,126 @@ class _AboutusSectionState extends State<AboutusSection> {
   Widget _buildCvUploadBox({required double width}) {
     final bool hasSelectedFile = _selectedCv != null;
 
-    return CustomPaint(
-      painter: _DashedBorderPainter(
-        color: tBlue1.withOpacity(0.6),
-        radius: 16,
-        dashWidth: 5,
-        dashGap: 4,
-        strokeWidth: 1.2,
-      ),
-      child: Container(
-        width: width,
-        height: 100,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: tWhite.withOpacity(0.35),
-          borderRadius: BorderRadius.circular(16),
+    return DropTarget(
+      onDragEntered: (_) => setState(() => _isDraggingCv = true),
+      onDragExited: (_) => setState(() => _isDraggingCv = false),
+      onDragDone: (details) {
+        setState(() => _isDraggingCv = false);
+        _handleDroppedCv(details);
+      },
+      child: CustomPaint(
+        painter: _DashedBorderPainter(
+          color: tBlue1.withOpacity(_isDraggingCv ? 1.0 : 0.6),
+          radius: 16,
+          dashWidth: 5,
+          dashGap: 4,
+          strokeWidth: 1.2,
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
+        child: Container(
+          width: width,
+          height: 100,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: tWhite.withOpacity(_isDraggingCv ? 0.75 : 0.35),
             borderRadius: BorderRadius.circular(16),
-            onTap: _isPickingCv ? null : _pickCvFile,
-            child:
-                hasSelectedFile
-                    ? Row(
-                      children: [
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.description_rounded,
-                          size: 30,
-                          color: tBlue1.withOpacity(0.9),
-                        ),
-                        const SizedBox(width: 9),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _selectedCv!.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.manrope(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: _cNavy,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${(_selectedCv!.size / (1024 * 1024)).toStringAsFixed(2)} MB · Tap to replace',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.manrope(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  color: _cGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: 'Remove selected CV',
-                          onPressed: _removeCvFile,
-                          visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.close_rounded, size: 19),
-                          color: Colors.redAccent,
-                        ),
-                      ],
-                    )
-                    : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (_isPickingCv)
-                          SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(tBlue1),
-                            ),
-                          )
-                        else
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: _isPickingCv ? null : _pickCvFile,
+              child:
+                  hasSelectedFile
+                      ? Row(
+                        children: [
+                          const SizedBox(width: 4),
                           Icon(
-                            Icons.cloud_upload_rounded,
-                            size: 38,
-                            color: tBlue1.withOpacity(0.8),
+                            Icons.description_rounded,
+                            size: 30,
+                            color: tBlue1.withOpacity(0.9),
                           ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _isPickingCv
-                              ? 'Opening file picker...'
-                              : 'Upload / Submit your CV',
-                          style: GoogleFonts.manrope(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: _cNavy,
+                          const SizedBox(width: 9),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _selectedCv!.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: _cNavy,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  '${(_selectedCv!.size / (1024 * 1024)).toStringAsFixed(2)} MB · Tap to replace',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    color: _cGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          'PDF, DOC or DOCX (Max 5 MB)',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w500,
-                            color: _cGrey,
+                          IconButton(
+                            tooltip: 'Remove selected CV',
+                            onPressed: _removeCvFile,
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.close_rounded, size: 19),
+                            color: Colors.redAccent,
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      )
+                      : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (_isPickingCv)
+                            SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  tBlue1,
+                                ),
+                              ),
+                            )
+                          else
+                            Icon(
+                              Icons.cloud_upload_rounded,
+                              size: 38,
+                              color: tBlue1.withOpacity(0.8),
+                            ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _isPickingCv
+                                ? 'Opening file picker...'
+                                : 'Upload / Submit your CV',
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: _cNavy,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            'PDF, DOC or DOCX (Max 5 MB)',
+                            style: GoogleFonts.manrope(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w500,
+                              color: _cGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+            ),
           ),
         ),
       ),

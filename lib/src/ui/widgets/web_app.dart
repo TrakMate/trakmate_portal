@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
 
 import '../../utils/colors.dart';
 
@@ -879,7 +878,7 @@ Widget _buildBackButton(BuildContext context) {
               const SizedBox(width: 7),
 
               Text(
-                'Back to Solutions',
+                'Back',
                 style: GoogleFonts.manrope(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

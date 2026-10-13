@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
-import 'package:trakmate_portal/src/ui/widgets/heroanimation.dart';
-import 'package:trakmate_portal/src/ui/widgets/navfooter.dart';
+import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
+import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 

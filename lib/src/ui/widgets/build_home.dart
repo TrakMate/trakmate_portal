@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 // import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';

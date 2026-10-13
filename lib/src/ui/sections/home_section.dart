@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:svg_flutter/svg.dart';
-import 'package:trakmate_portal/src/ui/widgets/buildhome.dart';
+import 'package:trakmate_portal/src/ui/widgets/build_home.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
 // import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
 import 'package:trakmate_portal/src/ui/widgets/scroller_button.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 // import '../widgets/footer_section.dart';
 import 'package:video_player/video_player.dart';
 
-import '../widgets/heroanimation.dart';
+import '../widgets/hero_animation.dart';
 
 class HomeSection extends StatefulWidget {
   final ValueChanged<int>? onNavigate;

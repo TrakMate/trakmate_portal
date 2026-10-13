@@ -20,8 +20,9 @@ dependencies:
 
   url_launcher:
   shared_preferences: ^2.2.0
-  go_router: 
+  go_router:
   file_picker: ^10.3.3
+  desktop_drop: ^0.8.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -41,6 +42,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/video/
+    - assets/datasheets/
     # - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see

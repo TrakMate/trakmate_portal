@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
 
 /// One slide: a background image + two stacked text lines.
@@ -340,10 +340,19 @@ class _HeroSliderState extends State<HeroSlider> {
                       Text(
                         slide.label!,
                         style: GoogleFonts.manrope(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: tOrange1,
                           letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 35,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: tOrange1,
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       const SizedBox(height: 16),

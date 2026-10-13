@@ -1467,3 +1467,96 @@ class _TeamCardShimmer extends StatelessWidget {
     );
   }
 }
+
+//careers section shimmer (about us page)
+class CareersSectionShimmer extends StatelessWidget {
+  const CareersSectionShimmer({super.key});
+
+  Widget _bar(double? w, double h, {double r = 4}) => Container(
+    width: w ?? double.infinity,
+    height: h,
+    decoration: BoxDecoration(
+      color: tWhite,
+      borderRadius: BorderRadius.circular(r),
+    ),
+  );
+
+  // one job row: icon box + 2 lines + experience pill
+  Widget _jobRow() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          _bar(56, 56, r: 14),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _bar(150, 15),
+                const SizedBox(height: 9),
+                _bar(210, 12),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _bar(80, 32, r: 20),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 525,
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: tGrey1.shade200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Shimmer.fromColors(
+        baseColor: tGrey1.shade300,
+        highlightColor: tGrey1.shade100,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // LEFT PANEL (flex 47)
+            Expanded(
+              flex: 47,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(40, 38, 40, 22),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _bar(190, 12), // CURRENT OPENINGS
+                    const SizedBox(height: 18),
+                    _bar(320, 33, r: 6), // heading line 1
+                    const SizedBox(height: 8),
+                    _bar(240, 33, r: 6), // heading line 2
+                    const SizedBox(height: 14),
+                    _bar(null, 12), // subtitle 1
+                    const SizedBox(height: 7),
+                    _bar(260, 12), // subtitle 2
+                    const SizedBox(height: 18),
+                    for (int i = 0; i < 3; i++) ...[
+                      _jobRow(),
+                      if (i != 2) const SizedBox(height: 10),
+                    ],
+                    const Spacer(),
+                    _bar(190, 52, r: 10), // View All Openings button
+                  ],
+                ),
+              ),
+            ),
+
+            // RIGHT PANEL (flex 53) - one whole box
+            Expanded(flex: 53, child: Container(color: tWhite)),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/mobile_app.dart';
-import 'package:trakmate_portal/src/ui/widgets/shimmereffect.dart'; // NEW: for SolutionCardShimmer
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart'; // NEW: for SolutionCardShimmer
 import 'package:trakmate_portal/src/ui/widgets/web_app.dart';
 
 import '../../utils/colors.dart';
