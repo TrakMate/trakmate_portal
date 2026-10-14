@@ -7,8 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/sections/news_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/build_products.dart';
-
-import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web/helpers.dart' as web;
 
@@ -123,23 +121,19 @@ class _MainPageState extends State<MainPage> {
 
   List<NavDropdownItem> get _aboutUsMenuItems => [
     NavDropdownItem(
-      label: 'Leadership',
+      label: 'Our Team',
       icon: 'icons/team.svg',
-      onTap: () => _navigateToAboutPath('/about/team', scrollKey: 'Leadership'),
+      onTap: () => _navigateToAboutPath('/about/team'),
     ),
     NavDropdownItem(
-      label: 'Vision & Mission',
+      label: 'Infrastructure',
       icon: 'icons/all.svg',
-      onTap:
-          () => _navigateToAboutPath(
-            '/about/infrastructure',
-            scrollKey: 'Vision & Mission',
-          ),
+      onTap: () => _navigateToAboutPath('/about/infrastructure'),
     ),
     NavDropdownItem(
       label: 'Careers',
       icon: 'icons/career.svg',
-      onTap: () => context.push('/about_us/careers'),
+      onTap: () => _navigateToAboutPath('/about/careers'),
     ),
     // NavDropdownItem(
     //   label: 'News & Media',
@@ -172,12 +166,6 @@ class _MainPageState extends State<MainPage> {
         ProductFilterController.select(filter);
       }
 
-      // Deep link such as /about_us/careers: scroll to that section.
-      final String? scrollKey = _scrollKeyFromPath(_currentPath);
-      if (scrollKey != null) {
-        SectionScrollBus.instance.request(scrollKey);
-      }
-
       // Safety net: if the shown section and the URL disagree,
       // make the URL match what is on screen.
       _syncUrlWithSelectedSection();
@@ -190,21 +178,8 @@ class _MainPageState extends State<MainPage> {
     super.didUpdateWidget(oldWidget);
 
     if (widget.path != oldWidget.path) {
-      final String newPath = _normalizePath(widget.path ?? '/home');
-
-      // If _currentPath already equals newPath, the change came from our own
-      // _updateUrl() (menu click), which already requested the scroll.
-      final bool changedFromOutside = newPath != _currentPath;
-
-      if (changedFromOutside) {
-        final String? scrollKey = _scrollKeyFromPath(newPath);
-        if (scrollKey != null) {
-          SectionScrollBus.instance.request(scrollKey);
-        }
-      }
-
       setState(() {
-        _applyPath(newPath, updateUrl: false);
+        _applyPath(widget.path ?? '/home', updateUrl: false);
       });
     }
   }
@@ -320,20 +295,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  // Which About Us section a URL should scroll to (null = stay at top).
-  String? _scrollKeyFromPath(String path) {
-    switch (path) {
-      case '/about/team':
-        return 'Leadership';
-      case '/about/infrastructure':
-        return 'Vision & Mission';
-      case '/about/careers':
-        return 'Careers';
-      default:
-        return null;
-    }
-  }
-
   void _applyPath(String path, {required bool updateUrl}) {
     final normalizedPath = _normalizePath(path);
     final productFilter = _productFilterFromPath(normalizedPath);
@@ -396,6 +357,7 @@ class _MainPageState extends State<MainPage> {
 
   void _navigateToProductTab(String filterKey) {
     String path;
+
     switch (filterKey) {
       case 'All Products':
         path = '/products';
@@ -431,13 +393,7 @@ class _MainPageState extends State<MainPage> {
     ProductFilterController.select(filterKey);
   }
 
-  void _navigateToAboutPath(String path, {String? scrollKey}) {
-    // Send the scroll request BEFORE switching tabs. If About Us is hidden,
-    // it stores the request and runs it once it becomes visible.
-    if (scrollKey != null) {
-      SectionScrollBus.instance.request(scrollKey);
-    }
-
+  void _navigateToAboutPath(String path) {
     setState(() {
       selectedIndex = 5;
     });

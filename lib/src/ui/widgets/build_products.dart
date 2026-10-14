@@ -498,7 +498,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeGap: 25,
         topRowCount: 4,
       ),
-      video: 'video/tcu550.webm',
+      video: 'video/tcu5501.mp4',
       videoPadding: 40,
       videoOffsetY: -45,
       badge: '4G',

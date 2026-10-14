@@ -1,11 +1,60 @@
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// // import 'package:go_router/go_router.dart';
+// import 'package:trakmate_portal/src/ui/pages/main_page.dart';
+
+// class AppRouter {
+//   // path -> index of the section shown in MainPage's IndexedStack
+//   static const Map<String, int> _pages = {
+//     '/home': 0,
+//     '/engineering': 1,
+//     '/manufacturing': 2,
+//     '/products': 3,
+//     '/products/trackers': 3,
+//     '/products/diagnostics': 3,
+//     '/products/gateways': 3,
+//     '/products/clusters': 3,
+//     '/products/adas': 3,
+//     '/solutions-hub': 3,
+//     '/news-blogs': 4,
+//     '/about': 5,
+//     '/about/team': 5,
+//     '/about/infrastructure': 5,
+//     '/about/careers': 5,
+//   };
+
+//   static final GoRouter router = GoRouter(
+//     initialLocation: '/home',
+//     routes: [
+//       // "/" -> "/home"
+//       // GoRoute(path: '/', redirect: (context, state) => '/home'),
+//       for (final entry in _pages.entries)
+//         GoRoute(
+//           path: entry.key,
+//           pageBuilder:
+//               (context, state) => NoTransitionPage<void>(
+//                 // Same key for every route, so MainPage is NOT recreated.
+//                 key: const ValueKey('main-page'),
+//                 child: MainPage(
+//                   initialIndex: entry.value,
+//                   path: state.uri.path,
+//                 ),
+//               ),
+//         ),
+//     ],
+//   );
+// }
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
-import 'package:trakmate_portal/src/ui/widgets/careers_details.dart';
 
 class AppRouter {
-  // Reuse the same MainPage when navigating between sections.
+  // Every route shows the SAME MainPage and uses this SAME page key, so
+  // go_router keeps the existing MainPage alive and only hands it the new path
+  // (MainPage.didUpdateWidget handles it). The hero/header is therefore NOT
+  // rebuilt when you switch filter tabs - only the products content changes.
   static const ValueKey<String> _mainPageKey = ValueKey<String>('main-page');
 
   static Page<void> _mainPage(Widget child) {
@@ -14,6 +63,7 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     initialLocation: '/',
+
     routes: [
       // ============================================================
       // HOME
@@ -26,6 +76,7 @@ class AppRouter {
         },
       ),
 
+      // Keep /home working as well.
       GoRoute(
         path: '/home',
         name: 'homeAlias',
@@ -148,7 +199,7 @@ class AppRouter {
       ),
 
       // ============================================================
-      // ABOUT US
+      // ABOUT
       // ============================================================
       GoRoute(
         path: '/about',
@@ -178,18 +229,14 @@ class AppRouter {
         },
       ),
 
-      // Careers: the full Careers page, with its own URL.
-      GoRoute(
-        path: '/about_us/careers',
-        name: 'aboutUsCareers',
-        builder: (context, state) => const CareersPage(),
-      ),
-
-      // Legacy careers URL: redirects to the new one
       GoRoute(
         path: '/about/careers',
         name: 'aboutCareers',
-        redirect: (context, state) => '/about_us/careers',
+        pageBuilder: (context, state) {
+          return _mainPage(
+            const MainPage(initialIndex: 5, path: '/about/careers'),
+          );
+        },
       ),
 
       GoRoute(
