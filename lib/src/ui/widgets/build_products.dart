@@ -367,7 +367,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeGap: 25,
       ),
       // image5: 'images/tmd364-side1.png',
-      video: 'video/tmd364_demo.mp4',
+      video: 'video/tmd364.webm',
+      videoPadding: 40,
+      videoOffsetY: -45,
       datasheet: 'datasheets/tmd364_datasheet.pdf',
       badge: '4G',
       badgeColor: tBlue3,
@@ -498,7 +500,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeGap: 25,
         topRowCount: 4,
       ),
-      video: 'video/tcu5501.mp4',
+      video: 'video/tcu550.webm',
       videoPadding: 40,
       videoOffsetY: -45,
       badge: '4G',
@@ -2359,6 +2361,7 @@ class _ProductCardState extends State<_ProductCard> {
                           child: Image.asset(
                             data.image,
                             fit: BoxFit.contain,
+                            // filterQuality: FilterQuality.medium,
                             frameBuilder: (
                               context,
                               child,

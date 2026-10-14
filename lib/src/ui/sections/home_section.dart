@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:svg_flutter/svg.dart';
@@ -58,6 +59,7 @@ class _StatData {
 }
 
 class _HomeSectionState extends State<HomeSection> {
+  final FocusNode _heroFocusNode = FocusNode(debugLabel: 'heroFocus');
   final List<_HeroSlideData> _slides = const [
     _HeroSlideData(
       video: "video/v1.mp4",
@@ -501,7 +503,7 @@ class _HomeSectionState extends State<HomeSection> {
     for (final controller in _videoControllers) {
       controller.dispose();
     }
-
+    _heroFocusNode.dispose();
     super.dispose();
   }
 
@@ -611,197 +613,220 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   Widget _buildHeroSection() {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() => _isSlideHovered = true);
-        _showPauseControl();
+    return Focus(
+      focusNode: _heroFocusNode,
+      onKeyEvent: (node, event) {
+        if (!widget.isActive) return KeyEventResult.ignored;
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+
+        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          _onNextPressed();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          _onPrevPressed();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.space) {
+          _toggleHeroPlayback();
+          return KeyEventResult
+              .handled; // also stops Space from scrolling the page
+        }
+        return KeyEventResult.ignored; // up/down still scroll the page
       },
-      onExit: (_) {
-        setState(() => _isSlideHovered = false);
-        _hidePauseControl();
-      },
-      child: SizedBox(
-        width: double.infinity,
-        height: _getHeroHeight(context),
-        child: Stack(
-          children: [
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _toggleHeroPlayback,
-              child: PageView.builder(
-                controller: _pageController,
-                physics:
-                    _isSliderPaused
-                        ? const NeverScrollableScrollPhysics()
-                        : const PageScrollPhysics(),
-                onPageChanged: (index) {
-                  final int newIndex = index % _slides.length;
+      child: MouseRegion(
+        onEnter: (_) {
+          _heroFocusNode.requestFocus();
+          setState(() => _isSlideHovered = true);
+          _showPauseControl();
+        },
+        onExit: (_) {
+          setState(() => _isSlideHovered = false);
+          _hidePauseControl();
+        },
+        child: SizedBox(
+          width: double.infinity,
+          height: _getHeroHeight(context),
+          child: Stack(
+            children: [
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _toggleHeroPlayback,
+                child: PageView.builder(
+                  controller: _pageController,
+                  physics:
+                      _isSliderPaused
+                          ? const NeverScrollableScrollPhysics()
+                          : const PageScrollPhysics(),
+                  onPageChanged: (index) {
+                    final int newIndex = index % _slides.length;
 
-                  // Update page immediately
-                  setState(() {
-                    _currentVirtualPage = index;
-                  });
+                    // Update page immediately
+                    setState(() {
+                      _currentVirtualPage = index;
+                    });
 
-                  // Make sure controllers are available
-                  if (_videoControllers.length != _slides.length) {
-                    return;
-                  }
-
-                  // Pause all videos
-                  for (final controller in _videoControllers) {
-                    if (controller.value.isInitialized) {
-                      controller.pause();
+                    // Make sure controllers are available
+                    if (_videoControllers.length != _slides.length) {
+                      return;
                     }
-                  }
 
-                  // Play current video's beginning
-                  final controller = _videoControllers[newIndex];
+                    // Pause all videos
+                    for (final controller in _videoControllers) {
+                      if (controller.value.isInitialized) {
+                        controller.pause();
+                      }
+                    }
 
-                  if (controller.value.isInitialized) {
-                    controller
-                      ..seekTo(Duration.zero)
-                      ..setVolume(_isMuted ? 0.0 : 1.0)
-                      ..play();
-                  }
-                },
-                itemBuilder: (context, index) {
-                  final slideIndex = index % _slides.length;
-                  return _buildSlide(_slides[slideIndex]);
-                },
+                    // Play current video's beginning
+                    final controller = _videoControllers[newIndex];
+
+                    if (controller.value.isInitialized) {
+                      controller
+                        ..seekTo(Duration.zero)
+                        ..setVolume(_isMuted ? 0.0 : 1.0)
+                        ..play();
+                    }
+                  },
+                  itemBuilder: (context, index) {
+                    final slideIndex = index % _slides.length;
+                    return _buildSlide(_slides[slideIndex]);
+                  },
+                ),
               ),
-            ),
-            // Pause / Resume button
-            Positioned.fill(
-              child: IgnorePointer(
-                ignoring:
-                    !_isCurrentVideoReady ||
-                    (!_showPauseButton && !_isSliderPaused),
+              // Pause / Resume button
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring:
+                      !_isCurrentVideoReady ||
+                      (!_showPauseButton && !_isSliderPaused),
+                  child: Center(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 900),
+                      curve: Curves.easeOut,
+                      opacity:
+                          !_isCurrentVideoReady
+                              ? 0.0
+                              : (_isSliderPaused
+                                  ? 1.0
+                                  : (_showPauseButton ? 1.0 : 0.0)),
+                      child: GestureDetector(
+                        onTap: _toggleHeroPlayback,
+                        child: Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: tTransparent,
+                            border: Border.all(
+                              color: tOrange1.withOpacity(0.7),
+                              width: 1.8,
+                            ),
+                          ),
+                          child: Icon(
+                            _isSliderPaused
+                                ? CupertinoIcons.play_fill
+                                : CupertinoIcons.pause_fill,
+                            color: tOrange1.withOpacity(0.7),
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Dot indicators
+              Positioned(
+                bottom: 12,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  ignoring: !_isCurrentVideoReady || _isSliderPaused,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity:
+                        !_isCurrentVideoReady
+                            ? 0.0
+                            : (_isSliderPaused ? 0.0 : 1.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(_slides.length, (index) {
+                        final int activeIndex =
+                            _currentVirtualPage % _slides.length;
+                        final bool isActive = (activeIndex == index);
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          width: isActive ? 13 : 10,
+                          height: isActive ? 13 : 10,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color:
+                                  isActive ? tOrange1 : tWhite.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: isActive ? 6 : 0,
+                              height: isActive ? 6 : 0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: tOrange1,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Left
+              Positioned(
+                left: 16,
+                top: 0,
+                bottom: 0,
                 child: Center(
                   child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 900),
-                    curve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 200),
                     opacity:
                         !_isCurrentVideoReady
                             ? 0.0
                             : (_isSliderPaused
-                                ? 1.0
-                                : (_showPauseButton ? 1.0 : 0.0)),
-                    child: GestureDetector(
-                      onTap: _toggleHeroPlayback,
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: tTransparent,
-                          border: Border.all(
-                            color: tOrange1.withOpacity(0.7),
-                            width: 1.8,
-                          ),
-                        ),
-                        child: Icon(
-                          _isSliderPaused
-                              ? CupertinoIcons.play_fill
-                              : CupertinoIcons.pause_fill,
-                          color: tOrange1.withOpacity(0.7),
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Dot indicators
-            Positioned(
-              bottom: 12,
-              left: 0,
-              right: 0,
-              child: IgnorePointer(
-                ignoring: !_isCurrentVideoReady || _isSliderPaused,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity:
-                      !_isCurrentVideoReady
-                          ? 0.0
-                          : (_isSliderPaused ? 0.0 : 1.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_slides.length, (index) {
-                      final int activeIndex =
-                          _currentVirtualPage % _slides.length;
-                      final bool isActive = (activeIndex == index);
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        width: isActive ? 13 : 10,
-                        height: isActive ? 13 : 10,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color:
-                                isActive ? tOrange1 : tWhite.withOpacity(0.5),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Center(
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: isActive ? 6 : 0,
-                            height: isActive ? 6 : 0,
+                                ? 0.0
+                                : (_isSlideHovered ? 1.0 : 0.0)),
+                    child: IgnorePointer(
+                      ignoring: !_isCurrentVideoReady || !_isSlideHovered,
+                      child: MouseRegion(
+                        onEnter: (_) => setState(() => _isPrevHovered = true),
+                        onExit: (_) => setState(() => _isPrevHovered = false),
+                        child: InkWell(
+                          onTap: _onPrevPressed,
+                          borderRadius: BorderRadius.circular(24),
+                          child: Container(
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: tOrange1,
+                              color: tWhite.withOpacity(0.15),
+                              border: Border.all(
+                                color:
+                                    _isPrevHovered
+                                        ? tOrange1
+                                        : tWhite.withOpacity(0.6),
+                                width: 1.5,
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ),
-            ),
-
-            // Left
-            Positioned(
-              left: 16,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 200),
-                  opacity:
-                      !_isCurrentVideoReady
-                          ? 0.0
-                          : (_isSliderPaused
-                              ? 0.0
-                              : (_isSlideHovered ? 1.0 : 0.0)),
-                  child: IgnorePointer(
-                    ignoring: !_isCurrentVideoReady || !_isSlideHovered,
-                    child: MouseRegion(
-                      onEnter: (_) => setState(() => _isPrevHovered = true),
-                      onExit: (_) => setState(() => _isPrevHovered = false),
-                      child: InkWell(
-                        onTap: _onPrevPressed,
-                        borderRadius: BorderRadius.circular(24),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: tWhite.withOpacity(0.15),
-                            border: Border.all(
-                              color:
-                                  _isPrevHovered
-                                      ? tOrange1
-                                      : tWhite.withOpacity(0.6),
-                              width: 1.5,
+                            child: Icon(
+                              CupertinoIcons.chevron_left,
+                              color: _isPrevHovered ? tOrange1 : tWhite,
+                              size: 18,
                             ),
-                          ),
-                          child: Icon(
-                            CupertinoIcons.chevron_left,
-                            color: _isPrevHovered ? tOrange1 : tWhite,
-                            size: 18,
                           ),
                         ),
                       ),
@@ -809,51 +834,51 @@ class _HomeSectionState extends State<HomeSection> {
                   ),
                 ),
               ),
-            ),
 
-            // Right
-            Positioned(
-              right: 16,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 200),
-                  opacity:
-                      !_isCurrentVideoReady
-                          ? 0.0
-                          : (_isSliderPaused
-                              ? 0.0
-                              : (_isSlideHovered ? 1.0 : 0.0)),
-                  child: IgnorePointer(
-                    ignoring:
-                        !_isCurrentVideoReady ||
-                        _isSliderPaused ||
-                        !_isSlideHovered,
-                    child: MouseRegion(
-                      onEnter: (_) => setState(() => _isNextHovered = true),
-                      onExit: (_) => setState(() => _isNextHovered = false),
-                      child: InkWell(
-                        onTap: _onNextPressed,
-                        borderRadius: BorderRadius.circular(24),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: tWhite.withOpacity(0.15),
-                            border: Border.all(
-                              color:
-                                  _isNextHovered
-                                      ? tOrange1
-                                      : tWhite.withOpacity(0.6),
-                              width: 1.5,
+              // Right
+              Positioned(
+                right: 16,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity:
+                        !_isCurrentVideoReady
+                            ? 0.0
+                            : (_isSliderPaused
+                                ? 0.0
+                                : (_isSlideHovered ? 1.0 : 0.0)),
+                    child: IgnorePointer(
+                      ignoring:
+                          !_isCurrentVideoReady ||
+                          _isSliderPaused ||
+                          !_isSlideHovered,
+                      child: MouseRegion(
+                        onEnter: (_) => setState(() => _isNextHovered = true),
+                        onExit: (_) => setState(() => _isNextHovered = false),
+                        child: InkWell(
+                          onTap: _onNextPressed,
+                          borderRadius: BorderRadius.circular(24),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: tWhite.withOpacity(0.15),
+                              border: Border.all(
+                                color:
+                                    _isNextHovered
+                                        ? tOrange1
+                                        : tWhite.withOpacity(0.6),
+                                width: 1.5,
+                              ),
                             ),
-                          ),
-                          child: Icon(
-                            CupertinoIcons.chevron_right,
-                            color: _isNextHovered ? tOrange1 : tWhite,
-                            size: 18,
+                            child: Icon(
+                              CupertinoIcons.chevron_right,
+                              color: _isNextHovered ? tOrange1 : tWhite,
+                              size: 18,
+                            ),
                           ),
                         ),
                       ),
@@ -861,36 +886,36 @@ class _HomeSectionState extends State<HomeSection> {
                   ),
                 ),
               ),
-            ),
 
-            // Scroller (scroll down, only relevant while at hero)
-            Positioned(
-              right: 45,
-              bottom: 45,
-              child: ScrollerButton(
-                isVisible: _isSlideHovered && _isCurrentVideoReady,
-                // rotateIcon: true,
-                onTap: () {
-                  if (!_scrollController.hasClients) return;
-
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+              // Scroller (scroll down, only relevant while at hero)
+              Positioned(
+                right: 45,
+                bottom: 45,
+                child: ScrollerButton(
+                  isVisible: _isSlideHovered && _isCurrentVideoReady,
+                  // rotateIcon: true,
+                  onTap: () {
                     if (!_scrollController.hasClients) return;
 
-                    final double target = _getHeroHeight(context);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!_scrollController.hasClients) return;
 
-                    _scrollController.animateTo(
-                      target.clamp(
-                        0.0,
-                        _scrollController.position.maxScrollExtent,
-                      ),
-                      duration: const Duration(milliseconds: 900),
-                      curve: Curves.easeInOutCubic,
-                    );
-                  });
-                },
+                      final double target = _getHeroHeight(context);
+
+                      _scrollController.animateTo(
+                        target.clamp(
+                          0.0,
+                          _scrollController.position.maxScrollExtent,
+                        ),
+                        duration: const Duration(milliseconds: 900),
+                        curve: Curves.easeInOutCubic,
+                      );
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

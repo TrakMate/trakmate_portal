@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
 
 /// Careers page – hero, filters, current openings timeline and "Submit your CV".
@@ -285,6 +286,28 @@ class _CareersPageState extends State<CareersPage> {
   /// 'general' for the "Don't see a suitable role?" box, or a job title.
   String? _draggingTarget;
   bool _uploadHovered = false;
+  bool _heroImageLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _preloadHeroImage());
+  }
+
+  Future<void> _preloadHeroImage() async {
+    try {
+      await precacheImage(
+        AssetImage(widget.heroImageAsset), // uses the page's hero image
+        context,
+        onError: (e, s) => debugPrint('Failed to load careers hero: $e'),
+      ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
+    } catch (e) {
+      debugPrint('Error preloading careers hero image: $e');
+    }
+    await Future.delayed(const Duration(seconds: 3)); //fr testing
+    if (!mounted) return;
+    setState(() => _heroImageLoading = false);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -430,7 +453,8 @@ class _CareersPageState extends State<CareersPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Full-width hero (same as Engineering).
-                  _buildHero(),
+                  // Full-width hero (shimmer until the image is cached).
+                  _heroImageLoading ? const HeroHeaderShimmer() : _buildHero(),
                   const SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -1331,7 +1355,12 @@ class _CareersPageState extends State<CareersPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildSubmitCvCard(),
+        _heroImageLoading
+            ? const ShimmerBox(
+              height: 350,
+              borderRadius: BorderRadius.all(Radius.circular(18)),
+            )
+            : _buildSubmitCvCard(),
         const SizedBox(height: 18),
         _buildWhyJoinCard(),
         const SizedBox(height: 18),

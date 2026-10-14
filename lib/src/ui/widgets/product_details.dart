@@ -8,33 +8,12 @@ import 'package:svg_flutter/svg.dart';
 // import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/build_products.dart';
-import 'dart:js_interop';
-import 'package:web/web.dart' as web;
-
-Future<void> _downloadAsset(String assetPath, String fileName) async {
-  final ByteData data = await rootBundle.load(assetPath);
-  final Uint8List bytes = data.buffer.asUint8List(
-    data.offsetInBytes,
-    data.lengthInBytes,
-  );
-
-  final blob = web.Blob(
-    [bytes.toJS].toJS,
-    web.BlobPropertyBag(type: 'application/pdf'),
-  );
-  final String url = web.URL.createObjectURL(blob);
-
-  final anchor =
-      web.HTMLAnchorElement()
-        ..href = url
-        ..download = fileName;
-  anchor.click();
-
-  web.URL.revokeObjectURL(url);
-}
+// import 'dart:js_interop';
+// import 'package:web/web.dart' as web;
 
 class _SpecBadgeInfo {
   final String title;
@@ -233,20 +212,45 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     setState(() => _specsLoading = false);
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   _imagePageController = PageController();
+  //   if (_hasVideo) {
+  //     _videoController =
+  //         VideoPlayerController.asset(product.video!)
+  //           ..initialize().then((_) {
+  //             if (mounted) setState(() {});
+  //           })
+  //           ..addListener(_onVideoStateChanged);
+  //   }
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     _preloadSpecsSlideAssets();
+  //   });
+  // }
   @override
   void initState() {
     super.initState();
-
     _imagePageController = PageController();
+
     if (_hasVideo) {
-      _videoController =
-          VideoPlayerController.asset(product.video!)
-            ..initialize().then((_) {
-              if (mounted) setState(() {});
-            })
-            ..addListener(_onVideoStateChanged);
+      final controller = VideoPlayerController.asset(product.video!);
+      _videoController = controller;
+      controller
+          .initialize()
+          .then((_) {
+            if (!mounted || _videoController != controller) return;
+            controller.addListener(_onVideoStateChanged); // add AFTER init
+            setState(() {});
+          })
+          .catchError((e) {
+            debugPrint('Video init failed: $e');
+          });
     }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _preloadSpecsSlideAssets();
     });
   }
@@ -272,77 +276,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
     return s.clamp(0.45, 1.0);
   }
-  // Widget _buildSpecsSlide(String productImage) {
-  //   final SpecsSlideStyle s = product.specsStyle;
-
-  //   final int topCount = s.topRowCount.clamp(0, product.specBadges.length);
-  //   final List<String> topBadges = product.specBadges.take(topCount).toList();
-  //   final List<String> columnBadges =
-  //       product.specBadges.skip(topCount).toList();
-
-  //   Widget badge(String path) => SizedBox(
-  //     width: s.badgeWidth,
-  //     height: s.badgeHeight,
-  //     child: Image.asset(path, fit: BoxFit.contain),
-  //   );
-
-  //   return Stack(
-  //     children: [
-  //       Padding(
-  //         padding: EdgeInsets.all(s.imagePadding),
-  //         child: Image.asset(productImage, fit: BoxFit.contain),
-  //       ),
-
-  //       // NEW: top row
-  //       if (topBadges.isNotEmpty)
-  //         Positioned(
-  //           top: s.topRowTopOffset,
-  //           right: s.badgeRightOffset,
-  //           // left: 0,
-  //           // right: 0,
-  //           child: Align(
-  //             alignment: Alignment(s.topRowAlignX, 0),
-  //             child: Padding(
-  //               padding: EdgeInsets.symmetric(horizontal: s.topRowSideOffset),
-  //               child: Row(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   for (int i = 0; i < topBadges.length; i++)
-  //                     Padding(
-  //                       padding: EdgeInsets.only(
-  //                         left: i == 0 ? 0 : s.topRowGap,
-  //                       ),
-  //                       child: badge(topBadges[i]),
-  //                     ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-
-  //       // Existing column (now only the remaining badges)
-  //       if (columnBadges.isNotEmpty)
-  //         Positioned.fill(
-  //           child: Align(
-  //             alignment: Alignment(1, s.badgeVerticalAlign),
-  //             child: Padding(
-  //               padding: EdgeInsets.only(right: s.badgeRightOffset),
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   for (int i = 0; i < columnBadges.length; i++)
-  //                     Padding(
-  //                       padding: EdgeInsets.only(top: i == 0 ? 0 : s.badgeGap),
-  //                       child: badge(columnBadges[i]),
-  //                     ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //     ],
-  //   );
-  // }
 
   bool _isSvg(String path) => path.toLowerCase().endsWith('.svg');
   _SpecBadgeInfo? _lookupBadgeInfo(String path) {
@@ -1836,287 +1769,6 @@ class _DataSheetButton extends StatefulWidget {
 class _DataSheetButtonState extends State<_DataSheetButton> {
   bool _isHovered = false;
 
-  // Replace the whole `_openDataSheetPlaceholder()` method inside
-  // `_DataSheetButtonState` with this version. No new imports needed.
-
-  void _openDataSheetPlaceholder() {
-    final String? path = widget.datasheetPath;
-    final bool available = path != null && path.isNotEmpty;
-    final String fileName =
-        '${widget.productTitle.replaceAll(RegExp(r'[^\w\-]+'), '_')}_Datasheet.pdf';
-
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.45),
-      builder: (dialogContext) {
-        bool downloading = false;
-
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            Future<void> onDownload() async {
-              if (downloading) return;
-              setDialogState(() => downloading = true);
-              try {
-                await _downloadAsset(path!, fileName);
-              } catch (e) {
-                debugPrint('Datasheet download failed: $e');
-              }
-              if (dialogContext.mounted) Navigator.pop(dialogContext);
-            }
-
-            return Dialog(
-              backgroundColor: tWhite,
-              elevation: 0,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 380),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(28, 32, 28, 22),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Icon circle
-                          Center(
-                            child: Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: tOrange1.withOpacity(0.12),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                available
-                                    ? Icons.file_download_outlined
-                                    : Icons.hourglass_empty_rounded,
-                                color: tOrange1,
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Title
-                          Text(
-                            available ? 'Data sheet' : 'Coming soon',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.manrope(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: tBlack,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-
-                          // Subtitle
-                          Text(
-                            available
-                                ? 'Get the full specifications for\n${widget.productTitle}.'
-                                : 'The data sheet for ${widget.productTitle}\nisn\'t available yet.',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.manrope(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: tBlack.withOpacity(0.55),
-                              height: 1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-
-                          // File card (only when available)
-                          if (available) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF7F9FD),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: tBlack.withOpacity(0.06),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 38,
-                                    height: 44,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFCEBEB),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      'PDF',
-                                      style: GoogleFonts.manrope(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w800,
-                                        color: const Color(0xFF791F1F),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          fileName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.manrope(
-                                            fontSize: 13.5,
-                                            fontWeight: FontWeight.w700,
-                                            color: tBlack,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          downloading
-                                              ? 'Downloading…'
-                                              : 'Ready to download',
-                                          style: GoogleFonts.manrope(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: tBlack.withOpacity(0.5),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    downloading
-                                        ? Icons.more_horiz_rounded
-                                        : Icons.check_circle_rounded,
-                                    size: 20,
-                                    color:
-                                        downloading
-                                            ? tBlack.withOpacity(0.35)
-                                            : const Color(0xFF2E9E5B),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-
-                          // Main button
-                          Material(
-                            color: tOrange1,
-                            borderRadius: BorderRadius.circular(10),
-                            child: InkWell(
-                              mouseCursor: SystemMouseCursors.click,
-                              borderRadius: BorderRadius.circular(10),
-                              onTap:
-                                  available
-                                      ? onDownload
-                                      : () => Navigator.pop(dialogContext),
-                              child: SizedBox(
-                                height: 46,
-                                child: Center(
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (downloading)
-                                        const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: tWhite,
-                                          ),
-                                        )
-                                      else if (available)
-                                        const Icon(
-                                          Icons.download_rounded,
-                                          size: 18,
-                                          color: tWhite,
-                                        ),
-                                      if (downloading || available)
-                                        const SizedBox(width: 8),
-                                      Text(
-                                        downloading
-                                            ? 'Downloading…'
-                                            : available
-                                            ? 'Download PDF'
-                                            : 'Got it',
-                                        style: GoogleFonts.manrope(
-                                          fontSize: 13.5,
-                                          fontWeight: FontWeight.w800,
-                                          color: tWhite,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // Secondary link
-                          if (available) ...[
-                            const SizedBox(height: 8),
-                            Center(
-                              child: TextButton(
-                                onPressed:
-                                    downloading
-                                        ? null
-                                        : () => Navigator.pop(dialogContext),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: tBlack.withOpacity(0.55),
-                                  enabledMouseCursor: SystemMouseCursors.click,
-                                  disabledMouseCursor: SystemMouseCursors.basic,
-                                ),
-                                child: Text(
-                                  'Maybe later',
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-
-                    // Close (X)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: IconButton(
-                        mouseCursor: SystemMouseCursors.click,
-                        tooltip: 'Close',
-                        icon: Icon(
-                          Icons.close_rounded,
-                          size: 20,
-                          color: tBlack.withOpacity(0.45),
-                        ),
-                        onPressed:
-                            downloading
-                                ? null
-                                : () => Navigator.pop(dialogContext),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -2135,8 +1787,7 @@ class _DataSheetButtonState extends State<_DataSheetButton> {
       },
 
       child: GestureDetector(
-        onTap: _openDataSheetPlaceholder,
-
+        onTap: () => showDataSheetRequestDialog(context, widget.productTitle),
         child: AnimatedScale(
           scale: _isHovered ? 1.06 : 1.0,
 
@@ -2215,6 +1866,539 @@ class _DataSheetButtonState extends State<_DataSheetButton> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// OPEN DIALOG (same animation as Access Website)
+
+void showDataSheetRequestDialog(BuildContext context, String productTitle) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Request Data Sheet',
+    barrierColor: tBlack.withOpacity(0.58),
+    transitionDuration: const Duration(milliseconds: 500),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return _DataSheetRequestDialog(productTitle: productTitle);
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final scaleAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutBack,
+        reverseCurve: Curves.easeInCubic,
+      );
+      final fadeAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeIn,
+      );
+
+      return FadeTransition(
+        opacity: fadeAnimation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.78, end: 1.0).animate(scaleAnimation),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+class _DataSheetRequestDialog extends StatefulWidget {
+  final String productTitle;
+
+  const _DataSheetRequestDialog({required this.productTitle});
+
+  @override
+  State<_DataSheetRequestDialog> createState() =>
+      _DataSheetRequestDialogState();
+}
+
+class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
+    with SingleTickerProviderStateMixin {
+  // Change the recipient here (one place only).
+  // Testing: your gmail. Before going live: info@trakmate.co.in
+  static const String _toMail = 'pratheekshap837@gmail.com';
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  bool _isSubmitHovered = false;
+  String? _validationMessage;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _messageController.text =
+        'Kindly share the datasheet and any additional technical details '
+        'available for ${widget.productTitle}.';
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
+
+    Future.delayed(const Duration(milliseconds: 80), () {
+      if (mounted) _animationController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final String name = _nameController.text.trim();
+    final String phone = _phoneController.text.trim();
+    final String email = _emailController.text.trim();
+    final String message = _messageController.text.trim();
+
+    if (name.isEmpty || email.isEmpty) {
+      setState(() => _validationMessage = 'Please fill every required field.');
+      return;
+    }
+
+    final bool emailOk = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
+    if (!emailOk) {
+      setState(
+        () => _validationMessage = 'Please enter a valid email address.',
+      );
+      return;
+    }
+
+    setState(() => _validationMessage = null);
+
+    final String mailSubject = 'Request for ${widget.productTitle} Datasheet';
+
+    final String body =
+        'Hi TrakMate,\n\n'
+        'I’m writing regarding the datasheet for ${widget.productTitle}.\n\n'
+        '${message.isEmpty ? '' : '$message\n\n'}'
+        'Please let me know if you need any additional information from my side.\n\n'
+        'Thanks & Regards,\n'
+        '$name\n'
+        // 'Email: $email\n'
+        '${phone.isEmpty ? '' : 'Phone: $phone\n'}';
+
+    final Uri mailUri = Uri.parse(
+      'mailto:$_toMail'
+      '?subject=${Uri.encodeComponent(mailSubject)}'
+      '&body=${Uri.encodeComponent(body)}',
+    );
+
+    await launchUrl(mailUri, webOnlyWindowName: '_self');
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final bool isMobile = screenSize.width < 650;
+
+    return Center(
+      child: Material(
+        color: tTransparent,
+        child: Container(
+          width: isMobile ? screenSize.width * 0.90 : 600,
+          constraints: BoxConstraints(maxHeight: screenSize.height * 0.90),
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: tBlack.withOpacity(0.22),
+                blurRadius: 35,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 24 : 42,
+                    34,
+                    isMobile ? 24 : 42,
+                    34,
+                  ),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: _buildForm(),
+                    ),
+                  ),
+                ),
+              ),
+
+              // CLOSE BUTTON
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Material(
+                  color: tTransparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(50),
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: const BoxDecoration(
+                        color: tBlue2,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: tWhite,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Request Data Sheet',
+          style: GoogleFonts.manrope(
+            fontSize: 36,
+            fontWeight: FontWeight.w800,
+            color: tBlue2,
+            height: 1.1,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        Container(
+          width: 80,
+          height: 4,
+          decoration: BoxDecoration(
+            color: tOrange1,
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        Text(
+          'Fill in your details and we’ll share the data sheet for '
+          '${widget.productTitle}.',
+          style: GoogleFonts.manrope(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: tBlack.withOpacity(0.50),
+          ),
+        ),
+
+        const SizedBox(height: 28),
+
+        _buildTextField(
+          controller: _nameController,
+          label: 'Full Name',
+          hint: 'John Doe',
+          icon: 'icons/person2.svg',
+          isRequired: true,
+        ),
+
+        const SizedBox(height: 18),
+
+        _buildTextField(
+          controller: _emailController,
+          label: 'Email',
+          hint: 'you@example.com',
+          icon: 'icons/mail.svg',
+          keyboardType: TextInputType.emailAddress,
+          isRequired: true,
+        ),
+
+        const SizedBox(height: 18),
+
+        _buildTextField(
+          controller: _phoneController,
+          label: 'Phone Number',
+          hint: '+91 00000 00000',
+          icon: 'icons/phone.svg',
+          keyboardType: TextInputType.phone,
+          isRequired: false,
+        ),
+
+        const SizedBox(height: 18),
+
+        _buildMessageField(),
+
+        const SizedBox(height: 8),
+
+        // Fixed-height slot so the button never shifts
+        SizedBox(
+          height: 18,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: _validationMessage != null ? 1.0 : 0.0,
+              child: Text(
+                _validationMessage ?? '',
+                style: GoogleFonts.manrope(
+                  fontSize: 12,
+                  color: tRed1,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        Align(
+          alignment: Alignment.centerRight,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setState(() => _isSubmitHovered = true),
+            onExit: (_) => setState(() => _isSubmitHovered = false),
+            child: GestureDetector(
+              onTap: _submit,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                transform: Matrix4.translationValues(
+                  0,
+                  _isSubmitHovered ? -2 : 0,
+                  0,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 15,
+                ),
+                decoration: BoxDecoration(
+                  color: tOrange1,
+                  borderRadius: BorderRadius.circular(9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: tOrange1.withOpacity(
+                        _isSubmitHovered ? 0.30 : 0.16,
+                      ),
+                      blurRadius: _isSubmitHovered ? 20 : 12,
+                      offset: const Offset(0, 7),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SUBMIT REQUEST',
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: tWhite,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: tWhite,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabel(String label, bool isRequired) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: label,
+            style: GoogleFonts.manrope(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: tBlack.withOpacity(0.80),
+            ),
+          ),
+          if (isRequired)
+            TextSpan(
+              text: ' *',
+              style: GoogleFonts.manrope(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: tRed1,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required String icon,
+    bool isRequired = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel(label, isRequired),
+        const SizedBox(height: 7),
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: tBlack.withOpacity(0.10), width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: TextField(
+              controller: controller,
+              keyboardType: keyboardType,
+              onChanged: (_) {
+                if (_validationMessage != null) {
+                  setState(() => _validationMessage = null);
+                }
+              },
+              textAlignVertical: TextAlignVertical.center,
+              style: GoogleFonts.manrope(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: tBlack,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: true,
+                fillColor: tWhite,
+                contentPadding: const EdgeInsets.only(right: 14),
+                prefixIcon: SizedBox(
+                  width: 50,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      icon,
+                      width: 21,
+                      height: 21,
+                      colorFilter: const ColorFilter.mode(
+                        tBlue3,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 50,
+                  maxWidth: 50,
+                ),
+                hintText: hint,
+                hintStyle: GoogleFonts.manrope(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: tBlack.withOpacity(0.30),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMessageField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLabel('Message', false),
+        const SizedBox(height: 7),
+        Container(
+          height: 110,
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          foregroundDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: tBlack.withOpacity(0.10), width: 1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: TextField(
+              controller: _messageController,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              style: GoogleFonts.manrope(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: tBlack,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: true,
+                fillColor: tWhite,
+                contentPadding: const EdgeInsets.all(14),
+                hintText: 'Write your message here...',
+                hintStyle: GoogleFonts.manrope(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: tBlack.withOpacity(0.30),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -60,7 +60,7 @@ class FooterSection extends StatelessWidget {
               ], sectionIndex: 2),
               _divider(),
 
-              _menu("Products&Solutions", [
+              _menu("Products & Solutions", [
                 "All Products",
                 "Telematics",
                 "Vehicle Diagnostics",
@@ -134,7 +134,7 @@ class FooterSection extends StatelessWidget {
 
                     _contact(
                       "icons/location.svg",
-                      " TrakMate Design Solutions Pvt Ltd.\n"
+                      "TrakMate Design Solutions Pvt Ltd.\n"
                           "17G/46-3 and 17G/46-3-1,\n"
                           "1st & 2nd floor, MEI Road, Industrial Suburb, Yeshwanthpura,\n Bengaluru -560022",
                     ),

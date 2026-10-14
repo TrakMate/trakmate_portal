@@ -703,8 +703,8 @@ class WebApp extends StatelessWidget {
                     cards: const [
                       // CARD 1
                       _WebServiceCardData(
-                        image: 'images/trakfleet5.png',
-                        logo: 'icons/trakfleet_logo.svg',
+                        image: 'images/trakfleet6.png',
+                        logo: 'icons/trakfleet_web_logo.svg',
                         title: 'TrakFleet',
                         description:
                             'Scalable web platforms built around your business workflows, users and operational requirements.',
@@ -878,7 +878,7 @@ Widget _buildBackButton(BuildContext context) {
               const SizedBox(width: 7),
 
               Text(
-                'Back',
+                'Back to Solutions',
                 style: GoogleFonts.manrope(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
