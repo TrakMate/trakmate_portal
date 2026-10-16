@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 class AllNewsPage extends StatefulWidget {
   final List<NewsArticle> articles;
@@ -20,7 +21,10 @@ class AllNewsPage extends StatefulWidget {
 }
 
 class _AllNewsPageState extends State<AllNewsPage> {
-  static const double _listWidth = 340;
+  // static const double _listWidth = 340;
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  double get _listWidth => isTablet ? 260 : 340;
 
   late NewsArticle _selected;
 
@@ -35,7 +39,10 @@ class _AllNewsPageState extends State<AllNewsPage> {
     return Scaffold(
       backgroundColor: tWhite,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(40, 22, 40, 20),
+        padding:
+            isTablet
+                ? const EdgeInsets.fromLTRB(24, 18, 24, 16)
+                : const EdgeInsets.fromLTRB(40, 22, 40, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -110,7 +117,7 @@ class _AllNewsPageState extends State<AllNewsPage> {
         Text(
           'All News & Updates',
           style: GoogleFonts.manrope(
-            fontSize: 32,
+            fontSize: isTablet ? 26 : 32,
             fontWeight: FontWeight.w700,
             color: tBlue2,
           ),

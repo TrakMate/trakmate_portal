@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 import '../../utils/colors.dart';
 
@@ -18,6 +19,7 @@ class ProcessSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveLayout.isTablet(context);
     return Column(
       children: [
         Text(
@@ -56,15 +58,23 @@ class ProcessSection extends StatelessWidget {
                       child: _buildProcessItem(
                         steps[index],
                         index.isEven ? tBlue3 : tOrange1,
+                        isTablet: isTablet,
                       ),
                     ),
 
                     if (index != steps.length - 1)
                       SizedBox(
-                        width: 90,
+                        width: isTablet ? 28 : 90,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 20),
-                          child: _buildDottedArrow(),
+                          child:
+                              isTablet
+                                  ? Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 18,
+                                    color: tBlue3.withOpacity(0.65),
+                                  )
+                                  : _buildDottedArrow(),
                         ),
                       ),
                   ],
@@ -77,7 +87,11 @@ class ProcessSection extends StatelessWidget {
     );
   }
 
-  Widget _buildProcessItem(ProcessStepData process, Color circleColor) {
+  Widget _buildProcessItem(
+    ProcessStepData process,
+    Color circleColor, {
+    bool isTablet = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -103,28 +117,34 @@ class ProcessSection extends StatelessWidget {
 
         const SizedBox(height: 4),
 
-        Text(
-          process.title,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tBlack,
+        SizedBox(
+          height: isTablet ? 40 : null,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Text(
+              process.title,
+              textAlign: TextAlign.center,
+              maxLines: isTablet ? 2 : 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: tBlack,
+              ),
+            ),
           ),
         ),
 
         const SizedBox(height: 5),
 
         SizedBox(
-          width: 180,
-          height: 49,
+          width: isTablet ? null : 180,
+          height: isTablet ? null : 49,
           child: Text(
             process.description,
             textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
+            maxLines: isTablet ? null : 3,
+            overflow: isTablet ? TextOverflow.visible : TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 12,
               fontWeight: FontWeight.w500,

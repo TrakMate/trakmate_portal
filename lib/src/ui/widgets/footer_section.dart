@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
@@ -14,143 +15,18 @@ class FooterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = ResponsiveLayout.isTablet(context);
+
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: tBlue3,
-        // gradient: tBlueGradient
+      decoration: const BoxDecoration(color: tBlue3),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 24 : 40,
+        vertical: 25,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 2, child: _leftSection()),
-
-              _divider(),
-
-              // _menu("Solutions", [
-              //   "IoT Solutions",
-              //   "Embedded Systems",
-              //   "Software Development",
-              //   "Cloud & AI",
-              //   "Mobile Apps",
-              //   "Web Applications",
-              // ], sectionIndex: 1),
-              // _divider(),
-              _menu("Engineering", [
-                "CAD Design",
-                "Product Design",
-                "Mechanical Engineering",
-                "PCB Design",
-                "PCB Assembly (PCBA)",
-                "Firmware Development",
-                "Prototyping",
-              ], sectionIndex: 1),
-              _divider(),
-
-              _menu("Manufacturing", [
-                "Electronics Manufacturing",
-                "Product Assembly",
-                "Testing & Validation",
-                "Quality Assurance",
-                "Production Support",
-                "Contract Manufacturing",
-              ], sectionIndex: 2),
-              _divider(),
-
-              _menu("Products & Solutions", [
-                "All Products",
-                "Telematics",
-                "Vehicle Diagnostics",
-                "Gateways",
-                "Clusters",
-                "ADAS",
-                "Solution Hub",
-                // "Mobile Apps",
-                // "Web Applications",
-              ], sectionIndex: 3),
-              _divider(),
-
-              // _menu("Resources", [
-              //   "Case Studies",
-              //   "Whitepapers",
-              //   "Blogs",
-              //   "Documentation",
-              //   "Downloads",
-              //   "FAQs",
-              // ]),
-              // _menu("Company", [
-              //   "About Us",
-              //   "Our Team",
-              //   "Infrastructure",
-              //   "Careers",
-              //   "News & Media",
-              //   "Contact Us",
-              // ], sectionIndex: 5),
-              _menu("Company", [
-                "About Us",
-                "Our Journey",
-                "Vision & Mission",
-                "Leadership",
-                "Careers",
-                "Certifications",
-                "Contact Us",
-              ], sectionIndex: 5),
-              _divider(),
-
-              Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Get in Touch",
-                      style: GoogleFonts.manrope(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: tWhite,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-
-                    // _contact("icons/mail.svg", "info@trakmate.co.in"),
-                    _contactLinks("icons/mail.svg", [
-                      "info@trakmate.co.in",
-                    ], 'mailto'),
-
-                    const SizedBox(height: 10),
-
-                    // _contact(
-                    //   "icons/call.svg",
-                    //   "+91 80 41532112\n+91 99 00450640",
-                    // ),
-                    _contactLinks("icons/call.svg", [
-                      "+91 80 41532112",
-                      "+91 99 00450640",
-                    ], 'tel'),
-                    const SizedBox(height: 10),
-
-                    _contact(
-                      "icons/location.svg",
-                      "TrakMate Design Solutions Pvt Ltd.\n"
-                          "17G/46-3 and 17G/46-3-1,\n"
-                          "1st & 2nd floor, MEI Road, Industrial Suburb, Yeshwanthpura,\n Bengaluru -560022",
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    SvgPicture.asset(
-                      "icons/world_map.svg",
-                      height: 80,
-                      color: tBlue.withOpacity(0.2),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          isTablet ? _tabletTop() : _desktopTop(),
 
           const SizedBox(height: 30),
           Align(
@@ -168,10 +44,10 @@ class FooterSection extends StatelessWidget {
                   ),
                 ),
                 SvgPicture.asset(
-                  "icons/heart.svg", // your svg path
+                  "icons/heart.svg",
                   width: 14,
                   height: 14,
-                  color: tWhite.withOpacity(0.7), // optional tint
+                  color: tWhite.withOpacity(0.7),
                 ),
                 Text(
                   "  INDIA",
@@ -184,55 +60,85 @@ class FooterSection extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 10),
-
-          Row(
-            children: [
-              Text(
-                "© ${DateTime.now().year} Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
-                style: GoogleFonts.manrope(
-                  color: tWhite,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-              const Spacer(),
-
-              Text(
-                "Privacy Policy",
-                style: GoogleFonts.manrope(
-                  color: tWhite,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Text(
-                  "|",
-                  style: GoogleFonts.manrope(
-                    color: tWhite,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-
-              Text(
-                "Terms & Conditions",
-                style: GoogleFonts.manrope(
-                  color: tWhite,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+          isTablet ? _bottomBar() : _desktopBottomBar(),
         ],
       ),
+    );
+  }
+
+  Widget _engineeringMenu() => _menu("Engineering", [
+    "CAD Design",
+    "Product Design",
+    "Mechanical Engineering",
+    "PCB Design",
+    "PCB Assembly (PCBA)",
+    "Firmware Development",
+    "Prototyping",
+  ], sectionIndex: 1);
+
+  Widget _manufacturingMenu() => _menu("Manufacturing", [
+    "Electronics Manufacturing",
+    "Product Assembly",
+    "Testing & Validation",
+    "Quality Assurance",
+    "Production Support",
+    "Contract Manufacturing",
+  ], sectionIndex: 2);
+
+  Widget _productsMenu() => _menu("Products & Solutions", [
+    "All Products",
+    "Telematics",
+    "Vehicle Diagnostics",
+    "Gateways",
+    "Clusters",
+    "ADAS",
+    "Solution Hub",
+  ], sectionIndex: 3);
+
+  Widget _companyMenu() => _menu("Company", [
+    "About Us",
+    "Our Journey",
+    "Vision & Mission",
+    "Leadership",
+    "Careers",
+    "Certifications",
+    "Contact Us",
+  ], sectionIndex: 5);
+
+  Widget _getInTouch() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Get in Touch",
+          style: GoogleFonts.manrope(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: tWhite,
+          ),
+        ),
+        const SizedBox(height: 15),
+        _contactLinks("icons/mail.svg", ["info@trakmate.co.in"], 'mailto'),
+        const SizedBox(height: 10),
+        _contactLinks("icons/call.svg", [
+          "+91 80 41532112",
+          "+91 99 00450640",
+        ], 'tel'),
+        const SizedBox(height: 10),
+        _contact(
+          "icons/location.svg",
+          "TrakMate Design Solutions Pvt Ltd.\n"
+              "17G/46-3 and 17G/46-3-1,\n"
+              "1st & 2nd floor, MEI Road, Industrial Suburb, Yeshwanthpura,\n Bengaluru -560022",
+        ),
+        const SizedBox(height: 15),
+        SvgPicture.asset(
+          "icons/world_map.svg",
+          height: 80,
+          color: tBlue.withOpacity(0.2),
+        ),
+      ],
     );
   }
 
@@ -268,6 +174,108 @@ class FooterSection extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _desktopTop() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 2, child: _leftSection()),
+        _divider(),
+        _engineeringMenu(),
+        _divider(),
+        _manufacturingMenu(),
+        _divider(),
+        _productsMenu(),
+        _divider(),
+        _companyMenu(),
+        _divider(),
+        Expanded(flex: 2, child: _getInTouch()),
+      ],
+    );
+  }
+
+  Widget _tabletTop() {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _leftSection()),
+            const SizedBox(width: 40),
+            Expanded(child: _getInTouch()),
+          ],
+        ),
+        const SizedBox(height: 30),
+        Divider(color: tWhite.withOpacity(0.1), height: 1),
+        const SizedBox(height: 25),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _engineeringMenu()),
+            Expanded(child: _manufacturingMenu()),
+            Expanded(child: _productsMenu()),
+            Expanded(child: _companyMenu()),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _desktopBottomBar() {
+    final style = GoogleFonts.manrope(
+      color: tWhite,
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+    );
+    return Row(
+      children: [
+        Text(
+          "© ${DateTime.now().year} Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
+          style: style,
+        ),
+        const Spacer(),
+        Text("Privacy Policy", style: style),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Text("|", style: style.copyWith(fontWeight: FontWeight.w600)),
+        ),
+        Text("Terms & Conditions", style: style),
+      ],
+    );
+  }
+
+  Widget _bottomBar() {
+    final style = GoogleFonts.manrope(
+      color: tWhite,
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+    );
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runSpacing: 8,
+        children: [
+          Text(
+            "© ${DateTime.now().year} Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
+            style: style,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Privacy Policy", style: style),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text("|", style: style),
+              ),
+              Text("Terms & Conditions", style: style),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

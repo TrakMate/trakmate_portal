@@ -1022,7 +1022,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
       // await Future.delayed(const Duration(seconds: 3));//fr testing
     } catch (e) {
-      debugPrint('Error preloading product images: $e');
+      // debugPrint('Error preloading product images: $e');
     }
 
     if (!mounted) return;
@@ -1052,9 +1052,16 @@ class _BuildProductSectionState extends State<BuildProductSection> {
               right: 24, //gap(filter bar)
               bottom: 35,
               child: Center(
+                // child: ConstrainedBox(
+                //   constraints: BoxConstraints(
+                //     maxWidth: MediaQuery.of(context).size.width - 48,
+                //   ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width - 48,
+                    maxWidth: (MediaQuery.of(context).size.width - 48).clamp(
+                      0.0,
+                      double.infinity,
+                    ),
                   ),
                   // 1310 = original 1250 tabs-bar budget + 46 icon button + 14 gap
                   child: SizedBox(
@@ -1119,17 +1126,46 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: List.generate(_filterTabs.length * 2 - 1, (index) {
-          if (index.isOdd) {
-            return const SizedBox(width: 65); //gap
-          }
+      // child: Row(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   mainAxisSize: MainAxisSize.max,
+      //   children: List.generate(_filterTabs.length * 2 - 1, (index) {
+      //     if (index.isOdd) {
+      //       return const SizedBox(width: 65); //gap
+      //     }
 
-          final int tabIndex = index ~/ 2;
-          return _buildFilterTab(index: tabIndex, tab: _filterTabs[tabIndex]);
-        }),
+      //     final int tabIndex = index ~/ 2;
+      //     return _buildFilterTab(index: tabIndex, tab: _filterTabs[tabIndex]);
+      //   }),
+      // ),
+
+      //extra
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: constraints.maxWidth.clamp(0.0, double.infinity),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(_filterTabs.length * 2 - 1, (index) {
+                  if (index.isOdd) {
+                    return const SizedBox(width: 65); //gap
+                  }
+
+                  final int tabIndex = index ~/ 2;
+                  return _buildFilterTab(
+                    index: tabIndex,
+                    tab: _filterTabs[tabIndex],
+                  );
+                }),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -2285,7 +2321,6 @@ class _ProductCarouselState extends State<_ProductCarousel> {
 
 class _ProductCard extends StatefulWidget {
   final ProductData data;
-
   const _ProductCard({required this.data});
 
   @override

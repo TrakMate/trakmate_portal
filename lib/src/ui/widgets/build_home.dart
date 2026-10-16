@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/office_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 // import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/services.dart';
 // import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 class _IndustryItemData {
   final String image;
@@ -230,6 +232,7 @@ class IndustriesProductsSection extends StatefulWidget {
 
 class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     with TickerProviderStateMixin {
+  bool get _isTablet => ResponsiveLayout.isTablet(context);
   final List<_IndustryItemData> _industries = const [
     _IndustryItemData(
       image: "images/automotive.jpg",
@@ -630,7 +633,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
         ),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      debugPrint('Product preload issue: $e');
+      // debugPrint('Product preload issue: $e');
     }
 
     if (!mounted) return;
@@ -663,8 +666,11 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     return Container(
       width: double.infinity,
       color: tWhite,
-      // padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-      padding: const EdgeInsets.only(left: 40, right: 40, top: 30),
+      padding: EdgeInsets.only(
+        left: _isTablet ? 24 : 40,
+        right: _isTablet ? 24 : 40,
+        top: 30,
+      ),
       child: Column(
         children: [
           // Marketing3PWidget(),
@@ -673,6 +679,8 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           _buildIndustriesSection(),
           const SizedBox(height: 60),
           _buildProductsSection(),
+          const SizedBox(height: 60),
+          OfficesSection(),
           const SizedBox(height: 60),
           _buildClientsSection(),
         ],
@@ -906,7 +914,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
               icon: Icons.chevron_left_rounded,
               onTap: () => _scrollProducts(-260),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: _isTablet ? 2 : 12),
             Expanded(
               child: SizedBox(
                 height: 240,
@@ -939,7 +947,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: _isTablet ? 2 : 12),
             _buildArrowButton(
               icon: Icons.chevron_right_rounded,
               onTap: () => _scrollProducts(260),
@@ -1162,12 +1170,13 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
               builder: (context, constraints) {
                 // Responsive: 6 across on wide screens, wraps on narrower ones.
                 const spacing = 16.0;
-                final isWide = constraints.maxWidth > 1000;
-                final cardWidth =
-                    isWide
-                        ? (constraints.maxWidth - spacing * 5) / 6
-                        : (constraints.maxWidth - spacing) / 2;
-
+                final double w = constraints.maxWidth;
+                final int columns = w > 1000 ? 6 : (w >= 760 ? 3 : 2);
+                // final double cardWidth =
+                //     ((w - spacing * (columns - 1)) / columns).floorToDouble();
+                final double cardWidth =
+                    (((w - spacing * (columns - 1)) / columns).floorToDouble())
+                        .clamp(0.0, double.infinity);
                 return Wrap(
                   spacing: spacing,
                   runSpacing: spacing,

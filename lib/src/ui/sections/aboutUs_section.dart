@@ -17,6 +17,7 @@ import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 // import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
@@ -34,6 +35,7 @@ class AboutusSection extends StatefulWidget {
 class _AboutusSectionState extends State<AboutusSection> {
   bool _heroImageLoading = true;
   bool _teamImagesLoading = true;
+  bool get _isTablet => ResponsiveLayout.isTablet(context);
   // ---------- Footer scroll-to-section ----------
   final ScrollController _scrollController = ScrollController();
 
@@ -341,7 +343,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         onError: (e, s) => debugPrint('Failed to load about hero: $e'),
       ).timeout(const Duration(seconds: 10));
     } catch (e) {
-      debugPrint('Error preloading about hero image: $e');
+      // debugPrint('Error preloading about hero image: $e');
     }
     if (!mounted) return;
     setState(() => _heroImageLoading = false);
@@ -360,7 +362,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         ),
       ).timeout(const Duration(seconds: 10));
     } catch (e) {
-      debugPrint('Error preloading team images: $e');
+      // debugPrint('Error preloading team images: $e');
     }
     if (!mounted) return;
     setState(() => _teamImagesLoading = false);
@@ -408,22 +410,25 @@ class _AboutusSectionState extends State<AboutusSection> {
 
               // ACHIEVEMENTS CARD
               Positioned(
-                left: 80,
-                right: 80,
-                bottom: -65,
+                left: _isTablet ? 24 : 80,
+                right: _isTablet ? 24 : 80,
+                bottom: _isTablet ? -100 : -65,
                 child: _buildAchievementsRibbon(),
               ),
             ],
           ),
 
           // Space occupied by the overlapping achievements ribbon
-          const SizedBox(height: 100),
+          SizedBox(height: _isTablet ? 135 : 100),
 
           // 2nd: OUR JOURNEY
           Container(
             key: _journeyKey,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: _isTablet ? 24 : 40,
+              vertical: 10,
+            ),
             child: _buildStoryTimelineSection(),
           ),
           const SizedBox(height: 40),
@@ -431,7 +436,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           // 3rd: MISSION + VISION (side by side), then OUR STORY (full width)
           Padding(
             key: _missionKey,
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
             child: Column(
               children: [
                 _buildMissionVisionColumn(),
@@ -454,7 +459,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           // CAREERS (under Meet Our Leadership)
           Padding(
             key: _careersKey,
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
             child:
                 _heroImageLoading
                     ? const CareersSectionShimmer()
@@ -477,7 +482,7 @@ class _AboutusSectionState extends State<AboutusSection> {
 
           Padding(
             key: _certificationsKey,
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
             child: _buildCertificationsSection(),
           ),
           const SizedBox(height: 40),
@@ -1378,6 +1383,29 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  Widget _achievementsLayout(List<Widget> children) {
+    if (!_isTablet) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: children,
+      );
+    }
+    final items = [for (int i = 0; i < children.length; i += 2) children[i]];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 16.0;
+        final w = ((constraints.maxWidth - gap * 2) / 3).clamp(
+          0.0,
+          double.infinity,
+        );
+        return Wrap(
+          spacing: gap,
+          runSpacing: 14,
+          children: [for (final i in items) SizedBox(width: w, child: i)],
+        );
+      },
+    );
+  }
   // =====================================================================
   //                           END CAREERS SECTION
   // =====================================================================
@@ -1403,46 +1431,43 @@ class _AboutusSectionState extends State<AboutusSection> {
         ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          buildAchievementsCard(
-            icon: 'icons/collaboration.svg',
-            title: '110+',
-            subtitle: 'Team Members',
-          ),
-          _divider(),
-          buildAchievementsCard(
-            icon: 'icons/badge.svg',
-            title: '13+',
-            subtitle: 'Years of excellence',
-          ),
-          _divider(),
-          buildAchievementsCard(
-            icon: 'icons/globe.svg',
-            title: '6+',
-            subtitle: 'Countries Served',
-          ),
-          _divider(),
-          buildAchievementsCard(
-            icon: 'icons/delivery.svg',
-            title: '150+',
-            subtitle: 'Products Delivered',
-          ),
-          _divider(),
-          buildAchievementsCard(
-            icon: 'icons/manufacture.svg',
-            title: '6L+',
-            subtitle: 'Units Manufactured',
-          ),
-          _divider(),
-          buildAchievementsCard(
-            icon: 'icons/handshake.svg',
-            title: '25+',
-            subtitle: 'Happy Clients',
-          ),
-        ],
-      ),
+      child: _achievementsLayout([
+        buildAchievementsCard(
+          icon: 'icons/collaboration.svg',
+          title: '110+',
+          subtitle: 'Team Members',
+        ),
+        _divider(),
+        buildAchievementsCard(
+          icon: 'icons/badge.svg',
+          title: '13+',
+          subtitle: 'Years of excellence',
+        ),
+        _divider(),
+        buildAchievementsCard(
+          icon: 'icons/globe.svg',
+          title: '6+',
+          subtitle: 'Countries Served',
+        ),
+        _divider(),
+        buildAchievementsCard(
+          icon: 'icons/delivery.svg',
+          title: '150+',
+          subtitle: 'Products Delivered',
+        ),
+        _divider(),
+        buildAchievementsCard(
+          icon: 'icons/manufacture.svg',
+          title: '6L+',
+          subtitle: 'Units Manufactured',
+        ),
+        _divider(),
+        buildAchievementsCard(
+          icon: 'icons/handshake.svg',
+          title: '25+',
+          subtitle: 'Happy Clients',
+        ),
+      ]),
     );
   }
 
@@ -1492,6 +1517,24 @@ class _AboutusSectionState extends State<AboutusSection> {
         description: description,
         iconRight: iconRight,
       ),
+    );
+  }
+
+  Widget _heroCardsLayout({required List<Widget> children}) {
+    if (_isTablet) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(width: 16),
+            Expanded(child: children[i]),
+          ],
+        ],
+      );
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: children,
     );
   }
 
@@ -1545,8 +1588,9 @@ class _AboutusSectionState extends State<AboutusSection> {
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
           // Increase for a bigger image / longer blend, decrease for smaller.
-          final double imageWidth = constraints.maxWidth * 0.62;
-
+          // final double imageWidth = constraints.maxWidth * 0.62;
+          final double imageWidth =
+              constraints.maxWidth * (_isTablet ? 0.5 : 0.62);
           return Stack(
             children: [
               // 1) IMAGE LAYER (behind the text), blended into the blue
@@ -1562,15 +1606,18 @@ class _AboutusSectionState extends State<AboutusSection> {
               ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _isTablet ? 24 : 40,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: _buildAboutHeroTextColumn()),
-                      const SizedBox(width: 40),
+                      Expanded(
+                        flex: _isTablet ? 8 : 1,
+                        child: _buildAboutHeroTextColumn(),
+                      ),
+                      SizedBox(width: _isTablet ? 0 : 40),
                       // Empty half: the image shows through behind this space.
                       const Expanded(child: SizedBox()),
                     ],
@@ -1659,7 +1706,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: 48,
+                fontSize: _isTablet ? 34 : 48,
                 fontWeight: FontWeight.w600,
                 height: 1.15,
                 color: tWhite,
@@ -1691,8 +1738,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
         ),
         const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        _heroCardsLayout(
           children: [
             HeroAnimatedText(
               isActive: widget.isActive,
@@ -2655,6 +2701,8 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  Widget _flexChild(int flex, Widget child) =>
+      _isTablet ? child : Expanded(flex: flex, child: child);
   Widget _ourTeamSection() {
     return Container(
       width: double.infinity,

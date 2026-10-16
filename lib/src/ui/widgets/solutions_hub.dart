@@ -123,7 +123,7 @@ class _SolutionsHubPageState extends State<SolutionsHubPage> {
         Future.delayed(const Duration(seconds: 2)),
       ]);
     } catch (e) {
-      debugPrint('Error preloading solution images: $e');
+      // debugPrint('Error preloading solution images: $e');
     }
 
     if (!mounted) return;

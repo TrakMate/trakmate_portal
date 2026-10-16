@@ -36,7 +36,7 @@ class _IndustriesSectionState extends State<IndustriesSection> {
 
       await Future.delayed(const Duration(seconds: 3));
     } catch (e) {
-      debugPrint('Error preloading solutions hero image: $e');
+      // debugPrint('Error preloading solutions hero image: $e');
     }
 
     if (!mounted) return;

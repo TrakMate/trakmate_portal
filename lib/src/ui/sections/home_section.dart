@@ -12,6 +12,7 @@ import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
 import 'package:trakmate_portal/src/ui/widgets/scroller_button.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 // import '../widgets/footer_section.dart';
 import 'package:video_player/video_player.dart';
 
@@ -60,6 +61,7 @@ class _StatData {
 
 class _HomeSectionState extends State<HomeSection> {
   final FocusNode _heroFocusNode = FocusNode(debugLabel: 'heroFocus');
+  bool get _isTablet => ResponsiveLayout.isTablet(context);
   final List<_HeroSlideData> _slides = const [
     _HeroSlideData(
       video: "video/v1.mp4",
@@ -487,9 +489,8 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   double _getHeroHeight(BuildContext context) {
-    final width = MediaQuery.of(context).size.height;
-
-    return width * 0.91;
+    final height = MediaQuery.of(context).size.height;
+    return height * (_isTablet ? 0.90 : 0.91);
   }
 
   @override
@@ -929,7 +930,7 @@ class _HomeSectionState extends State<HomeSection> {
     }
 
     final VideoPlayerController controller = _videoControllers[slideIndex];
-
+    final bool tablet = _isTablet;
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -959,13 +960,17 @@ class _HomeSectionState extends State<HomeSection> {
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                stops: const [0.0, 0.45, 1.0],
+                stops: tablet ? const [0.0, 0.65, 1.0] : const [0.0, 0.45, 1.0],
               ),
             ),
           ),
           if (controller.value.isInitialized)
             Padding(
-              padding: const EdgeInsets.only(left: 110, right: 40),
+              padding: EdgeInsets.only(
+                left: tablet ? 48 : 110,
+                right: 40,
+                top: 0,
+              ),
               child: Row(
                 children: [
                   // HeroAnimatedText(
@@ -991,11 +996,11 @@ class _HomeSectionState extends State<HomeSection> {
                   //     ],
                   //   ),
                   // ),
-                  const SizedBox(width: 46),
+                  SizedBox(width: tablet ? 0 : 46),
                   Expanded(
-                    flex: 3,
+                    flex: tablet ? 4 : 3,
                     child: Transform.translate(
-                      offset: const Offset(0, -28),
+                      offset: Offset(0, tablet ? -50 : -28), //upper
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1021,7 +1026,7 @@ class _HomeSectionState extends State<HomeSection> {
                             child: RichText(
                               text: TextSpan(
                                 style: GoogleFonts.manrope(
-                                  fontSize: 48,
+                                  fontSize: tablet ? 34 : 48,
                                   fontWeight: FontWeight.w600,
                                   height: 1.15,
                                   color: tWhite,
@@ -1044,8 +1049,8 @@ class _HomeSectionState extends State<HomeSection> {
                           HeroAnimatedText(
                             isActive: widget.isActive,
                             delay: 720,
-                            child: SizedBox(
-                              width: 480,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 480),
                               child: Text(
                                 slide.description,
                                 style: GoogleFonts.manrope(
@@ -1057,42 +1062,67 @@ class _HomeSectionState extends State<HomeSection> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 25),
+                          SizedBox(height: tablet ? 45 : 25),
                           HeroAnimatedText(
                             isActive: widget.isActive,
                             delay: 920,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                for (
-                                  int i = 0;
-                                  i < slide.stats.length;
-                                  i++
-                                ) ...[
-                                  if (i != 0) const SizedBox(width: 66),
-                                  _buildStatItem(
-                                    slide.stats[i].icon,
-                                    // slide.stats[i].icon == "icons/device2.svg"
-                                    //     ?
-                                    // "${_formatIndianNumber(_deviceCount)}+"
-                                    // :
-                                    slide.stats[i].icon == "icons/badge2.svg"
-                                        ? "${DateTime.now().year - 2013}+"
-                                        : slide.stats[i].value,
-                                    slide.stats[i].label,
-                                    // animated:
-                                    //     slide.stats[i].icon ==
-                                    //     "icons/device2.svg",
-                                  ),
+                            // child: Row(
+                            //   mainAxisAlignment: MainAxisAlignment.start,
+                            //   children: [
+                            //     for (
+                            //       int i = 0;
+                            //       i < slide.stats.length;
+                            //       i++
+                            //     ) ...[
+                            //       if (i != 0) const SizedBox(width: 66),
+                            //       _buildStatItem(
+                            //         slide.stats[i].icon,
+                            //         // slide.stats[i].icon == "icons/device2.svg"
+                            //         //     ?
+                            //         // "${_formatIndianNumber(_deviceCount)}+"
+                            //         // :
+                            //         slide.stats[i].icon == "icons/badge2.svg"
+                            //             ? "${DateTime.now().year - 2013}+"
+                            //             : slide.stats[i].value,
+                            //         slide.stats[i].label,
+                            //         // animated:
+                            //         //     slide.stats[i].icon ==
+                            //         //     "icons/device2.svg",
+                            //       ),
+                            //     ],
+                            //   ],
+                            // ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  for (
+                                    int i = 0;
+                                    i < slide.stats.length;
+                                    i++
+                                  ) ...[
+                                    if (i != 0)
+                                      SizedBox(width: tablet ? 28 : 66),
+                                    _buildStatItem(
+                                      slide.stats[i].icon,
+                                      slide.stats[i].icon == "icons/badge2.svg"
+                                          ? "${DateTime.now().year - 2013}+"
+                                          : slide.stats[i].value,
+                                      slide.stats[i].label,
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const Expanded(flex: 2, child: SizedBox()),
+                  if (!tablet) const Expanded(flex: 2, child: SizedBox()),
                 ],
               ),
             ),

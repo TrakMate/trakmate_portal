@@ -6,6 +6,7 @@ import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
 import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 import '../widgets/footer_section.dart';
 
@@ -24,6 +25,7 @@ class EngineeringSection extends StatefulWidget {
 
 class _EngineeringSectionState extends State<EngineeringSection> {
   bool _heroImageLoading = true; // NEW
+  bool get _isTablet => ResponsiveLayout.isTablet(context);
   final Map<String, GlobalKey> _serviceKeys = {
     'CAD Design': GlobalKey(),
     'Product Design': GlobalKey(),
@@ -96,7 +98,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         onError: (e, s) => debugPrint('Failed to load engineering hero: $e'),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      debugPrint('Error preloading engineering hero image: $e');
+      // debugPrint('Error preloading engineering hero image: $e');
     }
 
     if (!mounted) return;
@@ -140,7 +142,8 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
           // Increase for a bigger image / longer blend, decrease for smaller.
-          final double imageWidth = constraints.maxWidth * 0.62;
+          final double imageWidth =
+              constraints.maxWidth * (_isTablet ? 0.5 : 0.62);
 
           return Stack(
             children: [
@@ -157,15 +160,18 @@ class _EngineeringSectionState extends State<EngineeringSection> {
               ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _isTablet ? 24 : 40,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: _buildHeroTextColumn()),
-                      const SizedBox(width: 40),
+                      Expanded(
+                        flex: _isTablet ? 5 : 1,
+                        child: _buildHeroTextColumn(),
+                      ),
+                      SizedBox(width: _isTablet ? 16 : 40),
                       // Empty half: the image is visible behind this space.
                       const Expanded(child: SizedBox()),
                     ],
@@ -256,7 +262,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: 48,
+                fontSize: _isTablet ? 34 : 48,
                 fontWeight: FontWeight.w600,
                 height: 1.15,
                 color: tWhite,
@@ -291,8 +297,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         ),
 
         const SizedBox(height: 35),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        _heroCardsLayout(
           children: [
             HeroAnimatedText(
               isActive: widget.isActive,
@@ -338,13 +343,31 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     );
   }
 
+  Widget _heroCardsLayout({required List<Widget> children}) {
+    if (_isTablet) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < children.length; i++) ...[
+            if (i > 0) SizedBox(width: _isTablet ? 25 : 12),
+            Expanded(child: children[i]),
+          ],
+        ],
+      );
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: children,
+    );
+  }
+
   Widget _buildHeaderIntroCard({
     required String icon,
     required String title,
     required String description,
   }) {
     return SizedBox(
-      width: 150,
+      width: _isTablet ? null : 150, //null=take whatever parent gives
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -352,26 +375,30 @@ class _EngineeringSectionState extends State<EngineeringSection> {
 
           const SizedBox(height: 10),
 
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              color: tWhite,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              title,
+              maxLines: 1,
+              softWrap: false,
+              style: GoogleFonts.manrope(
+                color: tWhite,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-
           const SizedBox(height: 6),
 
           Text(
             description,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+            // maxLines: 2,
+            // overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               color: tWhite.withOpacity(0.7),
-              fontSize: 12,
+              fontSize: _isTablet ? 11 : 12,
+              height: 1.35,
               fontWeight: FontWeight.w400,
             ),
           ),

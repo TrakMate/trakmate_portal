@@ -1527,20 +1527,34 @@ class CareersSectionShimmer extends StatelessWidget {
             Expanded(
               flex: 47,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(40, 38, 40, 22),
+                // padding: const EdgeInsets.fromLTRB(40, 38, 40, 22),
+                // child: Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     _bar(190, 12), // CURRENT OPENINGS
+                //     const SizedBox(height: 18),
+                //     _bar(320, 33, r: 6), // heading line 1
+                //     const SizedBox(height: 8),
+                //     _bar(240, 33, r: 6), // heading line 2
+                //     const SizedBox(height: 14),
+                //     _bar(null, 12), // subtitle 1
+                //     const SizedBox(height: 7),
+                //     _bar(260, 12), // subtitle 2
+                //     const SizedBox(height: 18),
+                padding: const EdgeInsets.fromLTRB(40, 30, 40, 18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _bar(190, 12), // CURRENT OPENINGS
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 14),
                     _bar(320, 33, r: 6), // heading line 1
                     const SizedBox(height: 8),
                     _bar(240, 33, r: 6), // heading line 2
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     _bar(null, 12), // subtitle 1
                     const SizedBox(height: 7),
                     _bar(260, 12), // subtitle 2
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 14),
                     for (int i = 0; i < 3; i++) ...[
                       _jobRow(),
                       if (i != 2) const SizedBox(height: 10),

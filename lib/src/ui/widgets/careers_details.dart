@@ -301,7 +301,7 @@ class _CareersPageState extends State<CareersPage> {
         onError: (e, s) => debugPrint('Failed to load careers hero: $e'),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      debugPrint('Error preloading careers hero image: $e');
+      // debugPrint('Error preloading careers hero image: $e');
     }
     await Future.delayed(const Duration(seconds: 3)); //fr testing
     if (!mounted) return;

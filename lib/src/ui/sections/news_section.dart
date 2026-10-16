@@ -6,6 +6,7 @@ import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
 
 import 'package:trakmate_portal/src/ui/widgets/news_header.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -154,7 +155,9 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
           const SizedBox(height: 40),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveLayout.isTablet(context) ? 24 : 40,
+            ),
             child: _buildNewsMediaSection(),
           ),
           const SizedBox(height: 40),
@@ -167,7 +170,7 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
   Widget _buildNewsMediaSection() {
     final news = _sortedNews;
     final latest = news[0];
-
+    final bool isTablet = ResponsiveLayout.isTablet(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -227,7 +230,7 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
           else
             SizedBox(
               width: double.infinity,
-              height: 330,
+              height: isTablet ? 300 : 330,
               child: Container(
                 decoration: BoxDecoration(
                   color: tBlue1.withOpacity(0.05),
@@ -241,7 +244,10 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                     Expanded(
                       flex: 9,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(35, 25, 35, 25),
+                        padding:
+                            isTablet
+                                ? const EdgeInsets.fromLTRB(24, 20, 24, 20)
+                                : const EdgeInsets.fromLTRB(35, 25, 35, 25),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -316,7 +322,7 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.manrope(
-                                fontSize: 24,
+                                fontSize: isTablet ? 20 : 24,
                                 height: 1.15,
                                 fontWeight: FontWeight.w800,
                                 color: tBlack,
@@ -325,7 +331,7 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                             const SizedBox(height: 12),
                             Text(
                               latest.summary,
-                              maxLines: 3,
+                              maxLines: isTablet ? 2 : 3,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.manrope(
                                 fontSize: 12,
@@ -351,6 +357,27 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
           const SizedBox(height: 25),
 
           // ---------- 4 NEWS CARDS ----------
+          // if (_isLoading)
+          //   Row(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       for (int i = 0; i < 3; i++) ...[
+          //         const Expanded(child: NewsCardShimmer()),
+          //         if (i != 2) const SizedBox(width: 20),
+          //       ],
+          //     ],
+          //   )
+          // else
+          //   Row(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       for (int i = 1; i < news.length; i++) ...[
+          //         Expanded(child: NewsCard(article: news[i])),
+          //         if (i != news.length - 1) const SizedBox(width: 20),
+          //       ],
+          //     ],
+          //   ),
+          // const SizedBox(height: 15),
           if (_isLoading)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,6 +387,21 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                   if (i != 2) const SizedBox(width: 20),
                 ],
               ],
+            )
+          else if (isTablet)
+            LayoutBuilder(
+              builder: (context, c) {
+                const double gap = 20;
+                final double w = (c.maxWidth - gap) / 2;
+                return Wrap(
+                  spacing: gap,
+                  runSpacing: gap,
+                  children: [
+                    for (int i = 1; i < news.length; i++)
+                      SizedBox(width: w, child: NewsCard(article: news[i])),
+                  ],
+                );
+              },
             )
           else
             Row(
@@ -371,7 +413,10 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                 ],
               ],
             ),
-          const SizedBox(height: 15),
+
+          // spacer is its OWN statement, outside the if/else chain
+          SizedBox(height: isTablet ? 30 : 15),
+
           if (!_isLoading)
             Align(
               alignment: Alignment.centerRight,

@@ -6,6 +6,7 @@ import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
 import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -26,6 +27,7 @@ class ManufacturingSection extends StatefulWidget {
 class _ManufacturingSectionState extends State<ManufacturingSection> {
   bool _heroImageLoading = true; // NEW
   bool _cardsLoading = true; // NEW
+  bool get _isTablet => ResponsiveLayout.isTablet(context);
   final Set<int> _hoveredServiceCards = {};
   @override
   void initState() {
@@ -92,7 +94,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         onError: (e, s) => debugPrint('Failed to load manufacturing hero: $e'),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      debugPrint('Error preloading manufacturing hero image: $e');
+      // debugPrint('Error preloading manufacturing hero image: $e');
     }
 
     if (!mounted) return;
@@ -113,7 +115,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         ),
       );
     } catch (e) {
-      debugPrint('Error preloading service images: $e');
+      // debugPrint('Error preloading service images: $e');
     }
     if (!mounted) return;
     setState(() => _cardsLoading = false);
@@ -226,21 +228,21 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           const SizedBox(height: 42),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
             child: _buildServicesSection(),
           ),
 
           const SizedBox(height: 42),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
             child: _buildQualityBar(),
           ),
 
           const SizedBox(height: 42),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
             child: ProcessSection(
               eyebrow: 'OUR MANUFACTURING PROCESS',
               title: 'From Concept to Customer',
@@ -306,7 +308,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
           // Increase for a bigger image / longer blend, decrease for smaller.
-          final double imageWidth = constraints.maxWidth * 0.62;
+          final double imageWidth =
+              constraints.maxWidth * (_isTablet ? 0.5 : 0.62);
 
           return Stack(
             children: [
@@ -323,15 +326,18 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
               ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: _isTablet ? 24 : 40,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: _buildHeroTextColumn()),
-                      const SizedBox(width: 40),
+                      Expanded(
+                        flex: _isTablet ? 8 : 1,
+                        child: _buildHeroTextColumn(),
+                      ),
+                      SizedBox(width: _isTablet ? 0 : 40),
                       // Empty half: the image shows through behind this space.
                       const Expanded(child: SizedBox()),
                     ],
@@ -414,7 +420,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: 48,
+                fontSize: _isTablet ? 34 : 48,
                 fontWeight: FontWeight.w600,
                 height: 1.15,
                 color: tWhite,
@@ -451,6 +457,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         const SizedBox(height: 32),
 
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: HeroAnimatedText(
@@ -463,6 +470,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                 ),
               ),
             ),
+            SizedBox(width: _isTablet ? 17 : 0),
             Expanded(
               child: HeroAnimatedText(
                 isActive: widget.isActive,
@@ -474,6 +482,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                 ),
               ),
             ),
+
             Expanded(
               child: HeroAnimatedText(
                 isActive: widget.isActive,
@@ -510,21 +519,25 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
+        padding: EdgeInsets.symmetric(horizontal: _isTablet ? 1 : 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SvgPicture.asset(icon, width: 30, height: 30, color: tOrange1),
             const SizedBox(height: 10),
 
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
-                color: tWhite,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                title,
+                maxLines: 1,
+                softWrap: false,
+                style: GoogleFonts.manrope(
+                  color: tWhite,
+                  fontSize: _isTablet ? 12.5 : 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
 
@@ -532,11 +545,10 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
             Text(
               subtitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
                 color: tWhite.withOpacity(0.7),
-                fontSize: 12,
+                fontSize: _isTablet ? 11 : 12,
+                height: 1.35,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -594,7 +606,11 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
         LayoutBuilder(
           builder: (context, constraints) {
-            final cardWidth = (constraints.maxWidth - 32) / 3;
+            // final cardWidth = (constraints.maxWidth - 32) / 3;
+            final cardWidth = ((constraints.maxWidth - 32) / 3).clamp(
+              0.0,
+              double.infinity,
+            );
             if (_cardsLoading) {
               return Wrap(
                 spacing: 16,
@@ -652,7 +668,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         // Card hover effect
         transform: Matrix4.translationValues(0, isHovered ? -5 : 0, 0),
 
-        height: 310, //card height
+        height: _isTablet ? 350 : 310, //card height
 
         decoration: BoxDecoration(
           color: tWhite,
@@ -759,8 +775,11 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                         Expanded(
                           child: Text(
                             service.description,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                            maxLines: _isTablet ? null : 3,
+                            overflow:
+                                _isTablet
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
                             style: GoogleFonts.manrope(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -911,19 +930,38 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
           const SizedBox(height: 18),
 
-          Row(
-            children: [
-              for (int i = 0; i < _values.length; i++) ...[
-                Expanded(child: _buildQualityItem(_values[i])),
-                if (i < _values.length - 1)
-                  Container(
-                    width: 1,
-                    height: 55,
-                    color: tWhite.withOpacity(0.14),
-                  ),
+          if (_isTablet)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                const gap = 16.0;
+                final itemWidth = ((constraints.maxWidth - gap * 2) / 3).clamp(
+                  0.0,
+                  double.infinity,
+                );
+                return Wrap(
+                  spacing: gap,
+                  runSpacing: 24,
+                  children: [
+                    for (final v in _values)
+                      SizedBox(width: itemWidth, child: _buildQualityItem(v)),
+                  ],
+                );
+              },
+            )
+          else
+            Row(
+              children: [
+                for (int i = 0; i < _values.length; i++) ...[
+                  Expanded(child: _buildQualityItem(_values[i])),
+                  if (i < _values.length - 1)
+                    Container(
+                      width: 1,
+                      height: 55,
+                      color: tWhite.withOpacity(0.14),
+                    ),
+                ],
               ],
-            ],
-          ),
+            ),
         ],
       ),
     );
@@ -945,8 +983,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           Text(
             value.title,
             textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            maxLines: _isTablet ? null : 1,
+            overflow: _isTablet ? TextOverflow.visible : TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -959,8 +997,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           Text(
             value.description,
             textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+            maxLines: _isTablet ? null : 2,
+            overflow: _isTablet ? TextOverflow.visible : TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 11,
               fontWeight: FontWeight.w500,

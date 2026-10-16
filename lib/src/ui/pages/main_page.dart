@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/sections/news_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/build_products.dart';
+import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web/helpers.dart' as web;
 
@@ -77,7 +79,7 @@ class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
 
   String _currentPath = '/';
-
+  // final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final NavDropdownGroupController _navDropdownGroupController =
       NavDropdownGroupController();
 
@@ -123,17 +125,21 @@ class _MainPageState extends State<MainPage> {
     NavDropdownItem(
       label: 'Our Team',
       icon: 'icons/team.svg',
-      onTap: () => _navigateToAboutPath('/about/team'),
+      onTap: () => _navigateToAboutPath('/about/team', scrollKey: 'Leadership'),
     ),
     NavDropdownItem(
-      label: 'Infrastructure',
+      label: 'Vision & Mission',
       icon: 'icons/all.svg',
-      onTap: () => _navigateToAboutPath('/about/infrastructure'),
+      onTap:
+          () => _navigateToAboutPath(
+            '/about/infrastructure',
+            scrollKey: 'Vision & Mission',
+          ),
     ),
     NavDropdownItem(
       label: 'Careers',
       icon: 'icons/career.svg',
-      onTap: () => _navigateToAboutPath('/about/careers'),
+      onTap: () => _navigateToAboutPath('/about/careers', scrollKey: 'Careers'),
     ),
     // NavDropdownItem(
     //   label: 'News & Media',
@@ -393,7 +399,11 @@ class _MainPageState extends State<MainPage> {
     ProductFilterController.select(filterKey);
   }
 
-  void _navigateToAboutPath(String path) {
+  void _navigateToAboutPath(String path, {String? scrollKey}) {
+    if (scrollKey != null) {
+      SectionScrollBus.instance.request(scrollKey);
+    }
+
     setState(() {
       selectedIndex = 5;
     });
@@ -403,8 +413,15 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    //extra
+    // First web frame can report ~0 width. Don't lay out sections yet.
+    if (MediaQuery.of(context).size.width < 320) {
+      return const Scaffold(backgroundColor: tWhite);
+    }
     return Scaffold(
+      // key: _scaffoldKey,
       backgroundColor: tWhite,
+      endDrawer: ResponsiveLayout.isDesktop(context) ? null : _buildDrawer(),
       body: Column(
         children: [
           _buildHeader(),
@@ -458,37 +475,192 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildHeader() {
+    final bool compact = !ResponsiveLayout.isDesktop(context);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 16 : 20,
+        vertical: 10,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SvgPicture.asset('icons/trakmate_logo.svg', height: 60),
+          SvgPicture.asset(
+            'icons/trakmate_logo.svg',
+            height: compact ? 48 : 60,
+          ),
+
+          // Full nav: desktop only
+          if (!compact)
+            Row(
+              children: [
+                _navButton('Home', 0),
+                _navButton('Engineering', 1),
+                _navButton('Manufacturing', 2),
+                NavDropdownMenu(
+                  label: 'Products & Solutions',
+                  isSelected: selectedIndex == 3,
+                  onLabelTap: () => _navigateToSection(3),
+                  items: _productMenuItems,
+                ),
+                _navButton('News & Blogs', 4),
+                NavDropdownMenu(
+                  label: 'About Us',
+                  isSelected: selectedIndex == 5,
+                  onLabelTap: () => _navigateToSection(5),
+                  items: _aboutUsMenuItems,
+                  groupController: _navDropdownGroupController,
+                ),
+              ],
+            ),
+
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _navButton('Home', 0),
-              _navButton('Engineering', 1),
-              _navButton('Manufacturing', 2),
-              NavDropdownMenu(
-                label: 'Products & Solutions',
-                isSelected: selectedIndex == 3,
-                onLabelTap: () => _navigateToSection(3),
-                items: _productMenuItems,
-                // groupController: _navDropdownGroupController,
-              ),
-              _navButton('News & Blogs', 4),
-              // ABOUT US — same reusable dropdown widget, different items.
-              NavDropdownMenu(
-                label: 'About Us',
-                isSelected: selectedIndex == 5,
-                onLabelTap: () => _navigateToSection(5),
-                items: _aboutUsMenuItems,
-                groupController: _navDropdownGroupController,
-              ),
+              _buildGetInTouchButton(),
+              if (compact) ...[
+                const SizedBox(width: 8),
+                Builder(
+                  builder:
+                      (ctx) => IconButton(
+                        icon: const Icon(
+                          Icons.menu_rounded,
+                          color: tBlue2,
+                          size: 28,
+                        ),
+                        onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+                      ),
+                ),
+              ],
             ],
           ),
-          _buildGetInTouchButton(),
         ],
+      ),
+    );
+  }
+
+  // Widget _buildHeader() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         SvgPicture.asset('icons/trakmate_logo.svg', height: 60),
+  //         Row(
+  //           children: [
+  //             _navButton('Home', 0),
+  //             _navButton('Engineering', 1),
+  //             _navButton('Manufacturing', 2),
+  //             NavDropdownMenu(
+  //               label: 'Products & Solutions',
+  //               isSelected: selectedIndex == 3,
+  //               onLabelTap: () => _navigateToSection(3),
+  //               items: _productMenuItems,
+  //               // groupController: _navDropdownGroupController,
+  //             ),
+  //             _navButton('News & Blogs', 4),
+  //             // ABOUT US — same reusable dropdown widget, different items.
+  //             NavDropdownMenu(
+  //               label: 'About Us',
+  //               isSelected: selectedIndex == 5,
+  //               onLabelTap: () => _navigateToSection(5),
+  //               items: _aboutUsMenuItems,
+  //               groupController: _navDropdownGroupController,
+  //             ),
+  //           ],
+  //         ),
+  //         _buildGetInTouchButton(),
+  //       ],
+  //     ),
+  //   );
+  // }
+  Widget _buildDrawer() {
+    Widget navTile(String text, int index) {
+      final bool selected = selectedIndex == index;
+      return ListTile(
+        title: Text(
+          text,
+          style: GoogleFonts.manrope(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: selected ? tOrange1 : tBlack,
+          ),
+        ),
+        onTap: () {
+          Navigator.of(context).pop();
+          Future.delayed(const Duration(milliseconds: 250), () {
+            if (!mounted) return;
+            _navigateToSection(index);
+          });
+        },
+      );
+    }
+
+    Widget groupTile(String title, bool selected, List<NavDropdownItem> items) {
+      return ExpansionTile(
+        shape: const Border(),
+        collapsedShape: const Border(),
+        title: Text(
+          title,
+          style: GoogleFonts.manrope(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: selected ? tOrange1 : tBlack,
+          ),
+        ),
+        children: [
+          for (final item in items)
+            ListTile(
+              contentPadding: const EdgeInsets.only(left: 36, right: 16),
+              title: Text(
+                item.label,
+                style: GoogleFonts.manrope(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: tBlack,
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                Future.delayed(const Duration(milliseconds: 250), () {
+                  if (!mounted) return;
+                  item.onTap();
+                });
+              },
+            ),
+        ],
+      );
+    }
+
+    return Drawer(
+      backgroundColor: tWhite,
+      surfaceTintColor: Colors.transparent,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          splashFactory: NoSplash.splashFactory,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          hoverColor: tBlue3.withOpacity(0.06),
+          dividerColor: Colors.transparent,
+        ),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            children: [
+              navTile('Home', 0),
+              navTile('Engineering', 1),
+              navTile('Manufacturing', 2),
+              groupTile(
+                'Products & Solutions',
+                selectedIndex == 3,
+                _productMenuItems,
+              ),
+              navTile('News & Blogs', 4),
+              groupTile('About Us', selectedIndex == 5, _aboutUsMenuItems),
+            ],
+          ),
+        ),
       ),
     );
   }

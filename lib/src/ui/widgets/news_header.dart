@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import '../../utils/colors.dart';
 
 /// One slide: a background image + two stacked text lines.
@@ -97,7 +98,7 @@ class _HeroSliderState extends State<HeroSlider> {
         widget.slides.map((s) => precacheImage(AssetImage(s.image), context)),
       );
     } catch (e) {
-      debugPrint('Error preloading hero slider images: $e');
+      // debugPrint('Error preloading hero slider images: $e');
     }
 
     if (!mounted) return;
@@ -283,7 +284,7 @@ class _HeroSliderState extends State<HeroSlider> {
 
   Widget _buildSlide(HeroSlide slide, int i) {
     final bool current = i == _index;
-
+    final bool tablet = ResponsiveLayout.isTablet(context);
     final Widget content = Stack(
       fit: StackFit.expand,
       children: [
@@ -322,7 +323,9 @@ class _HeroSliderState extends State<HeroSlider> {
 
         // two-line text stacked above the image
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 80), //text position
+          padding: EdgeInsets.symmetric(
+            horizontal: tablet ? 40 : 80,
+          ), //text position
           child: Align(
             alignment: Alignment.centerLeft,
             child: AnimatedSlide(
@@ -340,7 +343,7 @@ class _HeroSliderState extends State<HeroSlider> {
                       Text(
                         slide.label!,
                         style: GoogleFonts.manrope(
-                          fontSize: 14,
+                          fontSize: tablet ? 13 : 14,
                           fontWeight: FontWeight.w700,
                           color: tOrange1,
                           letterSpacing: 1.2,
@@ -360,7 +363,7 @@ class _HeroSliderState extends State<HeroSlider> {
                     Text(
                       slide.line1,
                       style: GoogleFonts.manrope(
-                        fontSize: 48,
+                        fontSize: tablet ? 35 : 48,
                         fontWeight: FontWeight.w600,
                         height: 1.15,
                         color: tWhite,
@@ -369,7 +372,7 @@ class _HeroSliderState extends State<HeroSlider> {
                     Text(
                       slide.line2,
                       style: GoogleFonts.manrope(
-                        fontSize: 48,
+                        fontSize: tablet ? 35 : 48,
                         fontWeight: FontWeight.w700,
                         height: 1.15,
                         color: tOrange1,

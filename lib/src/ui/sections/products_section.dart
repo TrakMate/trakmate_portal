@@ -34,7 +34,7 @@ class _ProductsSectionState extends State<ProductsSection> {
       );
       // await Future.delayed(const Duration(seconds: 3)); // just fr testing
     } catch (e) {
-      debugPrint('Error preloading hero image: $e');
+      // debugPrint('Error preloading hero image: $e');
     }
 
     if (!mounted) return;

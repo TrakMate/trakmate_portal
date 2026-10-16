@@ -5,6 +5,7 @@ import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/process_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 class BuildEngineeringSection extends StatefulWidget {
   final Map<String, GlobalKey>? serviceKeys;
@@ -17,6 +18,7 @@ class BuildEngineeringSection extends StatefulWidget {
 
 class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   bool _cardsLoading = true; // NEW
+  bool get _isTablet => ResponsiveLayout.isTablet(context);
   final List<_ServiceItem> _row1 = [
     _ServiceItem(
       icon: 'icons/cad.svg',
@@ -96,7 +98,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
         ..._row2.map((s) => precacheImage(AssetImage(s.image), context)),
       ]);
     } catch (e) {
-      debugPrint('Error preloading engineering service images: $e');
+      // debugPrint('Error preloading engineering service images: $e');
     }
 
     if (!mounted) return;
@@ -115,7 +117,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
         _buildCtaBanner(),
         const SizedBox(height: 30),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
           child: ProcessSection(
             eyebrow: 'OUR ENGINEERING PROCESS',
             title: 'From Concept to Creation',
@@ -166,7 +168,10 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     return Container(
       width: double.infinity,
       // color: const Color(0xFFF6F8FB),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      padding: EdgeInsets.symmetric(
+        horizontal: _isTablet ? 24 : 40,
+        vertical: 10,
+      ),
       child: Column(
         children: [
           Text(
@@ -192,8 +197,10 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
           LayoutBuilder(
             builder: (context, constraints) {
               const cardSpacing = 20.0;
-              final cardWidth = (constraints.maxWidth - (cardSpacing * 3)) / 4;
-
+              // final cardWidth = (constraints.maxWidth - (cardSpacing * 3)) / 4;
+              final cardWidth = ((constraints.maxWidth - (cardSpacing * 3)) / 4)
+                  .clamp(0.0, double.infinity);
+              if (_isTablet) return _buildTabletGrid();
               if (_cardsLoading) {
                 return Column(
                   children: [
@@ -287,6 +294,41 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTabletGrid() {
+    final items = [..._row1, ..._row2];
+    return Column(
+      children: [
+        for (int i = 0; i < items.length; i += 2)
+          Padding(
+            padding: EdgeInsets.only(bottom: i + 2 < items.length ? 20 : 0),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: _tabletCell(items[i])),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child:
+                        i + 1 < items.length
+                            ? _tabletCell(items[i + 1])
+                            : const SizedBox(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _tabletCell(_ServiceItem item) {
+    if (_cardsLoading) return const EngineeringServiceCardShimmer();
+    return KeyedSubtree(
+      key: widget.serviceKeys?[item.title],
+      child: _buildServiceCard(item),
     );
   }
 
@@ -436,7 +478,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     ];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 40),
+      margin: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -505,79 +547,89 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
           // ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Flex(
+              direction: _isTablet ? Axis.vertical : Axis.horizontal,
+              crossAxisAlignment:
+                  _isTablet
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.center,
               children: [
                 // LEFT CONTENT
-                Expanded(
-                  flex: 8,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Have an engineering challenge?',
-                        style: GoogleFonts.manrope(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: tWhite,
-                        ),
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      Text(
-                        "Let's build something extraordinary together.",
-                        style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: tWhite.withOpacity(0.82),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      ElevatedButton(
-                        onPressed: () {
-                          showGetInTouchDialog(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: tOrange1,
-                          foregroundColor: tWhite,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 22,
-                            vertical: 14,
+                _flexChild(
+                  8,
+                  _tabletTopRow(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Have an engineering challenge?',
+                          style: GoogleFonts.manrope(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: tWhite,
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(9),
-                          ),
-                          elevation: 0,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Talk to Our Experts',
-                              style: GoogleFonts.manrope(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
+
+                        const SizedBox(height: 6),
+
+                        Text(
+                          "Let's build something extraordinary together.",
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: tWhite.withOpacity(0.82),
+                          ),
+                        ),
+
+                        SizedBox(height: _isTablet ? 0 : 16),
+
+                        if (!_isTablet)
+                          ElevatedButton(
+                            onPressed: () {
+                              showGetInTouchDialog(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: tOrange1,
+                              foregroundColor: tWhite,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 22,
+                                vertical: 14,
                               ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              elevation: 0,
                             ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Talk to Our Experts',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
 
-                            const SizedBox(width: 8),
+                                const SizedBox(width: 8),
 
-                            const Icon(Icons.arrow_forward_rounded, size: 15),
-                          ],
-                        ),
-                      ),
-                    ],
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 15,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
 
-                const SizedBox(width: 20),
+                const SizedBox(width: 20, height: 20),
 
                 // RIGHT CAPABILITIES
-                Expanded(flex: 4, child: _buildCtaCapabilities(items)),
+                _flexChild(4, _buildCtaCapabilities(items)),
               ],
             ),
           ),
@@ -586,10 +638,62 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     );
   }
 
+  Widget _flexChild(int flex, Widget child) =>
+      _isTablet ? child : Expanded(flex: flex, child: child);
   // Widget _buildCtaDivider() {
   //   return Container(width: 1, height: 34, color: tWhite.withOpacity(0.2));
   // }
+  Widget _tabletTopRow(Widget textColumn) {
+    if (!_isTablet) return textColumn;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(child: textColumn),
+        const SizedBox(width: 16),
+        _ctaButton(),
+      ],
+    );
+  }
+
+  Widget _ctaButton() {
+    return ElevatedButton(
+      onPressed: () => showGetInTouchDialog(context),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: tOrange1,
+        foregroundColor: tWhite,
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+        elevation: 0,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Talk to Our Experts',
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.arrow_forward_rounded, size: 15),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCtaCapabilities(List<_CtaItem> items) {
+    if (_isTablet) {
+      const colors = [tBlue3, tOrange1, tBlue3, tBlue2];
+      return Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          for (int i = 0; i < items.length && i < 4; i++)
+            _buildCtaCard(items[i], background: colors[i]),
+        ],
+      );
+    }
     return SizedBox(
       height: 135,
       child: LayoutBuilder(
