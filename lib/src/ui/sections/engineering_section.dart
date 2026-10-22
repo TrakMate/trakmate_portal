@@ -24,8 +24,13 @@ class EngineeringSection extends StatefulWidget {
 }
 
 class _EngineeringSectionState extends State<EngineeringSection> {
-  bool _heroImageLoading = true; // NEW
-  bool get _isTablet => ResponsiveLayout.isTablet(context);
+  bool _heroImageLoading = true;
+
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
   final Map<String, GlobalKey> _serviceKeys = {
     'CAD Design': GlobalKey(),
     'Product Design': GlobalKey(),
@@ -35,9 +40,10 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     'Firmware Development': GlobalKey(),
     'Prototyping': GlobalKey(),
   };
+
   @override
   void initState() {
-    super.initState(); // NEW
+    super.initState();
     SectionScrollBus.instance.pendingKey.addListener(_onPendingKeyChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _preloadHeroImage();
@@ -98,7 +104,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         onError: (e, s) => debugPrint('Failed to load engineering hero: $e'),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      // debugPrint('Error preloading engineering hero image: $e');
+      // ignore
     }
 
     if (!mounted) return;
@@ -112,11 +118,10 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // _buildEngineeringHeader(),
           _heroImageLoading
               ? const HeroHeaderShimmer()
               : _buildEngineeringHeader(),
-          const SizedBox(height: 30),
+          SizedBox(height: isMobile ? 24 : 30),
           BuildEngineeringSection(serviceKeys: _serviceKeys),
           const SizedBox(height: 40),
           FooterSection(onNavigate: widget.onNavigate),
@@ -126,9 +131,12 @@ class _EngineeringSectionState extends State<EngineeringSection> {
   }
 
   // ───────────────────────────────────────────────────────────────
-  // HEADER  ← THIS WHOLE METHOD IS THE CHANGE
+  // HEADER
   // ───────────────────────────────────────────────────────────────
   Widget _buildEngineeringHeader() {
+    // Mobile has its own stacked layout (image on top, text below).
+    if (isMobile) return _buildMobileHeader();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -141,9 +149,8 @@ class _EngineeringSectionState extends State<EngineeringSection> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
-          // Increase for a bigger image / longer blend, decrease for smaller.
           final double imageWidth =
-              constraints.maxWidth * (_isTablet ? 0.5 : 0.62);
+              constraints.maxWidth * (isTablet ? 0.5 : 0.62);
 
           return Stack(
             children: [
@@ -161,17 +168,17 @@ class _EngineeringSectionState extends State<EngineeringSection> {
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: _isTablet ? 24 : 40,
+                    horizontal: isTablet ? 24 : 40,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        flex: _isTablet ? 5 : 1,
+                        flex: isTablet ? 5 : 1,
                         child: _buildHeroTextColumn(),
                       ),
-                      SizedBox(width: _isTablet ? 16 : 40),
+                      SizedBox(width: isTablet ? 16 : 40),
                       // Empty half: the image is visible behind this space.
                       const Expanded(child: SizedBox()),
                     ],
@@ -179,6 +186,67 @@ class _EngineeringSectionState extends State<EngineeringSection> {
                 ),
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  // MOBILE header: image banner on top (fading into the blue), then the text.
+  Widget _buildMobileHeader() {
+    final double screenW = MediaQuery.of(context).size.width;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tBlue2, tBlue3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: screenW * 0.62,
+            child: _buildMobileHeroImage(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+            child: _buildHeroTextColumn(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mobile hero image: only the bottom edge fades into the blue.
+  Widget _buildMobileHeroImage() {
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0.0, 0.6, 1.0],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        'images/hero_engineering.png',
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: tBlack.withOpacity(0.05),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 50,
+              color: tWhite.withOpacity(0.6),
+            ),
           );
         },
       ),
@@ -196,8 +264,6 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [Colors.transparent, Colors.black54, Colors.black],
-          // 0.00 → 0.55 is the blend zone. Make 0.55 bigger for a softer,
-          // longer blend; smaller for a sharper edge.
           stops: [0.0, 0.30, 0.55],
         ).createShader(rect);
       },
@@ -227,7 +293,6 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Colors.black, Colors.black, Colors.transparent],
-          // Image is fully visible until 80% height, then fades out.
           stops: [0.0, 0.80, 1.0],
         ).createShader(rect);
       },
@@ -235,9 +300,15 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     );
   }
 
-  /// Left side: label, title, description and the 4 intro cards.
-  /// (Same content as before, just moved into its own method.)
+  /// Label, title, description and the 4 intro cards.
   Widget _buildHeroTextColumn() {
+    final bool mobile = isMobile;
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool compact = screenW < 380; // medium phones
+
+    final double headingSize =
+        mobile ? (compact ? 25 : 30) : (isTablet ? 34 : 48);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -247,7 +318,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           child: Text(
             'ENGINEERING',
             style: GoogleFonts.manrope(
-              fontSize: 13,
+              fontSize: mobile ? 12 : 13,
               fontWeight: FontWeight.w600,
               color: tOrange1,
               letterSpacing: 1.2,
@@ -255,16 +326,16 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           ),
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: mobile ? 14 : 20),
         HeroAnimatedText(
           isActive: widget.isActive,
           delay: 120,
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: _isTablet ? 34 : 48,
+                fontSize: headingSize,
                 fontWeight: FontWeight.w600,
-                height: 1.15,
+                height: mobile ? 1.2 : 1.15,
                 color: tWhite,
               ),
               children: [
@@ -281,7 +352,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           ),
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: mobile ? 14 : 20),
         HeroAnimatedText(
           isActive: widget.isActive,
           delay: 320,
@@ -296,7 +367,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
           ),
         ),
 
-        const SizedBox(height: 35),
+        SizedBox(height: mobile ? 28 : 35),
         _heroCardsLayout(
           children: [
             HeroAnimatedText(
@@ -344,12 +415,28 @@ class _EngineeringSectionState extends State<EngineeringSection> {
   }
 
   Widget _heroCardsLayout({required List<Widget> children}) {
-    if (_isTablet) {
+    // Mobile: 2 x 2 grid
+    if (isMobile) {
+      const double hPad = 20;
+      const double gap = 16;
+      final double screenW = MediaQuery.of(context).size.width;
+      final double cardW = ((screenW - (hPad * 2) - gap) / 2).floorToDouble();
+
+      return Wrap(
+        spacing: gap,
+        runSpacing: 22,
+        children: [
+          for (final child in children) SizedBox(width: cardW, child: child),
+        ],
+      );
+    }
+
+    if (isTablet) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (int i = 0; i < children.length; i++) ...[
-            if (i > 0) SizedBox(width: _isTablet ? 25 : 12),
+            if (i > 0) SizedBox(width: isTablet ? 25 : 12),
             Expanded(child: children[i]),
           ],
         ],
@@ -367,7 +454,8 @@ class _EngineeringSectionState extends State<EngineeringSection> {
     required String description,
   }) {
     return SizedBox(
-      width: _isTablet ? null : 150, //null=take whatever parent gives
+      // null = take whatever width the parent gives (tablet + mobile)
+      width: (isTablet || isMobile) ? null : 150,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -393,11 +481,9 @@ class _EngineeringSectionState extends State<EngineeringSection> {
 
           Text(
             description,
-            // maxLines: 2,
-            // overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               color: tWhite.withOpacity(0.7),
-              fontSize: _isTablet ? 11 : 12,
+              fontSize: isTablet ? 11 : (isMobile ? 11.5 : 12),
               height: 1.35,
               fontWeight: FontWeight.w400,
             ),

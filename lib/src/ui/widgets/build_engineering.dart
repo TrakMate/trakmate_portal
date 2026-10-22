@@ -17,8 +17,16 @@ class BuildEngineeringSection extends StatefulWidget {
 }
 
 class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
-  bool _cardsLoading = true; // NEW
-  bool get _isTablet => ResponsiveLayout.isTablet(context);
+  bool _cardsLoading = true;
+
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // CTA banner is stacked vertically on both tablet and mobile
+  bool get _stackedCta => isTablet || isMobile;
+
   final List<_ServiceItem> _row1 = [
     _ServiceItem(
       icon: 'icons/cad.svg',
@@ -47,7 +55,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/pcb.svg',
       iconBg: tOrangeGradient2,
-      // image: 'images/pcb1.jpg',
       image: 'images/pcb2.png',
       title: 'PCB Design',
       description:
@@ -59,7 +66,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     _ServiceItem(
       icon: 'icons/electronics_design.svg',
       iconBg: tBlueGradient5,
-      // image: 'images/pcba.jpg',
       image: 'images/pcba1.png',
       title: 'PCB Assembly (PCBA)',
       description:
@@ -98,7 +104,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
         ..._row2.map((s) => precacheImage(AssetImage(s.image), context)),
       ]);
     } catch (e) {
-      // debugPrint('Error preloading engineering service images: $e');
+      // ignore
     }
 
     if (!mounted) return;
@@ -109,15 +115,18 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
 
   @override
   Widget build(BuildContext context) {
+    final bool mobile = isMobile;
+
     return Column(
       children: [
         _buildServicesSection(),
-        const SizedBox(height: 40),
-        // _buildProcessSection(),
+        SizedBox(height: mobile ? 32 : 40),
         _buildCtaBanner(),
         const SizedBox(height: 30),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+          padding: EdgeInsets.symmetric(
+            horizontal: mobile ? 16 : (isTablet ? 24 : 40),
+          ),
           child: ProcessSection(
             eyebrow: 'OUR ENGINEERING PROCESS',
             title: 'From Concept to Creation',
@@ -165,42 +174,55 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   }
 
   Widget _buildServicesSection() {
+    final bool mobile = isMobile;
+
     return Container(
       width: double.infinity,
-      // color: const Color(0xFFF6F8FB),
       padding: EdgeInsets.symmetric(
-        horizontal: _isTablet ? 24 : 40,
+        horizontal: mobile ? 16 : (isTablet ? 24 : 40),
         vertical: 10,
       ),
       child: Column(
         children: [
           Text(
             'OUR ENGINEERING SERVICES',
+            textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
-              fontSize: 13,
+              fontSize: mobile ? 12 : 13,
               fontWeight: FontWeight.w700,
               color: tOrange1,
               letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: mobile ? 10 : 12),
           Text(
             'Comprehensive Engineering Solutions',
+            textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
-              fontSize: 25,
+              fontSize: mobile ? 20 : 25,
               fontWeight: FontWeight.w700,
               color: tBlue2,
+              height: mobile ? 1.25 : null,
             ),
           ),
-          const SizedBox(height: 35),
+          SizedBox(height: mobile ? 24 : 35),
 
           LayoutBuilder(
             builder: (context, constraints) {
               const cardSpacing = 20.0;
-              // final cardWidth = (constraints.maxWidth - (cardSpacing * 3)) / 4;
               final cardWidth = ((constraints.maxWidth - (cardSpacing * 3)) / 4)
                   .clamp(0.0, double.infinity);
-              if (_isTablet) return _buildTabletGrid();
+
+              if (isTablet) return _buildTabletGrid();
+
+              // Mobile: 1 card per row on phones, 2 per row on very wide
+              // phones / foldables (reuses the tablet 2-column grid).
+              if (mobile) {
+                return constraints.maxWidth >= 560
+                    ? _buildTabletGrid()
+                    : _buildMobileList();
+              }
+
               if (_cardsLoading) {
                 return Column(
                   children: [
@@ -317,6 +339,25 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                             : const SizedBox(),
                   ),
                 ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // Mobile: one service card per row (full width)
+  Widget _buildMobileList() {
+    final items = [..._row1, ..._row2];
+    return Column(
+      children: [
+        for (int i = 0; i < items.length; i++)
+          Padding(
+            padding: EdgeInsets.only(bottom: i < items.length - 1 ? 16 : 0),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [Expanded(child: _tabletCell(items[i]))],
               ),
             ),
           ),
@@ -444,21 +485,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  // Row(
-                  //   mainAxisSize: MainAxisSize.min,
-                  //   children: [
-                  //     Text(
-                  //       'Learn More',
-                  //       style: GoogleFonts.manrope(
-                  //         fontSize: 13,
-                  //         fontWeight: FontWeight.w700,
-                  //         color: tOrange1,
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 6),
-                  //     Icon(Icons.arrow_forward, size: 15, color: tOrange1),
-                  //   ],
-                  // ),
                 ],
               ),
             ),
@@ -469,16 +495,19 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   }
 
   Widget _buildCtaBanner() {
+    // final bool mobile = isMobile;
+
     final List<_CtaItem> items = [
       _CtaItem(icon: 'icons/collaboration.svg', label: 'Expert Engineers'),
       _CtaItem(icon: 'icons/tools.svg', label: 'Advanced Tools'),
       _CtaItem(icon: 'icons/quality.svg', label: 'Quality Focused'),
       _CtaItem(icon: 'icons/ontime.svg', label: 'On-Time Delivery'),
-      // _CtaItem(icon: 'icons/ontime.svg', label: 'On-Time Delivery'),
     ];
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+      margin: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : (isTablet ? 24 : 40),
+      ),
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -496,7 +525,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
           ),
         ],
       ),
-      // padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
       child: Stack(
         clipBehavior: Clip.hardEdge,
         children: [
@@ -508,49 +536,25 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                     child: SizedBox(
                       width: constraints.maxWidth * 1.8,
                       height: constraints.maxHeight,
-                      // height: constraints.maxHeight * 0.6,
-                      // child: RotatedBox(
-                      // quarterTurns: 1,
                       child: SvgPicture.asset(
                         'icons/waves_7.svg',
                         fit: BoxFit.fill,
-                        // colorFilter: ColorFilter.mode(
-                        //   tWhite.withOpacity(0.3),
-                        //   BlendMode.srcIn,
-                        // ),
                       ),
-                      // ),
                     ),
                   );
                 },
               ),
             ),
           ),
-          // Positioned(
-          //   left: 330,
-          //   top: 5,
-          //   child: IgnorePointer(
-          //     child: SizedBox(
-          //       width: 400,
-          //       height: 125,
-          //       child: FittedBox(
-          //         fit: BoxFit.fill,
-          //         child: SvgPicture.asset(
-          //           'icons/map2.svg',
-          //           width: 700,
-          //           height: 165,
-          //           color: tBlue1.withOpacity(0.2),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
+            padding:
+                isMobile
+                    ? const EdgeInsets.symmetric(horizontal: 20, vertical: 22)
+                    : const EdgeInsets.symmetric(horizontal: 35, vertical: 22),
             child: Flex(
-              direction: _isTablet ? Axis.vertical : Axis.horizontal,
+              direction: _stackedCta ? Axis.vertical : Axis.horizontal,
               crossAxisAlignment:
-                  _isTablet
+                  _stackedCta
                       ? CrossAxisAlignment.start
                       : CrossAxisAlignment.center,
               children: [
@@ -565,7 +569,7 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                         Text(
                           'Have an engineering challenge?',
                           style: GoogleFonts.manrope(
-                            fontSize: 20,
+                            fontSize: isMobile ? 18 : 20,
                             fontWeight: FontWeight.w800,
                             color: tWhite,
                           ),
@@ -576,51 +580,15 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
                         Text(
                           "Let's build something extraordinary together.",
                           style: GoogleFonts.manrope(
-                            fontSize: 13,
+                            fontSize: isMobile ? 12.5 : 13,
                             fontWeight: FontWeight.w400,
                             color: tWhite.withOpacity(0.82),
                           ),
                         ),
 
-                        SizedBox(height: _isTablet ? 0 : 16),
+                        SizedBox(height: _stackedCta ? 0 : 16),
 
-                        if (!_isTablet)
-                          ElevatedButton(
-                            onPressed: () {
-                              showGetInTouchDialog(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: tOrange1,
-                              foregroundColor: tWhite,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 22,
-                                vertical: 14,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(9),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Talk to Our Experts',
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-
-                                const SizedBox(width: 8),
-
-                                const Icon(
-                                  Icons.arrow_forward_rounded,
-                                  size: 15,
-                                ),
-                              ],
-                            ),
-                          ),
+                        if (!_stackedCta) _ctaButton(),
                       ],
                     ),
                   ),
@@ -639,12 +607,25 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   }
 
   Widget _flexChild(int flex, Widget child) =>
-      _isTablet ? child : Expanded(flex: flex, child: child);
-  // Widget _buildCtaDivider() {
-  //   return Container(width: 1, height: 34, color: tWhite.withOpacity(0.2));
-  // }
+      _stackedCta ? child : Expanded(flex: flex, child: child);
+
   Widget _tabletTopRow(Widget textColumn) {
-    if (!_isTablet) return textColumn;
+    // Desktop: just the text column (button lives inside it)
+    if (!_stackedCta) return textColumn;
+
+    // Mobile: text, then a full-width button underneath
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          textColumn,
+          const SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: _ctaButton()),
+        ],
+      );
+    }
+
+    // Tablet (unchanged): text on the left, button on the right
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -683,8 +664,31 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   }
 
   Widget _buildCtaCapabilities(List<_CtaItem> items) {
-    if (_isTablet) {
-      const colors = [tBlue3, tOrange1, tBlue3, tBlue2];
+    const colors = [tBlue3, tOrange1, tBlue3, tBlue2];
+
+    // Mobile: 2 x 2 grid of square cards that fill the banner width
+    if (isMobile) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const double gap = 12;
+          final double size = ((constraints.maxWidth - gap) / 2)
+              .floorToDouble()
+              .clamp(90.0, 150.0);
+
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (int i = 0; i < items.length && i < 4; i++)
+                _buildCtaCard(items[i], background: colors[i], size: size),
+            ],
+          );
+        },
+      );
+    }
+
+    if (isTablet) {
       return Wrap(
         spacing: 12,
         runSpacing: 12,
@@ -698,9 +702,6 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
       height: 135,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // const double cardWidth = 88;
-          // const double cardHeight = 102;
-
           return Stack(
             clipBehavior: Clip.none,
             children: [
@@ -750,10 +751,14 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     );
   }
 
-  Widget _buildCtaCard(_CtaItem item, {required Color background}) {
+  Widget _buildCtaCard(
+    _CtaItem item, {
+    required Color background,
+    double size = 130,
+  }) {
     return Container(
-      width: 130,
-      height: 130,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(16),
@@ -853,14 +858,26 @@ class _HoverCard extends StatefulWidget {
 class _HoverCardState extends State<_HoverCard> {
   bool _hovering = false;
 
+  // No hover effect on tablet / mobile layouts
+  bool get _isTouch =>
+      ResponsiveLayout.isMobile(context) || ResponsiveLayout.isTablet(context);
+
   @override
   Widget build(BuildContext context) {
+    // Even if a stray onEnter fires (mobile browsers emit synthetic mouse
+    // events on tap), the effect is only ever shown on desktop.
+    final bool active = _hovering && !_isTouch;
+
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      cursor: _isTouch ? MouseCursor.defer : SystemMouseCursors.click,
+      onEnter: (_) {
+        if (!_isTouch) setState(() => _hovering = true);
+      },
+      onExit: (_) {
+        if (!_isTouch) setState(() => _hovering = false);
+      },
       child: AnimatedScale(
-        scale: _hovering ? 1.04 : 1.0,
+        scale: active ? 1.04 : 1.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         child: AnimatedContainer(
@@ -871,9 +888,9 @@ class _HoverCardState extends State<_HoverCard> {
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: tBlack.withOpacity(_hovering ? 0.18 : 0.06),
-                blurRadius: _hovering ? 28 : 16,
-                offset: Offset(0, _hovering ? 16 : 6),
+                color: tBlack.withOpacity(active ? 0.18 : 0.06),
+                blurRadius: active ? 28 : 16,
+                offset: Offset(0, active ? 16 : 6),
               ),
             ],
           ),

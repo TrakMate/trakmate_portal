@@ -1,6 +1,4 @@
-//all_news.dart(right -flex)
-
-//all_news.dart(all screens)
+//all_news.dart (mobile + tablet + desktop)
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,21 +19,35 @@ class AllNewsPage extends StatefulWidget {
 }
 
 class _AllNewsPageState extends State<AllNewsPage> {
-  // static const double _listWidth = 340;
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
   bool get isTablet => ResponsiveLayout.isTablet(context);
 
+  // Medium phones (e.g. 360px wide)
+  bool get _isCompact => MediaQuery.of(context).size.width < 380;
+  // No hover effects on tablet / mobile layouts
+  bool get _noHover => isMobile || isTablet;
   double get _listWidth => isTablet ? 260 : 340;
 
   late NewsArticle _selected;
+
+  /// MOBILE ONLY: false = show the list of news, true = show one article.
+  /// (There is no room for list + article side by side on a phone.)
+  bool _showDetail = false;
 
   @override
   void initState() {
     super.initState();
     _selected = widget.initialArticle ?? widget.articles.first;
+    // If the page was opened for one specific article, start on it (mobile).
+    _showDetail = widget.initialArticle != null;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isMobile) return _buildMobile();
+
     return Scaffold(
       backgroundColor: tWhite,
       body: Padding(
@@ -66,8 +78,46 @@ class _AllNewsPageState extends State<AllNewsPage> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // MOBILE LAYOUT: list first, tap an item to open the article full screen
+  // ---------------------------------------------------------------------------
+  Widget _buildMobile() {
+    return PopScope(
+      // When an article is open, the system / browser back button goes
+      // back to the list instead of leaving the page.
+      canPop: !_showDetail,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) setState(() => _showDetail = false);
+      },
+      child: Scaffold(
+        backgroundColor: tWhite,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildBackButton(context),
+                const SizedBox(height: 8),
+                if (!_showDetail) ...[
+                  _buildHeader(),
+                  const SizedBox(height: 18),
+                  Expanded(child: _buildList()),
+                ] else
+                  Expanded(child: _buildDetail()),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // ---------------- BACK ----------------
   Widget _buildBackButton(BuildContext context) {
+    // On mobile, while an article is open, "back" returns to the list.
+    final bool backToList = isMobile && _showDetail;
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Material(
@@ -75,7 +125,13 @@ class _AllNewsPageState extends State<AllNewsPage> {
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
           borderRadius: BorderRadius.circular(7),
-          onTap: () => Navigator.pop(context),
+          onTap: () {
+            if (backToList) {
+              setState(() => _showDetail = false);
+            } else {
+              Navigator.pop(context);
+            }
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
             child: Row(
@@ -84,7 +140,7 @@ class _AllNewsPageState extends State<AllNewsPage> {
                 const Icon(Icons.arrow_back_rounded, size: 18, color: tBlue3),
                 const SizedBox(width: 7),
                 Text(
-                  'Back',
+                  backToList ? 'All News' : 'Back',
                   style: GoogleFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -107,17 +163,17 @@ class _AllNewsPageState extends State<AllNewsPage> {
         Text(
           'NEWS & MEDIA',
           style: GoogleFonts.manrope(
-            fontSize: 13,
+            fontSize: isMobile ? 12 : 13,
             fontWeight: FontWeight.w700,
             color: tOrange1,
             letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isMobile ? 6 : 8),
         Text(
           'All News & Updates',
           style: GoogleFonts.manrope(
-            fontSize: isTablet ? 26 : 32,
+            fontSize: isMobile ? (_isCompact ? 22 : 26) : (isTablet ? 26 : 32),
             fontWeight: FontWeight.w700,
             color: tBlue2,
           ),
@@ -126,7 +182,8 @@ class _AllNewsPageState extends State<AllNewsPage> {
         Text(
           'The latest updates, milestones and stories from our engineering journey.',
           style: GoogleFonts.manrope(
-            fontSize: 13,
+            fontSize: isMobile ? 12.5 : 13,
+            height: isMobile ? 1.5 : null,
             fontWeight: FontWeight.w500,
             color: tBlack.withOpacity(0.75),
           ),
@@ -137,6 +194,8 @@ class _AllNewsPageState extends State<AllNewsPage> {
 
   // ---------------- LEFT LIST ----------------
   Widget _buildList() {
+    // final bool mobile = isMobile;
+
     return Container(
       decoration: BoxDecoration(
         color: tBlue1.withOpacity(0.05),
@@ -155,15 +214,74 @@ class _AllNewsPageState extends State<AllNewsPage> {
             ),
         itemBuilder: (context, index) {
           final article = widget.articles[index];
-          final isSelected = identical(article, _selected);
+          // No "selected" highlight on mobile: tapping opens the article.
+          final isSelected = !isMobile && identical(article, _selected);
+
+          final Widget textColumn = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      article.category,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: tOrange1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      article.date,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: tBlue3.withOpacity(0.6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                article.title.replaceAll('\n', ' '),
+                maxLines: isMobile ? 2 : 3,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
+                  fontSize: 14,
+                  height: 1.3,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? tBlue2 : tBlack.withOpacity(0.85),
+                ),
+              ),
+            ],
+          );
 
           return Material(
             color: isSelected ? tWhite : tTransparent,
             child: InkWell(
-              mouseCursor: SystemMouseCursors.click,
-              onTap: () => setState(() => _selected = article),
+              mouseCursor:
+                  _noHover
+                      ? SystemMouseCursors.basic
+                      : SystemMouseCursors.click,
+              hoverColor: _noHover ? tTransparent : null,
+              onTap:
+                  () => setState(() {
+                    _selected = article;
+                    if (isMobile) _showDetail = true;
+                  }),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                padding:
+                    isMobile
+                        ? const EdgeInsets.fromLTRB(14, 14, 14, 14)
+                        : const EdgeInsets.fromLTRB(16, 16, 16, 16),
                 decoration: BoxDecoration(
                   border: Border(
                     left: BorderSide(
@@ -172,52 +290,38 @@ class _AllNewsPageState extends State<AllNewsPage> {
                     ),
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            article.category,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.manrope(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: tOrange1,
+                child:
+                    isMobile
+                        // Mobile: small thumbnail on the left, text on the right
+                        ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                width: _isCompact ? 68 : 80,
+                                height: _isCompact ? 68 : 80,
+                                child: Image.asset(
+                                  article.image,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Container(
+                                        color: tBlue3.withOpacity(0.1),
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          size: 22,
+                                          color: tBlue3.withOpacity(0.4),
+                                        ),
+                                      ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            article.date,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.manrope(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: tBlue3.withOpacity(0.6),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      article.title.replaceAll('\n', ' '),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
-                        fontSize: 14,
-                        height: 1.3,
-                        fontWeight: FontWeight.w700,
-                        color: isSelected ? tBlue2 : tBlack.withOpacity(0.85),
-                      ),
-                    ),
-                  ],
-                ),
+                            const SizedBox(width: 12),
+                            Expanded(child: textColumn),
+                          ],
+                        )
+                        : textColumn,
               ),
             ),
           );
@@ -241,17 +345,25 @@ class _AllNewsPageState extends State<AllNewsPage> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final double pw = constraints.maxWidth;
-          final bool compact = pw < 520;
+          // Mobile always uses the stacked (image on top) layout.
+          final bool compact = isMobile || pw < 520;
           final bool medium = pw < 760;
 
           final EdgeInsets padding =
-              compact
+              isMobile
+                  ? const EdgeInsets.fromLTRB(16, 16, 16, 24)
+                  : compact
                   ? const EdgeInsets.fromLTRB(18, 18, 18, 22)
                   : medium
                   ? const EdgeInsets.fromLTRB(26, 22, 26, 26)
                   : const EdgeInsets.fromLTRB(40, 28, 40, 32);
 
-          final double titleSize = compact ? 20 : (medium ? 24 : 28);
+          final double titleSize =
+              isMobile
+                  ? (_isCompact ? 19 : 21)
+                  : compact
+                  ? 20
+                  : (medium ? 24 : 28);
 
           return AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
@@ -382,19 +494,10 @@ class _AllNewsPageState extends State<AllNewsPage> {
             child: Text(
               items[i],
               style: _bodyStyle,
-              textAlign: TextAlign.justify,
+              // Justified text leaves big gaps on narrow phone screens
+              textAlign: isMobile ? TextAlign.left : TextAlign.justify,
             ),
           ),
-
-        //no line after para
-        // Padding(
-        //   padding: EdgeInsets.zero,
-        //   child: Text(
-        //     items[i],
-        //     style: _bodyStyle,
-        //     textAlign: TextAlign.justify,
-        //   ),
-        // ),
       ],
     );
   }
@@ -405,7 +508,7 @@ class _AllNewsPageState extends State<AllNewsPage> {
     double titleSize,
     bool compact,
   ) {
-    // Narrow panel: stack everything
+    // Narrow panel / mobile: stack everything
     if (compact) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,7 +557,6 @@ class _AllNewsPageState extends State<AllNewsPage> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SizedBox(width: imageWidth, child: _detailImage(article)),
             SizedBox(
               width: imageWidth,
               child: Padding(

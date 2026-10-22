@@ -40,7 +40,7 @@ class _SolutionsSectionState extends State<SolutionsSection> {
       await precacheImage(const AssetImage('images/sol3.jpg'), context);
       // await Future.delayed(const Duration(seconds: 3)); //  testing only
     } catch (e) {
-      // debugPrint('Error preloading solutions hero image: $e');
+      debugPrint('Error preloading solutions hero image: $e');
     }
 
     if (!mounted) return;

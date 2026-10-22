@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 import '../../utils/colors.dart';
+
+// =========================================================
+// RESPONSIVE HELPERS (mobile only, tablet/desktop untouched)
+// =========================================================
+
+/// Large + small phones.
+bool _isPhone(BuildContext context) => MediaQuery.of(context).size.width < 600;
+
+/// Small phones (e.g. iPhone SE, 320-359 wide).
+bool _isSmallPhone(BuildContext context) =>
+    MediaQuery.of(context).size.width < 360;
+
+// =========================================================
+// DATA MODELS
+// =========================================================
 
 class SolutionCardData {
   final String image;
@@ -33,6 +49,10 @@ class SolutionDetailsData {
   });
 }
 
+// =========================================================
+// PAGE
+// =========================================================
+
 class SolutionsDetailsPage extends StatelessWidget {
   final SolutionDetailsData data;
 
@@ -40,6 +60,9 @@ class SolutionsDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool phone = _isPhone(context);
+    final bool small = _isSmallPhone(context);
+
     return Scaffold(
       backgroundColor: tWhite,
       body: SafeArea(
@@ -51,19 +74,25 @@ class SolutionsDetailsPage extends StatelessWidget {
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(34, 34, 34, 50),
+                  padding:
+                      phone
+                          ? EdgeInsets.fromLTRB(
+                            small ? 14 : 18,
+                            phone ? 22 : 34,
+                            small ? 14 : 18,
+                            36,
+                          )
+                          : const EdgeInsets.fromLTRB(34, 34, 34, 50),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHeading(),
+                      _buildHeading(context),
 
-                      const SizedBox(height: 34),
+                      SizedBox(height: phone ? 24 : 34),
 
                       _buildCards(),
 
-                      const SizedBox(height: 48),
-
-                      // _buildBottomStrip(),
+                      SizedBox(height: phone ? 32 : 48),
                     ],
                   ),
                 ),
@@ -80,9 +109,12 @@ class SolutionsDetailsPage extends StatelessWidget {
   // ========================================================================
 
   Widget _buildTopBar(BuildContext context) {
+    final bool phone = _isPhone(context);
+    final bool small = _isSmallPhone(context);
+
     return Container(
       width: double.infinity,
-      height: 64,
+      height: phone ? 56 : 64,
       decoration: BoxDecoration(
         color: tWhite,
         border: Border(bottom: BorderSide(color: tBlue2.withOpacity(0.07))),
@@ -94,43 +126,55 @@ class SolutionsDetailsPage extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 34),
+      padding: EdgeInsets.symmetric(horizontal: phone ? (small ? 8 : 12) : 34),
       child: Row(
         children: [
           _HoverBackButton(onTap: () => Navigator.pop(context)),
 
+          const SizedBox(width: 8),
+
           const Spacer(),
 
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
-            decoration: BoxDecoration(
-              color: tBlue2.withOpacity(0.045),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: tBlue2.withOpacity(0.07)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: const BoxDecoration(
-                    color: tOrange1,
-                    shape: BoxShape.circle,
+          // Flexible so a long title never overflows on narrow phones.
+          Flexible(
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: phone ? 11 : 13,
+                vertical: 7,
+              ),
+              decoration: BoxDecoration(
+                color: tBlue2.withOpacity(0.045),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: tBlue2.withOpacity(0.07)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: tOrange1,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
 
-                const SizedBox(width: 7),
+                  const SizedBox(width: 7),
 
-                Text(
-                  data.title,
-                  style: GoogleFonts.manrope(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: tBlue2,
+                  Flexible(
+                    child: Text(
+                      data.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: tBlue2,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -142,16 +186,19 @@ class SolutionsDetailsPage extends StatelessWidget {
   // HEADING
   // ========================================================================
 
-  Widget _buildHeading() {
+  Widget _buildHeading(BuildContext context) {
+    final bool phone = _isPhone(context);
+    final bool small = _isSmallPhone(context);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.symmetric(horizontal: phone ? 0 : 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 30,
+                width: phone ? 24 : 30,
                 height: 3,
                 decoration: BoxDecoration(
                   color: tOrange1,
@@ -159,40 +206,44 @@ class SolutionsDetailsPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 10),
+              SizedBox(width: phone ? 8 : 10),
 
-              Text(
-                data.eyebrow,
-                style: GoogleFonts.manrope(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.15,
-                  color: tOrange1,
+              Flexible(
+                child: Text(
+                  data.eyebrow,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    fontSize: phone ? 10.5 : 11.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: phone ? 0.9 : 1.15,
+                    color: tOrange1,
+                  ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 9),
+          SizedBox(height: phone ? 8 : 9),
 
           Text(
             data.title,
             style: GoogleFonts.manrope(
-              fontSize: 31,
+              fontSize: phone ? (small ? 23 : 26) : 31,
               fontWeight: FontWeight.w800,
               color: tBlue2,
-              letterSpacing: -0.7,
+              letterSpacing: phone ? -0.5 : -0.7,
             ),
           ),
 
-          const SizedBox(height: 9),
+          SizedBox(height: phone ? 8 : 9),
 
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 900),
             child: Text(
               data.description,
               style: GoogleFonts.manrope(
-                fontSize: 13,
+                fontSize: phone ? 12.5 : 13,
                 fontWeight: FontWeight.w500,
                 color: tBlack.withOpacity(0.53),
                 height: 1.6,
@@ -211,13 +262,18 @@ class SolutionsDetailsPage extends StatelessWidget {
   Widget _buildCards() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const double spacing = 26;
+        final bool phone = _isPhone(context);
 
-        final double cardWidth = (constraints.maxWidth - spacing) / 2;
+        final double spacing = phone ? 20 : 26;
+
+        // Phones: one card per row (full width).
+        // Tablet / desktop: two cards per row (unchanged).
+        final double cardWidth =
+            phone ? constraints.maxWidth : (constraints.maxWidth - spacing) / 2;
 
         return Wrap(
           spacing: spacing,
-          runSpacing: 28,
+          runSpacing: phone ? 22 : 28,
           alignment: WrapAlignment.center,
           children:
               data.cards.asMap().entries.map((entry) {
@@ -238,70 +294,6 @@ class SolutionsDetailsPage extends StatelessWidget {
       },
     );
   }
-
-  // ========================================================================
-  // BOTTOM STRIP
-  // ========================================================================
-
-  // Widget _buildBottomStrip() {
-  //   return Container(
-  //     width: double.infinity,
-  //     padding: const EdgeInsets.symmetric(
-  //       horizontal: 26,
-  //       vertical: 21,
-  //     ),
-  //     decoration: BoxDecoration(
-  //       color: tWhite,
-  //       borderRadius: BorderRadius.circular(15),
-  //       border: Border.all(
-  //         color: tBlue2.withOpacity(0.07),
-  //       ),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: tBlue2.withOpacity(0.045),
-  //           blurRadius: 20,
-  //           offset: const Offset(0, 8),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Container(
-  //           width: 34,
-  //           height: 34,
-  //           decoration: BoxDecoration(
-  //             color: tOrange1.withOpacity(0.09),
-  //             borderRadius: BorderRadius.circular(9),
-  //           ),
-  //           child: const Icon(
-  //             Icons.auto_awesome_rounded,
-  //             size: 17,
-  //             color: tOrange1,
-  //           ),
-  //         ),
-  //         const SizedBox(width: 13),
-  //         Expanded(
-  //           child: Text(
-  //             'Built around your business requirements.',
-  //             style: GoogleFonts.manrope(
-  //               fontSize: 12,
-  //               fontWeight: FontWeight.w700,
-  //               color: tBlue2,
-  //             ),
-  //           ),
-  //         ),
-  //         Text(
-  //           'Trakmate Design Solutions',
-  //           style: GoogleFonts.manrope(
-  //             fontSize: 11,
-  //             fontWeight: FontWeight.w600,
-  //             color: tBlack.withOpacity(0.42),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }
 
 // ============================================================================
@@ -324,33 +316,79 @@ class _DetailCard extends StatefulWidget {
 }
 
 class _DetailCardState extends State<_DetailCard> {
-  bool _hovering = false;
+  bool _hover = false;
+
+  // No hover effect on tablet / mobile layouts
+  bool get _isTouch =>
+      ResponsiveLayout.isMobile(context) || ResponsiveLayout.isTablet(context);
+
+  bool get _hovering => _hover && !_isTouch;
 
   void _setHovering(bool value) {
-    if (_hovering == value) return;
+    if (_isTouch || _hover == value) return;
 
     setState(() {
-      _hovering = value;
+      _hover = value;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final SolutionCardData card = widget.data;
+    final bool phone = _isPhone(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final double cardWidth = constraints.maxWidth;
 
         // ================================================================
+        // RESPONSIVE IMAGE HEIGHT
+        // Phones: scales with card width. Tablet/desktop: fixed 350.
+        // ================================================================
+
+        final double imageHeight =
+            phone ? (cardWidth / 1.5).clamp(170.0, 260.0) : 350.0;
+
+        // How far the floating logo overlaps the image bottom.
+        final double logoOverlap = phone ? 16 : 21;
+
+        // ================================================================
         // RESPONSIVE LOGO
         // ================================================================
 
-        final double logoWidth = (cardWidth * 0.17).clamp(120.0, 150.0);
+        final double logoWidth =
+            phone
+                ? (cardWidth * 0.30).clamp(92.0, 120.0)
+                : (cardWidth * 0.17).clamp(120.0, 150.0);
 
-        final double logoHeight = (logoWidth * 0.34).clamp(40.0, 50.0);
+        final double logoHeight =
+            phone
+                ? (logoWidth * 0.34).clamp(32.0, 40.0)
+                : (logoWidth * 0.34).clamp(40.0, 50.0);
 
-        final double logoRight = cardWidth * 0.055;
+        final double logoRight = phone ? 14 : cardWidth * 0.055;
+
+        // Very narrow cards: stack the two buttons vertically.
+        final bool stackButtons = phone && cardWidth < 280;
+
+        final double buttonHeight = phone ? 44 : 48;
+
+        final Widget demoButton = _HoverButton(
+          title: 'View Demo',
+          icon: Icons.arrow_forward_rounded,
+          backgroundColor: widget.accentColor,
+          foregroundColor: tWhite,
+          height: buttonHeight,
+        );
+
+        final Widget websiteButton = _HoverButton(
+          title: 'View website',
+          icon: Icons.north_east_rounded,
+          backgroundColor: tWhite,
+          foregroundColor: widget.accentColor,
+          borderColor: widget.accentColor.withOpacity(0.25),
+          height: buttonHeight,
+        );
 
         return MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -367,7 +405,7 @@ class _DetailCardState extends State<_DetailCard> {
             decoration: BoxDecoration(
               color: tWhite,
 
-              borderRadius: BorderRadius.circular(19),
+              borderRadius: BorderRadius.circular(phone ? 16 : 19),
 
               border: Border.all(
                 color:
@@ -394,7 +432,7 @@ class _DetailCardState extends State<_DetailCard> {
             clipBehavior: Clip.none,
 
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(19),
+              borderRadius: BorderRadius.circular(phone ? 16 : 19),
 
               child: Stack(
                 clipBehavior: Clip.none,
@@ -411,7 +449,7 @@ class _DetailCardState extends State<_DetailCard> {
                       // ====================================================
                       SizedBox(
                         width: double.infinity,
-                        height: 350,
+                        height: imageHeight,
 
                         child: ClipRect(
                           child: AnimatedScale(
@@ -435,7 +473,7 @@ class _DetailCardState extends State<_DetailCard> {
                                       child: Center(
                                         child: Icon(
                                           Icons.image_outlined,
-                                          size: 46,
+                                          size: phone ? 38 : 46,
                                           color: tWhite.withOpacity(0.8),
                                         ),
                                       ),
@@ -443,9 +481,7 @@ class _DetailCardState extends State<_DetailCard> {
                                   },
                                 ),
 
-                                // ------------------------------------------------
                                 // SUBTLE BOTTOM FADE
-                                // ------------------------------------------------
                                 Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
@@ -470,7 +506,10 @@ class _DetailCardState extends State<_DetailCard> {
                       // CONTENT
                       // ====================================================
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(27, 20, 27, 27),
+                        padding:
+                            phone
+                                ? const EdgeInsets.fromLTRB(18, 24, 18, 20)
+                                : const EdgeInsets.fromLTRB(27, 20, 27, 27),
 
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,7 +519,7 @@ class _DetailCardState extends State<_DetailCard> {
                               duration: const Duration(milliseconds: 200),
 
                               style: GoogleFonts.manrope(
-                                fontSize: 20,
+                                fontSize: phone ? 18 : 20,
                                 fontWeight: FontWeight.w800,
                                 color: _hovering ? widget.accentColor : tBlue2,
                                 letterSpacing: -0.25,
@@ -489,14 +528,14 @@ class _DetailCardState extends State<_DetailCard> {
                               child: Text(card.title),
                             ),
 
-                            const SizedBox(height: 4),
+                            SizedBox(height: phone ? 6 : 4),
 
-                            SizedBox(
-                              height: 35,
-
-                              child: Text(
+                            // Phones: description grows with its text.
+                            // Tablet/desktop: fixed 35px height (unchanged).
+                            if (phone)
+                              Text(
                                 card.description,
-                                maxLines: 3,
+                                maxLines: 4,
                                 overflow: TextOverflow.ellipsis,
 
                                 style: GoogleFonts.manrope(
@@ -505,40 +544,49 @@ class _DetailCardState extends State<_DetailCard> {
                                   color: tBlack.withOpacity(0.55),
                                   height: 1.55,
                                 ),
-                              ),
-                            ),
+                              )
+                            else
+                              SizedBox(
+                                height: 35,
 
-                            const SizedBox(height: 0),
+                                child: Text(
+                                  card.description,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: tBlack.withOpacity(0.55),
+                                    height: 1.55,
+                                  ),
+                                ),
+                              ),
+
+                            SizedBox(height: phone ? 16 : 0),
 
                             // =================================================
                             // BUTTONS
                             // =================================================
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _HoverButton(
-                                    title: 'View Demo',
-                                    icon: Icons.arrow_forward_rounded,
-                                    backgroundColor: widget.accentColor,
-                                    foregroundColor: tWhite,
-                                  ),
-                                ),
+                            if (stackButtons)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  demoButton,
+                                  const SizedBox(height: 10),
+                                  websiteButton,
+                                ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(child: demoButton),
 
-                                const SizedBox(width: 12),
+                                  SizedBox(width: phone ? 10 : 12),
 
-                                Expanded(
-                                  child: _HoverButton(
-                                    title: 'View website',
-                                    icon: Icons.north_east_rounded,
-                                    backgroundColor: tWhite,
-                                    foregroundColor: widget.accentColor,
-                                    borderColor: widget.accentColor.withOpacity(
-                                      0.25,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                                  Expanded(child: websiteButton),
+                                ],
+                              ),
                           ],
                         ),
                       ),
@@ -548,18 +596,13 @@ class _DetailCardState extends State<_DetailCard> {
                   // ========================================================
                   // TRAKFLEET FLOATING LOGO
                   //
-                  // IMPORTANT:
-                  // This is now positioned relative to the WHOLE CARD.
-                  // It is NOT inside the image Stack.
+                  // Positioned relative to the WHOLE CARD, overlapping the
+                  // image/content boundary.
                   // ========================================================
                   Positioned(
                     right: logoRight,
 
-                    // Image height = 350
-                    //
-                    // Logo overlaps the image/content boundary by
-                    // approximately 29 pixels.
-                    top: 350 - 21,
+                    top: imageHeight - logoOverlap,
 
                     child: AnimatedScale(
                       scale: _hovering ? 1.075 : 1.0,
@@ -575,7 +618,7 @@ class _DetailCardState extends State<_DetailCard> {
                         decoration: BoxDecoration(
                           color: tWhite,
 
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(phone ? 11 : 14),
 
                           boxShadow: [
                             // Main shadow
@@ -634,6 +677,7 @@ class _HoverButton extends StatefulWidget {
   final Color backgroundColor;
   final Color foregroundColor;
   final Color? borderColor;
+  final double height;
 
   const _HoverButton({
     required this.title,
@@ -641,6 +685,7 @@ class _HoverButton extends StatefulWidget {
     required this.backgroundColor,
     required this.foregroundColor,
     this.borderColor,
+    this.height = 48,
   });
 
   @override
@@ -674,7 +719,7 @@ class _HoverButtonState extends State<_HoverButton> {
 
         curve: Curves.easeOutCubic,
 
-        height: 48,
+        height: widget.height,
 
         transform: Matrix4.identity()..translate(0.0, _hovering ? -2.0 : 0.0),
 
@@ -756,26 +801,30 @@ class _HoverBackButton extends StatefulWidget {
 }
 
 class _HoverBackButtonState extends State<_HoverBackButton> {
-  bool _hovering = false;
+  bool _hover = false;
+
+  bool get _isTouch =>
+      ResponsiveLayout.isMobile(context) || ResponsiveLayout.isTablet(context);
+
+  bool get _hovering => _hover && !_isTouch;
 
   @override
   Widget build(BuildContext context) {
+    final bool small = _isSmallPhone(context);
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
 
       onEnter: (_) {
-        setState(() {
-          _hovering = true;
-        });
+        if (!_isTouch) setState(() => _hover = true);
       },
 
       onExit: (_) {
-        setState(() {
-          _hovering = false;
-        });
+        if (!_isTouch) setState(() => _hover = false);
       },
 
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: widget.onTap,
 
         child: AnimatedContainer(
@@ -811,7 +860,7 @@ class _HoverBackButtonState extends State<_HoverBackButton> {
                 'Back to Solutions',
 
                 style: GoogleFonts.manrope(
-                  fontSize: 13,
+                  fontSize: small ? 12 : 13,
                   fontWeight: FontWeight.w700,
                   color: tBlue2,
                 ),

@@ -26,6 +26,10 @@ class HeroSlide {
 
 /// Reusable hero slider.
 ///
+/// Tablet / desktop: full-bleed image with the text on top (unchanged).
+/// Mobile: same look as the Manufacturing hero - image banner on top
+/// (fading into the blue gradient) with the text underneath.
+///
 /// HeroSlider(
 ///   isActive: widget.isActive,   // pauses auto-play when the page is hidden
 ///   slides: [HeroSlide(...), HeroSlide(...), HeroSlide(...)],
@@ -134,14 +138,32 @@ class _HeroSliderState extends State<HeroSlider> {
     _restartTimer(); // reset the countdown after the user interacts
   }
 
+  // Medium phones (e.g. 360px wide)
+  bool _isCompact(BuildContext context) =>
+      MediaQuery.of(context).size.width < 380;
+
+  // Mobile image banner height (same ratio as the Manufacturing hero)
+  double _mobileImageHeight(BuildContext context) =>
+      MediaQuery.of(context).size.width * 0.62;
+
+  // Mobile text area under the image (label + heading + room for the dots)
+  double _mobileTextHeight(BuildContext context) =>
+      _isCompact(context) ? 300 : 340;
+
   double _resolveHeight(BuildContext context) {
-    return widget.height ??
-        MediaQuery.of(context).size.height * widget.heightFactor;
+    if (widget.height != null) return widget.height!;
+
+    if (ResponsiveLayout.isMobile(context)) {
+      return _mobileImageHeight(context) + _mobileTextHeight(context);
+    }
+
+    return MediaQuery.of(context).size.height * widget.heightFactor;
   }
 
   @override
   Widget build(BuildContext context) {
     final double h = _resolveHeight(context);
+    final bool isMobile = ResponsiveLayout.isMobile(context);
 
     if (_loading) {
       return SizedBox(
@@ -178,28 +200,29 @@ class _HeroSliderState extends State<HeroSlider> {
       },
       child: MouseRegion(
         onEnter: (_) => _focusNode.requestFocus(),
-        // onHover: (_) {
-        //   // keep reclaiming focus while the cursor moves over the slider
-        //   if (!_focusNode.hasFocus) _focusNode.requestFocus();
-        // },//2
         child: SizedBox(
           width: double.infinity,
           height: h,
           child: Stack(
             children: [
-              //  SLIDES
+              //  SLIDES (on a phone you can also swipe left / right)
               PageView.builder(
                 controller: _controller,
                 // no itemCount -> infinite
-                onPageChanged: (i) => setState(() => _virtualPage = i),
+                onPageChanged: (i) {
+                  setState(() => _virtualPage = i);
+                  if (isMobile) _restartTimer(); // restart after a swipe
+                },
                 itemBuilder: (context, i) {
                   final int real = i % count;
-                  return _buildSlide(widget.slides[real], real);
+                  return isMobile
+                      ? _buildMobileSlide(widget.slides[real], real)
+                      : _buildSlide(widget.slides[real], real);
                 },
               ),
 
-              // ---------- ARROWS ----------
-              if (count > 1) ...[
+              // ---------- ARROWS (tablet / desktop only) ----------
+              if (count > 1 && !isMobile) ...[
                 Positioned(
                   left: 20,
                   top: 0,
@@ -233,7 +256,7 @@ class _HeroSliderState extends State<HeroSlider> {
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: 12,
+                  bottom: isMobile ? 16 : 12,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(count, (i) {
@@ -241,6 +264,7 @@ class _HeroSliderState extends State<HeroSlider> {
                       return MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap:
                               () => _onManualMove(_virtualPage + (i - _index)),
                           child: AnimatedContainer(
@@ -282,16 +306,149 @@ class _HeroSliderState extends State<HeroSlider> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // MOBILE SLIDE - same structure as the Manufacturing mobile hero:
+  // blue gradient, image banner on top fading into the blue, text below.
+  // ---------------------------------------------------------------------------
+  Widget _buildMobileSlide(HeroSlide slide, int i) {
+    final bool current = i == _index;
+    final bool compact = _isCompact(context);
+    final double headingSize = compact ? 25 : 30; // same as Manufacturing hero
+
+    // "\n" breaks are tuned for wide screens; on a phone let text wrap.
+    final String line2 = slide.line2.replaceAll('\n', ' ');
+
+    final Widget content = Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tBlue2, tBlue3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // IMAGE: only the bottom edge fades into the blue
+          SizedBox(
+            width: double.infinity,
+            height: _mobileImageHeight(context),
+            child: ShaderMask(
+              blendMode: BlendMode.dstIn,
+              shaderCallback: (Rect rect) {
+                return const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.black, Colors.black, Colors.transparent],
+                  stops: [0.0, 0.6, 1.0],
+                ).createShader(rect);
+              },
+              child: Image.asset(
+                slide.image,
+                fit: BoxFit.cover,
+                alignment: Alignment.centerRight,
+                errorBuilder:
+                    (context, error, stackTrace) => Container(
+                      color: tBlue2,
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 48,
+                        color: tWhite.withOpacity(0.55),
+                      ),
+                    ),
+              ),
+            ),
+          ),
+
+          // TEXT (bottom padding leaves room for the dots)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: AnimatedSlide(
+                  duration: const Duration(milliseconds: 700),
+                  curve: Curves.easeOutCubic,
+                  offset: current ? Offset.zero : const Offset(-0.06, 0),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 700),
+                    opacity: current ? 1 : 0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (slide.label != null) ...[
+                          Text(
+                            slide.label!,
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: tOrange1,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 35,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: tOrange1,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        Text(
+                          slide.line1,
+                          style: GoogleFonts.manrope(
+                            fontSize: headingSize,
+                            fontWeight: FontWeight.w600,
+                            height: 1.2,
+                            color: tWhite,
+                          ),
+                        ),
+                        Text(
+                          line2,
+                          style: GoogleFonts.manrope(
+                            fontSize: headingSize,
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                            color: tOrange1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (slide.onTap == null) return content;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(onTap: slide.onTap, child: content),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // TABLET / DESKTOP SLIDE (unchanged)
+  // ---------------------------------------------------------------------------
   Widget _buildSlide(HeroSlide slide, int i) {
     final bool current = i == _index;
-    final bool tablet = ResponsiveLayout.isTablet(context);
+    final bool isTablet = ResponsiveLayout.isTablet(context);
     final Widget content = Stack(
       fit: StackFit.expand,
       children: [
         // background image
         Image.asset(
           slide.image,
-          // fit: BoxFit.fill,
           fit: BoxFit.cover,
           errorBuilder:
               (context, error, stackTrace) => Container(
@@ -324,7 +481,7 @@ class _HeroSliderState extends State<HeroSlider> {
         // two-line text stacked above the image
         Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: tablet ? 40 : 80,
+            horizontal: isTablet ? 80 : 80,
           ), //text position
           child: Align(
             alignment: Alignment.centerLeft,
@@ -343,7 +500,7 @@ class _HeroSliderState extends State<HeroSlider> {
                       Text(
                         slide.label!,
                         style: GoogleFonts.manrope(
-                          fontSize: tablet ? 13 : 14,
+                          fontSize: isTablet ? 13 : 14,
                           fontWeight: FontWeight.w700,
                           color: tOrange1,
                           letterSpacing: 1.2,
@@ -363,7 +520,7 @@ class _HeroSliderState extends State<HeroSlider> {
                     Text(
                       slide.line1,
                       style: GoogleFonts.manrope(
-                        fontSize: tablet ? 35 : 48,
+                        fontSize: isTablet ? 35 : 48,
                         fontWeight: FontWeight.w600,
                         height: 1.15,
                         color: tWhite,
@@ -372,7 +529,7 @@ class _HeroSliderState extends State<HeroSlider> {
                     Text(
                       slide.line2,
                       style: GoogleFonts.manrope(
-                        fontSize: tablet ? 35 : 48,
+                        fontSize: isTablet ? 35 : 48,
                         fontWeight: FontWeight.w700,
                         height: 1.15,
                         color: tOrange1,

@@ -25,10 +25,19 @@ class ManufacturingSection extends StatefulWidget {
 }
 
 class _ManufacturingSectionState extends State<ManufacturingSection> {
-  bool _heroImageLoading = true; // NEW
-  bool _cardsLoading = true; // NEW
-  bool get _isTablet => ResponsiveLayout.isTablet(context);
+  bool _heroImageLoading = true;
+  bool _cardsLoading = true;
+
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // Horizontal page padding for the content blocks below the hero
+  double get _pagePadding => isMobile ? 16 : (isTablet ? 24 : 40);
+
   final Set<int> _hoveredServiceCards = {};
+
   @override
   void initState() {
     super.initState();
@@ -94,7 +103,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         onError: (e, s) => debugPrint('Failed to load manufacturing hero: $e'),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      // debugPrint('Error preloading manufacturing hero image: $e');
+      // ignore
     }
 
     if (!mounted) return;
@@ -115,14 +124,13 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         ),
       );
     } catch (e) {
-      // debugPrint('Error preloading service images: $e');
+      // ignore
     }
     if (!mounted) return;
     setState(() => _cardsLoading = false);
   }
 
   static const String _heroImage = 'images/manufacturing.jpg';
-  // static const String _cardImage = 'images/company.jpg';
 
   final Map<String, GlobalKey> _serviceKeys = {
     'Electronics Manufacturing': GlobalKey(),
@@ -183,32 +191,27 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
       title: 'High Quality',
       description: 'Standardized processes and consistent product quality.',
     ),
-
     _ManufacturingValue(
       icon: 'icons/laptop.svg',
       title: 'Advanced Facilities',
       description: 'Modern capabilities for efficient and reliable production.',
     ),
-
     _ManufacturingValue(
       icon: 'icons/team.svg',
       title: 'Experienced Team',
       description: 'Skilled professionals focused on precision and execution.',
     ),
-
     _ManufacturingValue(
       icon: 'icons/scalability.svg',
       title: 'Scalable Solutions',
       description:
           'Production support designed to grow with your requirements.',
     ),
-
     _ManufacturingValue(
       icon: 'icons/ontime.svg',
       title: 'On-Time Delivery',
       description: 'Structured planning and dependable production schedules.',
     ),
-
     _ManufacturingValue(
       icon: 'icons/secured.svg',
       title: 'Confidential & Secure',
@@ -218,31 +221,31 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
   @override
   Widget build(BuildContext context) {
+    final double gap = isMobile ? 32 : 42;
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          _heroImageLoading
-              ? const HeroHeaderShimmer() // NEW
-              : _buildHero(),
+          _heroImageLoading ? const HeroHeaderShimmer() : _buildHero(),
 
-          const SizedBox(height: 42),
+          SizedBox(height: gap),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+            padding: EdgeInsets.symmetric(horizontal: _pagePadding),
             child: _buildServicesSection(),
           ),
 
-          const SizedBox(height: 42),
+          SizedBox(height: gap),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+            padding: EdgeInsets.symmetric(horizontal: _pagePadding),
             child: _buildQualityBar(),
           ),
 
-          const SizedBox(height: 42),
+          SizedBox(height: gap),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+            padding: EdgeInsets.symmetric(horizontal: _pagePadding),
             child: ProcessSection(
               eyebrow: 'OUR MANUFACTURING PROCESS',
               title: 'From Concept to Customer',
@@ -286,7 +289,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
             ),
           ),
 
-          const SizedBox(height: 45),
+          SizedBox(height: isMobile ? 36 : 45),
 
           FooterSection(onNavigate: widget.onNavigate),
         ],
@@ -294,7 +297,13 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // HERO
+  // ---------------------------------------------------------------------------
   Widget _buildHero() {
+    // Mobile has its own stacked layout (image on top, text below).
+    if (isMobile) return _buildMobileHero();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -307,9 +316,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
-          // Increase for a bigger image / longer blend, decrease for smaller.
           final double imageWidth =
-              constraints.maxWidth * (_isTablet ? 0.5 : 0.62);
+              constraints.maxWidth * (isTablet ? 0.5 : 0.62);
 
           return Stack(
             children: [
@@ -327,17 +335,17 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: _isTablet ? 24 : 40,
+                    horizontal: isTablet ? 24 : 40,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        flex: _isTablet ? 8 : 1,
+                        flex: isTablet ? 8 : 1,
                         child: _buildHeroTextColumn(),
                       ),
-                      SizedBox(width: _isTablet ? 0 : 40),
+                      SizedBox(width: isTablet ? 0 : 40),
                       // Empty half: the image shows through behind this space.
                       const Expanded(child: SizedBox()),
                     ],
@@ -346,6 +354,59 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
               ),
             ],
           );
+        },
+      ),
+    );
+  }
+
+  // MOBILE hero: image banner on top (fading into the blue), text below.
+  Widget _buildMobileHero() {
+    final double screenW = MediaQuery.of(context).size.width;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tBlue2, tBlue3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: screenW * 0.62,
+            child: _buildMobileHeroImage(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+            child: _buildHeroTextColumn(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mobile hero image: only the bottom edge fades into the blue.
+  Widget _buildMobileHeroImage() {
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0.0, 0.6, 1.0],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        _heroImage,
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildImageFallback(dark: true);
         },
       ),
     );
@@ -362,8 +423,6 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [Colors.transparent, Colors.black54, Colors.black],
-          // 0.00 -> 0.55 is the blend zone. Bigger last value = softer,
-          // longer blend. Smaller = sharper edge.
           stops: [0.0, 0.30, 0.55],
         ).createShader(rect);
       },
@@ -385,7 +444,6 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Colors.black, Colors.black, Colors.transparent],
-          // Fully visible until 80% height, then fades out.
           stops: [0.0, 0.80, 1.0],
         ).createShader(rect);
       },
@@ -394,8 +452,80 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   }
 
   /// Left side: label, title, description and the 4 hero points.
-  /// (Same content as before, just moved into its own method.)
   Widget _buildHeroTextColumn() {
+    final bool mobile = isMobile;
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool compact = screenW < 380; // medium phones
+
+    final double headingSize =
+        mobile ? (compact ? 25 : 30) : (isTablet ? 34 : 48);
+
+    // (icon, title, subtitle, animation delay)
+    const List<(String, String, String, int)> pointData = [
+      (
+        'icons/laptop.svg',
+        'Advanced Infrastructure',
+        'Modern facilities for efficient production',
+        520,
+      ),
+      (
+        'icons/team.svg',
+        'Skilled Workforce',
+        'Experienced teams focused on precision',
+        720,
+      ),
+      (
+        'icons/quality1.svg',
+        'Quality Focus',
+        'Consistent quality at every stage',
+        920,
+      ),
+      (
+        'icons/ontime.svg',
+        'On-Time Delivery',
+        'Reliable production and timely delivery',
+        1120,
+      ),
+    ];
+
+    Widget pointAt(int i) => HeroAnimatedText(
+      isActive: widget.isActive,
+      delay: pointData[i].$4,
+      child: _buildHeroPoint(
+        icon: pointData[i].$1,
+        title: pointData[i].$2,
+        subtitle: pointData[i].$3,
+      ),
+    );
+
+    Widget points;
+    if (mobile) {
+      // Mobile: 2 x 2 grid
+      const double hPad = 20;
+      const double gap = 16;
+      final double cardW = ((screenW - (hPad * 2) - gap) / 2).floorToDouble();
+      points = Wrap(
+        spacing: gap,
+        runSpacing: 22,
+        children: [
+          for (int i = 0; i < pointData.length; i++)
+            SizedBox(width: cardW, child: pointAt(i)),
+        ],
+      );
+    } else {
+      // Tablet / desktop (unchanged): one row
+      points = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: pointAt(0)),
+          SizedBox(width: isTablet ? 17 : 0),
+          Expanded(child: pointAt(1)),
+          Expanded(child: pointAt(2)),
+          Expanded(child: pointAt(3)),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -405,7 +535,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           child: Text(
             'MANUFACTURING EXCELLENCE',
             style: GoogleFonts.manrope(
-              fontSize: 13,
+              fontSize: mobile ? 12 : 13,
               fontWeight: FontWeight.w600,
               color: tOrange1,
               letterSpacing: 1.2,
@@ -413,16 +543,16 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           ),
         ),
 
-        const SizedBox(height: 15),
+        SizedBox(height: mobile ? 12 : 15),
         HeroAnimatedText(
           isActive: widget.isActive,
           delay: 120,
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: _isTablet ? 34 : 48,
+                fontSize: headingSize,
                 fontWeight: FontWeight.w600,
-                height: 1.15,
+                height: mobile ? 1.2 : 1.15,
                 color: tWhite,
               ),
               children: [
@@ -439,7 +569,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           ),
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: mobile ? 14 : 18),
         HeroAnimatedText(
           isActive: widget.isActive,
           delay: 320,
@@ -454,59 +584,9 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           ),
         ),
 
-        const SizedBox(height: 32),
+        SizedBox(height: mobile ? 26 : 32),
 
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: HeroAnimatedText(
-                isActive: widget.isActive,
-                delay: 520,
-                child: _buildHeroPoint(
-                  icon: 'icons/laptop.svg',
-                  title: 'Advanced Infrastructure',
-                  subtitle: 'Modern facilities for efficient production',
-                ),
-              ),
-            ),
-            SizedBox(width: _isTablet ? 17 : 0),
-            Expanded(
-              child: HeroAnimatedText(
-                isActive: widget.isActive,
-                delay: 720,
-                child: _buildHeroPoint(
-                  icon: 'icons/team.svg',
-                  title: 'Skilled Workforce',
-                  subtitle: 'Experienced teams focused on precision',
-                ),
-              ),
-            ),
-
-            Expanded(
-              child: HeroAnimatedText(
-                isActive: widget.isActive,
-                delay: 920,
-                child: _buildHeroPoint(
-                  icon: 'icons/quality1.svg',
-                  title: 'Quality Focus',
-                  subtitle: 'Consistent quality at every stage',
-                ),
-              ),
-            ),
-            Expanded(
-              child: HeroAnimatedText(
-                isActive: widget.isActive,
-                delay: 1120,
-                child: _buildHeroPoint(
-                  icon: 'icons/ontime.svg',
-                  title: 'On-Time Delivery',
-                  subtitle: 'Reliable production and timely delivery',
-                ),
-              ),
-            ),
-          ],
-        ),
+        points,
       ],
     );
   }
@@ -516,10 +596,14 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     required String title,
     required String subtitle,
   }) {
+    final bool mobile = isMobile;
+
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: _isTablet ? 1 : 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: mobile ? 0 : (isTablet ? 1 : 6),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -535,7 +619,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                 softWrap: false,
                 style: GoogleFonts.manrope(
                   color: tWhite,
-                  fontSize: _isTablet ? 12.5 : 13,
+                  fontSize: isTablet ? 12.5 : 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -547,7 +631,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
               subtitle,
               style: GoogleFonts.manrope(
                 color: tWhite.withOpacity(0.7),
-                fontSize: _isTablet ? 11 : 12,
+                fontSize: isTablet ? 11 : (mobile ? 11.5 : 12),
                 height: 1.35,
                 fontWeight: FontWeight.w400,
               ),
@@ -558,28 +642,43 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     );
   }
 
+  // ---------------------------------------------------------------------------
   // SERVICES
-
+  // ---------------------------------------------------------------------------
   Widget _buildServicesSection() {
+    // final bool mobile = isMobile;
+
+    final Widget description = Text(
+      'From electronics manufacturing and assembly to testing and production support, we help bring products from concept to reality.',
+      textAlign: TextAlign.center,
+      style: GoogleFonts.manrope(
+        fontSize: isMobile ? 12.5 : 13,
+        fontWeight: FontWeight.w500,
+        color: tBlack,
+        height: 1.5,
+      ),
+    );
+
     return Column(
       children: [
         Text(
           'OUR MANUFACTURING SERVICES',
+          textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            fontSize: 13,
+            fontSize: isMobile ? 12 : 13,
             fontWeight: FontWeight.w600,
             color: tOrange1,
             letterSpacing: 1.2,
           ),
         ),
 
-        const SizedBox(height: 10),
+        SizedBox(height: isMobile ? 8 : 10),
 
         Text(
           'End-to-End Manufacturing Solutions',
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            fontSize: 25,
+            fontSize: isMobile ? 20 : 25,
             fontWeight: FontWeight.w700,
             color: tBlue2,
             height: 1.2,
@@ -588,32 +687,27 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
 
         const SizedBox(height: 4),
 
-        SizedBox(
-          width: 600,
-          child: Text(
-            'From electronics manufacturing and assembly to testing and production support, we help bring products from concept to reality.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: tBlack,
-              height: 1.5,
-            ),
-          ),
-        ),
+        // Desktop / tablet keep the fixed 600px width; mobile uses full width
+        if (isMobile) description else SizedBox(width: 600, child: description),
 
-        const SizedBox(height: 30),
+        SizedBox(height: isMobile ? 24 : 30),
 
         LayoutBuilder(
           builder: (context, constraints) {
-            // final cardWidth = (constraints.maxWidth - 32) / 3;
-            final cardWidth = ((constraints.maxWidth - 32) / 3).clamp(
-              0.0,
-              double.infinity,
-            );
+            const double spacing = 16;
+
+            // Mobile: 1 card per row on phones, 2 on very wide phones.
+            // Tablet / desktop: 3 per row (unchanged).
+            final int columns =
+                isMobile ? (constraints.maxWidth >= 560 ? 2 : 1) : 3;
+
+            final double cardWidth =
+                ((constraints.maxWidth - spacing * (columns - 1)) / columns)
+                    .clamp(0.0, double.infinity);
+
             if (_cardsLoading) {
               return Wrap(
-                spacing: 16,
+                spacing: spacing,
                 runSpacing: 16,
                 children: List.generate(_services.length, (index) {
                   return SizedBox(
@@ -624,13 +718,13 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
               );
             }
             return Wrap(
-              spacing: 16,
+              spacing: spacing,
               runSpacing: 30,
               children: List.generate(_services.length, (index) {
                 final service = _services[index];
 
                 return SizedBox(
-                  key: _serviceKeys[service.title], // <-- add this
+                  key: _serviceKeys[service.title],
                   width: cardWidth,
                   child: _buildServiceCard(service, index),
                 );
@@ -643,19 +737,25 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   }
 
   Widget _buildServiceCard(_ManufacturingService service, int index) {
+    // final bool mobile = _isMobile;
     final Color iconBackground = index.isEven ? tBlue2 : tOrange1;
-    final bool isHovered = _hoveredServiceCards.contains(index);
+    final bool touch = isMobile || isTablet;
+
+    // Hover only ever applies on desktop
+    final bool isHovered = !touch && _hoveredServiceCards.contains(index);
 
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: touch ? MouseCursor.defer : SystemMouseCursors.click,
 
       onEnter: (_) {
+        if (touch) return;
         setState(() {
           _hoveredServiceCards.add(index);
         });
       },
 
       onExit: (_) {
+        if (touch) return;
         setState(() {
           _hoveredServiceCards.remove(index);
         });
@@ -668,7 +768,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
         // Card hover effect
         transform: Matrix4.translationValues(0, isHovered ? -5 : 0, 0),
 
-        height: _isTablet ? 350 : 310, //card height
+        height: isMobile ? 320 : (isTablet ? 350 : 310), //card height
 
         decoration: BoxDecoration(
           color: tWhite,
@@ -700,7 +800,7 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 200, // image height
+              height: isMobile ? 190 : 200, // image height
               width: double.infinity,
 
               child: ClipRRect(
@@ -726,8 +826,6 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                           return Stack(
                             fit: StackFit.expand,
                             children: [
-                              // shimmer stays until the first frame is decoded
-                              // if (frame == null)
                               const ShimmerBox(height: double.infinity),
                               AnimatedOpacity(
                                 opacity: frame == null ? 0 : 1,
@@ -775,9 +873,9 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                         Expanded(
                           child: Text(
                             service.description,
-                            maxLines: _isTablet ? null : 3,
+                            maxLines: isTablet ? null : 3,
                             overflow:
-                                _isTablet
+                                isTablet
                                     ? TextOverflow.visible
                                     : TextOverflow.ellipsis,
                             style: GoogleFonts.manrope(
@@ -788,42 +886,11 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
                             ),
                           ),
                         ),
-
-                        // TextButton(
-                        //   onPressed: () {},
-                        //   style: TextButton.styleFrom(
-                        //     padding: EdgeInsets.zero,
-                        //     minimumSize: Size.zero,
-                        //     tapTargetSize:
-                        //         MaterialTapTargetSize.shrinkWrap,
-                        //   ),
-                        //   child: Row(
-                        //     mainAxisSize: MainAxisSize.min,
-                        //     children: [
-                        //       Text(
-                        //         'Learn More',
-                        //         style: GoogleFonts.manrope(
-                        //           fontSize: 12,
-                        //           fontWeight: FontWeight.w700,
-                        //           color: tOrange1,
-                        //         ),
-                        //       ),
-                        //       const SizedBox(width: 4),
-                        //       Icon(
-                        //         Icons.arrow_forward_rounded,
-                        //         size: 13,
-                        //         color: tOrange1,
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
 
-                  // =====================================
                   // STACKED ICON — SAME AS INDUSTRY CARD
-                  // =====================================
                   Positioned(
                     top: -25,
                     left: 17,
@@ -883,12 +950,18 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
     );
   }
 
-  // QUALITY BAR
-
+  // ---------------------------------------------------------------------------
+  // QUALITY BAR ("Why partner with us")
+  // ---------------------------------------------------------------------------
   Widget _buildQualityBar() {
+    // final bool mobile = _isMobile;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+      padding:
+          isMobile
+              ? const EdgeInsets.symmetric(horizontal: 14, vertical: 20)
+              : const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tBlue2, tBlue3],
@@ -922,22 +995,24 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
             'Built on Quality. Driven by Commitment.',
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
-              fontSize: 19,
+              fontSize: isMobile ? 17 : 19,
               fontWeight: FontWeight.w700,
               color: tWhite,
+              height: isMobile ? 1.25 : null,
             ),
           ),
 
-          const SizedBox(height: 18),
+          SizedBox(height: isMobile ? 20 : 18),
 
-          if (_isTablet)
+          // Mobile: 2 per row | Tablet: 3 per row | Desktop: single row
+          if (isMobile || isTablet)
             LayoutBuilder(
               builder: (context, constraints) {
                 const gap = 16.0;
-                final itemWidth = ((constraints.maxWidth - gap * 2) / 3).clamp(
-                  0.0,
-                  double.infinity,
-                );
+                final int columns = isMobile ? 2 : 3;
+                final itemWidth =
+                    ((constraints.maxWidth - gap * (columns - 1)) / columns)
+                        .clamp(0.0, double.infinity);
                 return Wrap(
                   spacing: gap,
                   runSpacing: 24,
@@ -968,8 +1043,10 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
   }
 
   Widget _buildQualityItem(_ManufacturingValue value) {
+    final bool wrapText = isTablet || isMobile;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 4 : 10),
       child: Column(
         children: [
           SizedBox(
@@ -983,8 +1060,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           Text(
             value.title,
             textAlign: TextAlign.center,
-            maxLines: _isTablet ? null : 1,
-            overflow: _isTablet ? TextOverflow.visible : TextOverflow.ellipsis,
+            maxLines: wrapText ? null : 1,
+            overflow: wrapText ? TextOverflow.visible : TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -997,8 +1074,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
           Text(
             value.description,
             textAlign: TextAlign.center,
-            maxLines: _isTablet ? null : 2,
-            overflow: _isTablet ? TextOverflow.visible : TextOverflow.ellipsis,
+            maxLines: wrapText ? null : 2,
+            overflow: wrapText ? TextOverflow.visible : TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -1010,8 +1087,8 @@ class _ManufacturingSectionState extends State<ManufacturingSection> {
       ),
     );
   }
-  // IMAGE FALLBACK
 
+  // IMAGE FALLBACK
   Widget _buildImageFallback({bool dark = false}) {
     return Container(
       color: dark ? tBlue2 : tBlack.withOpacity(0.04),

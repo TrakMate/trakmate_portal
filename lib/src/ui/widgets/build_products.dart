@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
@@ -10,15 +11,19 @@ import 'package:trakmate_portal/src/ui/widgets/product_filter_controller.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/ui/widgets/solutions_hub.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
-// import 'package:video_player/video_player.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 // Used only to close the product filter overlay when another modal/dialog opens.
 final ValueNotifier<int> productFilterCloseSignal = ValueNotifier<int>(0);
 
-// Remembers the last selected filter tab. context.go() can rebuild the page
-// with a brand-new State (which would reset the tab to "All Products"), so a
-// freshly created State reads this to start on the tab the user just chose.
+// Remembers the last selected filter tab. If the page is ever rebuilt with a
+// brand-new State, it reads this to start on the tab the user just chose.
 int _lastSelectedFilterIndex = 0;
+
+// Survive page rebuilds so a new State never re-shows the shimmer
+// or resets the tab bar scroll position.
+bool _productImagesPreloaded = false;
+double _lastTabsScrollOffset = 0;
 
 class _BelowHeaderClipper extends CustomClipper<Rect> {
   final double headerHeight;
@@ -48,19 +53,27 @@ class BuildProductSection extends StatefulWidget {
 }
 
 class _BuildProductSectionState extends State<BuildProductSection> {
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // Horizontal page padding for the content blocks below the header
+  double get _hPad => isMobile ? 16 : (isTablet ? 24 : 40);
+
   int _selectedFilterIndex = 0;
-  bool _imagesLoading = true;
+  bool _imagesLoading = !_productImagesPreloaded;
   final GlobalKey _productRangeKey = GlobalKey();
   final GlobalKey _filterButtonKey = GlobalKey();
   final GlobalKey _productCardsKey = GlobalKey();
   final GlobalKey _filterBarKey = GlobalKey();
 
-  // NEW: attribute filter state (connectivity + vehicle type + new-arrivals)
+  // Attribute filter state (connectivity + vehicle type + new-arrivals)
   final Set<String> _selectedConnectivity = {};
   final Set<String> _selectedVehicleTypes = {};
   bool _newOnly = false;
 
-  // NEW: small filter icon button + its floating dropdown panel
+  // Small filter icon button + its floating dropdown panel
   OverlayEntry? _filterMenuOverlay;
   bool _filterMenuOpen = false;
   int _lastFilterCloseSignal = 0;
@@ -69,6 +82,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   Size? _filterButtonSize;
 
   ScrollPosition? _scrollPosition;
+
+  // Filter tabs bar: horizontal scrolling + "more tabs to the right" hint
+  // (the hint arrow is only shown on tablet / mobile).
+  final ScrollController _tabsScrollController = ScrollController(
+    initialScrollOffset: _lastTabsScrollOffset,
+  );
+  final ValueNotifier<bool> _tabsCanScrollRight = ValueNotifier<bool>(false);
 
   static const double _kStickyHeaderHeight = 84;
 
@@ -102,9 +122,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmd104b.png',
       image2: 'images/tmd104b.png',
       image3: 'images/tmd024-top-view.png',
-      // image4: 'images/tmd024-bottom-view.png',
       image4: 'images/tmd024_isometric3.png',
-      // image5: 'images/tmd024_isometric2.png',
       image5: 'images/tmd024-vertical-view.png',
       image6: 'images/tmd024-part.png',
       specBadges: ['icons/4gg1.svg', 'icons/evv1.svg'],
@@ -140,9 +158,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmd104b.png',
       image2: 'images/tmd104b.png',
       image3: 'images/tmd024-bottom-view.png',
-      // image4: 'images/tmd024-vertical-view.png',
       image4: 'images/tmd024_isometric3.png',
-      // image5: 'images/tmd024_isometric2.png',
       image6: 'images/tmd024-part.png',
       specBadges: ['icons/4gg.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
@@ -152,7 +168,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeGap: 25,
         badgeHeight: 70,
       ),
-      // image7: 'images/tmd024-top-view.png',
       badge: '4G',
       badgeColor: tBlue3,
       // No 2G badge because TMD004 is 4G only.
@@ -181,9 +196,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tmd104b.png',
       image2: 'images/tmd104b.png',
       image3: 'images/tmd024-bottom-view.png',
-      // image4: 'images/tmd024-vertical-view.png',
       image4: 'images/tmd024_isometric3.png',
-      // image5: 'images/tmd024_isometric2.png',
       image7: 'images/tmd024-part.png',
       specsStyle: SpecsSlideStyle(
         imagePadding: 108,
@@ -299,8 +312,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ),
       badge: "OBD-II",
       badgeColor: ipbadge,
-      // secondBadge: 'new',
-      // secondBadgeColor: newbadge,
       title: 'TMD400',
       subtitle: 'Advanced IoT Gateway',
       category: 'Diagnostics',
@@ -366,7 +377,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         badgeVerticalAlign: 0,
         badgeGap: 25,
       ),
-      // image5: 'images/tmd364-side1.png',
       video: 'video/tmd364.webm',
       videoPadding: 40,
       videoOffsetY: -45,
@@ -448,9 +458,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       ],
       specsStyle: SpecsSlideStyle(
         imagePadding: 128,
-        // badgeWidth: 120,
         badgeRightOffset: 90,
-        // badgeHeight: 70,
         badgeVerticalAlign: 0,
         topRowCount: 3,
         badgeGap: 25,
@@ -480,7 +488,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image1: 'images/tcu550-side2-view.png',
       image2: 'images/tcu550-side2-view.png',
       image3: 'images/tcu1550.png',
-      // image4: 'images/tcu550-side-view.png',
       image4: 'images/tcu550-part.png',
       specBadges: [
         'icons/4gg1.svg',
@@ -560,7 +567,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       image2: 'images/tmdcstrr-7.png',
       image3: 'images/tmdcstr-7-side.png',
       image4: 'images/tmdcstr-7-back.png',
-      // image4: 'images/tmdcstr-7-top.png',
       image5: 'images/tmdcstr-7_specs.png',
       specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
       specsStyle: SpecsSlideStyle(
@@ -674,13 +680,21 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     'Solutions Hub': '/solutions-hub',
   };
 
-  // Called only when the user taps a tab in the filter bar.
+  // Tab taps only switch the tab locally (setState) and update the browser URL.
+  // No context.go(), so go_router never rebuilds the page and there is no
+  // shimmer, no image reload and no scroll reset.
   void _onFilterTabTap(int index) {
+    if (index == _selectedFilterIndex) return;
+
     _selectFilterIndex(index);
 
     final String? path = _filterLabelToPath[_filterTabs[index].label];
     if (path != null) {
-      context.go(path);
+      // If your Flutter version rejects `uri:`, use `location: path` instead.
+      SystemNavigator.routeInformationUpdated(
+        uri: Uri.parse(path),
+        replace: true,
+      );
     }
   }
 
@@ -694,7 +708,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     });
   }
 
-  // NEW: attribute filter toggles -------------------------------------
+  // Attribute filter toggles -------------------------------------
   // Each toggle updates the main grid via setState, and also nudges the
   // floating dropdown panel (a separate Overlay entry) to rebuild so its
   // chips reflect the new selection immediately.
@@ -769,6 +783,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
         final double top = position.dy + buttonSize.height + panelGap;
 
+        // MOBILE: if the panel is taller than the space under the button,
+        // let it scroll instead of running off the bottom of the screen.
+        final bool mobileOverlay = ResponsiveLayout.isMobile(overlayContext);
+        final double maxPanelHeight = (mediaSize.height - top - 12).clamp(
+          160.0,
+          double.infinity,
+        );
+
         return ClipRect(
           clipper: const _BelowHeaderClipper(_kStickyHeaderHeight),
           child: Stack(
@@ -785,7 +807,17 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                 width: panelWidth,
                 child: Material(
                   color: tTransparent,
-                  child: _buildFilterDropdownPanel(),
+                  child:
+                      mobileOverlay
+                          ? ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: maxPanelHeight,
+                            ),
+                            child: SingleChildScrollView(
+                              child: _buildFilterDropdownPanel(),
+                            ),
+                          )
+                          : _buildFilterDropdownPanel(),
                 ),
               ),
             ],
@@ -836,7 +868,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   }
 
   void _closeFilterMenu() {
-    // NEW: detach the scroll listener whenever the menu closes.
+    // Detach the scroll listener whenever the menu closes.
     _scrollPosition?.removeListener(_onAncestorScroll);
     _scrollPosition = null;
 
@@ -901,6 +933,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     // Start on the tab the user last chose (survives a page rebuild).
     _selectedFilterIndex = _lastSelectedFilterIndex;
 
+    // Remember the tab bar scroll offset across page rebuilds.
+    _tabsScrollController.addListener(() {
+      if (_tabsScrollController.hasClients) {
+        _lastTabsScrollOffset = _tabsScrollController.offset;
+      }
+    });
+
     SectionScrollBus.instance.pendingKey.addListener(_handleFooterNavigation);
     ProductFilterController.selectedCategory.addListener(
       _handleProductFilterNavigation,
@@ -918,12 +957,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     SectionScrollBus.instance.pendingKey.removeListener(
       _handleFooterNavigation,
     );
-    // NEW
     ProductFilterController.selectedCategory.removeListener(
       _handleProductFilterNavigation,
     );
     productFilterCloseSignal.removeListener(_handleExternalFilterClose);
-    // NEW: make sure the scroll listener doesn't outlive this State.
+    _tabsScrollController.dispose();
+    _tabsCanScrollRight.dispose();
+    // Make sure the scroll listener doesn't outlive this State.
     _scrollPosition?.removeListener(_onAncestorScroll);
     _filterMenuOverlay?.remove();
     _filterMenuOverlay = null;
@@ -989,11 +1029,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       _scrollToProductCards();
     }
   }
-  // NEW: scrolls the page so the product cards section is at the top.
 
+  // Scrolls the page so the product cards section is at the top.
   void _scrollToProductCards() {
     // Wait until the tab switch + filter change have been laid out.
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
@@ -1013,6 +1052,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   }
 
   Future<void> _preloadProductImages() async {
+    // Already loaded once in this session: no shimmer, no waiting.
+    if (_productImagesPreloaded) {
+      if (mounted && _imagesLoading) {
+        setState(() => _imagesLoading = false);
+      }
+      return;
+    }
+
     try {
       final imagePaths = _products.map((product) => product.image).toSet();
 
@@ -1025,6 +1072,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       // debugPrint('Error preloading product images: $e');
     }
 
+    _productImagesPreloaded = true;
+
     if (!mounted) return;
 
     setState(() {
@@ -1034,6 +1083,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   @override
   Widget build(BuildContext context) {
+    // final bool mobile = _isMobile;
+    final double screenW = MediaQuery.of(context).size.width;
+    final double barSide = isMobile ? 12 : 24;
+
     return Column(
       children: [
         Stack(
@@ -1041,24 +1094,21 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           clipBehavior: Clip.none,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 72),
+              // room for the part of the filter bar that overlaps the header
+              padding: EdgeInsets.only(bottom: isMobile ? 56 : 72),
               child: widget.header,
             ),
 
-            // UPDATED: category tabs bar + the new attribute filter icon
-            // button, laid out side by side.
+            // Category tabs bar + the attribute filter icon button,
+            // laid out side by side.
             Positioned(
-              left: 24,
-              right: 24, //gap(filter bar)
-              bottom: 35,
+              left: barSide,
+              right: barSide,
+              bottom: isMobile ? 20 : 35,
               child: Center(
-                // child: ConstrainedBox(
-                //   constraints: BoxConstraints(
-                //     maxWidth: MediaQuery.of(context).size.width - 48,
-                //   ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: (MediaQuery.of(context).size.width - 48).clamp(
+                    maxWidth: (screenW - barSide * 2).clamp(
                       0.0,
                       double.infinity,
                     ),
@@ -1071,7 +1121,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(child: _buildFilterTabsBar()),
-                        const SizedBox(width: 14),
+                        SizedBox(width: isMobile ? 10 : 14),
 
                         _buildAttributeFilterButton(),
                       ],
@@ -1084,26 +1134,26 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         ),
 
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: EdgeInsets.symmetric(horizontal: _hPad),
           child: Column(
             children: [
               _buildProductRangeHeader(),
-              const SizedBox(height: 28),
+              SizedBox(height: isMobile ? 20 : 28),
               _buildProductsGrid(),
-              const SizedBox(height: 55),
+              SizedBox(height: isMobile ? 24 : 55),
             ],
           ),
         ),
 
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: EdgeInsets.symmetric(horizontal: _hPad),
           child: _buildTrustBar(),
         ),
 
-        const SizedBox(height: 45),
+        SizedBox(height: isMobile ? 32 : 45),
 
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: EdgeInsets.symmetric(horizontal: _hPad),
           child: _buildHowProductsWorkTogether(),
         ),
       ],
@@ -1112,12 +1162,17 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   // FILTER BAR
   Widget _buildFilterTabsBar() {
+    // final bool mobile = _isMobile;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      padding:
+          isMobile
+              ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+              : const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
         color: tWhite,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(isMobile ? 14 : 16),
         boxShadow: [
           BoxShadow(
             color: tBlack.withOpacity(0.14),
@@ -1126,23 +1181,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           ),
         ],
       ),
-      // child: Row(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   mainAxisSize: MainAxisSize.max,
-      //   children: List.generate(_filterTabs.length * 2 - 1, (index) {
-      //     if (index.isOdd) {
-      //       return const SizedBox(width: 65); //gap
-      //     }
-
-      //     final int tabIndex = index ~/ 2;
-      //     return _buildFilterTab(index: tabIndex, tab: _filterTabs[tabIndex]);
-      //   }),
-      // ),
-
-      //extra
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return SingleChildScrollView(
+          final Widget scroller = SingleChildScrollView(
+            controller: _tabsScrollController,
             scrollDirection: Axis.horizontal,
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -1153,7 +1195,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(_filterTabs.length * 2 - 1, (index) {
                   if (index.isOdd) {
-                    return const SizedBox(width: 65); //gap
+                    return SizedBox(
+                      width: isMobile ? 12 : (isTablet ? 28 : 65),
+                    ); //gap
                   }
 
                   final int tabIndex = index ~/ 2;
@@ -1165,13 +1209,99 @@ class _BuildProductSectionState extends State<BuildProductSection> {
               ),
             ),
           );
+
+          // Desktop: no scroll hint, exactly as before.
+          if (!(isMobile || isTablet)) return scroller;
+
+          // Tablet + mobile: scroll hint arrow at the right end of the bar.
+          return Stack(
+            children: [
+              NotificationListener<ScrollMetricsNotification>(
+                onNotification: (n) {
+                  _tabsCanScrollRight.value = n.metrics.extentAfter > 1;
+                  return false;
+                },
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (n) {
+                    if (n.metrics.axis == Axis.horizontal) {
+                      _tabsCanScrollRight.value = n.metrics.extentAfter > 1;
+                    }
+                    return false;
+                  },
+                  child: scroller,
+                ),
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _tabsCanScrollRight,
+                  builder: (context, canScroll, _) {
+                    return IgnorePointer(
+                      ignoring: !canScroll,
+                      child: AnimatedOpacity(
+                        opacity: canScroll ? 1 : 0,
+                        duration: const Duration(milliseconds: 200),
+                        child: _buildTabsScrollHint(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
         },
+      ),
+    );
+  }
+
+  // Small arrow (with a soft white fade behind it) shown at the right end of
+  // the filter tabs on tablet / mobile. Tap = scroll the tabs to the right.
+  Widget _buildTabsScrollHint() {
+    return Container(
+      width: 44,
+      alignment: Alignment.centerRight,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [tWhite.withOpacity(0), tWhite, tWhite],
+          stops: const [0.0, 0.55, 1.0],
+        ),
+      ),
+      child: Material(
+        color: tBlue3,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          mouseCursor: SystemMouseCursors.click,
+          onTap: () {
+            if (!_tabsScrollController.hasClients) return;
+            final position = _tabsScrollController.position;
+            final double target = (_tabsScrollController.offset + 180).clamp(
+              0.0,
+              position.maxScrollExtent,
+            );
+            _tabsScrollController.animateTo(
+              target,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          },
+          child: const SizedBox(
+            width: 26,
+            height: 26,
+            child: Icon(Icons.chevron_right_rounded, size: 20, color: tWhite),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildFilterTab({required int index, required _FilterTabData tab}) {
     final bool isSelected = index == _selectedFilterIndex;
+    // final bool mobile = _isMobile;
 
     return Material(
       color: tTransparent,
@@ -1182,7 +1312,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 8 : 6,
+            vertical: isMobile ? 6 : 8,
+          ),
           decoration: BoxDecoration(
             color: tTransparent,
             borderRadius: BorderRadius.circular(10),
@@ -1196,17 +1329,17 @@ class _BuildProductSectionState extends State<BuildProductSection> {
             children: [
               SvgPicture.asset(
                 tab.icon,
-                width: 22,
-                height: 22,
+                width: isMobile ? 20 : 22,
+                height: isMobile ? 20 : 22,
                 color: isSelected ? tBlue3 : tBlack.withOpacity(0.5),
               ),
-              const SizedBox(width: 9),
+              SizedBox(width: isMobile ? 7 : 9),
               Text(
                 tab.label,
                 maxLines: 1,
                 softWrap: false,
                 style: GoogleFonts.manrope(
-                  fontSize: 13,
+                  fontSize: isMobile ? 12.5 : 13,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected ? tBlue3 : tBlack.withOpacity(0.65),
                 ),
@@ -1218,11 +1351,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     );
   }
 
-  // NEW: SMALL FILTER ICON BUTTON — sits right next to the tabs bar and
+  // SMALL FILTER ICON BUTTON — sits right next to the tabs bar and
   // opens a floating dropdown panel with every attribute filter inside it.
-
   Widget _buildAttributeFilterButton() {
     final bool highlighted = _filterMenuOpen || _hasActiveAttributeFilters;
+    final double btnSize = isMobile ? 44 : 46;
 
     return Container(
       key: _filterButtonKey,
@@ -1235,8 +1368,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           mouseCursor: SystemMouseCursors.click,
           onTap: _toggleFilterMenu,
           child: Container(
-            width: 46,
-            height: 46,
+            width: btnSize,
+            height: btnSize,
             decoration: BoxDecoration(
               color: highlighted ? tOrange1 : tWhite,
               borderRadius: BorderRadius.circular(12),
@@ -1515,28 +1648,32 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   // PRODUCT RANGE HEADER
 
   Widget _buildProductRangeHeader() {
+    // final bool mobile = _isMobile;
+
     return Column(
       key: _productCardsKey,
       children: [
         Text(
           'OUR PRODUCT RANGE',
+          textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            fontSize: 13,
+            fontSize: isMobile ? 12 : 13,
             fontWeight: FontWeight.w700,
             color: tOrange1,
             letterSpacing: 1.2,
           ),
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: isMobile ? 8 : 12),
 
         Text(
           'Smart Products for a Connected World',
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            fontSize: 25,
+            fontSize: isMobile ? 20 : 25,
             fontWeight: FontWeight.w700,
             color: tBlue2,
+            height: isMobile ? 1.25 : null,
           ),
         ),
       ],
@@ -1626,21 +1763,26 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       return const SizedBox.shrink();
     }
 
+    // final bool mobile = _isMobile;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 52),
+      padding: EdgeInsets.only(bottom: isMobile ? 36 : 52),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // CATEGORY HEADING
           Padding(
-            padding: const EdgeInsets.only(left: 75, bottom: 28),
+            padding: EdgeInsets.only(
+              left: (isTablet || isMobile) ? 0 : 75,
+              bottom: isMobile ? 20 : 28,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   category,
                   style: GoogleFonts.manrope(
-                    fontSize: 22,
+                    fontSize: isMobile ? 20 : 22,
                     fontWeight: FontWeight.w700,
                     color: tBlue2,
                   ),
@@ -1665,6 +1807,37 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double screenWidth = constraints.maxWidth;
+
+        // MOBILE: 1 card per row on phones, 2 on very wide phones.
+        if (isMobile) {
+          const double gap = 16;
+          final int columns = screenWidth >= 560 ? 2 : 1;
+          final double w = ((screenWidth - gap * (columns - 1)) / columns)
+              .floorToDouble()
+              .clamp(0.0, double.infinity);
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (final p in products)
+                SizedBox(width: w, height: 390, child: _ProductCard(data: p)),
+            ],
+          );
+        }
+
+        // TABLET: 2 cards per row, sized from the available width.
+        if (isTablet) {
+          const double gap = 16;
+          final double w = ((screenWidth - gap) / 2).floorToDouble();
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (final p in products)
+                SizedBox(width: w, height: 390, child: _ProductCard(data: p)),
+            ],
+          );
+        }
 
         double cardWidth;
 
@@ -1806,7 +1979,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     );
   }
 
-  // NEW: shown when a category has products, but none match the active
+  // Shown when a category has products, but none match the active
   // Connectivity / Vehicle Type / New Arrivals filters.
   Widget _buildNoFilterMatchState() {
     return Container(
@@ -1891,7 +2064,78 @@ class _BuildProductSectionState extends State<BuildProductSection> {
   }
 
   // TRUST BAR
+  // Used by tablet (unchanged) and mobile (tighter padding, full-width button).
+  Widget _buildTrustBarTablet() {
+    // final bool mobile = _isMobile;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: tBlue2,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      padding: EdgeInsets.all(isMobile ? 18 : 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LayoutBuilder(
+            builder: (context, c) {
+              final double gap = isMobile ? 16 : 20;
+              final double w = ((c.maxWidth - gap) / 2).floorToDouble();
+              return Wrap(
+                spacing: gap,
+                runSpacing: isMobile ? 20 : 22,
+                children: [
+                  for (final item in _trustItems)
+                    SizedBox(width: w, child: _buildTrustItem(item)),
+                ],
+              );
+            },
+          ),
+          SizedBox(height: isMobile ? 20 : 24),
+          Text(
+            'Trusted by businesses worldwide to build connected, intelligent and future-ready solutions.',
+            style: GoogleFonts.manrope(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              color: tWhite.withOpacity(0.85),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: isMobile ? double.infinity : null,
+            child: ElevatedButton(
+              onPressed: () => showGetInTouchDialog(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: tBlue1,
+                foregroundColor: tWhite,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Talk to Our Expert',
+                style: GoogleFonts.manrope(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTrustBar() {
+    if (isTablet || isMobile) return _buildTrustBarTablet();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -2021,7 +2265,9 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   Widget _buildHowProductsWorkTogether() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.symmetric(
+        horizontal: (isTablet || isMobile) ? 0 : 40,
+      ),
       child: ProcessSection(
         eyebrow: 'HOW OUR PRODUCTS WORK TOGETHER',
         title: 'From Data to Decisions',
@@ -2330,7 +2576,12 @@ class _ProductCard extends StatefulWidget {
 class _ProductCardState extends State<_ProductCard> {
   bool _hovering = false;
 
+  // No hover effect on tablet / mobile layouts
+  bool get _isTouch =>
+      ResponsiveLayout.isMobile(context) || ResponsiveLayout.isTablet(context);
+
   void _setHovering(bool value) {
+    if (_isTouch) return;
     if (_hovering == value) return;
 
     setState(() {
@@ -2350,7 +2601,9 @@ class _ProductCardState extends State<_ProductCard> {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          mouseCursor: SystemMouseCursors.click,
+          hoverColor: _isTouch ? Colors.transparent : null,
+          mouseCursor:
+              _isTouch ? SystemMouseCursors.basic : SystemMouseCursors.click,
           onTap: () {
             Navigator.push(
               context,
@@ -2396,7 +2649,6 @@ class _ProductCardState extends State<_ProductCard> {
                           child: Image.asset(
                             data.image,
                             fit: BoxFit.contain,
-                            // filterQuality: FilterQuality.medium,
                             frameBuilder: (
                               context,
                               child,
@@ -2617,24 +2869,6 @@ class _FilterTabData {
   const _FilterTabData({required this.icon, required this.label});
 }
 
-// class SpecsSlideStyle {
-//   final double imagePadding; // padding around the product image
-//   final double badgeWidth;
-//   final double badgeHeight;
-//   final double badgeGap; // space between badges
-//   final double
-//   badgeRightOffset; // distance from right edge (bigger = more left)
-//   final double badgeVerticalAlign; // -1 = top, 0 = center, 1 = bottom
-
-//   const SpecsSlideStyle({
-//     this.imagePadding = 108,
-//     this.badgeWidth = 110,
-//     this.badgeHeight = 70,
-//     this.badgeGap = 9,
-//     this.badgeRightOffset = 10,
-//     this.badgeVerticalAlign = 0,
-//   });
-// }
 class SpecsSlideStyle {
   final double imagePadding;
   final double badgeWidth;
@@ -2644,7 +2878,7 @@ class SpecsSlideStyle {
   final double badgeVerticalAlign;
   final double?
   imagePaddingSmall; // top gap on smaller screens (null = no change)
-  // NEW: how many of the FIRST specBadges go in a top row.
+  // How many of the FIRST specBadges go in a top row.
   // 0 = all badges stay in the column (current behaviour).
   final int topRowCount;
   final double topRowGap; // space between badges in the top row
@@ -2692,9 +2926,8 @@ class ProductData {
   final double? videoPadding;
   final double videoOffsetY;
   final String? datasheet; // e.g. 'datasheets/TMD104.pdf'
-  // final SpecsSlideLayout specsStyle;
   final SpecsSlideStyle specsStyle;
-  // NEW: used by the attribute filter bar (Connectivity + Vehicle Type)
+  // Used by the attribute filter bar (Connectivity + Vehicle Type)
   final List<String> connectivity; // e.g. ['4G', '2G']
   final List<String> vehicleTypes; // e.g. ['2 Wheeler', '3 Wheeler', ...]
 
@@ -2727,28 +2960,9 @@ class ProductData {
     this.vehicleTypes = const [],
     required this.features,
     this.specBadges = const [],
-    // this.specsLayout = const SpecsSlideLayout(),
     this.specsStyle = const SpecsSlideStyle(),
   });
 }
-
-// class SpecsSlideLayout {
-//   final double imagePadding;
-//   final double badgeWidth;
-//   final double badgeHeight;
-//   final double badgeGap;
-//   final double badgeRightOffset;
-//   final double badgeVerticalAlign; // -1 = top, 0 = center, 1 = bottom
-
-//   const SpecsSlideLayout({
-//     this.imagePadding = 108,
-//     this.badgeWidth = 110,
-//     this.badgeHeight = 70,
-//     this.badgeGap = 9,
-//     this.badgeRightOffset = 30,
-//     this.badgeVerticalAlign = 0,
-//   });
-// }
 
 class ProductFeature {
   final IconData icon;

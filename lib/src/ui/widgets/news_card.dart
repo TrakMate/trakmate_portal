@@ -3,18 +3,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 /// Reusable news card. Tapping it opens the article popup.
 class NewsCard extends StatelessWidget {
   final NewsArticle article;
-  final double height;
 
-  const NewsCard({super.key, required this.article, this.height = 350});
+  /// Optional fixed height. When null: 350 on tablet / desktop,
+  /// 345 on mobile.
+  final double? height;
+
+  const NewsCard({super.key, required this.article, this.height});
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = ResponsiveLayout.isMobile(context);
+    final bool compact = MediaQuery.of(context).size.width < 380;
+
+    final double cardHeight = height ?? (isMobile ? 345 : 350);
+    final double imageHeight = isMobile ? (compact ? 160 : 180) : 180;
+
     return SizedBox(
-      height: height,
+      height: cardHeight,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
@@ -37,13 +47,16 @@ class NewsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 180,
+                  height: imageHeight,
                   width: double.infinity,
                   child: shimmerImage(article.image),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
+                    padding:
+                        isMobile
+                            ? const EdgeInsets.fromLTRB(16, 14, 16, 14)
+                            : const EdgeInsets.fromLTRB(20, 14, 20, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -71,7 +84,7 @@ class NewsCard extends StatelessWidget {
                             Text(
                               article.date,
                               style: GoogleFonts.manrope(
-                                fontSize: 10,
+                                fontSize: isMobile ? 11 : 10,
                                 fontWeight: FontWeight.w500,
                                 color: tBlue3.withOpacity(0.6),
                               ),
@@ -84,7 +97,7 @@ class NewsCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.manrope(
-                            fontSize: 16,
+                            fontSize: isMobile ? (compact ? 15 : 16) : 16,
                             height: 1.2,
                             fontWeight: FontWeight.w700,
                             color: tBlack,

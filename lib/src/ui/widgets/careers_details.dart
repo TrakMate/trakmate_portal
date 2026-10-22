@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import '../../utils/colors.dart';
 
 /// Careers page – hero, filters, current openings timeline and "Submit your CV".
@@ -54,6 +55,15 @@ class _Job {
 
 class _CareersPageState extends State<CareersPage> {
   static const int _maxCvBytes = 5 * 1024 * 1024;
+
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // Horizontal page padding
+  double get _pad => isMobile ? 16 : (isTablet ? 24 : 40);
+
   static const List<String> _tabs = [
     'All Roles',
     'Engineering',
@@ -270,6 +280,7 @@ class _CareersPageState extends State<CareersPage> {
   ];
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _openingsKey = GlobalKey();
+  final GlobalKey _submitCvKey = GlobalKey();
   final TextEditingController _searchController = TextEditingController();
   int _selectedTab = 0;
   String _selectedLocation = _locations.first;
@@ -339,6 +350,18 @@ class _CareersPageState extends State<CareersPage> {
       ctx,
       duration: const Duration(milliseconds: 600),
       curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollToSubmitCv() {
+    final ctx = _submitCvKey.currentContext;
+    if (ctx == null) return;
+
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+      alignment: 0.1,
     );
   }
 
@@ -442,22 +465,22 @@ class _CareersPageState extends State<CareersPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(40, 22, 40, 0),
+            // back button
+            padding: EdgeInsets.fromLTRB(_pad, isMobile ? 14 : 22, _pad, 0),
             child: _buildBackButton(context),
           ),
-          const SizedBox(height: 25),
+          SizedBox(height: isMobile ? 14 : 25),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Full-width hero (same as Engineering).
                   // Full-width hero (shimmer until the image is cached).
                   _heroImageLoading ? const HeroHeaderShimmer() : _buildHero(),
-                  const SizedBox(height: 30),
+                  SizedBox(height: isMobile ? 24 : 30),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    padding: EdgeInsets.symmetric(horizontal: _pad),
                     child: _buildBody(),
                   ),
                   const SizedBox(height: 40),
@@ -510,9 +533,11 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   // ───────────────────────── HERO ─────────────────────────
-  // Identical to the Engineering hero: full-width, same blue gradient, same
-  // text colours, minHeight 400, same padding and same image blend.
+  // Same structure as the Manufacturing hero: full-width, same blue gradient,
+  // same text colours. Mobile = image on top, text below.
   Widget _buildHero() {
+    if (isMobile) return _buildMobileHero();
+
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -525,11 +550,11 @@ class _CareersPageState extends State<CareersPage> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
-          final double imageWidth = (constraints.maxWidth * 0.55).clamp(
-            300.0,
-            900.0,
-          );
-          final bool showImage = constraints.maxWidth > 760;
+          final double imageWidth =
+              isTablet
+                  ? constraints.maxWidth * 0.5
+                  : (constraints.maxWidth * 0.55).clamp(300.0, 900.0);
+          final bool showImage = isTablet || constraints.maxWidth > 760;
 
           return Stack(
             children: [
@@ -547,16 +572,19 @@ class _CareersPageState extends State<CareersPage> {
               ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 110,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 24 : 110,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: _buildHeroTextColumn()),
+                      Expanded(
+                        flex: isTablet ? 8 : 1,
+                        child: _buildHeroTextColumn(),
+                      ),
                       if (showImage) ...[
-                        const SizedBox(width: 40),
+                        SizedBox(width: isTablet ? 0 : 40),
                         // Empty half: the image is visible behind this space.
                         const Expanded(child: SizedBox()),
                       ],
@@ -565,6 +593,67 @@ class _CareersPageState extends State<CareersPage> {
                 ),
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  // MOBILE hero: image banner on top (fading into the blue), text below.
+  Widget _buildMobileHero() {
+    final double screenW = MediaQuery.of(context).size.width;
+
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tBlue2, tBlue3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: screenW * 0.62,
+            child: _buildMobileHeroImage(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+            child: _buildHeroTextColumn(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mobile hero image: only the bottom edge fades into the blue.
+  Widget _buildMobileHeroImage() {
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0.0, 0.6, 1.0],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        widget.heroImageAsset,
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: tBlue2,
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 48,
+              color: tWhite.withOpacity(0.55),
+            ),
           );
         },
       ),
@@ -610,25 +699,30 @@ class _CareersPageState extends State<CareersPage> {
 
   /// Left side: label, title, description and button (Engineering styling).
   Widget _buildHeroTextColumn() {
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool compact = screenW < 380; // medium phones
+    final double headingSize =
+        isMobile ? (compact ? 25 : 30) : (isTablet ? 34 : 48);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'CAREERS AT TRAKMATE',
           style: GoogleFonts.manrope(
-            fontSize: 13,
+            fontSize: isMobile ? 12 : 13,
             fontWeight: FontWeight.w600,
             color: tOrange1,
             letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: isMobile ? 12 : 20),
         RichText(
           text: TextSpan(
             style: GoogleFonts.manrope(
-              fontSize: 48,
+              fontSize: headingSize,
               fontWeight: FontWeight.w600,
-              height: 1.15,
+              height: isMobile ? 1.2 : 1.15,
               color: tWhite,
             ),
             children: [
@@ -640,21 +734,21 @@ class _CareersPageState extends State<CareersPage> {
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: isMobile ? 14 : 20),
         Text(
           'Join a team that’s building smarter, safer and more connected mobility for tomorrow.',
           style: GoogleFonts.manrope(
-            fontSize: 15,
+            fontSize: isMobile ? 13.5 : 15,
             color: tWhite,
             fontWeight: FontWeight.w400,
             height: 1.5,
           ),
         ),
-        const SizedBox(height: 28),
+        SizedBox(height: isMobile ? 22 : 28),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            onTap: _scrollToOpenings,
+            onTap: _scrollToSubmitCv,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
               decoration: BoxDecoration(
@@ -665,7 +759,7 @@ class _CareersPageState extends State<CareersPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Explore Openings',
+                    'Join Our Network',
                     style: GoogleFonts.manrope(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -691,10 +785,12 @@ class _CareersPageState extends State<CareersPage> {
   Widget _buildBody() {
     return Padding(
       key: _openingsKey,
-      padding: const EdgeInsets.symmetric(horizontal: 62),
+      padding: EdgeInsets.symmetric(
+        horizontal: (isTablet || isMobile) ? 0 : 62,
+      ),
       child: LayoutBuilder(
         builder: (context, c) {
-          final wide = c.maxWidth > 900;
+          final wide = !isTablet && !isMobile && c.maxWidth > 900;
           final jobs = _filteredJobs;
           if (wide) {
             return Column(
@@ -739,7 +835,7 @@ class _CareersPageState extends State<CareersPage> {
             child: GestureDetector(
               onTap: () => setState(() => _selectedTab = i),
               child: Container(
-                margin: const EdgeInsets.only(right: 34),
+                margin: EdgeInsets.only(right: isMobile ? 22 : 34),
                 padding: const EdgeInsets.only(bottom: 12, top: 6),
                 decoration: BoxDecoration(
                   border: Border(
@@ -838,9 +934,20 @@ class _CareersPageState extends State<CareersPage> {
         children: [
           tabs,
           const SizedBox(height: 14),
-          search,
-          const SizedBox(height: 12),
-          location,
+          if (isTablet)
+            Row(
+              children: [
+                Expanded(child: search),
+                const SizedBox(width: 12),
+                SizedBox(width: 190, child: location),
+              ],
+            )
+          else ...[
+            // mobile (and narrow desktop): stacked full-width
+            search,
+            const SizedBox(height: 12),
+            location,
+          ],
         ],
       );
     }
@@ -867,45 +974,49 @@ class _CareersPageState extends State<CareersPage> {
 
   // ───────────────────────── OPENINGS ─────────────────────────
   Widget _buildOpenings(List<_Job> jobs) {
+    final Widget titleBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Current Openings',
+          style: GoogleFonts.manrope(
+            fontSize: isMobile ? 22 : 26,
+            fontWeight: FontWeight.w800,
+            color: tBlue4,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Find a role where you can grow, contribute and make an impact.',
+          style: GoogleFonts.manrope(
+            fontSize: isMobile ? 13 : 14,
+            height: isMobile ? 1.45 : null,
+            color: tBlue4.withOpacity(0.65),
+          ),
+        ),
+      ],
+    );
+    final Widget count = Text(
+      '${jobs.length} Open Positions',
+      style: GoogleFonts.manrope(
+        fontSize: 12.5,
+        color: tBlue4.withOpacity(0.65),
+      ),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Current Openings',
-                    style: GoogleFonts.manrope(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: tBlue4,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Find a role where you can grow, contribute and make an impact.',
-                    style: GoogleFonts.manrope(
-                      fontSize: 14,
-                      color: tBlue4.withOpacity(0.65),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              '${jobs.length} Open Positions',
-              style: GoogleFonts.manrope(
-                fontSize: 12.5,
-                color: tBlue4.withOpacity(0.65),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 28),
+        if (isMobile) ...[
+          titleBlock,
+          const SizedBox(height: 10),
+          count,
+        ] else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [Expanded(child: titleBlock), count],
+          ),
+        SizedBox(height: isMobile ? 22 : 28),
         if (jobs.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 40),
@@ -953,7 +1064,7 @@ class _CareersPageState extends State<CareersPage> {
       ],
     );
     return Wrap(
-      spacing: 22,
+      spacing: isMobile ? 16 : 22,
       runSpacing: 6,
       children: [
         item(Icons.location_on_outlined, job.location),
@@ -965,6 +1076,9 @@ class _CareersPageState extends State<CareersPage> {
 
   Widget _buildJobRow(_Job job, {required bool isLast}) {
     final expanded = _expandedJob == job.title;
+    final double iconSize = isMobile ? 46 : 66;
+    final double iconGap = isMobile ? 14 : 30;
+
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
       child: Stack(
@@ -973,8 +1087,8 @@ class _CareersPageState extends State<CareersPage> {
           // Timeline connector line (from this icon down to the next one).
           if (!isLast)
             Positioned(
-              left: 32.25,
-              top: 66,
+              left: iconSize / 2 - 0.75,
+              top: iconSize,
               bottom: -16,
               child: Container(width: 1.5, color: tBlueLight.withOpacity(0.7)),
             ),
@@ -987,11 +1101,11 @@ class _CareersPageState extends State<CareersPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _iconCircle(job, 66),
-                  const SizedBox(width: 30),
+                  _iconCircle(job, iconSize),
+                  SizedBox(width: iconGap),
                   Expanded(
                     child: Container(
-                      constraints: const BoxConstraints(minHeight: 66),
+                      constraints: BoxConstraints(minHeight: iconSize),
                       padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
                       decoration: BoxDecoration(
                         border:
@@ -1013,7 +1127,7 @@ class _CareersPageState extends State<CareersPage> {
                                 Text(
                                   job.title,
                                   style: GoogleFonts.manrope(
-                                    fontSize: 16,
+                                    fontSize: isMobile ? 15 : 16,
                                     fontWeight: FontWeight.w800,
                                     color: tBlue4,
                                   ),
@@ -1028,7 +1142,7 @@ class _CareersPageState extends State<CareersPage> {
                                   child: Text(
                                     job.description,
                                     style: GoogleFonts.manrope(
-                                      fontSize: 13,
+                                      fontSize: isMobile ? 12.5 : 13,
                                       height: 1.5,
                                       color: tBlue4.withOpacity(0.7),
                                     ),
@@ -1082,9 +1196,9 @@ class _CareersPageState extends State<CareersPage> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: isMobile ? 10 : 16),
                           Padding(
-                            padding: const EdgeInsets.only(top: 14),
+                            padding: EdgeInsets.only(top: isMobile ? 2 : 14),
                             child: _viewDetails(job, expanded),
                           ),
                         ],
@@ -1107,7 +1221,7 @@ class _CareersPageState extends State<CareersPage> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
       decoration: BoxDecoration(
         color: tBlueSky1,
         borderRadius: BorderRadius.circular(14),
@@ -1242,7 +1356,6 @@ class _CareersPageState extends State<CareersPage> {
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
                 color: tBlueDark,
-                // decoration: TextDecoration.underline,
               ),
             ),
           ),
@@ -1257,7 +1370,6 @@ class _CareersPageState extends State<CareersPage> {
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
                 color: tOrange1,
-                // decoration: TextDecoration.underline,
               ),
             ),
           ),
@@ -1316,10 +1428,12 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   Widget _viewDetails(_Job job, bool expanded) {
+    final double circle = isMobile ? 34 : 42;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!expanded) ...[
+        // The "View Details" label is hidden on mobile (only the arrow shows).
+        if (!expanded && !isMobile) ...[
           Text(
             'View Details',
             style: GoogleFonts.manrope(
@@ -1332,8 +1446,8 @@ class _CareersPageState extends State<CareersPage> {
         ],
         AnimatedContainer(
           duration: const Duration(milliseconds: 220),
-          width: 42,
-          height: 42,
+          width: circle,
+          height: circle,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: expanded ? tOrange1 : tOrange1.withOpacity(0.12),
@@ -1372,7 +1486,8 @@ class _CareersPageState extends State<CareersPage> {
   /// Card 1 – "Don't see a suitable role?" + dashed upload box.
   Widget _buildSubmitCvCard() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
+      key: _submitCvKey,
+      padding: EdgeInsets.all(isMobile ? 18 : 22),
       decoration: BoxDecoration(
         color: tBlueSky1,
         borderRadius: BorderRadius.circular(18),
@@ -1385,7 +1500,7 @@ class _CareersPageState extends State<CareersPage> {
             clipBehavior: Clip.none,
             children: [
               Padding(
-                padding: const EdgeInsets.only(right: 60),
+                padding: EdgeInsets.only(right: isMobile ? 50 : 60),
                 child: CustomPaint(
                   painter: _UnderlinePainter(color: tBlueDark),
                   child: Padding(
@@ -1396,7 +1511,7 @@ class _CareersPageState extends State<CareersPage> {
                       child: Text(
                         'Don’t see\n  a suitable role?',
                         style: GoogleFonts.caveat(
-                          fontSize: 38,
+                          fontSize: isMobile ? 32 : 38,
                           height: 1.05,
                           fontWeight: FontWeight.w700,
                           color: tBlue4,
@@ -1410,8 +1525,8 @@ class _CareersPageState extends State<CareersPage> {
                 right: 0,
                 top: -8,
                 child: SizedBox(
-                  width: 90,
-                  height: 60,
+                  width: isMobile ? 70 : 90,
+                  height: isMobile ? 50 : 60,
                   child: CustomPaint(
                     painter: _PlanePathPainter(color: tOrange1),
                   ),
@@ -1423,7 +1538,7 @@ class _CareersPageState extends State<CareersPage> {
           Text(
             'We’re always excited to meet talented people. Share your CV and we’ll reach out when there’s a matching opportunity.',
             style: GoogleFonts.manrope(
-              fontSize: 13.5,
+              fontSize: isMobile ? 13 : 13.5,
               height: 1.55,
               color: tBlue4.withOpacity(0.85),
             ),
@@ -1472,8 +1587,8 @@ class _CareersPageState extends State<CareersPage> {
                 ),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 14 : 18,
                     vertical: 18,
                   ),
                   decoration: BoxDecoration(
@@ -1512,7 +1627,7 @@ class _CareersPageState extends State<CareersPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: isMobile ? 12 : 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1581,9 +1696,35 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   /// Card 2 – "Why Join TrakMate?" 2x2 tiles (blue / orange only).
+  /// On mobile the 4 tiles are stacked in a single column.
   Widget _buildWhyJoinCard() {
+    final Widget meaningful = _whyTile(
+      icon: Icons.lightbulb_outline_rounded,
+      color: tOrange1,
+      title: 'Meaningful Work',
+      text: 'Solve real-world challenges in connected mobility.',
+    );
+    final Widget supportive = _whyTile(
+      icon: Icons.groups_outlined,
+      color: tBlueDark,
+      title: 'Supportive Team',
+      text: 'Collaborative, inclusive and driven by growth.',
+    );
+    final Widget growth = _whyTile(
+      icon: Icons.bar_chart_rounded,
+      color: tBlueDark,
+      title: 'Continuous Growth',
+      text: 'Learn, upskill and take on new challenges.',
+    );
+    final Widget balance = _whyTile(
+      icon: Icons.favorite_border_rounded,
+      color: tOrange1,
+      title: 'Work-Life Balance',
+      text: 'Flexibility and a healthy work environment.',
+    );
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: tBlueSky1,
         borderRadius: BorderRadius.circular(18),
@@ -1612,55 +1753,37 @@ class _CareersPageState extends State<CareersPage> {
             ],
           ),
           const SizedBox(height: 16),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: _whyTile(
-                    icon: Icons.lightbulb_outline_rounded,
-                    color: tOrange1,
-                    title: 'Meaningful Work',
-                    text: 'Solve real-world challenges in connected mobility.',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _whyTile(
-                    icon: Icons.groups_outlined,
-                    color: tBlueDark,
-                    title: 'Supportive Team',
-                    text: 'Collaborative, inclusive and driven by growth.',
-                  ),
-                ),
-              ],
+          if (isMobile) ...[
+            meaningful,
+            const SizedBox(height: 10),
+            supportive,
+            const SizedBox(height: 10),
+            growth,
+            const SizedBox(height: 10),
+            balance,
+          ] else ...[
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: meaningful),
+                  const SizedBox(width: 10),
+                  Expanded(child: supportive),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: _whyTile(
-                    icon: Icons.bar_chart_rounded,
-                    color: tBlueDark,
-                    title: 'Continuous Growth',
-                    text: 'Learn, upskill and take on new challenges.',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _whyTile(
-                    icon: Icons.favorite_border_rounded,
-                    color: tOrange1,
-                    title: 'Work-Life Balance',
-                    text: 'Flexibility and a healthy work environment.',
-                  ),
-                ),
-              ],
+            const SizedBox(height: 10),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: growth),
+                  const SizedBox(width: 10),
+                  Expanded(child: balance),
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -1673,6 +1796,7 @@ class _CareersPageState extends State<CareersPage> {
     required String text,
   }) {
     return Container(
+      width: isMobile ? double.infinity : null,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: tWhite,
@@ -1722,97 +1846,109 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   /// Card 3 – "Stay Informed" with Get Job Alerts button (orange).
+  /// On mobile the button drops below the text and goes full width.
   Widget _buildStayInformedCard() {
+    final Widget iconBox = Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: tWhite),
+      child: Icon(Icons.mail_outline_rounded, size: 26, color: tOrange1),
+    );
+
+    final Widget textBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Stay Informed',
+              style: GoogleFonts.manrope(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+                color: tBlue4,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(height: 1, color: tOrange1.withOpacity(0.35)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Text(
+          'Get notified about new job openings that match your interests.',
+          style: GoogleFonts.manrope(
+            fontSize: 11,
+            height: 1.4,
+            color: tBlue4.withOpacity(0.65),
+          ),
+        ),
+      ],
+    );
+
+    final Widget button = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: _getJobAlerts,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: tOrange1, width: 1.4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.notifications_none_rounded, size: 16, color: tOrange1),
+              const SizedBox(width: 6),
+              Text(
+                'Get Job Alerts',
+                style: GoogleFonts.manrope(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: tOrange1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: tOrange1.withOpacity(0.10),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: tOrange1.withOpacity(0.18)),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: tWhite),
-            child: Icon(Icons.mail_outline_rounded, size: 26, color: tOrange1),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Stay Informed',
-                      style: GoogleFonts.manrope(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w800,
-                        color: tBlue4,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        color: tOrange1.withOpacity(0.35),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  'Get notified about new job openings that match your interests.',
-                  style: GoogleFonts.manrope(
-                    fontSize: 11,
-                    height: 1.4,
-                    color: tBlue4.withOpacity(0.65),
+      child:
+          isMobile
+              ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      iconBox,
+                      const SizedBox(width: 14),
+                      Expanded(child: textBlock),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: _getJobAlerts,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 11,
-                ),
-                decoration: BoxDecoration(
-                  color: tWhite,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: tOrange1, width: 1.4),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.notifications_none_rounded,
-                      size: 16,
-                      color: tOrange1,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Get Job Alerts',
-                      style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: tOrange1,
-                      ),
-                    ),
-                  ],
-                ),
+                  const SizedBox(height: 14),
+                  button,
+                ],
+              )
+              : Row(
+                children: [
+                  iconBox,
+                  const SizedBox(width: 14),
+                  Expanded(child: textBlock),
+                  const SizedBox(width: 12),
+                  button,
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

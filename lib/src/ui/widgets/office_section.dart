@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Standalone "Our Offices" section matching the supplied TrakMate reference.
@@ -245,6 +246,10 @@ class _OfficeCard extends StatefulWidget {
 class _OfficeCardState extends State<_OfficeCard> {
   bool _hovered = false;
 
+  // No hover effect on tablet / mobile layouts
+  bool get _isTouch =>
+      ResponsiveLayout.isMobile(context) || ResponsiveLayout.isTablet(context);
+
   Future<void> _openDirections() async {
     final office = widget.office;
     final uri = office.mapsUri;
@@ -254,26 +259,31 @@ class _OfficeCardState extends State<_OfficeCard> {
   @override
   Widget build(BuildContext context) {
     final office = widget.office;
+    final bool active = _hovered && !_isTouch;
 
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.basic,
+      onEnter: (_) {
+        if (!_isTouch) setState(() => _hovered = true);
+      },
+      onExit: (_) {
+        if (!_isTouch) setState(() => _hovered = false);
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
-        transform: Matrix4.translationValues(0, _hovered ? -3 : 0, 0),
+        transform: Matrix4.translationValues(0, active ? -3 : 0, 0),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.97),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: _hovered ? _teal.withOpacity(0.38) : const Color(0xFFEAF1F6),
+            color: active ? _teal.withOpacity(0.38) : const Color(0xFFEAF1F6),
           ),
           boxShadow: [
             BoxShadow(
-              color: _navy.withOpacity(_hovered ? 0.12 : 0.065),
-              blurRadius: _hovered ? 24 : 15,
-              offset: Offset(0, _hovered ? 9 : 5),
+              color: _navy.withOpacity(active ? 0.12 : 0.065),
+              blurRadius: active ? 24 : 15,
+              offset: Offset(0, active ? 9 : 5),
             ),
           ],
         ),

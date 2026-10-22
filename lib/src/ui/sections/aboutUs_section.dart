@@ -9,17 +9,13 @@ import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/widgets/all_news.dart';
 import 'package:trakmate_portal/src/ui/widgets/careers_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
-// import 'package:trakmate_portal/src/ui/widgets/hero_animation.dart';
-
 import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
-
-// import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_article.dart';
 import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
+import 'package:trakmate_portal/src/ui/widgets/our_journey.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
 
-// import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
 
@@ -35,7 +31,22 @@ class AboutusSection extends StatefulWidget {
 class _AboutusSectionState extends State<AboutusSection> {
   bool _heroImageLoading = true;
   bool _teamImagesLoading = true;
-  bool get _isTablet => ResponsiveLayout.isTablet(context);
+
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // Horizontal page padding used by every block below the hero
+  double get _pad => isMobile ? 16 : (isTablet ? 24 : 40);
+
+  // Mobile only: how far the achievements card hangs into the hero (px), and
+  // the space reserved below the hero for the rest of the card.
+  // Card is ~200px tall: overlap 90 -> ~110 hangs below the hero + 30 gap.
+  // If you change the card height, adjust these two numbers.
+  static const double _mobileRibbonOverlap = 90;
+  static const double _mobileRibbonSpace = 140;
+
   // ---------- Footer scroll-to-section ----------
   final ScrollController _scrollController = ScrollController();
 
@@ -258,7 +269,6 @@ class _AboutusSectionState extends State<AboutusSection> {
             'Our approach combines engineering expertise, smart technology, and reliable processes.'
             'We focus on building scalable, efficient, and high-quality solutions for our customers.'
             'With a commitment to excellence, we turn ideas into practical, connected products.',
-        // 'Paragraph 2...',
       ],
     ),
   ];
@@ -389,7 +399,6 @@ class _AboutusSectionState extends State<AboutusSection> {
     SectionScrollBus.instance.pendingKey.removeListener(_onScrollRequest);
     _scrollController.dispose();
     _cvToastTimer?.cancel();
-    _cvToastTimer?.cancel();
     super.dispose();
   }
 
@@ -399,49 +408,66 @@ class _AboutusSectionState extends State<AboutusSection> {
       controller: _scrollController,
       child: Column(
         children: [
-          // 1st: HERO + ACHIEVEMENTS OVERLAP
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // HERO
-              _heroImageLoading
-                  ? const HeroHeaderShimmer()
-                  : _buildAboutUsHeader(),
+          // 1st: HERO + ACHIEVEMENTS
+          if (isMobile) ...[
+            // Mobile: the achievements card overlaps the bottom of the hero,
+            // same effect as tablet / desktop.
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                _heroImageLoading
+                    ? const HeroHeaderShimmer()
+                    : _buildAboutUsHeader(),
+                Positioned(
+                  left: _pad,
+                  right: _pad,
+                  bottom: -_mobileRibbonOverlap,
+                  child: _buildAchievementsRibbon(),
+                ),
+              ],
+            ),
+            // Space taken by the part of the ribbon that hangs below the hero
+            SizedBox(height: _mobileRibbonSpace),
+          ] else ...[
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // HERO
+                _heroImageLoading
+                    ? const HeroHeaderShimmer()
+                    : _buildAboutUsHeader(),
 
-              // ACHIEVEMENTS CARD
-              Positioned(
-                left: _isTablet ? 24 : 80,
-                right: _isTablet ? 24 : 80,
-                bottom: _isTablet ? -100 : -65,
-                child: _buildAchievementsRibbon(),
-              ),
-            ],
-          ),
+                // ACHIEVEMENTS CARD
+                Positioned(
+                  left: isTablet ? 24 : 80,
+                  right: isTablet ? 24 : 80,
+                  bottom: isTablet ? -100 : -65,
+                  child: _buildAchievementsRibbon(),
+                ),
+              ],
+            ),
 
-          // Space occupied by the overlapping achievements ribbon
-          SizedBox(height: _isTablet ? 135 : 100),
+            // Space occupied by the overlapping achievements ribbon
+            SizedBox(height: isTablet ? 135 : 100),
+          ],
 
           // 2nd: OUR JOURNEY
           Container(
             key: _journeyKey,
             width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: _isTablet ? 24 : 40,
-              vertical: 10,
-            ),
-            child: _buildStoryTimelineSection(),
+            padding: EdgeInsets.symmetric(horizontal: _pad, vertical: 10),
+            child: OurJourneySection(),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: isMobile ? 28 : 40),
 
           // 3rd: MISSION + VISION (side by side), then OUR STORY (full width)
           Padding(
             key: _missionKey,
-            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+            padding: EdgeInsets.symmetric(horizontal: _pad),
             child: Column(
               children: [
                 _buildMissionVisionColumn(),
-                const SizedBox(height: 35),
-                // _infrastructureBrickLayout(),
+                SizedBox(height: isMobile ? 20 : 35),
               ],
             ),
           ),
@@ -459,7 +485,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           // CAREERS (under Meet Our Leadership)
           Padding(
             key: _careersKey,
-            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+            padding: EdgeInsets.symmetric(horizontal: _pad),
             child:
                 _heroImageLoading
                     ? const CareersSectionShimmer()
@@ -467,25 +493,15 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
           const SizedBox(height: 25),
 
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          //   child: _buildInfrastructureSection(),
-          // ),
-          const SizedBox(height: 35),
-
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          //   child: _buildNewsMediaSection(),
-          // ),
-          // const SizedBox(height: 40),
+          SizedBox(height: isMobile ? 20 : 35),
           const SizedBox(height: 40),
 
           Padding(
             key: _certificationsKey,
-            padding: EdgeInsets.symmetric(horizontal: _isTablet ? 24 : 40),
+            padding: EdgeInsets.symmetric(horizontal: _pad),
             child: _buildCertificationsSection(),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: isMobile ? 32 : 40),
           FooterSection(onNavigate: widget.onNavigate),
         ],
       ),
@@ -499,27 +515,39 @@ class _AboutusSectionState extends State<AboutusSection> {
   Widget _buildCareersSection() {
     return Container(
       width: double.infinity,
-      height: 525,
+      height: (isTablet || isMobile) ? null : 525,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(isMobile ? 20 : 26),
         boxShadow: [
-          BoxShadow(
-            color: _cBlue.withOpacity(0.10),
-            // blurRadius: 10,
-            spreadRadius: 1,
-            // offset: const Offset(0, 10),
-          ),
+          BoxShadow(color: _cBlue.withOpacity(0.10), spreadRadius: 1),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(flex: 47, child: _buildCareersLeftPanel()),
-            Expanded(flex: 53, child: _buildCareersRightPanel()),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(isMobile ? 20 : 26),
+        child:
+            isMobile
+                ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildCareersRightPanelMobile(),
+                    _buildCareersLeftPanel(),
+                  ],
+                )
+                : isTablet
+                ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: 470, child: _buildCareersRightPanel()),
+                    SizedBox(height: 560, child: _buildCareersLeftPanel()),
+                  ],
+                )
+                : Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(flex: 47, child: _buildCareersLeftPanel()),
+                    Expanded(flex: 53, child: _buildCareersRightPanel()),
+                  ],
+                ),
       ),
     );
   }
@@ -534,8 +562,17 @@ class _AboutusSectionState extends State<AboutusSection> {
           colors: [tWhite, tBlueSky1],
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(40, 38, 40, 22),
+      padding:
+          isMobile
+              ? const EdgeInsets.fromLTRB(18, 28, 18, 24)
+              : EdgeInsets.fromLTRB(
+                isTablet ? 28 : 40,
+                38,
+                isTablet ? 28 : 40,
+                22,
+              ),
       child: Column(
+        mainAxisSize: isMobile ? MainAxisSize.min : MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // eyebrow label with line
@@ -558,7 +595,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: 33,
+                fontSize: isMobile ? 27 : 33,
                 fontWeight: FontWeight.w800,
                 height: 1.1,
                 color: tBlue2,
@@ -574,7 +611,9 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Explore exciting career opportunities and help us build smarter,\nconnected solutions for a better and safer tomorrow.',
+            isMobile
+                ? 'Explore exciting career opportunities and help us build smarter, connected solutions for a better and safer tomorrow.'
+                : 'Explore exciting career opportunities and help us build smarter,\nconnected solutions for a better and safer tomorrow.',
             style: GoogleFonts.manrope(
               fontSize: 13,
               height: 1.5,
@@ -589,37 +628,43 @@ class _AboutusSectionState extends State<AboutusSection> {
             if (i != _jobs.length - 1) const SizedBox(height: 10),
           ],
 
-          const Spacer(),
+          if (isMobile) const SizedBox(height: 22) else const Spacer(),
 
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const CareersPage()));
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _cBlue,
-              foregroundColor: tWhite,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'View All Openings',
-                  style: GoogleFonts.manrope(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: tWhite,
-                  ),
+          SizedBox(
+            width: isMobile ? double.infinity : null,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const CareersPage()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _cBlue,
+                foregroundColor: tWhite,
+                elevation: 0,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 26,
+                  vertical: isMobile ? 16 : 18,
                 ),
-                const SizedBox(width: 12),
-                const Icon(Icons.arrow_forward_rounded, size: 18),
-              ],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'View All Openings',
+                    style: GoogleFonts.manrope(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: tWhite,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
+              ),
             ),
           ),
         ],
@@ -628,11 +673,12 @@ class _AboutusSectionState extends State<AboutusSection> {
   }
 
   Widget _buildJobCard(_JobData job, {VoidCallback? onTap}) {
+    if (isMobile) return _buildJobCardMobile(job);
+
     return Material(
       color: tTransparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        // onTap: onTap ?? _showAllOpeningsDialog,
         onTap: () {},
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -740,8 +786,109 @@ class _AboutusSectionState extends State<AboutusSection> {
                   ),
                 ),
               ),
-              // const SizedBox(width: 14),
-              // Icon(Icons.chevron_right_rounded, size: 24, color: _cGrey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Mobile job card: smaller icon, meta info wraps, experience pill sits
+  /// under the details instead of squeezing the row.
+  Widget _buildJobCardMobile(_JobData job) {
+    Widget meta(IconData icon, String text) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: _cGrey),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: GoogleFonts.manrope(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: _cGrey,
+          ),
+        ),
+      ],
+    );
+
+    return Material(
+      color: tTransparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {},
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: tBlue3.withOpacity(0.06),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: job.background,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(job.icon, size: 24, color: job.accent),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      job.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: _cNavy,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
+                      children: [
+                        meta(Icons.location_on_outlined, job.location),
+                        meta(Icons.work_outline_rounded, job.type),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: job.background,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        job.experience,
+                        style: GoogleFonts.manrope(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: job.accent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -850,7 +997,10 @@ class _AboutusSectionState extends State<AboutusSection> {
 
               // CONTENT
               Padding(
-                padding: const EdgeInsets.fromLTRB(40, 70, 20, 36),
+                padding:
+                    isTablet
+                        ? const EdgeInsets.fromLTRB(28, 50, 20, 28)
+                        : const EdgeInsets.fromLTRB(40, 70, 20, 36),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -923,6 +1073,116 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
         );
       },
+    );
+  }
+
+  /// Mobile version of the "Join our team" panel: a banner image on top that
+  /// fades into the tint, then the text and the upload box stacked below.
+  Widget _buildCareersRightPanelMobile() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(tBlue1.withOpacity(0.14), tWhite),
+            Color.alphaBlend(tBlue1.withOpacity(0.24), tWhite),
+          ],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: ShaderMask(
+              blendMode: BlendMode.dstIn,
+              shaderCallback: (Rect rect) {
+                return const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.black, Colors.black, Colors.transparent],
+                  stops: [0.0, 0.6, 1.0],
+                ).createShader(rect);
+              },
+              child: Image.asset(
+                'images/company.png',
+                fit: BoxFit.cover,
+                alignment: Alignment.centerRight,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: tBlack.withOpacity(0.05),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      size: 40,
+                      color: tWhite.withOpacity(0.6),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(width: 24, height: 2, color: _cBlue),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        'CAREERS AT TRAKMATE',
+                        style: GoogleFonts.manrope(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: _cGrey,
+                          letterSpacing: 2.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                RichText(
+                  text: TextSpan(
+                    style: GoogleFonts.manrope(
+                      fontSize: 44,
+                      fontWeight: FontWeight.w800,
+                      height: 1.0,
+                      letterSpacing: -1,
+                      color: tBlue2,
+                    ),
+                    children: const [
+                      TextSpan(text: 'Join our '),
+                      TextSpan(text: 'team', style: TextStyle(color: tBlue1)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Bring your skills, passion and ideas to a team that’s building the future of connected mobility. Let’s create smarter solutions together.',
+                  style: GoogleFonts.manrope(
+                    fontSize: 13.5,
+                    height: 1.55,
+                    fontWeight: FontWeight.w500,
+                    color: _cGrey,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (_cvToastMessage != null) ...[
+                  _buildCvToast(),
+                  const SizedBox(height: 10),
+                ],
+                _buildCvUploadBox(width: double.infinity),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1222,9 +1482,9 @@ class _AboutusSectionState extends State<AboutusSection> {
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: tWhite,
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 40,
-            vertical: 40,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 14 : 40,
+            vertical: isMobile ? 24 : 40,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -1239,7 +1499,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                 // header
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(32, 26, 20, 20),
+                  padding: EdgeInsets.fromLTRB(isMobile ? 20 : 32, 26, 20, 20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -1276,7 +1536,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                             RichText(
                               text: TextSpan(
                                 style: GoogleFonts.manrope(
-                                  fontSize: 26,
+                                  fontSize: isMobile ? 22 : 26,
                                   fontWeight: FontWeight.w800,
                                   color: _cNavy,
                                 ),
@@ -1314,7 +1574,12 @@ class _AboutusSectionState extends State<AboutusSection> {
                 Flexible(
                   child: ListView.separated(
                     shrinkWrap: true,
-                    padding: const EdgeInsets.fromLTRB(32, 22, 32, 10),
+                    padding: EdgeInsets.fromLTRB(
+                      isMobile ? 16 : 32,
+                      22,
+                      isMobile ? 16 : 32,
+                      10,
+                    ),
                     itemCount: _allJobs.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
@@ -1336,44 +1601,45 @@ class _AboutusSectionState extends State<AboutusSection> {
 
                 // footer
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(32, 6, 32, 24),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Can’t find the right role? Send us your CV and we’ll get in touch.',
-                          style: GoogleFonts.manrope(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: _cGrey,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      OutlinedButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: _cBlue,
-                          side: const BorderSide(color: _cBlue),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Close',
-                          style: GoogleFonts.manrope(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: _cBlue,
-                          ),
-                        ),
-                      ),
-                    ],
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 16 : 32,
+                    6,
+                    isMobile ? 16 : 32,
+                    24,
                   ),
+                  child:
+                      isMobile
+                          ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'Can’t find the right role? Send us your CV and we’ll get in touch.',
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: _cGrey,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _dialogCloseButton(dialogContext),
+                            ],
+                          )
+                          : Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Can’t find the right role? Send us your CV and we’ll get in touch.',
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: _cGrey,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              _dialogCloseButton(dialogContext),
+                            ],
+                          ),
                 ),
               ],
             ),
@@ -1383,24 +1649,46 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  Widget _dialogCloseButton(BuildContext dialogContext) {
+    return OutlinedButton(
+      onPressed: () => Navigator.of(dialogContext).pop(),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: _cBlue,
+        side: const BorderSide(color: _cBlue),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: Text(
+        'Close',
+        style: GoogleFonts.manrope(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: _cBlue,
+        ),
+      ),
+    );
+  }
+
+  /// Desktop: one row with dividers.
+  /// Tablet: 3 per row.  Mobile: 2 per row.
   Widget _achievementsLayout(List<Widget> children) {
-    if (!_isTablet) {
+    if (!isTablet && !isMobile) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: children,
       );
     }
+    // children = [item, divider, item, divider, ...] -> keep only the items
     final items = [for (int i = 0; i < children.length; i += 2) children[i]];
+    final int columns = isMobile ? 2 : 3;
     return LayoutBuilder(
       builder: (context, constraints) {
-        const gap = 16.0;
-        final w = ((constraints.maxWidth - gap * 2) / 3).clamp(
-          0.0,
-          double.infinity,
-        );
+        final double gap = isMobile ? 12 : 16;
+        final w = ((constraints.maxWidth - gap * (columns - 1)) / columns)
+            .clamp(0.0, double.infinity);
         return Wrap(
           spacing: gap,
-          runSpacing: 14,
+          runSpacing: isMobile ? 18 : 14,
           children: [for (final i in items) SizedBox(width: w, child: i)],
         );
       },
@@ -1430,7 +1718,10 @@ class _AboutusSectionState extends State<AboutusSection> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+      padding:
+          isMobile
+              ? const EdgeInsets.symmetric(horizontal: 16, vertical: 18)
+              : const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
       child: _achievementsLayout([
         buildAchievementsCard(
           icon: 'icons/collaboration.svg',
@@ -1471,28 +1762,34 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
-  // Mission and Vision as 2 separate cards, side by side.
+  // Mission and Vision as 2 separate cards (side by side on desktop,
+  // stacked on tablet and mobile).
   Widget _buildMissionVisionColumn() {
+    final Widget mission = _missionVisionBox(
+      icon: 'icons/impact.svg',
+      title: 'Our Mission',
+      description:
+          'To deliver innovative and reliable engineering solutions that empower businesses and improve lives through technology and excellence.',
+    );
+    final Widget vision = _missionVisionBox(
+      icon: 'icons/vision.svg',
+      title: 'Our Vision',
+      description:
+          'To become a global leader in engineering innovation, driving sustainable growth and creating lasting value for our customers.',
+      iconRight: !isMobile, // on mobile the icon stays on the left
+    );
+
+    if (isTablet || isMobile) {
+      return Column(
+        children: [mission, SizedBox(height: isMobile ? 14 : 16), vision],
+      );
+    }
+
     return Row(
       children: [
-        Expanded(
-          child: _missionVisionBox(
-            icon: 'icons/impact.svg',
-            title: 'Our Mission',
-            description:
-                'To deliver innovative and reliable engineering solutions that empower businesses and improve lives through technology and excellence.',
-          ),
-        ),
+        Expanded(child: mission),
         const SizedBox(width: 20),
-        Expanded(
-          child: _missionVisionBox(
-            icon: 'icons/vision.svg',
-            title: 'Our Vision',
-            description:
-                'To become a global leader in engineering innovation, driving sustainable growth and creating lasting value for our customers.',
-            iconRight: true,
-          ),
-        ),
+        Expanded(child: vision),
       ],
     );
   }
@@ -1505,8 +1802,11 @@ class _AboutusSectionState extends State<AboutusSection> {
   }) {
     return Container(
       width: double.infinity,
-      height: 114,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+      height: (isTablet || isMobile) ? null : 114,
+      padding:
+          isMobile
+              ? const EdgeInsets.symmetric(horizontal: 16, vertical: 18)
+              : const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
         color: tBlue1.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
@@ -1520,8 +1820,20 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  /// Desktop: spaced row. Tablet: row of equal columns. Mobile: 2 x 2 grid.
   Widget _heroCardsLayout({required List<Widget> children}) {
-    if (_isTablet) {
+    if (isMobile) {
+      final double screenW = MediaQuery.of(context).size.width;
+      const double hPad = 20;
+      const double gap = 16;
+      final double cardW = ((screenW - (hPad * 2) - gap) / 2).floorToDouble();
+      return Wrap(
+        spacing: gap,
+        runSpacing: 22,
+        children: [for (final c in children) SizedBox(width: cardW, child: c)],
+      );
+    }
+    if (isTablet) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1544,7 +1856,7 @@ class _AboutusSectionState extends State<AboutusSection> {
     required String description,
   }) {
     return SizedBox(
-      width: 150,
+      width: isMobile ? double.infinity : 150,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1561,11 +1873,12 @@ class _AboutusSectionState extends State<AboutusSection> {
           const SizedBox(height: 6),
           Text(
             description,
-            maxLines: 2,
+            maxLines: isMobile ? 3 : 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               color: tWhite.withOpacity(0.7),
-              fontSize: 12,
+              fontSize: isMobile ? 11.5 : 12,
+              height: isMobile ? 1.35 : null,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -1574,7 +1887,13 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // HERO (same structure as the Manufacturing hero)
+  // ---------------------------------------------------------------------------
   Widget _buildAboutUsHeader() {
+    // Mobile has its own stacked layout (image on top, text below).
+    if (isMobile) return _buildMobileHero();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1587,10 +1906,8 @@ class _AboutusSectionState extends State<AboutusSection> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // How much of the hero width the image covers (from the right).
-          // Increase for a bigger image / longer blend, decrease for smaller.
-          // final double imageWidth = constraints.maxWidth * 0.62;
           final double imageWidth =
-              constraints.maxWidth * (_isTablet ? 0.5 : 0.62);
+              constraints.maxWidth * (isTablet ? 0.5 : 0.62);
           return Stack(
             children: [
               // 1) IMAGE LAYER (behind the text), blended into the blue
@@ -1607,17 +1924,17 @@ class _AboutusSectionState extends State<AboutusSection> {
                 constraints: const BoxConstraints(minHeight: 400),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: _isTablet ? 24 : 40,
+                    horizontal: isTablet ? 24 : 40,
                     vertical: 25,
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        flex: _isTablet ? 8 : 1,
+                        flex: isTablet ? 8 : 1,
                         child: _buildAboutHeroTextColumn(),
                       ),
-                      SizedBox(width: _isTablet ? 0 : 40),
+                      SizedBox(width: isTablet ? 0 : 40),
                       // Empty half: the image shows through behind this space.
                       const Expanded(child: SizedBox()),
                     ],
@@ -1625,6 +1942,69 @@ class _AboutusSectionState extends State<AboutusSection> {
                 ),
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  // MOBILE hero: image banner on top (fading into the blue), text below.
+  Widget _buildMobileHero() {
+    final double screenW = MediaQuery.of(context).size.width;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [tBlue2, tBlue3],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: screenW * 0.62,
+            child: _buildMobileHeroImage(),
+          ),
+          // Extra bottom padding keeps the hero cards clear of the overlapping
+          // achievements card.
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 28 + _mobileRibbonOverlap),
+            child: _buildAboutHeroTextColumn(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mobile hero image: only the bottom edge fades into the blue.
+  Widget _buildMobileHeroImage() {
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (Rect rect) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.transparent],
+          stops: [0.0, 0.6, 1.0],
+        ).createShader(rect);
+      },
+      child: Image.asset(
+        'images/company.png',
+        fit: BoxFit.cover,
+        alignment: Alignment.centerRight,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: tBlue2,
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              size: 48,
+              color: tWhite.withOpacity(0.55),
+            ),
           );
         },
       ),
@@ -1642,8 +2022,6 @@ class _AboutusSectionState extends State<AboutusSection> {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [Colors.transparent, Colors.black54, Colors.black],
-          // 0.00 -> 0.55 is the blend zone. Bigger last value = softer,
-          // longer blend. Smaller = sharper edge.
           stops: [0.0, 0.30, 0.55],
         ).createShader(rect);
       },
@@ -1673,7 +2051,6 @@ class _AboutusSectionState extends State<AboutusSection> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Colors.black, Colors.black, Colors.transparent],
-          // Fully visible until 80% height, then fades out.
           stops: [0.0, 0.80, 1.0],
         ).createShader(rect);
       },
@@ -1682,8 +2059,12 @@ class _AboutusSectionState extends State<AboutusSection> {
   }
 
   /// Left side: label, title, description and the 4 value cards.
-  /// (Same content as before, just moved into its own method.)
   Widget _buildAboutHeroTextColumn() {
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool compact = screenW < 380; // medium phones
+    final double headingSize =
+        isMobile ? (compact ? 25 : 30) : (isTablet ? 34 : 48);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1693,22 +2074,22 @@ class _AboutusSectionState extends State<AboutusSection> {
           child: Text(
             'About TrakMate',
             style: GoogleFonts.manrope(
-              fontSize: 13,
+              fontSize: isMobile ? 12 : 13,
               fontWeight: FontWeight.w600,
               color: tOrange1,
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: isMobile ? 12 : 20),
         HeroAnimatedText(
           isActive: widget.isActive,
           delay: 120,
           child: RichText(
             text: TextSpan(
               style: GoogleFonts.manrope(
-                fontSize: _isTablet ? 34 : 48,
+                fontSize: headingSize,
                 fontWeight: FontWeight.w600,
-                height: 1.15,
+                height: isMobile ? 1.2 : 1.15,
                 color: tWhite,
               ),
               children: [
@@ -1724,7 +2105,7 @@ class _AboutusSectionState extends State<AboutusSection> {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: isMobile ? 14 : 20),
         HeroAnimatedText(
           isActive: widget.isActive,
           delay: 320,
@@ -1734,10 +2115,11 @@ class _AboutusSectionState extends State<AboutusSection> {
               fontSize: 13,
               color: tWhite,
               fontWeight: FontWeight.w400,
+              height: isMobile ? 1.55 : null,
             ),
           ),
         ),
-        const SizedBox(height: 40),
+        SizedBox(height: isMobile ? 26 : 40),
         _heroCardsLayout(
           children: [
             HeroAnimatedText(
@@ -1788,12 +2170,18 @@ class _AboutusSectionState extends State<AboutusSection> {
     required String description,
     bool iconRight = false,
   }) {
+    final double circle = isMobile ? 54 : 70;
     final Widget iconCircle = Container(
-      width: 70,
-      height: 70,
+      width: circle,
+      height: circle,
       decoration: const BoxDecoration(color: tBlue3, shape: BoxShape.circle),
       child: Center(
-        child: SvgPicture.asset(icon, width: 35, height: 35, color: tWhite),
+        child: SvgPicture.asset(
+          icon,
+          width: isMobile ? 28 : 35,
+          height: isMobile ? 28 : 35,
+          color: tWhite,
+        ),
       ),
     );
 
@@ -1814,7 +2202,7 @@ class _AboutusSectionState extends State<AboutusSection> {
             description,
             style: GoogleFonts.manrope(
               color: tBlue3,
-              fontSize: 13,
+              fontSize: isMobile ? 12.5 : 13,
               fontWeight: FontWeight.w500,
               height: 1.5,
             ),
@@ -1823,12 +2211,13 @@ class _AboutusSectionState extends State<AboutusSection> {
       ),
     );
 
+    final double gap = isMobile ? 14 : 15;
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center, // was .start
+      crossAxisAlignment: CrossAxisAlignment.center,
       children:
           iconRight
-              ? [textBlock, const SizedBox(width: 15), iconCircle]
-              : [iconCircle, const SizedBox(width: 15), textBlock],
+              ? [textBlock, SizedBox(width: gap), iconCircle]
+              : [iconCircle, SizedBox(width: gap), textBlock],
     );
   }
 
@@ -1837,34 +2226,44 @@ class _AboutusSectionState extends State<AboutusSection> {
     required String title,
     required String subtitle,
   }) {
+    final double iconSize = isMobile ? 32 : 40;
+
+    final Widget texts = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.manrope(
+            color: tBlue2,
+            fontSize: isMobile ? 17 : 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: GoogleFonts.manrope(
+            color: tBlue2,
+            fontSize: isMobile ? 11.5 : 12,
+            fontWeight: FontWeight.w500,
+            height: isMobile ? 1.3 : 1.5,
+          ),
+        ),
+      ],
+    );
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SvgPicture.asset(icon, width: 40, height: 40, color: tOrange1),
-        const SizedBox(width: 15),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: GoogleFonts.manrope(
-                color: tBlue2,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: GoogleFonts.manrope(
-                color: tBlue2,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                height: 1.5,
-              ),
-            ),
-          ],
+        SvgPicture.asset(
+          icon,
+          width: iconSize,
+          height: iconSize,
+          color: tOrange1,
         ),
+        SizedBox(width: isMobile ? 10 : 15),
+        // On mobile the text may wrap instead of overflowing.
+        if (isMobile) Expanded(child: texts) else texts,
       ],
     );
   }
@@ -1963,144 +2362,6 @@ class _AboutusSectionState extends State<AboutusSection> {
           topLeft: Radius.circular(75),
           bottomRight: Radius.circular(75),
         ),
-      ),
-    );
-  }
-
-  Widget _timeline() {
-    return Column(
-      children: [
-        _timelineItem(
-          "2013",
-          "The Beginning",
-          "TrakMate was founded with a vision to innovate",
-          false,
-        ),
-
-        _timelineItem(
-          "2016",
-          "Expanding Solutions",
-          "Launched IoT products and embedded solutions",
-          false,
-        ),
-
-        _timelineItem(
-          "2019",
-          "Global Growth",
-          "Expanded into international markets and built strong partnerships",
-          false,
-        ),
-
-        _timelineItem(
-          "Today",
-          "Shaping the Future",
-          "Continuously innovating to build a smarter, connected world",
-          false,
-        ),
-      ],
-    );
-  }
-
-  Widget _timelineItem(
-    String year,
-    String title,
-    String description,
-    bool first,
-  ) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: tTransparent,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: tBlue, width: 1),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: tBlue,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ),
-
-              if (!first)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          tTransparent,
-                          tBlue.withOpacity(0.4),
-                          tBlue,
-                          tBlue.withOpacity(0.4),
-                          tTransparent,
-                        ],
-                        stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-
-          const SizedBox(width: 15),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    year,
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tBlue,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  const SizedBox(height: 2),
-
-                  Text(
-                    title,
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-                      color: tBlack,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    description,
-                    style: GoogleFonts.manrope(
-                      fontSize: 12,
-                      color: tBlack,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -2259,527 +2520,83 @@ class _AboutusSectionState extends State<AboutusSection> {
   }
   // =================== END OUR STORY (arrow infographic) ===================
 
-  Widget _buildStoryTimelineSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          'OUR JOURNEY',
-          style: GoogleFonts.manrope(
-            color: tOrange1,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-
-        const SizedBox(height: 7),
-
-        Text(
-          'Milestones That Shaped Our Journey.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            color: tBlue2,
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
-            height: 1.05,
-          ),
-        ),
-
-        const SizedBox(height: 25),
-
-        SizedBox(
-          width: double.infinity,
-          height: 250,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final double w = constraints.maxWidth;
-
-              // ---- layout constants (tweak these) ----
-              const double cardH = 104; // card height
-              const double pointerH = 10; // arrow height
-              const double nodeSize = 30; // timeline dot size
-              const double cardWidthFactor = 0.27; // card width (fraction)
-              const double stepFactor =
-                  0.17; // distance between cards (was 0.23)
-              // total width taken by all 4 cards together
-              const double totalSpan = stepFactor * 3 + cardWidthFactor;
-              // auto-centers the whole timeline (was 0.02)
-              const double startFactor = (1 - totalSpan) / 2;
-
-              // vertical center of the timeline line
-              const double lineY = cardH + pointerH + nodeSize / 2;
-
-              final items = [
-                (
-                  '2013',
-                  'The Beginning',
-                  'TrakMate was founded with a vision to innovate',
-                  'icons/innovation.svg',
-                ),
-                (
-                  '2016',
-                  'Expanding Solutions',
-                  'Launched IoT products and embedded solutions',
-                  'icons/manufacture.svg',
-                ),
-                (
-                  '2019',
-                  'Global Growth',
-                  'Expanded into international markets and built strong partnerships',
-                  'icons/globe.svg',
-                ),
-                (
-                  'Today',
-                  'Shaping the Future',
-                  'Continuously innovating to build a smarter, connected world',
-                  'icons/collaboration.svg',
-                ),
-              ];
-
-              final List<Widget> children = [
-                // timeline line
-                Positioned(
-                  left: 150,
-                  right: 150,
-                  top: lineY - 2.5,
-                  child: Container(
-                    // width: 600,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [tWhite, tBlue1, tBlue, tBlue1, tWhite],
-                        stops: [0.0, 0.18, 0.50, 0.82, 1.0],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: tBlue.withOpacity(0.35),
-                          blurRadius: 12,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ];
-
-              // cards
-              for (int i = 0; i < items.length; i++) {
-                final bool isAbove = i.isEven;
-                final double left = w * (startFactor + stepFactor * i);
-                final item = items[i];
-
-                children.add(
-                  Positioned(
-                    left: left,
-                    width: w * cardWidthFactor,
-                    top: isAbove ? 0 : lineY + nodeSize / 2 + pointerH,
-                    child: _buildStoryTimelineCard(
-                      year: item.$1,
-                      title: item.$2,
-                      description: item.$3,
-                      icon: item.$4,
-                      isAbove: isAbove,
-                      cardHeight: cardH,
-                      pointerHeight: pointerH,
-                    ),
-                  ),
-                );
-              }
-
-              // nodes (drawn last, centered under/over each card's arrow)
-              for (int i = 0; i < items.length; i++) {
-                final double centerX =
-                    w * (startFactor + stepFactor * i + cardWidthFactor / 2);
-                children.add(
-                  Positioned(
-                    left: centerX - nodeSize / 2,
-                    top: lineY - nodeSize / 2,
-                    child: _buildStoryTimelineNode(size: nodeSize),
-                  ),
-                );
-              }
-
-              return Stack(clipBehavior: Clip.none, children: children);
-            },
-          ),
-        ),
-
-        const SizedBox(height: 5),
-      ],
-    );
-  }
-
-  Widget _buildStoryTimelineCard({
-    required String year,
-    required String title,
-    required String description,
-    required String icon,
-    required bool isAbove,
-    required double cardHeight,
-    required double pointerHeight,
-  }) {
-    const Color cardColor = Color(0xFFF8FBFF);
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: double.infinity,
-          height: cardHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: const Color(0xFFB9D9FF).withOpacity(0.65),
-              width: 1.4,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF66AFFF).withOpacity(0.18),
-                blurRadius: 20,
-                spreadRadius: 1,
-                offset: const Offset(0, 6),
-              ),
-              BoxShadow(
-                color: const Color(0xFF4C9AFF).withOpacity(0.10),
-                blurRadius: 10,
-                spreadRadius: 1,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const RadialGradient(
-                    colors: [
-                      Color(0xFFFFFFFF),
-                      Color(0xFFF1F7FF),
-                      Color(0xFFE6F1FF),
-                    ],
-                    stops: [0.0, 0.65, 1.0],
-                  ),
-                  border: Border.all(
-                    color: const Color(0xFFD4E9FF),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF5B9CFF).withOpacity(0.16),
-                      blurRadius: 15,
-                      spreadRadius: 3,
-                    ),
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.9),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Container(
-                  margin: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFFF7FBFF),
-                    border: Border.all(
-                      color: const Color(0xFFE0EEFF),
-                      width: 1,
-                    ),
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      icon,
-                      width: 36,
-                      height: 36,
-                      fit: BoxFit.contain,
-                      color: const Color(0xFF2474EA),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 13),
-
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        year,
-                        style: GoogleFonts.manrope(
-                          color: const Color(0xFF1263E8),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          height: 1.0,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          color: const Color(0xFF10284E),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          height: 1.15,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          color: const Color(0xFF617797),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          height: 1.45,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Arrow: overlaps the card border by 1.5px so it merges with the card
-        Positioned(
-          left: 0,
-          right: 0,
-          top: isAbove ? null : -(pointerHeight - 1.5),
-          bottom: isAbove ? -(pointerHeight - 1.5) : null,
-          child: Center(
-            child: CustomPaint(
-              size: Size(30, pointerHeight),
-              painter: _StoryTimelinePointerPainter(
-                isAbove: isAbove,
-                fillColor: cardColor,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStoryTimelineNode({double size = 34}) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: const Color(0xFFF7FBFF),
-        border: Border.all(color: const Color(0xFFA8CFFF), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3C8DFF).withOpacity(0.25),
-            blurRadius: 14,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Center(
-        child: Container(
-          width: size - 12,
-          height: size - 12,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [Color(0xFF3488FF), Color(0xFF1263E8)],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfrastructureBrick({
-    required String icon,
-    required String title,
-    required String description,
-  }) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [tBlue2.withOpacity(0.92), tBlue2.withOpacity(0.72)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tWhite.withOpacity(0.22), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: tBlue2.withOpacity(0.18),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // LEFT ICON
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: tWhite.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                icon,
-                width: 33,
-                height: 33,
-                color: tOrange1,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          // TEXT
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
-                    color: tWhite,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  description,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
-                    color: tWhite.withOpacity(0.70),
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          // RIGHT ICON: same icon, light blue, big, no background
-          SvgPicture.asset(
-            icon,
-            width: 60,
-            height: 56,
-            fit: BoxFit.contain,
-            color: const Color(0xFF8DB8FF).withOpacity(0.3), // light blue
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _flexChild(int flex, Widget child) =>
-      _isTablet ? child : Expanded(flex: flex, child: child);
+  // ---------------------------- LEADERSHIP ----------------------------
   Widget _ourTeamSection() {
+    final Widget intro = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Meet Our Leadership",
+          style: GoogleFonts.manrope(
+            color: tBlack,
+            fontSize: isMobile ? 24 : 30,
+            fontWeight: FontWeight.w700,
+            height: 1,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(width: 75, height: 2, color: tOrange1),
+        const SizedBox(height: 20),
+        Text(
+          "Our diverse team of engineers, designers, developers and industry experts work together to deliver exceptional solutions and exceed expectations.",
+          style: GoogleFonts.manrope(
+            fontSize: 12,
+            color: tBlack,
+            height: 1.35,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(height: (isTablet || isMobile) ? 0 : 15),
+      ],
+    );
+
+    final double cardGap = isMobile ? 10 : (isTablet ? 16 : 20);
+    final Widget cards = Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Expanded(
+          child: buildTeamProfileCard(
+            image: "images/img2.jpg",
+            name: "NL Srinivas",
+            designation: "Co-Founder & CEO",
+          ),
+        ),
+        SizedBox(width: cardGap),
+        Expanded(
+          child: buildTeamProfileCard(
+            image: "images/img1.jpg",
+            name: "M Pramod",
+            designation: "Co-Founder & COO",
+          ),
+        ),
+        SizedBox(width: cardGap),
+        Expanded(
+          child: buildTeamProfileCard(
+            image: "images/img2.jpg",
+            name: "S Srinivasa",
+            designation: "Co-Founder & CTO",
+          ),
+        ),
+      ],
+    );
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Meet Our Leadership",
-                  style: GoogleFonts.manrope(
-                    color: tBlack,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    height: 1,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  width: 75,
-                  height: 2,
-                  decoration: BoxDecoration(color: tOrange1),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Our diverse team of engineers, designers, developers and industry experts work together to deliver exceptional solutions and exceed expectations.",
-                  style: GoogleFonts.manrope(
-                    fontSize: 12,
-                    color: tBlack,
-                    height: 1.35,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 15),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 80),
-
-          Expanded(
-            flex: 4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: buildTeamProfileCard(
-                    image: "images/img2.jpg",
-                    name: "NL Srinivas",
-                    designation: "Co-Founder & CEO",
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: buildTeamProfileCard(
-                    image: "images/img1.jpg",
-                    name: "M Pramod",
-                    designation: "Co-Founder & COO",
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: buildTeamProfileCard(
-                    image: "images/img2.jpg",
-                    name: "S Srinivasa",
-                    designation: "Co-Founder & CTO",
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      padding: EdgeInsets.symmetric(horizontal: _pad, vertical: 10),
+      child:
+          (isTablet || isMobile)
+              ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [intro, SizedBox(height: isMobile ? 20 : 24), cards],
+              )
+              : Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(flex: 2, child: intro),
+                  const SizedBox(width: 80),
+                  Expanded(flex: 4, child: cards),
+                ],
+              ),
     );
   }
 
@@ -2808,7 +2625,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: 150,
+              height: isMobile ? 115 : 150,
               width: double.infinity,
               child: Image.asset(
                 image,
@@ -2841,14 +2658,17 @@ class _AboutusSectionState extends State<AboutusSection> {
             ),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: isMobile ? 4 : 0,
+              ),
               child: Column(
                 children: [
                   Text(
                     name,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.manrope(
-                      fontSize: 14,
+                      fontSize: isMobile ? 12 : 14,
                       fontWeight: FontWeight.w700,
                       color: tBlack,
                     ),
@@ -2858,7 +2678,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                     designation,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.manrope(
-                      fontSize: 12,
+                      fontSize: isMobile ? 10.5 : 12,
                       fontWeight: FontWeight.w500,
                       color: tOrange1,
                     ),
@@ -3220,10 +3040,8 @@ class _AboutusSectionState extends State<AboutusSection> {
                       ),
                     ),
 
-                    // SAME SPACE ABOVE READ MORE
                     const Spacer(),
 
-                    // SAME HEIGHT FOR READ MORE ON EVERY CARD
                     SizedBox(
                       height: 24,
                       child: Row(
@@ -3253,13 +3071,14 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
+  // ---------------------------- CERTIFICATIONS ----------------------------
   Widget _buildCertificationsSection() {
     return Column(
       children: [
         Text(
           "CERTIFICATIONS",
           style: GoogleFonts.manrope(
-            fontSize: 13,
+            fontSize: isMobile ? 12 : 13,
             fontWeight: FontWeight.w700,
             color: tOrange1,
             letterSpacing: 1.2,
@@ -3272,28 +3091,47 @@ class _AboutusSectionState extends State<AboutusSection> {
           "Committed to Quality, Safety & Excellence",
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
-            fontSize: 25,
+            fontSize: isMobile ? 20 : 25,
             fontWeight: FontWeight.w700,
             color: tBlue2,
+            height: isMobile ? 1.2 : null,
           ),
         ),
 
-        const SizedBox(height: 10),
-
-        SizedBox(
-          height: 140,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children:
-                _certs.map((cert) {
-                  return SizedBox(
-                    width: 200, //width
-                    height: 110,
-                    child: _buildCertificationCard(cert),
-                  );
-                }).toList(),
+        SizedBox(height: isMobile ? 18 : 10),
+        if (isTablet || isMobile)
+          LayoutBuilder(
+            builder: (context, c) {
+              const double gap = 16;
+              final int columns = isMobile ? 2 : 3;
+              final double w = ((c.maxWidth - gap * (columns - 1)) / columns)
+                  .clamp(0.0, double.infinity);
+              return Wrap(
+                alignment: WrapAlignment.center,
+                spacing: gap,
+                runSpacing: 20,
+                children: [
+                  for (final cert in _certs)
+                    SizedBox(width: w, child: _buildCertificationCard(cert)),
+                ],
+              );
+            },
+          )
+        else
+          SizedBox(
+            height: 140,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children:
+                  _certs.map((cert) {
+                    return SizedBox(
+                      width: 200, //width
+                      height: 110,
+                      child: _buildCertificationCard(cert),
+                    );
+                  }).toList(),
+            ),
           ),
-        ),
       ],
     );
   }

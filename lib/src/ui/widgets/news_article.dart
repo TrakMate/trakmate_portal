@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import '../../utils/colors.dart';
 
 //here
@@ -44,158 +45,62 @@ class NewsArticleDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final bool isMobile = ResponsiveLayout.isMobile(context);
+    final bool compact = size.width < 380; // medium phones
+
+    // Sizes: mobile | tablet / desktop (unchanged)
+    final double imageHeight = isMobile ? (compact ? 190 : 220) : 350;
+    final double titleSize = isMobile ? (compact ? 19 : 22) : 28;
+    final EdgeInsets bodyPadding =
+        isMobile
+            ? const EdgeInsets.fromLTRB(20, 20, 20, 16)
+            : const EdgeInsets.fromLTRB(40, 28, 40, 32);
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+      insetPadding:
+          isMobile
+              ? const EdgeInsets.symmetric(horizontal: 12, vertical: 20)
+              : const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: 860,
-          maxHeight: size.height * 0.88,
+          maxHeight: size.height * (isMobile ? 0.9 : 0.88),
         ),
         child: Container(
           decoration: BoxDecoration(
             color: tWhite,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
           ),
           clipBehavior: Clip.antiAlias,
-          // child: Stack(
-          //   children: [
-          //     SingleChildScrollView(
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           SizedBox(
-          //             height: 300,
-          //             width: double.infinity,
-          //             child: Image.asset(article.image, fit: BoxFit.cover),
-          //           ),
-          //           Padding(
-          //             padding: const EdgeInsets.fromLTRB(40, 28, 40, 32),
-          //             child: Column(
-          //               crossAxisAlignment: CrossAxisAlignment.start,
-          //               children: [
-          //                 _metaRow(),
-          //                 const SizedBox(height: 14),
-          //                 Text(
-          //                   article.title.replaceAll('\n', ' '),
-          //                   style: GoogleFonts.manrope(
-          //                     fontSize: 28,
-          //                     height: 1.2,
-          //                     fontWeight: FontWeight.w700,
-          //                     color: tBlack,
-          //                   ),
-          //                 ),
-          //                 const SizedBox(height: 12),
-          //                 Container(width: 75, height: 2, color: tOrange1),
-          //                 if (article.author != null) ...[
-          //                   const SizedBox(height: 14),
-          //                   Text(
-          //                     'By ${article.author}',
-          //                     style: GoogleFonts.manrope(
-          //                       fontSize: 12,
-          //                       fontWeight: FontWeight.w600,
-          //                       color: tBlue3.withOpacity(0.7),
-          //                     ),
-          //                   ),
-          //                 ],
-          //                 const SizedBox(height: 20),
-          //                 ...article.content.map(
-          //                   (p) => Padding(
-          //                     padding: const EdgeInsets.only(bottom: 16),
-          //                     child: Text(
-          //                       //paragraph
-          //                       p,
-          //                       style: GoogleFonts.manrope(
-          //                         fontSize: 13,
-          //                         height: 1.65,
-          //                         fontWeight: FontWeight.w500,
-          //                         color: tBlack.withOpacity(0.85),
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 ),
-          //                 const SizedBox(height: 8),
-          //                 Align(
-          //                   alignment: Alignment.centerRight,
-          //                   child: ElevatedButton(
-          //                     onPressed: () => Navigator.of(context).pop(),
-          //                     style: ElevatedButton.styleFrom(
-          //                       backgroundColor: tOrange1,
-          //                       foregroundColor: tWhite,
-          //                       elevation: 0,
-          //                       padding: const EdgeInsets.symmetric(
-          //                         horizontal: 26,
-          //                         vertical: 14,
-          //                       ),
-          //                       shape: RoundedRectangleBorder(
-          //                         borderRadius: BorderRadius.circular(7),
-          //                       ),
-          //                     ),
-          //                     child: Text(
-          //                       'Close',
-          //                       style: GoogleFonts.manrope(
-          //                         fontSize: 12,
-          //                         fontWeight: FontWeight.w700,
-          //                         color: tWhite,
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-
-          //     // Close (X) button over the image
-          //     // Positioned(
-          //     //   top: 14,
-          //     //   right: 14,
-          //     //   child: Material(
-          //     //     color: Colors.black.withOpacity(0.45),
-          //     //     shape: const CircleBorder(),
-          //     //     child: InkWell(
-          //     //       customBorder: const CircleBorder(),
-          //     //       onTap: () => Navigator.of(context).pop(),
-          //     //       child: const Padding(
-          //     //         padding: EdgeInsets.all(8),
-          //     //         child: Icon(Icons.close, size: 20, color: tWhite),
-          //     //       ),
-          //     //     ),
-          //     //   ),
-          //     // ),
-          //   ],
-          // ),
           child: Stack(
             children: [
               // Scrollable article content
               Padding(
-                padding: const EdgeInsets.only(bottom: 42),
+                // leaves room for the fixed Close button
+                padding: EdgeInsets.only(bottom: isMobile ? 60 : 42),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 350,
+                        height: imageHeight,
                         width: double.infinity,
                         child: shimmerImage(article.image),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 28, 40, 32),
+                        padding: bodyPadding,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _metaRow(),
-                            const SizedBox(height: 14),
+                            SizedBox(height: isMobile ? 12 : 14),
 
                             Text(
                               article.title.replaceAll('\n', ' '),
                               style: GoogleFonts.manrope(
-                                fontSize: 28,
+                                fontSize: titleSize,
                                 height: 1.2,
                                 fontWeight: FontWeight.w700,
                                 color: tBlack,
@@ -218,16 +123,18 @@ class NewsArticleDialog extends StatelessWidget {
                               ),
                             ],
 
-                            const SizedBox(height: 20),
+                            SizedBox(height: isMobile ? 16 : 20),
 
                             ...article.content.map(
                               (p) => Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
+                                padding: EdgeInsets.only(
+                                  bottom: isMobile ? 14 : 16,
+                                ),
                                 child: Text(
                                   p,
                                   style: GoogleFonts.manrope(
                                     fontSize: 13,
-                                    height: 1.65,
+                                    height: isMobile ? 1.6 : 1.65,
                                     fontWeight: FontWeight.w500,
                                     color: tBlack.withOpacity(0.85),
                                   ),
@@ -237,7 +144,7 @@ class NewsArticleDialog extends StatelessWidget {
 
                             // Extra bottom space so content isn't hidden
                             // behind the fixed Close button.
-                            const SizedBox(height: 20),
+                            SizedBox(height: isMobile ? 4 : 20),
                           ],
                         ),
                       ),
@@ -248,17 +155,17 @@ class NewsArticleDialog extends StatelessWidget {
 
               // FIXED CLOSE BUTTON
               Positioned(
-                right: 40,
-                bottom: 20,
+                right: isMobile ? 20 : 40,
+                bottom: isMobile ? 12 : 20,
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: tOrange1,
                     foregroundColor: tWhite,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 26,
-                      vertical: 14,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isMobile ? 22 : 26,
+                      vertical: isMobile ? 11 : 14,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(7),
@@ -274,6 +181,25 @@ class NewsArticleDialog extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Mobile only: small close (X) over the image, easy to reach
+              if (isMobile)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Material(
+                    color: Colors.black.withOpacity(0.45),
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => Navigator.of(context).pop(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(7),
+                        child: Icon(Icons.close, size: 18, color: tWhite),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -289,7 +215,11 @@ class NewsArticleDialog extends StatelessWidget {
       color: tBlue3.withOpacity(0.25),
     );
 
-    return Row(
+    // Wrap: looks the same as a Row when it fits, but flows onto a second
+    // line instead of overflowing on narrow phones.
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: 6,
       children: [
         Text(
           article.category,

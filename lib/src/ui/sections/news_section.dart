@@ -101,6 +101,17 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
   ];
   bool _isLoading = true;
 
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // Medium phones (e.g. 360px wide) get slightly smaller type / images
+  bool get _isCompact => MediaQuery.of(context).size.width < 380;
+
+  // Horizontal page padding for the content below the hero
+  double get _pagePadding => isMobile ? 16 : (isTablet ? 24 : 40);
+
   @override
   void initState() {
     super.initState();
@@ -122,6 +133,8 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
 
   @override
   Widget build(BuildContext context) {
+    // final bool mobile = _isMobile;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -130,21 +143,18 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
             isActive: widget.isActive,
             slides: [
               HeroSlide(
-                // image: _sortedNews[1].image,
                 image: 'images/auto_expo1.png',
                 label: 'COMPANY NEWS',
                 line1: 'Showcasing our latest innovations',
                 line2: 'in connected mobility, intelligent\nvehicle solutions.',
               ),
               HeroSlide(
-                // image: _sortedNews[0].image,
                 image: 'images/innovation_center1.png',
                 label: 'EVENTS',
                 line1: 'TrakMate Expands Its Engineering',
                 line2: 'Capabilities with New Innovation\nCenter.',
               ),
               HeroSlide(
-                // image: _sortedNews[2].image,
                 image: 'images/R&D_Team2.png',
                 label: 'PRODUCTS',
                 line1: 'Our latest vehicle tracking solution',
@@ -152,15 +162,13 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
               ),
             ],
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: isMobile ? 28 : 40),
 
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: ResponsiveLayout.isTablet(context) ? 24 : 40,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: _pagePadding),
             child: _buildNewsMediaSection(),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: isMobile ? 32 : 40),
           FooterSection(onNavigate: widget.onNavigate),
         ],
       ),
@@ -170,67 +178,44 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
   Widget _buildNewsMediaSection() {
     final news = _sortedNews;
     final latest = news[0];
-    final bool isTablet = ResponsiveLayout.isTablet(context);
+
+    final double screenW = MediaQuery.of(context).size.width;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (_isLoading) ...[
-          const ShimmerBox(
-            width: 90,
+          ShimmerBox(
+            width: isMobile ? 70 : 90,
             height: 13,
-            borderRadius: BorderRadius.all(Radius.circular(4)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
           const SizedBox(height: 8),
-          const ShimmerBox(
-            width: 260,
+          ShimmerBox(
+            width: isMobile ? 220 : 260,
             height: 25,
-            borderRadius: BorderRadius.all(Radius.circular(4)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
           const SizedBox(height: 6),
-          const ShimmerBox(
-            width: 380,
+          ShimmerBox(
+            // never wider than the phone screen
+            width: isMobile ? (screenW - 32).clamp(0.0, 300.0).toDouble() : 380,
             height: 13,
-            borderRadius: BorderRadius.all(Radius.circular(4)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
         ] else ...[
-          Text(
-            'OUR UPDATES',
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 8),
-          RichText(
-            text: TextSpan(
-              style: GoogleFonts.manrope(
-                fontSize: 25,
-                fontWeight: FontWeight.w700,
-                color: tBlue2,
-              ),
-              children: const [TextSpan(text: 'Stay Connected With TrakMate')],
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'The latest updates, milestones and stories from our engineering journey.',
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              color: tBlack.withOpacity(0.75),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 25),
+          _buildHeader(news),
+          SizedBox(height: isMobile ? 20 : 25),
 
           // ---------- LATEST BANNER ----------
           if (_isLoading)
             const NewsBannerShimmer()
+          else if (isMobile)
+            _buildMobileLatest(latest)
           else
             SizedBox(
               width: double.infinity,
-              height: isTablet ? 300 : 330,
+              height: isMobile ? 300 : 330,
               child: Container(
                 decoration: BoxDecoration(
                   color: tBlue1.withOpacity(0.05),
@@ -252,42 +237,7 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: tWhite,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: tOrange1.withOpacity(0.65),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 7,
-                                    height: 7,
-                                    decoration: const BoxDecoration(
-                                      color: tOrange1,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 7),
-                                  Text(
-                                    'LATEST',
-                                    style: GoogleFonts.manrope(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: tOrange1,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            _buildLatestChip(),
                             const SizedBox(height: 18),
                             Row(
                               children: [
@@ -354,37 +304,47 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
                 ),
               ),
             ),
-          const SizedBox(height: 25),
+          // Tablet / mobile: "View All News" sits right under the Latest
+          // banner, aligned to the right. (Desktop keeps it at the bottom.)
+          if (isMobile || isTablet) ...[
+            const SizedBox(height: 14),
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildViewAllButton(news),
+            ),
+            SizedBox(height: isMobile ? 16 : 20),
+          ] else
+            const SizedBox(height: 25),
 
-          // ---------- 4 NEWS CARDS ----------
-          // if (_isLoading)
-          //   Row(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       for (int i = 0; i < 3; i++) ...[
-          //         const Expanded(child: NewsCardShimmer()),
-          //         if (i != 2) const SizedBox(width: 20),
-          //       ],
-          //     ],
-          //   )
-          // else
-          //   Row(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       for (int i = 1; i < news.length; i++) ...[
-          //         Expanded(child: NewsCard(article: news[i])),
-          //         if (i != news.length - 1) const SizedBox(width: 20),
-          //       ],
-          //     ],
-          //   ),
-          // const SizedBox(height: 15),
+          // ---------- NEWS CARDS ----------
           if (_isLoading)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            isMobile
+                ? Column(
+                  children: const [
+                    SizedBox(width: double.infinity, child: NewsCardShimmer()),
+                    SizedBox(height: 16),
+                    SizedBox(width: double.infinity, child: NewsCardShimmer()),
+                  ],
+                )
+                : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (int i = 0; i < 3; i++) ...[
+                      const Expanded(child: NewsCardShimmer()),
+                      if (i != 2) const SizedBox(width: 20),
+                    ],
+                  ],
+                )
+          else if (isMobile)
+            // Mobile: one card per row, full width
+            Column(
               children: [
-                for (int i = 0; i < 3; i++) ...[
-                  const Expanded(child: NewsCardShimmer()),
-                  if (i != 2) const SizedBox(width: 20),
+                for (int i = 1; i < news.length; i++) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: NewsCard(article: news[i]),
+                  ),
+                  if (i != news.length - 1) const SizedBox(height: 16),
                 ],
               ],
             )
@@ -415,50 +375,237 @@ class _NewsAndMediaSectionState extends State<NewsAndMediaSection> {
             ),
 
           // spacer is its OWN statement, outside the if/else chain
-          SizedBox(height: isTablet ? 30 : 15),
+          SizedBox(height: (isMobile || isTablet) ? 0 : 15),
 
-          if (!_isLoading)
+          // Desktop only: button stays at the bottom, right aligned.
+          // Mobile + tablet show it under the Latest banner instead.
+          if (!_isLoading && !isMobile && !isTablet)
             Align(
               alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AllNewsPage(articles: news),
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: tOrange1,
-                  side: BorderSide(color: tOrange1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 22,
-                    vertical: 12,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'View All News',
-                      style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: tOrange1,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, size: 16),
-                  ],
-                ),
-              ),
+              child: _buildViewAllButton(news),
             ),
         ],
       ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // HEADER: centered eyebrow, title, sentence
+  // ---------------------------------------------------------------------------
+  Widget _buildHeader(List<NewsArticle> news) {
+    // final bool isMobile = isMobile;
+
+    final Widget eyebrow = Text(
+      'OUR UPDATES',
+      style: GoogleFonts.manrope(
+        fontSize: isMobile ? 12 : 13,
+        fontWeight: FontWeight.w700,
+        color: tOrange1,
+        letterSpacing: 1.2,
+      ),
+    );
+
+    final Widget title = RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: GoogleFonts.manrope(
+          fontSize: isMobile ? (_isCompact ? 20 : 22) : 25,
+          fontWeight: FontWeight.w700,
+          color: tBlue2,
+          height: isMobile ? 1.2 : null,
+        ),
+        children: const [TextSpan(text: 'Stay Connected With TrakMate')],
+      ),
+    );
+
+    final Widget sentence = Text(
+      'The latest updates, milestones and stories from our engineering journey.',
+      textAlign: TextAlign.center,
+      style: GoogleFonts.manrope(
+        fontSize: isMobile ? 12.5 : 13,
+        height: isMobile ? 1.5 : null,
+        color: tBlack.withOpacity(0.75),
+        fontWeight: FontWeight.w500,
+      ),
+    );
+
+    // Text is centered on every screen size.
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        children: [
+          eyebrow,
+          SizedBox(height: isMobile ? 6 : 8),
+          title,
+          const SizedBox(height: 6),
+          sentence,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewAllButton(List<NewsArticle> news) {
+    final bool mobile = isMobile;
+
+    return OutlinedButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AllNewsPage(articles: news)),
+        );
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: tOrange1,
+        side: BorderSide(color: tOrange1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        padding: EdgeInsets.symmetric(
+          horizontal: mobile ? 16 : 22,
+          vertical: mobile ? 9 : 12,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'View All News',
+            style: GoogleFonts.manrope(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: tOrange1,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.arrow_forward, size: 16),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // MOBILE "LATEST" CARD: image on top, text below
+  // ---------------------------------------------------------------------------
+  Widget _buildMobileLatest(NewsArticle latest) {
+    final bool compact = _isCompact;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: tBlue1.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: compact ? 180 : 210,
+            width: double.infinity,
+            child: shimmerImage(latest.image),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLatestChip(),
+                const SizedBox(height: 14),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  runSpacing: 4,
+                  children: [
+                    Text(
+                      latest.category,
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: tBlue,
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 14,
+                      color: tBlue3.withOpacity(0.25),
+                    ),
+                    Text(
+                      latest.date,
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: tBlue3.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  latest.title,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    fontSize: compact ? 18 : 20,
+                    height: 1.2,
+                    fontWeight: FontWeight.w800,
+                    color: tBlack,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  latest.summary,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    fontSize: 12.5,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                    color: tBlue3.withOpacity(0.65),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                _buildNewsOrangeButton(
+                  'Read Story',
+                  onPressed: () => showNewsArticleDialog(context, latest),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // "LATEST" pill (shared by desktop / tablet / mobile)
+  Widget _buildLatestChip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: tWhite,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: tOrange1.withOpacity(0.65)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: const BoxDecoration(
+              color: tOrange1,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 7),
+          Text(
+            'LATEST',
+            style: GoogleFonts.manrope(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: tOrange1,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

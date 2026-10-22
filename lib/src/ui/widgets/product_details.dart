@@ -5,15 +5,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
-// import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/ui/widgets/build_products.dart';
-// import 'dart:js_interop';
-// import 'package:web/web.dart' as web;
 
 class _SpecBadgeInfo {
   final String title;
@@ -45,7 +43,6 @@ const Map<String, double> _kIconFraction = {
   'icons/ethernet1.svg': 0.78,
   'icons/wifi1.svg': 0.85,
   'icons/hd1.svg': 0.88,
-  // 'images/ev1.png': 0.8,
 };
 
 class ProductDetailsPage extends StatefulWidget {
@@ -71,6 +68,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   final GlobalKey _applicationsKey = GlobalKey();
 
   ProductData get product => widget.product;
+
+  // Mobile < 700 (same breakpoint as ResponsiveLayout). Tablet / desktop
+  // layouts are untouched.
+  bool get _isMobile => ResponsiveLayout.isMobile(context);
 
   late final PageController _imagePageController;
 
@@ -109,7 +110,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       images.add(product.image5!);
     }
 
-    // ✅ IMAGE 6
     if (product.image6 != null && product.image6!.isNotEmpty) {
       images.add(product.image6!);
     }
@@ -125,7 +125,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   int get _carouselItemCount {
-    // return _productImages.length;
     return _productImages.length + (_hasVideo ? 1 : 0);
   }
 
@@ -153,33 +152,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     setState(() {});
   }
 
-  // Future<void> _preloadSpecsSlideAssets() async {
-  //   // nothing to wait for if this product has no specs slide
-  //   if (product.specBadges.isEmpty) {
-  //     if (mounted) setState(() => _specsLoading = false);
-  //     return;
-  //   }
-
-  //   final List<String> paths =
-  //       {
-  //         _productImages[0], // the product image shown on the specs slide
-  //         ...product.specBadges, // every badge icon
-  //       }.where((p) => !_isSvg(p)).toList();
-
-  //   await Future.wait(
-  //     paths.map(
-  //       (path) => precacheImage(
-  //         AssetImage(path),
-  //         context,
-  //         onError: (e, s) => debugPrint('Preload failed: $path'), // never hang
-  //       ),
-  //     ),
-  //   );
-  //   await Future.delayed(const Duration(seconds: 3)); // fr testing
-
-  //   if (!mounted) return;
-  //   setState(() => _specsLoading = false);
-  // }
   Future<void> _preloadSpecsSlideAssets() async {
     if (product.specBadges.isEmpty) {
       if (mounted) setState(() => _specsLoading = false);
@@ -212,23 +184,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     setState(() => _specsLoading = false);
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   _imagePageController = PageController();
-  //   if (_hasVideo) {
-  //     _videoController =
-  //         VideoPlayerController.asset(product.video!)
-  //           ..initialize().then((_) {
-  //             if (mounted) setState(() {});
-  //           })
-  //           ..addListener(_onVideoStateChanged);
-  //   }
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     _preloadSpecsSlideAssets();
-  //   });
-  // }
   @override
   void initState() {
     super.initState();
@@ -364,7 +319,69 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
+  // MOBILE specs slide: product image on top, ALL badges wrapped below it.
+  // The badge block scales down automatically if it can't fit.
+  Widget _buildMobileSpecsSlide(String productImage) {
+    final double screenW = MediaQuery.of(context).size.width;
+    final double kb = screenW < 380 ? 0.62 : 0.72;
+
+    return LayoutBuilder(
+      builder: (context, c) {
+        const double sidePad = 30; // keeps clear of the arrow buttons
+        final double contentW = math.max(c.maxWidth - sidePad * 2, 0);
+
+        return Padding(
+          // bottom keeps everything clear of the thumbnails
+          padding: const EdgeInsets.fromLTRB(sidePad, 16, sidePad, 62),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Image.asset(
+                  productImage,
+                  fit: BoxFit.contain,
+                  errorBuilder:
+                      (context, error, stackTrace) => Center(
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          size: 48,
+                          color: tBlack.withOpacity(0.20),
+                        ),
+                      ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Flexible(
+                flex: 2,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: contentW,
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      spacing: 8,
+                      runSpacing: 10,
+                      children: [
+                        for (final String badge in product.specBadges)
+                          _buildSpecBadgeItem(badge, kb),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildSpecsSlide(String productImage) {
+    if (_isMobile) return _buildMobileSpecsSlide(productImage);
+
     final SpecsSlideStyle s = product.specsStyle;
 
     final int topCount = s.topRowCount.clamp(0, product.specBadges.length);
@@ -375,9 +392,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double k = _slideScale(constraints);
-        // debugPrint(
-        //   'SLIDE SIZE: ${constraints.maxWidth} x ${constraints.maxHeight}',
-        // );
 
         const double kMinBadgeScale = 0.75; // badges never shrink below 75%
         const double kImageBadgeGap = 28; // gap image <-> badges (at k = 1)
@@ -440,7 +454,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(
-                          // top: math.max(imagePad - 24, 0),
                           top: math.max(imageTopPad - 24, 0),
                           bottom: math.max(imagePad - 80, 0),
                         ),
@@ -456,8 +469,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       SizedBox(width: gap),
                       SizedBox(
                         width: itemW,
-                        // child: Padding(
-                        //   padding: EdgeInsets.only(top: topReserve),
                         child:
                             both
                                 ? const SizedBox.shrink()
@@ -500,7 +511,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
 
             // Top row (only products with topRowCount > 0)
-            // if (topBadges.isNotEmpty)
             if (topBadges.isNotEmpty && !both)
               Positioned(
                 top: s.topRowTopOffset * k,
@@ -583,11 +593,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bool mobile = _isMobile;
+
     return Scaffold(
       backgroundColor: tWhite,
 
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(40, 22, 40, 20),
+        padding:
+            mobile
+                ? const EdgeInsets.fromLTRB(16, 14, 16, 16)
+                : const EdgeInsets.fromLTRB(40, 22, 40, 20),
 
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -643,6 +658,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _buildCompactLayout() {
+    final bool mobile = _isMobile;
+
     return SingleChildScrollView(
       controller: _rightScrollController,
 
@@ -652,15 +669,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         children: [
           _buildBackButton(),
 
-          const SizedBox(height: 22),
+          SizedBox(height: mobile ? 14 : 22),
 
           _buildLeftProductArea(flexibleImage: false),
 
-          const SizedBox(height: 35),
+          SizedBox(height: mobile ? 24 : 35),
 
           _buildRightInformationArea(),
 
-          const SizedBox(height: 35),
+          SizedBox(height: mobile ? 24 : 35),
 
           _buildTalkToTeamSection(),
         ],
@@ -713,6 +730,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _buildLeftProductArea({required bool flexibleImage}) {
+    final bool mobile = _isMobile;
+    final double screenW = MediaQuery.of(context).size.width;
+
+    // Mobile carousel height follows the screen width (small + large phones).
+    final double mobileCarouselHeight = (screenW * 1.3).clamp(400.0, 520.0);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
 
@@ -721,20 +744,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           product.title,
 
           style: GoogleFonts.manrope(
-            fontSize: 36,
+            fontSize: mobile ? (screenW < 380 ? 22 : 26) : 36,
             fontWeight: FontWeight.w700,
             color: tBlack,
             height: 1.15,
           ),
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: mobile ? 10 : 12),
 
         flexibleImage
             ? Expanded(child: _buildProductImage(fixedHeight: null))
-            : _buildProductImage(fixedHeight: 420),
+            : _buildProductImage(
+              fixedHeight: mobile ? mobileCarouselHeight : 420,
+            ),
 
-        const SizedBox(height: 14),
+        SizedBox(height: mobile ? 12 : 14),
 
         Row(
           children: [
@@ -748,6 +773,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _buildProductImage({required double? fixedHeight}) {
+    final bool mobile = _isMobile;
+
     return Focus(
       focusNode: _carouselFocusNode,
       autofocus: true,
@@ -819,8 +846,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
 
                 Positioned.fill(
-                  // child: Padding(
-                  //   padding: const EdgeInsets.all(88), //padding
                   child: PageView.builder(
                     controller: _imagePageController,
 
@@ -841,6 +866,19 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                               120 * _slideScale(c); //product image padding
 
                           if (index >= _productImages.length && _hasVideo) {
+                            // MOBILE: simple fixed padding, clear of thumbnails
+                            if (mobile) {
+                              return Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  30,
+                                  24,
+                                  30,
+                                  62,
+                                ),
+                                child: _buildVideoSlide(),
+                              );
+                            }
+
                             final double videoPad =
                                 product.videoPadding != null
                                     ? product.videoPadding! * _slideScale(c)
@@ -869,12 +907,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                           }
 
                           return Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              math.max(pad, 56),
-                              pad,
-                              math.max(pad, 56),
-                              math.max(pad, 72),
-                            ),
+                            padding:
+                                mobile
+                                    ? const EdgeInsets.fromLTRB(30, 24, 30, 62)
+                                    : EdgeInsets.fromLTRB(
+                                      math.max(pad, 56),
+                                      pad,
+                                      math.max(pad, 56),
+                                      math.max(pad, 72),
+                                    ),
                             child: Image.asset(
                               _productImages[index],
                               fit: BoxFit.contain,
@@ -895,15 +936,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                 ),
 
-                // ),
                 Positioned(
-                  left: 5,
+                  left: mobile ? 2 : 5,
                   top: 0,
                   bottom: 0,
 
                   child: Center(
                     child: _buildImageNavigationButton(
                       icon: Icons.arrow_back_ios_new_rounded,
+                      size: mobile ? 30 : 42,
 
                       onTap: () {
                         if (_currentImageIndex > 0) {
@@ -921,13 +962,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
 
                 Positioned(
-                  right: 5,
+                  right: mobile ? 2 : 5,
                   top: 0,
                   bottom: 0,
 
                   child: Center(
                     child: _buildImageNavigationButton(
                       icon: Icons.arrow_forward_ios_rounded,
+                      size: mobile ? 30 : 42,
 
                       onTap: () {
                         if (_currentImageIndex < _carouselItemCount - 1) {
@@ -944,40 +986,70 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   ),
                 ),
 
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 10,
+                // THUMBNAILS
+                // Mobile: smaller thumbnails that scroll sideways if there are
+                // too many to fit. Tablet / desktop: unchanged row.
+                if (mobile)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 10,
+                    child: LayoutBuilder(
+                      builder: (context, c) {
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(minWidth: c.maxWidth),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ...List.generate(_carouselItemCount, (index) {
+                                  return _buildProductThumbnail(index);
+                                }),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 10,
 
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
 
-                    children: [
-                      ...List.generate(_carouselItemCount, (index) {
-                        return _buildProductThumbnail(index);
-                      }),
-                    ],
-                  ),
-                ),
-
-                Positioned(
-                  left: 24,
-                  bottom: 20,
-
-                  child: Text(
-                    product.title,
-
-                    style: GoogleFonts.manrope(
-                      fontSize: 13,
-
-                      fontWeight: FontWeight.w800,
-
-                      color: tBlue2.withOpacity(0.7),
-
-                      letterSpacing: 1,
+                      children: [
+                        ...List.generate(_carouselItemCount, (index) {
+                          return _buildProductThumbnail(index);
+                        }),
+                      ],
                     ),
                   ),
-                ),
+
+                // Product name watermark (hidden on mobile: no room)
+                if (!mobile)
+                  Positioned(
+                    left: 24,
+                    bottom: 20,
+
+                    child: Text(
+                      product.title,
+
+                      style: GoogleFonts.manrope(
+                        fontSize: 13,
+
+                        fontWeight: FontWeight.w800,
+
+                        color: tBlue2.withOpacity(0.7),
+
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1039,6 +1111,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Widget _buildProductThumbnail(int index) {
     final bool isSelected = _currentImageIndex == index;
+    final bool mobile = _isMobile;
 
     return GestureDetector(
       onTap: () {
@@ -1054,12 +1127,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
 
-        width: 52,
-        height: 52,
+        width: mobile ? 40 : 52,
+        height: mobile ? 40 : 52,
 
-        margin: const EdgeInsets.symmetric(horizontal: 5),
+        margin: EdgeInsets.symmetric(horizontal: mobile ? 3 : 5),
 
-        padding: const EdgeInsets.all(3),
+        padding: EdgeInsets.all(mobile ? 2 : 3),
 
         decoration: BoxDecoration(
           color: tWhite,
@@ -1092,7 +1165,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     alignment: Alignment.center,
                     child: Icon(
                       Icons.play_circle_fill_rounded,
-                      size: 22,
+                      size: mobile ? 18 : 22,
                       color: tBlue2,
                     ),
                   )
@@ -1116,6 +1189,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     required IconData icon,
     required VoidCallback onTap,
     required bool enabled,
+    double size = 42,
   }) {
     return Material(
       color: tTransparent,
@@ -1131,8 +1205,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
 
-          width: 42,
-          height: 42,
+          width: size,
+          height: size,
 
           decoration: BoxDecoration(
             color:
@@ -1154,7 +1228,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           child: Icon(
             icon,
 
-            size: 17,
+            size: size < 40 ? 14 : 17,
 
             color: enabled ? tBlue2 : tBlack.withOpacity(0.22),
           ),
@@ -1203,6 +1277,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Widget _buildRightInformationArea() {
+    final bool mobile = _isMobile;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
 
@@ -1216,7 +1292,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 'PRODUCT DESCRIPTION',
 
                 style: GoogleFonts.manrope(
-                  fontSize: 17,
+                  fontSize: mobile ? 15 : 17,
 
                   fontWeight: FontWeight.w800,
 
@@ -1225,7 +1301,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ),
 
-            // const _DataSheetButton(),
             _DataSheetButton(
               datasheetPath: product.datasheet,
               productTitle: product.title,
@@ -1233,17 +1308,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ],
         ),
 
-        const SizedBox(height: 37),
+        SizedBox(height: mobile ? 18 : 37),
 
         Container(width: 98, height: 2, color: tBlue2),
 
-        const SizedBox(height: 27),
+        SizedBox(height: mobile ? 16 : 27),
 
         Text(
           product.description,
 
           style: GoogleFonts.manrope(
-            fontSize: 14.5,
+            fontSize: mobile ? 13.5 : 14.5,
 
             fontWeight: FontWeight.w600,
 
@@ -1253,9 +1328,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           ),
         ),
 
-        const SizedBox(height: 22),
+        SizedBox(height: mobile ? 14 : 22),
 
-        const SizedBox(height: 36),
+        SizedBox(height: mobile ? 18 : 36),
 
         _buildExpandableSection(
           title: 'SPECIFICATIONS',
@@ -1376,6 +1451,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     required Widget child,
     required GlobalKey sectionKey,
   }) {
+    final bool mobile = _isMobile;
+
     return Container(
       width: double.infinity,
 
@@ -1400,29 +1477,31 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               mouseCursor: SystemMouseCursors.click,
 
               child: Container(
-                height: 55,
+                height: mobile ? 52 : 55,
 
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: EdgeInsets.symmetric(horizontal: mobile ? 12 : 14),
 
                 child: Row(
                   children: [
-                    Icon(icon, size: 22, color: tOrange1),
+                    Icon(icon, size: mobile ? 20 : 22, color: tOrange1),
 
-                    const SizedBox(width: 12),
+                    SizedBox(width: mobile ? 10 : 12),
 
-                    Text(
-                      title,
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
 
-                      style: GoogleFonts.manrope(
-                        fontSize: 15,
+                        style: GoogleFonts.manrope(
+                          fontSize: mobile ? 13.5 : 15,
 
-                        fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w800,
 
-                        color: tBlack,
+                          color: tBlack,
+                        ),
                       ),
                     ),
-
-                    const Spacer(),
                   ],
                 ),
               ),
@@ -1436,7 +1515,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
             secondChild: Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 2, 20, 20),
+              padding:
+                  mobile
+                      ? const EdgeInsets.fromLTRB(8, 0, 8, 12)
+                      : const EdgeInsets.fromLTRB(20, 2, 20, 20),
 
               child: child,
             ),
@@ -1449,27 +1531,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _buildFeaturesContent() {
-    final features = [
-      'Datalogging up to 15000 Location Records',
-      'Vehicle / BMS monitoring using CAN / Serial Bus',
-      'Configuration over SMS/GPRS',
-      'Odometer (GPS & Pulse Count)',
-      'Firmware Over The Air (FOTA)',
-      'Battery Back-up',
-      'IP67',
-      'Immobilization Support',
-      'Driver behavior',
-    ];
+  // One shared bullet list used by every expandable section.
+  Widget _buildBulletContent(List<String> items) {
+    final bool mobile = _isMobile;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
+      padding:
+          mobile
+              ? const EdgeInsets.fromLTRB(14, 10, 14, 8)
+              : const EdgeInsets.fromLTRB(28, 18, 28, 18),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children:
-            features.map((item) {
+            items.map((item) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
 
@@ -1477,7 +1553,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   '• $item',
 
                   style: GoogleFonts.manrope(
-                    fontSize: 13,
+                    fontSize: mobile ? 12.5 : 13,
 
                     fontWeight: FontWeight.w600,
 
@@ -1492,8 +1568,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
+  Widget _buildFeaturesContent() {
+    return _buildBulletContent(const [
+      'Datalogging up to 15000 Location Records',
+      'Vehicle / BMS monitoring using CAN / Serial Bus',
+      'Configuration over SMS/GPRS',
+      'Odometer (GPS & Pulse Count)',
+      'Firmware Over The Air (FOTA)',
+      'Battery Back-up',
+      'IP67',
+      'Immobilization Support',
+      'Driver behavior',
+    ]);
+  }
+
   Widget _buildSpecificationsContent() {
-    final specifications = [
+    return _buildBulletContent(const [
       'GSM: 4G LTE modem with 2G fall back',
       'Protocols: TCP, UDP, HTTP, HTTPS',
       'GNSS: 48 Channel GNSS receiver, Position Accuracy 2.5m CEP, Sensitivity: -163 dBm',
@@ -1510,80 +1600,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       'Power Supply: 8V to 70V – EV Variant, 8V to 120V – HV Variant',
       'Dimension: 70 x 50 x 28 mm',
       'Weight: 100 grams',
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        children:
-            specifications.map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-
-                child: Text(
-                  '• $item',
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-
-                    fontWeight: FontWeight.w600,
-
-                    color: tBlack.withOpacity(0.90),
-
-                    height: 1.45,
-                  ),
-                ),
-              );
-            }).toList(),
-      ),
-    );
+    ]);
   }
 
   Widget _buildConnectivityContent() {
-    final connectivityItems = [
+    return _buildBulletContent(const [
       '4G LTE modem with 2G fallback',
       'TCP, UDP, HTTP and HTTPS protocols',
       'CAN 2.0 vehicle / BMS interface',
       'RS485 or UART TTL interface',
       'GNSS positioning',
       'SMS/GPRS configuration',
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        children:
-            connectivityItems.map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-
-                child: Text(
-                  '• $item',
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-
-                    fontWeight: FontWeight.w600,
-
-                    color: tBlack.withOpacity(0.90),
-
-                    height: 1.45,
-                  ),
-                ),
-              );
-            }).toList(),
-      ),
-    );
+    ]);
   }
 
   Widget _buildApplicationsContent() {
-    final applications = [
+    return _buildBulletContent(const [
       'Vehicle Tracking',
       'Vehicle / BMS Monitoring',
       'Fleet Management',
@@ -1591,43 +1623,105 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       'Odometer Monitoring',
       'Remote Vehicle Configuration',
       'Vehicle Immobilization',
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 18),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        children:
-            applications.map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-
-                child: Text(
-                  '• $item',
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-
-                    fontWeight: FontWeight.w600,
-
-                    color: tBlack.withOpacity(0.90),
-
-                    height: 1.45,
-                  ),
-                ),
-              );
-            }).toList(),
-      ),
-    );
+    ]);
   }
 
   Widget _buildTalkToTeamSection() {
+    final bool mobile = _isMobile;
+
+    final Widget textBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: [
+        Text(
+          'Need more information?',
+
+          style: GoogleFonts.manrope(
+            fontSize: mobile ? 16 : 17,
+
+            fontWeight: FontWeight.w800,
+
+            color: tBlue2,
+          ),
+        ),
+
+        const SizedBox(height: 5),
+
+        Text(
+          'Talk to our team to learn more about ${product.title}, integration options and deployment support.',
+
+          style: GoogleFonts.manrope(
+            fontSize: 11.5,
+
+            fontWeight: FontWeight.w400,
+
+            color: tBlack.withOpacity(0.52),
+
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
+
+    final Widget button = Material(
+      color: tTransparent,
+
+      child: InkWell(
+        mouseCursor: SystemMouseCursors.click,
+
+        borderRadius: BorderRadius.circular(4),
+
+        onTap: () {
+          // CONTACT ACTION
+          showGetInTouchDialog(context);
+        },
+
+        child: Container(
+          width: mobile ? double.infinity : null,
+          padding: EdgeInsets.symmetric(
+            horizontal: mobile ? 16 : 20,
+            vertical: mobile ? 13 : 12,
+          ),
+
+          decoration: BoxDecoration(
+            color: tOrange1,
+
+            borderRadius: BorderRadius.circular(4),
+          ),
+
+          child: Row(
+            mainAxisSize: mobile ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+
+            children: [
+              Text(
+                'Talk to Our Team',
+
+                style: GoogleFonts.manrope(
+                  fontSize: 11.5,
+
+                  fontWeight: FontWeight.w800,
+
+                  color: tWhite,
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              const Icon(Icons.arrow_forward_rounded, size: 16, color: tWhite),
+            ],
+          ),
+        ),
+      ),
+    );
+
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+      padding:
+          mobile
+              ? const EdgeInsets.symmetric(horizontal: 16, vertical: 18)
+              : const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
 
       decoration: BoxDecoration(
         color: const Color(0xFFF7F9FD),
@@ -1637,118 +1731,55 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         borderRadius: BorderRadius.circular(4),
       ),
 
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-
-        children: [
-          Container(
-            width: 4,
-            height: 48,
-
-            decoration: BoxDecoration(
-              color: tOrange1,
-
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-
-          const SizedBox(width: 17),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Text(
-                  'Need more information?',
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 17,
-
-                    fontWeight: FontWeight.w800,
-
-                    color: tBlue2,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  'Talk to our team to learn more about ${product.title}, integration options and deployment support.',
-
-                  style: GoogleFonts.manrope(
-                    fontSize: 11.5,
-
-                    fontWeight: FontWeight.w400,
-
-                    color: tBlack.withOpacity(0.52),
-
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 25),
-
-          Material(
-            color: tTransparent,
-
-            child: InkWell(
-              mouseCursor: SystemMouseCursors.click,
-
-              borderRadius: BorderRadius.circular(4),
-
-              onTap: () {
-                // CONTACT ACTION
-                showGetInTouchDialog(context);
-              },
-
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-
-                decoration: BoxDecoration(
-                  color: tOrange1,
-
-                  borderRadius: BorderRadius.circular(4),
-                ),
-
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-
-                  children: [
-                    Text(
-                      'Talk to Our Team',
-
-                      style: GoogleFonts.manrope(
-                        fontSize: 11.5,
-
-                        fontWeight: FontWeight.w800,
-
-                        color: tWhite,
+      child:
+          mobile
+              // MOBILE: text on top, full-width button underneath
+              ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: tOrange1,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
                       ),
+                      const SizedBox(width: 14),
+                      Expanded(child: textBlock),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  button,
+                ],
+              )
+              : Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+
+                children: [
+                  Container(
+                    width: 4,
+                    height: 48,
+
+                    decoration: BoxDecoration(
+                      color: tOrange1,
+
+                      borderRadius: BorderRadius.circular(3),
                     ),
+                  ),
 
-                    const SizedBox(width: 8),
+                  const SizedBox(width: 17),
 
-                    const Icon(
-                      Icons.arrow_forward_rounded,
+                  Expanded(child: textBlock),
 
-                      size: 16,
+                  const SizedBox(width: 25),
 
-                      color: tWhite,
-                    ),
-                  ],
-                ),
+                  button,
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -1820,11 +1851,7 @@ class _DataSheetButtonState extends State<_DataSheetButton> {
               ],
             ),
 
-            child:
-            // Row(
-            //   mainAxisSize: MainAxisSize.min,
-            //   children: [
-            Text(
+            child: Text(
               'DATA SHEET',
 
               style: GoogleFonts.manrope(
@@ -1837,32 +1864,6 @@ class _DataSheetButtonState extends State<_DataSheetButton> {
                 letterSpacing: 0.3,
               ),
             ),
-
-            // const SizedBox(width: 7),
-
-            // AnimatedContainer(
-            //   duration: const Duration(milliseconds: 180),
-
-            //   transform: Matrix4.translationValues(
-            //     _isHovered ? 3 : 0,
-            //     0,
-            //     0,
-            //   ),
-
-            //   // child: SvgPicture.asset(
-            //   //   'icons/arrow.svg',
-
-            //   //   width: 14,
-            //   //   height: 14,
-
-            //   //   colorFilter: const ColorFilter.mode(
-            //   //     tWhite,
-            //   //     BlendMode.srcIn,
-            //   //   ),
-            //   // ),
-            // ),
-            // ],
-            // ),
           ),
         ),
       ),
@@ -2003,7 +2004,6 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
         'Please let me know if you need any additional information from my side.\n\n'
         'Thanks & Regards,\n'
         '$name\n'
-        // 'Email: $email\n'
         '${phone.isEmpty ? '' : 'Phone: $phone\n'}';
 
     final Uri mailUri = Uri.parse(
@@ -2020,90 +2020,102 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final mq = MediaQuery.of(context);
+    final screenSize = mq.size;
     final bool isMobile = screenSize.width < 650;
 
-    return Center(
-      child: Material(
-        color: tTransparent,
-        child: Container(
-          width: isMobile ? screenSize.width * 0.90 : 600,
-          constraints: BoxConstraints(maxHeight: screenSize.height * 0.90),
-          decoration: BoxDecoration(
-            color: tWhite,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: tBlack.withOpacity(0.22),
-                blurRadius: 35,
-                offset: const Offset(0, 18),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isMobile ? 24 : 42,
-                    34,
-                    isMobile ? 24 : 42,
-                    34,
-                  ),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: _buildForm(),
-                    ),
-                  ),
-                ),
-              ),
+    // Space left above the keyboard (0 when the keyboard is closed).
+    final double keyboard = mq.viewInsets.bottom;
 
-              // CLOSE BUTTON
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Material(
-                  color: tTransparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(50),
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: const BoxDecoration(
-                        color: tBlue2,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: tWhite,
-                        size: 24,
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      padding: EdgeInsets.only(bottom: keyboard),
+      child: Center(
+        child: Material(
+          color: tTransparent,
+          child: Container(
+            width: isMobile ? screenSize.width * 0.92 : 600,
+            constraints: BoxConstraints(
+              maxHeight: (screenSize.height - keyboard) * 0.90,
+            ),
+            decoration: BoxDecoration(
+              color: tWhite,
+              borderRadius: BorderRadius.circular(isMobile ? 20 : 24),
+              boxShadow: [
+                BoxShadow(
+                  color: tBlack.withOpacity(0.22),
+                  blurRadius: 35,
+                  offset: const Offset(0, 18),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                    padding:
+                        isMobile
+                            ? const EdgeInsets.fromLTRB(20, 28, 20, 24)
+                            : const EdgeInsets.fromLTRB(42, 34, 42, 34),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: _buildForm(isMobile),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+
+                // CLOSE BUTTON
+                Positioned(
+                  top: isMobile ? 12 : 16,
+                  right: isMobile ? 12 : 16,
+                  child: Material(
+                    color: tTransparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(50),
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: isMobile ? 36 : 42,
+                        height: isMobile ? 36 : 42,
+                        decoration: const BoxDecoration(
+                          color: tBlue2,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: tWhite,
+                          size: isMobile ? 20 : 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Request Data Sheet',
-          style: GoogleFonts.manrope(
-            fontSize: 36,
-            fontWeight: FontWeight.w800,
-            color: tBlue2,
-            height: 1.1,
+        Padding(
+          // keeps the title clear of the close button on phones
+          padding: EdgeInsets.only(right: isMobile ? 44 : 0),
+          child: Text(
+            'Request Data Sheet',
+            style: GoogleFonts.manrope(
+              fontSize: isMobile ? 24 : 36,
+              fontWeight: FontWeight.w800,
+              color: tBlue2,
+              height: 1.1,
+            ),
           ),
         ),
 
@@ -2118,19 +2130,19 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
           ),
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: isMobile ? 14 : 16),
 
         Text(
           'Fill in your details and we’ll share the data sheet for '
           '${widget.productTitle}.',
           style: GoogleFonts.manrope(
-            fontSize: 15,
+            fontSize: isMobile ? 13.5 : 15,
             fontWeight: FontWeight.w500,
             color: tBlack.withOpacity(0.50),
           ),
         ),
 
-        const SizedBox(height: 28),
+        SizedBox(height: isMobile ? 20 : 28),
 
         _buildTextField(
           controller: _nameController,
@@ -2140,7 +2152,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
           isRequired: true,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
         _buildTextField(
           controller: _emailController,
@@ -2151,7 +2163,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
           isRequired: true,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
         _buildTextField(
           controller: _phoneController,
@@ -2162,9 +2174,9 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
           isRequired: false,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
-        _buildMessageField(),
+        _buildMessageField(isMobile),
 
         const SizedBox(height: 8),
 
@@ -2188,10 +2200,10 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
           ),
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: isMobile ? 8 : 12),
 
         Align(
-          alignment: Alignment.centerRight,
+          alignment: isMobile ? Alignment.center : Alignment.centerRight,
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
             onEnter: (_) => setState(() => _isSubmitHovered = true),
@@ -2200,13 +2212,15 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
               onTap: _submit,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
+                // Full width on phones
+                width: isMobile ? double.infinity : null,
                 transform: Matrix4.translationValues(
                   0,
                   _isSubmitHovered ? -2 : 0,
                   0,
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 20 : 32,
                   vertical: 15,
                 ),
                 decoration: BoxDecoration(
@@ -2223,7 +2237,8 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
                   ],
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'SUBMIT REQUEST',
@@ -2353,14 +2368,14 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
     );
   }
 
-  Widget _buildMessageField() {
+  Widget _buildMessageField(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLabel('Message', false),
         const SizedBox(height: 7),
         Container(
-          height: 110,
+          height: isMobile ? 96 : 110,
           decoration: BoxDecoration(
             color: tWhite,
             borderRadius: BorderRadius.circular(10),

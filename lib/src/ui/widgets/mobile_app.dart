@@ -2,8 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 import '../../utils/colors.dart';
+
+// =========================================================
+// RESPONSIVE HELPERS (mobile only, tablet/desktop untouched)
+// =========================================================
+
+/// Large + small phones.
+bool _isPhone(BuildContext context) => MediaQuery.of(context).size.width < 600;
+
+/// Small phones (e.g. iPhone SE, 320-359 wide).
+bool _isSmallPhone(BuildContext context) =>
+    MediaQuery.of(context).size.width < 360;
 
 // =========================================================
 // MOBILE APP PAGE  (same UI as WebApp)
@@ -14,6 +26,9 @@ class MobileApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool phone = _isPhone(context);
+    final bool small = _isSmallPhone(context);
+
     return Scaffold(
       backgroundColor: tWhite,
       body: SingleChildScrollView(
@@ -23,37 +38,41 @@ class MobileApp extends StatelessWidget {
             Container(
               width: double.infinity,
               color: tWhite,
-              padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 30),
+              padding: EdgeInsets.symmetric(
+                horizontal: phone ? (small ? 14 : 18) : 60,
+                vertical: phone ? 20 : 30,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBackButton(context),
 
-                  const SizedBox(height: 14),
+                  SizedBox(height: phone ? 10 : 14),
 
                   Text(
                     'Mobile Apps',
                     style: GoogleFonts.manrope(
-                      fontSize: 38,
+                      fontSize: phone ? (small ? 26 : 30) : 38,
                       fontWeight: FontWeight.w800,
                       color: tOrange1,
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: phone ? 8 : 10),
 
-                  SizedBox(
-                    width: 560,
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 560),
                     child: Text(
                       'Powerful and intuitive mobile applications that put your business operations in your pocket, anytime and anywhere.',
                       style: GoogleFonts.manrope(
-                        fontSize: 15,
+                        fontSize: phone ? 13.5 : 15,
+                        height: phone ? 1.5 : null,
                         color: tBlack.withOpacity(.55),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 56),
+                  SizedBox(height: phone ? 28 : 56),
 
                   _MobileCardGrid(
                     cards: const [
@@ -94,12 +113,16 @@ class MobileApp extends StatelessWidget {
 // =========================================================
 
 Widget _buildBackButton(BuildContext context) {
+  final bool isTablet = ResponsiveLayout.isTablet(context);
+
   return Align(
     alignment: Alignment.centerLeft,
     child: Material(
       color: tTransparent,
       child: InkWell(
-        mouseCursor: SystemMouseCursors.click,
+        mouseCursor:
+            isTablet ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        hoverColor: isTablet ? tTransparent : null,
         borderRadius: BorderRadius.circular(10),
         onTap: () {
           Navigator.pop(context);
@@ -158,9 +181,11 @@ class _MobileCardGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool phone = _isPhone(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        const spacing = 28.0;
+        final spacing = phone ? 22.0 : 28.0;
 
         final twoCol = constraints.maxWidth > 820;
 
@@ -178,7 +203,8 @@ class _MobileCardGrid extends StatelessWidget {
 
             return _MobileServiceCard(
               width: cardWidth,
-              height: 500,
+              // Phones: height wraps the content. Tablet/desktop: fixed 500.
+              height: phone ? null : 500,
               data: cards[index],
               accentColor: accent,
             );
@@ -195,7 +221,7 @@ class _MobileCardGrid extends StatelessWidget {
 
 class _MobileServiceCard extends StatelessWidget {
   final double width;
-  final double height;
+  final double? height;
 
   final _MobileServiceCardData data;
   final Color accentColor;
@@ -209,14 +235,76 @@ class _MobileServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveLayout.isTablet(context);
+    final bool isMobile = ResponsiveLayout.isMobile(context);
+
+    // Very narrow cards: stack the two buttons vertically.
+    final bool stackButtons = isMobile && width < 300;
+
     // IMAGE CALCULATIONS
 
-    const imageInset = 12.0;
+    final imageInset = isMobile ? 10.0 : 12.0;
     const imageAspectRatio = 2.5;
 
     final imageInnerWidth = width - imageInset * 2;
 
     final imageBottom = imageInset + imageInnerWidth / imageAspectRatio;
+
+    // Badge overlap (phones use a smaller badge)
+    final double badgeOverlap = isMobile ? 18 : 22;
+
+    // BUTTONS
+
+    final double btnFont = isMobile ? 12 : 12.5;
+    final double btnVPad = isMobile ? 11 : 12;
+
+    final Widget demoButton = ElevatedButton.icon(
+      onPressed: () {
+        // TODO:
+        // Launch demo URL
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: tOrange1.withOpacity(0.9),
+        foregroundColor: tWhite,
+        overlayColor: isTablet ? Colors.transparent : null,
+        elevation: 0,
+        padding: EdgeInsets.symmetric(vertical: btnVPad),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      icon: const Icon(Icons.arrow_forward, size: 15),
+      label: Text(
+        'View Demo',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: GoogleFonts.manrope(
+          fontSize: btnFont,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+
+    final Widget appButton = OutlinedButton.icon(
+      onPressed: () {
+        _showAccessDialog(context);
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: tBlue3,
+        overlayColor: isTablet ? Colors.transparent : null,
+        side: BorderSide(color: tBlack.withOpacity(.15)),
+        padding: EdgeInsets.symmetric(vertical: btnVPad),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      icon: const Icon(Icons.north_east, size: 14),
+      label: Text(
+        'View App',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: GoogleFonts.manrope(
+          fontSize: btnFont,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
 
     // CARD
 
@@ -226,13 +314,13 @@ class _MobileServiceCard extends StatelessWidget {
 
       decoration: BoxDecoration(
         color: tWhite,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(isMobile ? 16 : 18),
 
         boxShadow: [
           BoxShadow(
             color: tBlack.withOpacity(.10),
-            blurRadius: 26,
-            offset: const Offset(0, 12),
+            blurRadius: isMobile ? 20 : 26,
+            offset: Offset(0, isMobile ? 8 : 12),
           ),
         ],
       ),
@@ -249,7 +337,7 @@ class _MobileServiceCard extends StatelessWidget {
             children: [
               // PRODUCT IMAGE
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: EdgeInsets.fromLTRB(
                   imageInset,
                   imageInset,
                   imageInset,
@@ -257,7 +345,7 @@ class _MobileServiceCard extends StatelessWidget {
                 ),
 
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(isMobile ? 12 : 14),
 
                   child: AspectRatio(
                     aspectRatio: imageAspectRatio,
@@ -273,7 +361,11 @@ class _MobileServiceCard extends StatelessWidget {
 
               // CARD FOOTER
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+                // On phones, extra top space keeps the title below the badge.
+                padding:
+                    isMobile
+                        ? const EdgeInsets.fromLTRB(16, 34, 16, 18)
+                        : const EdgeInsets.fromLTRB(20, 14, 20, 20),
 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +377,7 @@ class _MobileServiceCard extends StatelessWidget {
                       data.title,
 
                       style: GoogleFonts.manrope(
-                        fontSize: 19,
+                        fontSize: isMobile ? 18 : 19,
                         fontWeight: FontWeight.w800,
                         color: tBlue3,
                       ),
@@ -297,86 +389,36 @@ class _MobileServiceCard extends StatelessWidget {
                     Text(
                       data.description,
 
-                      maxLines: 2,
+                      maxLines: isMobile ? 4 : 2,
                       overflow: TextOverflow.ellipsis,
 
                       style: GoogleFonts.manrope(
-                        fontSize: 12.5,
+                        fontSize: isMobile ? 12.5 : 12.5,
                         height: 1.45,
                         color: tBlack.withOpacity(.55),
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    SizedBox(height: isMobile ? 14 : 16),
 
                     // BUTTONS
-                    Row(
-                      children: [
-                        // VIEW DEMO
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // TODO:
-                              // Launch demo URL
-                            },
-
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: tOrange1.withOpacity(0.9),
-                              foregroundColor: tWhite,
-                              elevation: 0,
-
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-
-                            icon: const Icon(Icons.arrow_forward, size: 15),
-
-                            label: Text(
-                              'View Demo',
-
-                              style: GoogleFonts.manrope(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 10),
-
-                        // VIEW APP
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              _showAccessDialog(context);
-                            },
-
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: tBlue3,
-                              side: BorderSide(color: tBlack.withOpacity(.15)),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-
-                            icon: const Icon(Icons.north_east, size: 14),
-
-                            label: Text(
-                              'View App',
-
-                              style: GoogleFonts.manrope(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    if (stackButtons)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          demoButton,
+                          const SizedBox(height: 10),
+                          appButton,
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(child: demoButton),
+                          const SizedBox(width: 10),
+                          Expanded(child: appButton),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -385,8 +427,8 @@ class _MobileServiceCard extends StatelessWidget {
 
           // FLOATING LOGO
           Positioned(
-            right: 28,
-            top: imageBottom - 22,
+            right: isMobile ? 16 : 28,
+            top: imageBottom - badgeOverlap,
 
             child: _MobileBadge(logo: data.logo),
           ),
@@ -407,24 +449,34 @@ class _MobileBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = ResponsiveLayout.isMobile(context);
+    final bool small = _isSmallPhone(context);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? (small ? 14 : 20) : 40,
+        vertical: isMobile ? 6 : 8,
+      ),
 
       decoration: BoxDecoration(
         color: tWhite,
 
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(isMobile ? 10 : 12),
 
         boxShadow: [
           BoxShadow(
             color: tBlack.withOpacity(.18),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            blurRadius: isMobile ? 14 : 20,
+            offset: Offset(0, isMobile ? 6 : 8),
           ),
         ],
       ),
 
-      child: SvgPicture.asset(logo, height: 40, width: 60),
+      child: SvgPicture.asset(
+        logo,
+        height: isMobile ? 30 : 40,
+        width: isMobile ? 50 : 60,
+      ),
     );
   }
 }
@@ -542,93 +594,108 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final mq = MediaQuery.of(context);
+    final screenSize = mq.size;
 
     final bool isMobile = screenSize.width < 650;
+    final bool isSmall = screenSize.width < 360;
 
-    return Center(
-      child: Material(
-        color: tTransparent,
+    // Available height once the keyboard is open.
+    final double availableHeight =
+        screenSize.height - mq.viewInsets.bottom - mq.padding.top;
 
-        child: Container(
-          width: isMobile ? screenSize.width * 0.90 : 600,
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      // Lifts the dialog above the keyboard on phones.
+      padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+      child: Center(
+        child: Material(
+          color: tTransparent,
 
-          constraints: BoxConstraints(maxHeight: screenSize.height * 0.90),
+          child: Container(
+            width: isMobile ? screenSize.width * (isSmall ? 0.94 : 0.92) : 600,
 
-          decoration: BoxDecoration(
-            color: tWhite,
+            constraints: BoxConstraints(
+              maxHeight: availableHeight * (isMobile ? 0.94 : 0.90),
+            ),
 
-            borderRadius: BorderRadius.circular(24),
+            decoration: BoxDecoration(
+              color: tWhite,
 
-            boxShadow: [
-              BoxShadow(
-                color: tBlack.withOpacity(0.22),
-                blurRadius: 35,
-                offset: const Offset(0, 18),
-              ),
-            ],
-          ),
+              borderRadius: BorderRadius.circular(isMobile ? 20 : 24),
 
-          clipBehavior: Clip.antiAlias,
-
-          child: Stack(
-            children: [
-              // FORM
-              SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isMobile ? 24 : 42,
-                    34,
-                    isMobile ? 24 : 42,
-                    34,
-                  ),
-
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-
-                    child: SlideTransition(
-                      position: _slideAnimation,
-
-                      child: _buildAccessForm(),
-                    ),
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: tBlack.withOpacity(0.22),
+                  blurRadius: 35,
+                  offset: const Offset(0, 18),
                 ),
-              ),
+              ],
+            ),
 
-              // CLOSE BUTTON
-              Positioned(
-                top: 16,
-                right: 16,
+            clipBehavior: Clip.antiAlias,
 
-                child: Material(
-                  color: tTransparent,
+            child: Stack(
+              children: [
+                // FORM
+                SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      isMobile ? (isSmall ? 18 : 22) : 42,
+                      isMobile ? 26 : 34,
+                      isMobile ? (isSmall ? 18 : 22) : 42,
+                      isMobile ? 24 : 34,
+                    ),
 
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(50),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
 
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
+                      child: SlideTransition(
+                        position: _slideAnimation,
 
-                    child: Container(
-                      width: 42,
-                      height: 42,
-
-                      decoration: const BoxDecoration(
-                        color: tBlue2,
-                        shape: BoxShape.circle,
-                      ),
-
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: tWhite,
-                        size: 24,
+                        child: _buildAccessForm(isMobile, isSmall),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+
+                // CLOSE BUTTON
+                Positioned(
+                  top: isMobile ? 12 : 16,
+                  right: isMobile ? 12 : 16,
+
+                  child: Material(
+                    color: tTransparent,
+
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(50),
+
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+
+                      child: Container(
+                        width: isMobile ? 36 : 42,
+                        height: isMobile ? 36 : 42,
+
+                        decoration: const BoxDecoration(
+                          color: tBlue2,
+                          shape: BoxShape.circle,
+                        ),
+
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: tWhite,
+                          size: isMobile ? 20 : 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -637,28 +704,32 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
 
   // FORM CONTENT
 
-  Widget _buildAccessForm() {
+  Widget _buildAccessForm(bool isMobile, bool isSmall) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
         // TITLE
-        Text(
-          'Access App',
+        Padding(
+          // keeps the title clear of the close button on phones
+          padding: EdgeInsets.only(right: isMobile ? 40 : 0),
+          child: Text(
+            'Access App',
 
-          style: GoogleFonts.manrope(
-            fontSize: 36,
-            fontWeight: FontWeight.w800,
-            color: tBlue2,
-            height: 1.1,
+            style: GoogleFonts.manrope(
+              fontSize: isMobile ? (isSmall ? 26 : 30) : 36,
+              fontWeight: FontWeight.w800,
+              color: tBlue2,
+              height: 1.1,
+            ),
           ),
         ),
 
-        const SizedBox(height: 10),
+        SizedBox(height: isMobile ? 8 : 10),
 
         // ORANGE LINE
         Container(
-          width: 80,
+          width: isMobile ? 64 : 80,
           height: 4,
 
           decoration: BoxDecoration(
@@ -668,20 +739,20 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           ),
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: isMobile ? 12 : 16),
 
         // DESCRIPTION
         Text(
           'Please fill out your details to access the app',
 
           style: GoogleFonts.manrope(
-            fontSize: 15,
+            fontSize: isMobile ? 13.5 : 15,
             fontWeight: FontWeight.w500,
             color: tBlack.withOpacity(0.50),
           ),
         ),
 
-        const SizedBox(height: 28),
+        SizedBox(height: isMobile ? 20 : 28),
 
         // FULL NAME
         _buildTextField(
@@ -690,9 +761,10 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           hint: 'John Doe',
           icon: 'icons/person2.svg',
           isRequired: true,
+          isMobile: isMobile,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
         // COMPANY (not required)
         _buildTextField(
@@ -701,9 +773,10 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           hint: 'Your company name',
           icon: 'icons/career1.svg',
           isRequired: false,
+          isMobile: isMobile,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
         // CITY
         _buildTextField(
@@ -712,9 +785,10 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           hint: 'Your city',
           icon: 'icons/location1.svg',
           isRequired: true,
+          isMobile: isMobile,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
         // EMAIL
         _buildTextField(
@@ -724,9 +798,10 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           icon: 'icons/mail.svg',
           keyboardType: TextInputType.emailAddress,
           isRequired: true,
+          isMobile: isMobile,
         ),
 
-        const SizedBox(height: 18),
+        SizedBox(height: isMobile ? 14 : 18),
 
         // PHONE
         _buildTextField(
@@ -736,6 +811,7 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           icon: 'icons/phone.svg',
           keyboardType: TextInputType.phone,
           isRequired: true,
+          isMobile: isMobile,
         ),
 
         const SizedBox(height: 8),
@@ -760,11 +836,11 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
           ),
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: isMobile ? 8 : 12),
 
         // ACCESS BUTTON
         Align(
-          alignment: Alignment.centerRight,
+          alignment: isMobile ? Alignment.center : Alignment.centerRight,
 
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
@@ -787,15 +863,18 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
 
+                // Full width button on phones
+                width: isMobile ? double.infinity : null,
+
                 transform: Matrix4.translationValues(
                   0,
                   _isAccessHovered ? -2 : 0,
                   0,
                 ),
 
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 32,
-                  vertical: 15,
+                  vertical: isMobile ? 14 : 15,
                 ),
 
                 decoration: BoxDecoration(
@@ -817,7 +896,8 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
                 ),
 
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
                     Text(
@@ -854,8 +934,11 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
     required String hint,
     required String icon,
     bool isRequired = false,
+    bool isMobile = false,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final double iconBox = isMobile ? 44 : 50;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -868,7 +951,7 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
                 text: label,
 
                 style: GoogleFonts.manrope(
-                  fontSize: 14,
+                  fontSize: isMobile ? 13 : 14,
                   fontWeight: FontWeight.w600,
                   color: tBlack.withOpacity(0.80),
                 ),
@@ -879,7 +962,7 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
                   text: ' *',
 
                   style: GoogleFonts.manrope(
-                    fontSize: 14,
+                    fontSize: isMobile ? 13 : 14,
                     fontWeight: FontWeight.w700,
                     color: tRed1,
                   ),
@@ -892,7 +975,7 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
 
         // INPUT
         Container(
-          height: 52,
+          height: isMobile ? 48 : 52,
           decoration: BoxDecoration(
             color: tWhite,
             borderRadius: BorderRadius.circular(10),
@@ -916,7 +999,7 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
               textAlignVertical: TextAlignVertical.center,
 
               style: GoogleFonts.manrope(
-                fontSize: 14,
+                fontSize: isMobile ? 13.5 : 14,
                 fontWeight: FontWeight.w500,
                 color: tBlack,
               ),
@@ -932,13 +1015,13 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
                 contentPadding: const EdgeInsets.only(right: 14),
 
                 prefixIcon: SizedBox(
-                  width: 50,
+                  width: iconBox,
 
                   child: Center(
                     child: SvgPicture.asset(
                       icon,
-                      width: 21,
-                      height: 21,
+                      width: isMobile ? 19 : 21,
+                      height: isMobile ? 19 : 21,
                       colorFilter: const ColorFilter.mode(
                         tBlue3,
                         BlendMode.srcIn,
@@ -947,15 +1030,15 @@ class _AccessAppDialogState extends State<_AccessAppDialog>
                   ),
                 ),
 
-                prefixIconConstraints: const BoxConstraints(
-                  minWidth: 50,
-                  maxWidth: 50,
+                prefixIconConstraints: BoxConstraints(
+                  minWidth: iconBox,
+                  maxWidth: iconBox,
                 ),
 
                 hintText: hint,
 
                 hintStyle: GoogleFonts.manrope(
-                  fontSize: 14,
+                  fontSize: isMobile ? 13.5 : 14,
                   fontWeight: FontWeight.w400,
                   color: tBlack.withOpacity(0.30),
                 ),

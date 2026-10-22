@@ -1,17 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
+import 'package:trakmate_portal/src/utils/responsive.dart';
 
 class ProductShimmer extends StatelessWidget {
   const ProductShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = ResponsiveLayout.isMobile(context);
+    final bool isTablet = ResponsiveLayout.isTablet(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double screenWidth = constraints.maxWidth;
+        final double w = constraints.maxWidth;
 
-        final double cardWidth = screenWidth >= 1800 ? 410 : 330;
+        // MOBILE / TABLET: wrap cards, same as the real grid
+        if (isMobile || isTablet) {
+          const double gap = 16;
+          final int columns = isMobile ? (w >= 560 ? 2 : 1) : 2;
+          final double cardW =
+              ((w - gap * (columns - 1)) / columns).floorToDouble();
+
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (int i = 0; i < (isMobile ? 3 : 4); i++)
+                SizedBox(width: cardW, height: 390, child: _buildShimmerCard()),
+            ],
+          );
+        }
+
+        // DESKTOP
+        final double cardWidth = w >= 1800 ? 410 : 330;
 
         return Column(
           children: [
@@ -23,25 +45,26 @@ class ProductShimmer extends StatelessWidget {
                   child: _buildShimmerHeading(),
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.only(left: 75),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    for (int j = 0; j < 4; j++)
-                      Padding(
-                        padding: EdgeInsets.only(right: j == 3 ? 0 : 16),
-                        child: SizedBox(
-                          width: cardWidth,
-                          height: 390,
-                          child: _buildShimmerCard(),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Row(
+                    children: [
+                      for (int j = 0; j < 4; j++)
+                        Padding(
+                          padding: EdgeInsets.only(right: j == 3 ? 0 : 16),
+                          child: SizedBox(
+                            width: cardWidth,
+                            height: 390,
+                            child: _buildShimmerCard(),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
               const SizedBox(height: 52),
             ],
           ],

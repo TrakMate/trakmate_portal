@@ -5,9 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/office_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
-// import 'package:trakmate_portal/src/ui/widgets/services.dart';
-// import 'package:trakmate_portal/src/ui/widgets/services.dart';
-// import 'package:trakmate_portal/src/ui/widgets/homeanimation.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
 
@@ -47,12 +44,6 @@ class _ServiceItemData {
   });
 }
 
-// class _ClientItemData {
-//   final String image;
-//   final String name;
-
-//   const _ClientItemData({required this.image, required this.name});
-// }
 class _ClientItemData {
   final String image;
   final String name;
@@ -232,18 +223,17 @@ class IndustriesProductsSection extends StatefulWidget {
 
 class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     with TickerProviderStateMixin {
-  bool get _isTablet => ResponsiveLayout.isTablet(context);
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+  bool get _isTouch => isMobile || isTablet;
   final List<_IndustryItemData> _industries = const [
     _IndustryItemData(
       image: "images/automotive.jpg",
       icon: "icons/car.svg",
       label: "Automotive",
     ),
-    // _IndustryItemData(
-    //   image: "images/smartcity.jpg",
-    //   icon: "icons/city.svg",
-    //   label: "Smart Cities",
-    // ),
     _IndustryItemData(
       image: "images/ev.jpg",
       icon: "icons/ev.svg",
@@ -259,7 +249,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       icon: "icons/automation.svg",
       label: "Industrial",
     ),
-
     _IndustryItemData(
       image: "images/smartcity.jpg",
       icon: "icons/city.svg",
@@ -301,7 +290,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       name: "TMD104",
       subtitle: "Advanced GPS Tracker",
     ),
-
     _ProductItemData(
       image: "images/tcu1550.png",
       name: "TCU550",
@@ -317,7 +305,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       name: "TMD400",
       subtitle: "Advanced OBD Tracker",
     ),
-
     _ProductItemData(
       image: "images/tmb024.png",
       name: "TMB024",
@@ -417,12 +404,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   ];
 
   final List<_ClientItemData> _clients = const [
-    // _ClientItemData(
-    //   image: "icons/tata.svg",
-    //   name: "Tata Exlsi",
-    //   width: 100,
-    //   height: 55,
-    // ),
     _ClientItemData(
       image: "icons/sp.svg",
       name: "Spiro",
@@ -430,7 +411,6 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       height: 55,
     ),
     _ClientItemData(image: "icons/zf.svg", name: "ZF", width: 100, height: 55),
-
     _ClientItemData(
       image: "icons/cbak.svg",
       name: "cBak",
@@ -455,50 +435,24 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       width: 95,
       height: 60,
     ),
-    // _ClientItemData(
-    //   image: "icons/blueenergy.svg",
-    //   name: "Blue Energy",
-    //   width: 100,
-    //   height: 60,
-    // ),
     _ClientItemData(
       image: "icons/neshlive.svg",
       name: "Neshlive",
       width: 100,
       height: 55,
     ),
-
-    //from heree
     _ClientItemData(
       image: "icons/jbm1.svg",
       name: "JBM",
       width: 100,
       height: 55,
     ),
-    // _ClientItemData(
-    //   image: "icons/bajaj.svg",
-    //   name: "Bajaj",
-    //   width: 100,
-    //   height: 55,
-    // ),
     _ClientItemData(
       image: "icons/myjio.svg",
       name: "Jio",
       width: 100,
       height: 55,
     ),
-    // _ClientItemData(
-    //   image: "icons/ampace.svg",
-    //   name: "Ampace",
-    //   width: 200,
-    //   height: 100,
-    // ),
-    // _ClientItemData(
-    //   image: "icons/fieldbee.svg",
-    //   name: "Field Bee",
-    //   width: 150,
-    //   height: 100,
-    // ),
     _ClientItemData(
       image: "icons/enginecal.svg",
       name: "EngineCal",
@@ -525,26 +479,26 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   bool _productsImagesLoaded = false;
   final ScrollController _productsScrollController = ScrollController();
   final ScrollController _clientsScrollController = ScrollController();
-  // Timer? _clientsAutoScrollTimer;
-  // late final AnimationController _clientsAutoScrollController;
   late final Ticker _clientsTicker;
   Duration _clientsLastElapsed = Duration.zero;
   double _clientsScrollOffset = 0.0;
   bool _isClientsHovered = false;
-  static const double _clientItemWidth = 200.0;
-  static const double _clientSeparatorWidth = 24.0;
   static const double _clientsScrollSpeed = 40.0; // pixels per second
   static const int _maxFrameDeltaMs = 100; // caps any single jump
   final ScrollController _industriesScrollController = ScrollController();
   late final Ticker _industriesTicker;
   Duration _industriesLastElapsed = Duration.zero;
   double _industriesScrollOffset = 0.0;
-
-  static const double _industryItemWidth = 200.0; //card height2
-  static const double _industrySeparatorWidth = 12.0;
   static const double _industriesScrollSpeed = 30.0; // pixels per second
+
+  // ---- Responsive sizes (mobile values are smaller, tablet/desktop as before)
+  double get _clientItemWidth => isMobile ? 150.0 : 200.0;
+  double get _clientSeparatorWidth => isMobile ? 16.0 : 24.0;
+  double get _industryItemWidth => isMobile ? 150.0 : 200.0;
+  double get _industrySeparatorWidth => isMobile ? 10.0 : 12.0;
+
   void _scrollProducts(double delta) {
-    if (!_productsScrollController.hasClients) return; // ADD (shimmer showing)
+    if (!_productsScrollController.hasClients) return; // shimmer showing
     final target = (_productsScrollController.offset + delta).clamp(
       0.0,
       _productsScrollController.position.maxScrollExtent,
@@ -556,10 +510,102 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     );
   }
 
-  void _startClientsAutoScroll() {
-    final singleSetWidth =
-        _clients.length * (_clientItemWidth + _clientSeparatorWidth);
+  // ---- Mobile products: one card at a time, always centered ----
+  static const double _mobileProductCardWidth = 180.0;
+  static const double _mobileProductGap = 12.0;
+  static const double _mobileProductStep =
+      _mobileProductCardWidth + _mobileProductGap;
+  int _mobileProductIndex = 0;
 
+  void _animateToProductIndex(int index) {
+    if (!_productsScrollController.hasClients) return;
+    final int target = index.clamp(0, _products.length - 1);
+    _mobileProductIndex = target;
+    _productsScrollController.animateTo(
+      target * _mobileProductStep,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  // Arrow tap: move exactly one card left (-1) or right (+1)
+  void _scrollProductsMobile(int direction) {
+    _animateToProductIndex(_mobileProductIndex + direction);
+  }
+
+  // After a swipe ends, settle on the nearest card so it sits in the middle
+  void _snapProductsToNearest() {
+    if (!_productsScrollController.hasClients) return;
+    final double pixels = _productsScrollController.offset;
+    final int nearest = (pixels / _mobileProductStep).round().clamp(
+      0,
+      _products.length - 1,
+    );
+    _mobileProductIndex = nearest;
+    if ((pixels - nearest * _mobileProductStep).abs() > 1.0) {
+      _animateToProductIndex(nearest);
+    }
+  }
+
+  Widget _buildProductsList() {
+    // ---------- MOBILE: snap-to-center, one card at a time ----------
+    if (isMobile) {
+      return LayoutBuilder(
+        key: const ValueKey('products_list'),
+        builder: (context, constraints) {
+          // Side padding that lets the first and last cards reach the center
+          final double sidePad =
+              ((constraints.maxWidth - _mobileProductCardWidth) / 2).clamp(
+                0.0,
+                double.infinity,
+              );
+
+          return NotificationListener<ScrollEndNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.axis == Axis.horizontal) {
+                _snapProductsToNearest();
+              }
+              return false;
+            },
+            child: ListView.separated(
+              controller: _productsScrollController,
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: sidePad, vertical: 12),
+              clipBehavior: Clip.hardEdge,
+              itemCount: _products.length,
+              separatorBuilder:
+                  (_, __) => const SizedBox(width: _mobileProductGap),
+              itemBuilder:
+                  (context, index) => SizedBox(
+                    width: _mobileProductCardWidth,
+                    height: 210,
+                    child: _buildProductCard(_products[index], index),
+                  ),
+            ),
+          );
+        },
+      );
+    }
+
+    // ---------- TABLET / DESKTOP (unchanged) ----------
+    return ListView.separated(
+      key: const ValueKey('products_list'),
+      controller: _productsScrollController,
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      clipBehavior: Clip.hardEdge,
+      itemCount: _products.length,
+      separatorBuilder: (_, __) => const SizedBox(width: 16),
+      itemBuilder:
+          (context, index) => SizedBox(
+            width: 220,
+            height: 210,
+            child: _buildProductCard(_products[index], index),
+          ),
+    );
+  }
+
+  void _startClientsAutoScroll() {
     _clientsTicker = createTicker((elapsed) {
       if (!_clientsScrollController.hasClients) return;
 
@@ -568,6 +614,10 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
         _clientsLastElapsed = elapsed;
         return;
       }
+
+      // Computed every frame so it stays correct if the screen size changes
+      final double singleSetWidth =
+          _clients.length * (_clientItemWidth + _clientSeparatorWidth);
 
       final deltaMs = (elapsed - _clientsLastElapsed).inMilliseconds.clamp(
         0,
@@ -585,11 +635,15 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   }
 
   void _startIndustriesAutoScroll() {
-    final singleSetWidth =
-        _industries.length * (_industryItemWidth + _industrySeparatorWidth);
-
     _industriesTicker = createTicker((elapsed) {
       if (!_industriesScrollController.hasClients) return;
+      // Tablet: stop the scroll while a tapped card is selected
+      if (_isTouch && _hoveredIndustryIndex != null) {
+        _industriesLastElapsed = elapsed;
+        return;
+      }
+      final double singleSetWidth =
+          _industries.length * (_industryItemWidth + _industrySeparatorWidth);
 
       final deltaMs = (elapsed - _industriesLastElapsed).inMilliseconds.clamp(
         0,
@@ -633,7 +687,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
         ),
       ).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
     } catch (e) {
-      // debugPrint('Product preload issue: $e');
+      // ignore
     }
 
     if (!mounted) return;
@@ -661,63 +715,78 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     super.dispose();
   }
 
+  // ---------------------------------------------------------------------------
+  // Shared heading helpers (mobile = smaller type, tablet/desktop unchanged)
+  // ---------------------------------------------------------------------------
+  Widget _sectionLabel(String text) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: GoogleFonts.manrope(
+        fontSize: isMobile ? 12 : 13,
+        fontWeight: FontWeight.w700,
+        color: tOrange1,
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: GoogleFonts.manrope(
+        fontSize: isMobile ? 20 : 25,
+        fontWeight: FontWeight.w700,
+        color: tBlue2,
+        height: isMobile ? 1.25 : null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool mobile = isMobile;
+    final double sectionGap = mobile ? 40 : 60;
+
     return Container(
       width: double.infinity,
       color: tWhite,
       padding: EdgeInsets.only(
-        left: _isTablet ? 24 : 40,
-        right: _isTablet ? 24 : 40,
-        top: 30,
+        left: mobile ? 16 : (isTablet ? 24 : 40),
+        right: mobile ? 16 : (isTablet ? 24 : 40),
+        top: mobile ? 24 : 30,
       ),
       child: Column(
         children: [
-          // Marketing3PWidget(),
           _buildServicesSection(),
-          const SizedBox(height: 60),
+          SizedBox(height: sectionGap),
           _buildIndustriesSection(),
-          const SizedBox(height: 60),
+          SizedBox(height: sectionGap),
           _buildProductsSection(),
-          const SizedBox(height: 60),
+          SizedBox(height: sectionGap),
           OfficesSection(),
-          const SizedBox(height: 60),
+          SizedBox(height: sectionGap),
           _buildClientsSection(),
         ],
       ),
     );
   }
 
-  //till
+  // ---------------------------------------------------------------------------
+  // INDUSTRIES
+  // ---------------------------------------------------------------------------
   Widget _buildIndustriesSection() {
+    final bool mobile = isMobile;
+
     return Column(
       children: [
-        Text(
-          "INDUSTRIES WE SERVE",
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tOrange1,
-            letterSpacing: 1.2,
-          ),
-        ),
-
+        _sectionLabel("INDUSTRIES WE SERVE"),
         const SizedBox(height: 8),
-
-        Text(
-          "Empowering Industries with Technology",
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
-            color: tBlue2,
-          ),
-        ),
-
-        const SizedBox(height: 25),
-
+        _sectionTitle("Empowering Industries with Technology"),
+        SizedBox(height: mobile ? 20 : 25),
         SizedBox(
-          height: 240, //card height
+          height: mobile ? 205 : 240, // card height
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 350),
             child:
@@ -734,8 +803,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                       cacheExtent: 1000,
                       itemCount: _industries.length * 3,
                       separatorBuilder:
-                          (_, __) =>
-                              const SizedBox(width: _industrySeparatorWidth),
+                          (_, __) => SizedBox(width: _industrySeparatorWidth),
                       itemBuilder: (context, index) {
                         final industry =
                             _industries[index % _industries.length];
@@ -750,171 +818,148 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                     ),
           ),
         ),
-
-        // const SizedBox(height: 28),
-
-        // _AnimatedOutlinedButton(
-        //   label: "View All Industries",
-        //   onPressed: () {
-        //     widget.onNavigate?.call(5);
-        //   },
-        // ),
       ],
     );
   }
 
   Widget _buildIndustryCard(_IndustryItemData industry, int index) {
+    // final bool mobile = isMobile;
+
     return MouseRegion(
       onEnter: (_) {
-        setState(() {
-          _hoveredIndustryIndex = index;
-        });
+        if (_isTouch) return;
+        setState(() => _hoveredIndustryIndex = index);
       },
-
       onExit: (_) {
-        setState(() {
-          _hoveredIndustryIndex = null;
-        });
+        if (_isTouch) return;
+        setState(() => _hoveredIndustryIndex = null);
       },
-
-      child: AnimatedScale(
-        scale: _hoveredIndustryIndex == index ? 1.03 : 1.0,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-
-        child: Column(
-          children: [
-            AspectRatio(
-              aspectRatio: 1,
-
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-
-                child: Stack(
-                  clipBehavior: Clip.hardEdge,
-
-                  children: [
-                    Positioned.fill(
-                      // child: ColoredBox(
-                      //   color: tBlue3.withOpacity(0.08),
-                      child: Image(
-                        image: _industryProviders[index],
-                        fit: BoxFit.cover,
-                        gaplessPlayback: true,
-                        frameBuilder: (
-                          context,
-                          child,
-                          frame,
-                          wasSynchronouslyLoaded,
-                        ) {
-                          if (wasSynchronouslyLoaded) return child;
-                          return Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              if (frame == null)
-                                const ShimmerBox(height: double.infinity),
-                              AnimatedOpacity(
-                                opacity: frame == null ? 0 : 1,
-                                duration: const Duration(milliseconds: 300),
-                                child: child,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap:
+            _isTouch
+                ? () => setState(() {
+                  _hoveredIndustryIndex =
+                      _hoveredIndustryIndex == index ? null : index;
+                })
+                : null,
+        child: AnimatedScale(
+          scale: _hoveredIndustryIndex == index ? 1.03 : 1.0,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          child: Column(
+            children: [
+              AspectRatio(
+                aspectRatio: 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Stack(
+                    clipBehavior: Clip.hardEdge,
+                    children: [
+                      Positioned.fill(
+                        child: Image(
+                          image: _industryProviders[index],
+                          fit: BoxFit.cover,
+                          gaplessPlayback: true,
+                          frameBuilder: (
+                            context,
+                            child,
+                            frame,
+                            wasSynchronouslyLoaded,
+                          ) {
+                            if (wasSynchronouslyLoaded) return child;
+                            return Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                if (frame == null)
+                                  const ShimmerBox(height: double.infinity),
+                                AnimatedOpacity(
+                                  opacity: frame == null ? 0 : 1,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: child,
+                                ),
+                              ],
+                            );
+                          },
+                          errorBuilder:
+                              (context, error, stackTrace) =>
+                                  Container(color: tBlue3.withOpacity(0.15)),
+                        ),
+                      ),
+                      Positioned(
+                        left: isMobile ? 8 : 10,
+                        bottom: isMobile ? 8 : 10,
+                        child: Container(
+                          width: isMobile ? 40 : 48,
+                          height: isMobile ? 40 : 48,
+                          decoration: BoxDecoration(
+                            color: index.isEven ? tBlue2 : tOrange1,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: tBlack.withOpacity(0.18),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
                               ),
                             ],
-                          );
-                        },
-                        errorBuilder:
-                            (context, error, stackTrace) =>
-                                Container(color: tBlue3.withOpacity(0.15)),
-                      ),
-                      // ),
-                    ),
-
-                    Positioned(
-                      left: 10,
-                      bottom: 10,
-
-                      child: Container(
-                        width: 48,
-                        height: 48,
-
-                        decoration: BoxDecoration(
-                          color: index.isEven ? tBlue2 : tOrange1,
-
-                          borderRadius: BorderRadius.circular(10),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: tBlack.withOpacity(0.18),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              industry.icon,
+                              width: isMobile ? 21 : 25,
+                              height: isMobile ? 21 : 25,
+                              fit: BoxFit.contain,
+                              color: tWhite,
                             ),
-                          ],
-                        ),
-
-                        child: Center(
-                          // child: Icon(industry.icon, color: tWhite, size: 25),
-                          child: SvgPicture.asset(
-                            industry.icon,
-                            width: 25,
-                            height: 25,
-                            fit: BoxFit.contain,
-                            color: tWhite,
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              industry.label,
-              textAlign: TextAlign.center,
-
-              style: GoogleFonts.manrope(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: tBlack,
+              SizedBox(height: isMobile ? 8 : 10),
+              Text(
+                industry.label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
+                  fontSize: isMobile ? 12 : 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: tBlack,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // PRODUCTS
+  // ---------------------------------------------------------------------------
   Widget _buildProductsSection() {
+    final bool mobile = isMobile;
+
     return Column(
       children: [
-        Text(
-          "FEATURED PRODUCTS",
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tOrange1,
-            letterSpacing: 1.2,
-          ),
-        ),
+        _sectionLabel("FEATURED PRODUCTS"),
         const SizedBox(height: 8),
-        Text(
-          "Innovative Products for Smarter Tomorrow",
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
-            color: tBlue2,
-          ),
-        ),
-        const SizedBox(height: 20),
+        _sectionTitle("Innovative Products for Smarter Tomorrow"),
+        SizedBox(height: mobile ? 12 : 20),
         Row(
           children: [
             _buildArrowButton(
               icon: Icons.chevron_left_rounded,
-              onTap: () => _scrollProducts(-260),
+              onTap:
+                  () =>
+                      mobile
+                          ? _scrollProductsMobile(-1)
+                          : _scrollProducts(-260),
             ),
-            SizedBox(width: _isTablet ? 2 : 12),
+            SizedBox(width: mobile ? 4 : (isTablet ? 2 : 12)),
             Expanded(
               child: SizedBox(
                 height: 240,
@@ -925,36 +970,20 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                           ? const FeaturedProductsShimmer(
                             key: ValueKey('products_shimmer'),
                           )
-                          : ListView.separated(
-                            key: const ValueKey('products_list'),
-                            controller: _productsScrollController,
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            clipBehavior: Clip.hardEdge,
-                            itemCount: _products.length,
-                            separatorBuilder:
-                                (_, __) => const SizedBox(width: 16),
-                            itemBuilder:
-                                (context, index) => SizedBox(
-                                  width: 220,
-                                  height: 210,
-                                  child: _buildProductCard(
-                                    _products[index],
-                                    index,
-                                  ),
-                                ),
-                          ),
+                          : _buildProductsList(),
                 ),
               ),
             ),
-            SizedBox(width: _isTablet ? 2 : 12),
+            SizedBox(width: mobile ? 4 : (isTablet ? 2 : 12)),
             _buildArrowButton(
               icon: Icons.chevron_right_rounded,
-              onTap: () => _scrollProducts(260),
+              onTap:
+                  () =>
+                      mobile ? _scrollProductsMobile(1) : _scrollProducts(260),
             ),
           ],
         ),
-        const SizedBox(height: 28),
+        SizedBox(height: mobile ? 20 : 28),
         _AnimatedOutlinedButton(
           label: "View All Products",
           onPressed: () {
@@ -966,6 +995,10 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   }
 
   Widget _buildProductCard(_ProductItemData product, int index) {
+    // final bool mobile = _isMobile;
+    final double imgW = isMobile ? 140 : 170;
+    final double imgH = isMobile ? 110 : 130;
+
     return Container(
       decoration: BoxDecoration(
         color: tWhite,
@@ -978,33 +1011,19 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isMobile ? 14 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Expanded(
-          //   child: ClipRRect(
-          //     borderRadius: BorderRadius.circular(8),
-          //     child: Image.asset(
-          //       product.image,
-          //       fit: BoxFit.contain,
-          //       width: double.infinity,
-          //       errorBuilder:
-          //           (context, error, stackTrace) =>
-          //               Container(color: tBlue3.withOpacity(0.1)),
-          //     ),
-          //   ),
-          // ),
           Expanded(
-            //from here
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Center(
                 child: Image(
                   image: _productProviders[index],
                   fit: BoxFit.contain,
-                  width: 170,
-                  height: 130,
+                  width: imgW,
+                  height: imgH,
                   gaplessPlayback: true,
                   frameBuilder: (
                     context,
@@ -1014,8 +1033,8 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                   ) {
                     if (wasSynchronouslyLoaded) return child;
                     return SizedBox(
-                      width: 170,
-                      height: 130,
+                      width: imgW,
+                      height: imgH,
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
@@ -1034,7 +1053,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
                         ],
                       ),
                     );
-                  }, //till here
+                  },
                   errorBuilder:
                       (context, error, stackTrace) =>
                           Container(color: tBlue3.withOpacity(0.1)),
@@ -1046,6 +1065,8 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           Text(
             product.name,
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 13.5,
               fontWeight: FontWeight.w700,
@@ -1056,6 +1077,8 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           Text(
             product.subtitle,
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.manrope(
               fontSize: 11.5,
               fontWeight: FontWeight.w500,
@@ -1087,93 +1110,46 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     );
   }
 
-  Widget _buildOutlinedButton(String label, {VoidCallback? onPressed}) {
-    return OutlinedButton(
-      onPressed: onPressed ?? () {},
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: tBlue3, width: 1.2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: tBlue3,
-            ),
-          ),
-          const SizedBox(width: 6),
-          const Icon(Icons.arrow_forward, size: 15, color: tBlue3),
-        ],
-      ),
-    );
-  }
-
+  // ---------------------------------------------------------------------------
+  // SERVICES
+  // ---------------------------------------------------------------------------
   Widget _buildServicesSection() {
+    final bool mobile = isMobile;
+
     return Container(
       width: double.infinity,
       color: tWhite,
-      // padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
       child: Column(
         children: [
-          Text(
-            "OUR SERVICES",
-            style: GoogleFonts.manrope(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.2,
-            ),
-          ),
+          _sectionLabel("OUR SERVICES"),
           const SizedBox(height: 5),
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: GoogleFonts.manrope(
-                fontSize: 25,
-                fontWeight: FontWeight.w700,
-                color: tBlue2,
-              ),
-              children: [
-                const TextSpan(text: "Complete Solutions Under "),
-                TextSpan(
-                  text: "One Roof",
-                  style: GoogleFonts.manrope(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w700,
-                    color: tBlue2,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _sectionTitle("Complete Solutions Under One Roof"),
           const SizedBox(height: 4),
           Text(
             "We offer end-to-end services to bring your ideas to life with innovation, precision and quality.",
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
               color: tBlack,
-              fontSize: 13,
+              fontSize: mobile ? 12.5 : 13,
               fontWeight: FontWeight.w500,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 25),
-          // const SizedBox(height: 36),
+          SizedBox(height: mobile ? 20 : 25),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: EdgeInsets.symmetric(horizontal: mobile ? 0 : 10),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Responsive: 6 across on wide screens, wraps on narrower ones.
                 const spacing = 16.0;
                 final double w = constraints.maxWidth;
-                final int columns = w > 1000 ? 6 : (w >= 760 ? 3 : 2);
-                // final double cardWidth =
-                //     ((w - spacing * (columns - 1)) / columns).floorToDouble();
+
+                // Mobile: 1 column on phones, 2 on very wide phones / foldables.
+                // Tablet / desktop: 6 across on wide screens, 3 or 2 below that.
+                final int columns =
+                    mobile
+                        ? (w >= 560 ? 2 : 1)
+                        : (w > 1000 ? 6 : (w >= 760 ? 3 : 2));
+
                 final double cardWidth =
                     (((w - spacing * (columns - 1)) / columns).floorToDouble())
                         .clamp(0.0, double.infinity);
@@ -1201,273 +1177,262 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   }
 
   Widget _buildServiceCard(_ServiceItemData service, int index) {
+    final bool mobile = isMobile;
     final bool isHovered = _hoveredServiceIndex == index;
     final Color accent = _serviceAccents[index % _serviceAccents.length];
 
     return MouseRegion(
       onEnter: (_) {
-        setState(() {
-          _hoveredServiceIndex = index;
-        });
+        if (_isTouch) return;
+        setState(() => _hoveredServiceIndex = index);
       },
       onExit: (_) {
-        setState(() {
-          _hoveredServiceIndex = null;
-        });
+        if (_isTouch) return;
+        setState(() => _hoveredServiceIndex = null);
       },
-      child: AnimatedScale(
-        scale: isHovered ? 1.03 : 1.0,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        child: AnimatedContainer(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap:
+            _isTouch
+                ? () => setState(() {
+                  _hoveredServiceIndex =
+                      _hoveredServiceIndex == index ? null : index;
+                })
+                : null,
+        child: AnimatedScale(
+          scale: isHovered ? 1.03 : 1.0,
+
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color:
-                  isHovered
-                      ? accent.withOpacity(0.55)
-                      : tBlue3.withOpacity(0.08),
-              width: 1.3,
-            ),
-            color: tWhite,
-            boxShadow: [
-              BoxShadow(
-                color: (isHovered ? accent : tBlue3).withOpacity(
-                  isHovered ? 0.22 : 0.12,
-                ),
-                blurRadius: isHovered ? 22 : 12,
-                offset: Offset(0, isHovered ? 10 : 4),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color:
+                    isHovered
+                        ? accent.withOpacity(0.55)
+                        : tBlue3.withOpacity(0.08),
+                width: 1.3,
               ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                height: isHovered ? 5 : 4,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [accent, accent.withOpacity(0.4)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+              color: tWhite,
+              boxShadow: [
+                BoxShadow(
+                  color: (isHovered ? accent : tBlue3).withOpacity(
+                    isHovered ? 0.22 : 0.12,
+                  ),
+                  blurRadius: isHovered ? 22 : 12,
+                  offset: Offset(0, isHovered ? 10 : 4),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  height: isHovered ? 5 : 4,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [accent, accent.withOpacity(0.4)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                accent.withOpacity(isHovered ? 0.22 : 0.12),
-                                accent.withOpacity(isHovered ? 0.10 : 0.05),
-                              ],
+                Padding(
+                  padding:
+                      mobile
+                          ? const EdgeInsets.fromLTRB(18, 18, 18, 14)
+                          : const EdgeInsets.fromLTRB(20, 22, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 220),
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  accent.withOpacity(isHovered ? 0.22 : 0.12),
+                                  accent.withOpacity(isHovered ? 0.10 : 0.05),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
                             ),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset(
-                              service.icon,
-                              width: 24,
-                              height: 24,
-                              colorFilter: ColorFilter.mode(
-                                accent,
-                                BlendMode.srcIn,
+                            child: Center(
+                              child: SvgPicture.asset(
+                                service.icon,
+                                width: 24,
+                                height: 24,
+                                colorFilter: ColorFilter.mode(
+                                  accent,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // const SizedBox(height: 10),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Text(
-                            service.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.left,
-                            style: GoogleFonts.manrope(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: tBlue2,
-                              height: 1.2,
+                          SizedBox(width: mobile ? 16 : 20),
+                          Expanded(
+                            child: Text(
+                              service.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.left,
+                              style: GoogleFonts.manrope(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: tBlue2,
+                                height: 1.2,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    // Container(
-                    //   width: 28,
-                    //   height: 2.5,
-                    //   margin: const EdgeInsets.only(bottom: 12),
-                    //   decoration: BoxDecoration(
-                    //     color: accent.withOpacity(0.5),
-                    //     borderRadius: BorderRadius.circular(2),
-                    //   ),
-                    // ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children:
-                          service.points
-                              .map(
-                                (point) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 6),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 6,
-                                          right: 8,
-                                        ),
-                                        child: Icon(
-                                          Icons.check_circle_rounded,
-                                          size: 12,
-                                          color: accent.withOpacity(0.75),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          point,
-                                          style: GoogleFonts.manrope(
-                                            fontSize: 12.5,
-                                            fontWeight: FontWeight.w500,
-                                            color: tBlack,
-                                            height: 1.4,
+                        ],
+                      ),
+                      SizedBox(height: mobile ? 12 : 15),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            service.points
+                                .map(
+                                  (point) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 6,
+                                            right: 8,
+                                          ),
+                                          child: Icon(
+                                            Icons.check_circle_rounded,
+                                            size: 12,
+                                            color: accent.withOpacity(0.75),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        Expanded(
+                                          child: Text(
+                                            point,
+                                            style: GoogleFonts.manrope(
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w500,
+                                              color: tBlack,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                              .toList(),
-                    ),
-                    const SizedBox(height: 10),
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 220),
-                      opacity: isHovered ? 1 : 0,
-                      child: AnimatedSlide(
-                        duration: const Duration(milliseconds: 220),
-                        curve: Curves.easeOut,
-                        offset: isHovered ? Offset.zero : const Offset(0, 0.3),
+                                )
+                                .toList(),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: mobile ? 4 : 10),
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 220),
+                        opacity: isHovered ? 1 : 0,
+                        child: AnimatedSlide(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
+                          offset:
+                              isHovered ? Offset.zero : const Offset(0, 0.3),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // CLIENTS
+  // ---------------------------------------------------------------------------
   Widget _buildClientsSection() {
+    // final bool mobile = _isMobile;
+
     return Column(
       children: [
-        Text(
-          "OUR CLIENTS",
-          style: GoogleFonts.manrope(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: tOrange1,
-            letterSpacing: 1.2,
-          ),
-        ),
-
+        _sectionLabel("OUR CLIENTS"),
         const SizedBox(height: 8),
-
-        Text(
-          "Trusted by Innovative Companies Worldwide",
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontSize: 25,
-            fontWeight: FontWeight.w700,
-            color: tBlue2,
-          ),
-        ),
-
-        const SizedBox(height: 5),
-
+        _sectionTitle("Trusted by Innovative Companies Worldwide"),
+        SizedBox(height: isMobile ? 12 : 5),
         MouseRegion(
           onEnter: (_) {
-            setState(() {
-              _isClientsHovered = true;
-            });
+            if (_isTouch) return;
+            setState(() => _isClientsHovered = true);
           },
           onExit: (_) {
-            setState(() {
-              _isClientsHovered = false;
-            });
+            if (_isTouch) return;
+            setState(() => _isClientsHovered = false);
           },
-          child: SizedBox(
-            height: 100,
-            child: ListView.separated(
-              controller: _clientsScrollController,
-              scrollDirection: Axis.horizontal,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap:
+                _isTouch
+                    ? () =>
+                        setState(() => _isClientsHovered = !_isClientsHovered)
+                    : null,
+            child: SizedBox(
+              height: 100,
+              child: ListView.separated(
+                controller: _clientsScrollController,
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                // Prevents the logo from being cut
+                clipBehavior: Clip.none,
+                itemCount: _clients.length * 3,
+                separatorBuilder:
+                    (_, __) => SizedBox(width: _clientSeparatorWidth),
+                itemBuilder: (context, index) {
+                  final client = _clients[index % _clients.length];
 
-              physics: const NeverScrollableScrollPhysics(),
-
-              // Gives the logos some breathing space
-              // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-
-              // Prevents the logo from being cut
-              clipBehavior: Clip.none,
-
-              itemCount: _clients.length * 3,
-
-              separatorBuilder: (_, __) => const SizedBox(width: 24),
-
-              itemBuilder: (context, index) {
-                final client = _clients[index % _clients.length];
-
-                return SizedBox(
-                  width: 200,
-                  height: 110,
-                  child: _buildClientCard(client),
-                );
-              },
+                  return SizedBox(
+                    width: _clientItemWidth,
+                    height: isMobile ? 85 : 110,
+                    child: _buildClientCard(client),
+                  );
+                },
+              ),
             ),
           ),
         ),
-
-        // const SizedBox(height: 5),
-
-        // _buildOutlinedButton("View All Clients"),
       ],
     );
   }
 
   Widget _buildClientCard(_ClientItemData client) {
+    // Logos are scaled down a little on mobile
+    final double scale = isMobile ? 0.75 : 1.0;
+    final double logoW = client.width * scale;
+    final double logoH = client.height * scale;
+
     return SizedBox(
       width: 500,
       height: 300,
       child: Center(
         child: SizedBox(
-          width: client.width,
-          height: client.height,
+          width: logoW,
+          height: logoH,
           child: SvgPicture.asset(
             client.image,
-            width: client.width,
-            height: client.height,
+            width: logoW,
+            height: logoH,
             fit: BoxFit.contain,
             alignment: Alignment.center,
             placeholderBuilder:

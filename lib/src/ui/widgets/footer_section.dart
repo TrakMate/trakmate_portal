@@ -13,22 +13,25 @@ class FooterSection extends StatelessWidget {
   final void Function(int index)? onNavigate;
   const FooterSection({super.key, this.onNavigate});
 
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
   @override
   Widget build(BuildContext context) {
-    final isTablet = ResponsiveLayout.isTablet(context);
+    final bool isMobile = ResponsiveLayout.isMobile(context);
+    final bool isTablet = ResponsiveLayout.isTablet(context);
 
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(color: tBlue3),
       padding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 24 : 40,
-        vertical: 25,
+        horizontal: isMobile ? 20 : (isTablet ? 24 : 40),
+        vertical: isMobile ? 24 : 25,
       ),
       child: Column(
         children: [
-          isTablet ? _tabletTop() : _desktopTop(),
+          isMobile ? _mobileTop() : (isTablet ? _tabletTop() : _desktopTop()),
 
-          const SizedBox(height: 30),
+          SizedBox(height: isMobile ? 24 : 30),
           Align(
             alignment: Alignment.centerLeft,
             child: Row(
@@ -61,50 +64,72 @@ class FooterSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          isTablet ? _bottomBar() : _desktopBottomBar(),
+          isMobile
+              ? _mobileBottomBar()
+              : (isTablet ? _bottomBar() : _desktopBottomBar()),
         ],
       ),
     );
   }
 
-  Widget _engineeringMenu() => _menu("Engineering", [
-    "CAD Design",
-    "Product Design",
-    "Mechanical Engineering",
-    "PCB Design",
-    "PCB Assembly (PCBA)",
-    "Firmware Development",
-    "Prototyping",
-  ], sectionIndex: 1);
+  Widget _engineeringMenu({bool mobile = false}) => _menu(
+    "Engineering",
+    [
+      "CAD Design",
+      "Product Design",
+      "Mechanical Engineering",
+      "PCB Design",
+      "PCB Assembly (PCBA)",
+      "Firmware Development",
+      "Prototyping",
+    ],
+    sectionIndex: 1,
+    mobile: mobile,
+  );
 
-  Widget _manufacturingMenu() => _menu("Manufacturing", [
-    "Electronics Manufacturing",
-    "Product Assembly",
-    "Testing & Validation",
-    "Quality Assurance",
-    "Production Support",
-    "Contract Manufacturing",
-  ], sectionIndex: 2);
+  Widget _manufacturingMenu({bool mobile = false}) => _menu(
+    "Manufacturing",
+    [
+      "Electronics Manufacturing",
+      "Product Assembly",
+      "Testing & Validation",
+      "Quality Assurance",
+      "Production Support",
+      "Contract Manufacturing",
+    ],
+    sectionIndex: 2,
+    mobile: mobile,
+  );
 
-  Widget _productsMenu() => _menu("Products & Solutions", [
-    "All Products",
-    "Telematics",
-    "Vehicle Diagnostics",
-    "Gateways",
-    "Clusters",
-    "ADAS",
-    "Solution Hub",
-  ], sectionIndex: 3);
+  Widget _productsMenu({bool mobile = false}) => _menu(
+    "Products & Solutions",
+    [
+      "All Products",
+      "Telematics",
+      "Vehicle Diagnostics",
+      "Gateways",
+      "Clusters",
+      "ADAS",
+      "Solution Hub",
+    ],
+    sectionIndex: 3,
+    mobile: mobile,
+  );
 
-  Widget _companyMenu() => _menu("Company", [
-    "About Us",
-    "Our Journey",
-    "Vision & Mission",
-    "Leadership",
-    "Careers",
-    "Certifications",
-    "Contact Us",
-  ], sectionIndex: 5);
+  Widget _companyMenu({bool mobile = false}) => _menu(
+    "Company",
+    [
+      "About Us",
+      "Our Journey",
+      "Vision & Mission",
+      "Leadership",
+      "Careers",
+      "Certifications",
+      "Contact Us",
+    ],
+    sectionIndex: 5,
+    mobile: mobile,
+  );
 
   Widget _getInTouch() {
     return Column(
@@ -223,6 +248,43 @@ class FooterSection extends StatelessWidget {
     );
   }
 
+  // Mobile: everything stacked in one column.
+  //   1. logo / about / social icons
+  //   2. link menus in a 2 x 2 grid
+  //   3. get in touch
+  Widget _mobileTop() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _leftSection(),
+        const SizedBox(height: 28),
+        Divider(color: tWhite.withOpacity(0.1), height: 1),
+        const SizedBox(height: 24),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _engineeringMenu(mobile: true)),
+            const SizedBox(width: 16),
+            Expanded(child: _manufacturingMenu(mobile: true)),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _productsMenu(mobile: true)),
+            const SizedBox(width: 16),
+            Expanded(child: _companyMenu(mobile: true)),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Divider(color: tWhite.withOpacity(0.1), height: 1),
+        const SizedBox(height: 24),
+        _getInTouch(),
+      ],
+    );
+  }
+
   Widget _desktopBottomBar() {
     final style = GoogleFonts.manrope(
       color: tWhite,
@@ -279,7 +341,46 @@ class FooterSection extends StatelessWidget {
     );
   }
 
-  Widget _menu(String title, List<String> items, {int? sectionIndex}) {
+  // Mobile: copyright on its own line, policy links underneath.
+  Widget _mobileBottomBar() {
+    final style = GoogleFonts.manrope(
+      color: tWhite,
+      fontSize: 11.5,
+      fontWeight: FontWeight.w500,
+      height: 1.4,
+    );
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "© ${DateTime.now().year} Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
+            style: style,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Privacy Policy", style: style),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text("|", style: style),
+              ),
+              Text("Terms & Conditions", style: style),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _menu(
+    String title,
+    List<String> items, {
+    int? sectionIndex,
+    bool mobile = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -292,16 +393,18 @@ class FooterSection extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 15),
+        SizedBox(height: mobile ? 12 : 15),
 
         ...items.map(
           (e) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            // Slightly more space between links on mobile = easier to tap
+            padding: EdgeInsets.only(bottom: mobile ? 12 : 10),
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: Builder(
                 builder:
                     (context) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () {
                         if (e == "Contact Us") {
                           showGetInTouchDialog(context);
@@ -422,44 +525,6 @@ class FooterSection extends StatelessWidget {
   }
 }
 
-// class _FooterLink extends StatefulWidget {
-//   final String text;
-//   final VoidCallback onTap;
-
-//   const _FooterLink({required this.text, required this.onTap});
-
-//   @override
-//   State<_FooterLink> createState() => _FooterLinkState();
-// }
-
-// class _FooterLinkState extends State<_FooterLink> {
-//   bool _hovered = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 1.5),
-//       child: MouseRegion(
-//         cursor: SystemMouseCursors.click,
-//         onEnter: (_) => setState(() => _hovered = true),
-//         onExit: (_) => setState(() => _hovered = false),
-//         child: GestureDetector(
-//           onTap: widget.onTap,
-//           child: Text(
-//             widget.text,
-//             style: GoogleFonts.manrope(
-//               fontSize: 13,
-//               color: _hovered ? tWhite : tWhite.withOpacity(0.7),
-//               decoration:
-//                   _hovered ? TextDecoration.underline : TextDecoration.none,
-//               decorationColor: tWhite,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 class _FooterLink extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -473,6 +538,7 @@ class _FooterLink extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: Text(
             text,

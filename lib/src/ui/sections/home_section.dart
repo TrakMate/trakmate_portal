@@ -8,12 +8,10 @@ import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/build_home.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
-// import 'package:trakmate_portal/src/ui/widgets/rolling_digit.dart';
 import 'package:trakmate_portal/src/ui/widgets/scroller_button.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
-// import '../widgets/footer_section.dart';
 import 'package:video_player/video_player.dart';
 
 import '../widgets/hero_animation.dart';
@@ -61,7 +59,69 @@ class _StatData {
 
 class _HomeSectionState extends State<HomeSection> {
   final FocusNode _heroFocusNode = FocusNode(debugLabel: 'heroFocus');
-  bool get _isTablet => ResponsiveLayout.isTablet(context);
+
+  // Breakpoints come from ResponsiveLayout:
+  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+  bool get isMobile => ResponsiveLayout.isMobile(context);
+  bool get isTablet => ResponsiveLayout.isTablet(context);
+
+  // Stats are identical on every slide except the globe icon of slide 1.
+  static const List<_StatData> _statsFirst = [
+    _StatData(
+      icon: "icons/badge2.svg",
+      value: "12+",
+      label: "Years of Experience",
+    ),
+    _StatData(
+      icon: "icons/delivery3.svg",
+      value: "150+",
+      label: "Projects Delivered",
+    ),
+    _StatData(
+      icon: "icons/handshake8.svg",
+      value: "25+",
+      label: "Happy Clients",
+    ),
+    _StatData(
+      icon: "icons/worldglobe1.svg",
+      value: "6+",
+      label: "Countries Served",
+    ),
+    _StatData(
+      icon: "icons/device2.svg",
+      value: "6,00,000+",
+      label: "Device Installed",
+    ),
+  ];
+
+  static const List<_StatData> _statsRest = [
+    _StatData(
+      icon: "icons/badge2.svg",
+      value: "12+",
+      label: "Years of Experience",
+    ),
+    _StatData(
+      icon: "icons/delivery3.svg",
+      value: "150+",
+      label: "Projects Delivered",
+    ),
+    _StatData(
+      icon: "icons/handshake8.svg",
+      value: "25+",
+      label: "Happy Clients",
+    ),
+    _StatData(
+      icon: "icons/worldglobe.svg",
+      value: "6+",
+      label: "Countries Served",
+    ),
+    _StatData(
+      icon: "icons/device2.svg",
+      value: "6,00,000+",
+      label: "Device Installed",
+    ),
+  ];
+
   final List<_HeroSlideData> _slides = const [
     _HeroSlideData(
       video: "video/v1.mp4",
@@ -70,33 +130,7 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Charging a Sustainable Tomorrow.",
       description:
           'TrakMate’s smart fleet solutions connect vehicles, capture real-time data, and deliver actionable insights to help businesses monitor, manage, and optimize their fleets.',
-      stats: [
-        _StatData(
-          icon: "icons/badge2.svg",
-          value: "12+",
-          label: "Years of Experience",
-        ),
-        _StatData(
-          icon: "icons/delivery3.svg",
-          value: "150+",
-          label: "Projects Delivered",
-        ),
-        _StatData(
-          icon: "icons/handshake8.svg",
-          value: "25+",
-          label: "Happy Clients",
-        ),
-        _StatData(
-          icon: "icons/worldglobe1.svg",
-          value: "6+",
-          label: "Countries Served",
-        ),
-        _StatData(
-          icon: "icons/device2.svg",
-          value: "6,00,000+",
-          label: "Device Installed",
-        ),
-      ],
+      stats: _statsFirst,
     ),
     _HeroSlideData(
       video: "video/v2.mp4",
@@ -105,33 +139,7 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Smarter Asset Management.",
       description:
           'TrakMate connects your assets, captures valuable data, and turns it into actionable insights—giving businesses the knowledge they need, when they need it.',
-      stats: [
-        _StatData(
-          icon: "icons/badge2.svg",
-          value: "12+",
-          label: "Years of Experience",
-        ),
-        _StatData(
-          icon: "icons/delivery3.svg",
-          value: "150+",
-          label: "Projects Delivered",
-        ),
-        _StatData(
-          icon: "icons/handshake8.svg",
-          value: "25+",
-          label: "Happy Clients",
-        ),
-        _StatData(
-          icon: "icons/worldglobe.svg",
-          value: "6+",
-          label: "Countries Served",
-        ),
-        _StatData(
-          icon: "icons/device2.svg",
-          value: "6,00,000+",
-          label: "Device Installed",
-        ),
-      ],
+      stats: _statsRest,
     ),
     _HeroSlideData(
       video: "video/v3.mp4",
@@ -140,33 +148,7 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Build for Tomorrow.",
       description:
           'From connected technologies and embedded systems to product engineering and manufacturing, TrakMate delivers solutions built for performance, reliability and long-term growth.',
-      stats: [
-        _StatData(
-          icon: "icons/badge2.svg",
-          value: "12+",
-          label: "Years of Experience",
-        ),
-        _StatData(
-          icon: "icons/delivery3.svg",
-          value: "150+",
-          label: "Projects Delivered",
-        ),
-        _StatData(
-          icon: "icons/handshake8.svg",
-          value: "25+",
-          label: "Happy Clients",
-        ),
-        _StatData(
-          icon: "icons/worldglobe.svg",
-          value: "6+",
-          label: "Countries Served",
-        ),
-        _StatData(
-          icon: "icons/device2.svg",
-          value: "6,00,000+",
-          label: "Device Installed",
-        ),
-      ],
+      stats: _statsRest,
     ),
     _HeroSlideData(
       video: "video/v4.mp4",
@@ -175,33 +157,7 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Delivered with Precision.",
       description:
           'With clients across 6+ countries and 150+ products delivered, TrakMate is a technology partner businesses rely on globally.',
-      stats: [
-        _StatData(
-          icon: "icons/badge2.svg",
-          value: "12+",
-          label: "Years of Experience",
-        ),
-        _StatData(
-          icon: "icons/delivery3.svg",
-          value: "150+",
-          label: "Projects Delivered",
-        ),
-        _StatData(
-          icon: "icons/handshake8.svg",
-          value: "25+",
-          label: "Happy Clients",
-        ),
-        _StatData(
-          icon: "icons/worldglobe.svg",
-          value: "6+",
-          label: "Countries Served",
-        ),
-        _StatData(
-          icon: "icons/device2.svg",
-          value: "6,00,000+",
-          label: "Device Installed",
-        ),
-      ],
+      stats: _statsRest,
     ),
   ];
 
@@ -211,7 +167,7 @@ class _HomeSectionState extends State<HomeSection> {
   static const String _deviceCountPrefKey = 'device_count'; //sp
   Timer? _autoSlideTimer;
   int _currentVirtualPage = 0;
-  // Live "Device Installed" counter — starts at 200000, +1 every minute.
+  // Live "Device Installed" counter — +1 every minute.
   int _deviceCount = 500000;
   Timer? _deviceCountTimer;
   bool _isPrevHovered = false;
@@ -229,6 +185,10 @@ class _HomeSectionState extends State<HomeSection> {
     if (_videoControllers.length <= activeIndex) return false;
     return _videoControllers[activeIndex].value.isInitialized;
   }
+
+  //here
+  // Tablet has no hover, so the controls are always visible there.
+  bool get _showHeroControls => isTablet || _isSlideHovered;
 
   @override
   void initState() {
@@ -251,7 +211,7 @@ class _HomeSectionState extends State<HomeSection> {
       setState(() {
         _deviceCount++;
       });
-      _saveDeviceCount(); // ADD: persist after every increment
+      _saveDeviceCount(); // persist after every increment
     });
   } //sp
 
@@ -276,27 +236,8 @@ class _HomeSectionState extends State<HomeSection> {
   Future<void> _precacheAssets() async {
     if (!mounted) return;
 
-    final List<String> imagePaths = [
-      // industries
-      // 'images/automotive.jpg',
-      // 'images/ev.jpg',
-      // 'images/fleet_logistics.jpg',
-      // 'images/industrial.jpg',
-      // 'images/smartcity.jpg',
-      // 'images/agriculture.jpg',
-      // 'images/healthcare.png',
-      // 'images/supplychain.png',
-      // 'images/retail1.png',
-      // 'images/energy.png',
-      // // products
-      // 'images/tmd104.png',
-      // 'images/tmd364-side1.png',
-      // 'images/tmdcstrr-5.png',
-      // 'images/tmd400.png',
-      // 'images/tmb024.png',
-      // 'images/a1.png',
-      // 'images/a2.png',
-    ];
+    // Add image paths here if you want to precache them.
+    final List<String> imagePaths = [];
 
     for (final path in imagePaths) {
       if (!mounted) return;
@@ -490,7 +431,15 @@ class _HomeSectionState extends State<HomeSection> {
 
   double _getHeroHeight(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return height * (_isTablet ? 0.90 : 0.91);
+
+    // Mobile: tall enough for label + heading + description + stats grid,
+    // but never shorter than 620 so nothing gets squeezed on small screens.
+    if (isMobile) {
+      final double h = height * 0.9;
+      return h < 620 ? 620 : h;
+    }
+
+    return height * (isTablet ? 0.90 : 0.91);
   }
 
   @override
@@ -571,6 +520,8 @@ class _HomeSectionState extends State<HomeSection> {
 
   @override
   Widget build(BuildContext context) {
+    final bool mobile = isMobile;
+
     return Stack(
       children: [
         SingleChildScrollView(
@@ -587,15 +538,14 @@ class _HomeSectionState extends State<HomeSection> {
         ),
 
         // Scroll to top — lives OUTSIDE the scrolling content (page-level
-        // overlay) so it stays fixed on screen once you've scrolled past
-        // the hero, instead of scrolling away with it.
+        // overlay) so it stays fixed on screen.
         Positioned(
-          right: 35,
-          bottom: 50,
+          right: mobile ? 16 : 35,
+          bottom: mobile ? 24 : 50,
           child: ScrollerButton(
             isVisible: _showScrollTop,
-            svgAsset: 'icons/down2.svg', //  new SVG here
-            iconColor: tWhite, // ADD THIS — only this instance turns blue
+            svgAsset: 'icons/down2.svg',
+            iconColor: tWhite,
             iconHoverColor: tOrange1,
             rotateIcon: true,
             onTap: () {
@@ -614,6 +564,8 @@ class _HomeSectionState extends State<HomeSection> {
   }
 
   Widget _buildHeroSection() {
+    final bool mobile = isMobile;
+
     return Focus(
       focusNode: _heroFocusNode,
       onKeyEvent: (node, event) {
@@ -695,12 +647,19 @@ class _HomeSectionState extends State<HomeSection> {
                   },
                 ),
               ),
+
               // Pause / Resume button
+              // Desktop/tablet: appears on hover.
+              // Mobile: there is no hover, so it only shows while paused
+              // (tap anywhere on the hero to pause / resume).
               Positioned.fill(
                 child: IgnorePointer(
                   ignoring:
                       !_isCurrentVideoReady ||
-                      (!_showPauseButton && !_isSliderPaused),
+                      (mobile
+                          ? !_isSliderPaused
+                          : (!(isTablet || _showPauseButton) &&
+                              !_isSliderPaused)),
                   child: Center(
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 900),
@@ -710,12 +669,16 @@ class _HomeSectionState extends State<HomeSection> {
                               ? 0.0
                               : (_isSliderPaused
                                   ? 1.0
-                                  : (_showPauseButton ? 1.0 : 0.0)),
+                                  : (mobile
+                                      ? 0.0
+                                      : ((isTablet || _showPauseButton)
+                                          ? 1.0
+                                          : 0.0))),
                       child: GestureDetector(
                         onTap: _toggleHeroPlayback,
                         child: Container(
-                          width: 42,
-                          height: 42,
+                          width: mobile ? 48 : 42,
+                          height: mobile ? 48 : 42,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: tTransparent,
@@ -737,9 +700,10 @@ class _HomeSectionState extends State<HomeSection> {
                   ),
                 ),
               ),
+
               // Dot indicators
               Positioned(
-                bottom: 12,
+                bottom: mobile ? 16 : 12,
                 left: 0,
                 right: 0,
                 child: IgnorePointer(
@@ -787,46 +751,51 @@ class _HomeSectionState extends State<HomeSection> {
                 ),
               ),
 
-              // Left
-              Positioned(
-                left: 16,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity:
-                        !_isCurrentVideoReady
-                            ? 0.0
-                            : (_isSliderPaused
-                                ? 0.0
-                                : (_isSlideHovered ? 1.0 : 0.0)),
-                    child: IgnorePointer(
-                      ignoring: !_isCurrentVideoReady || !_isSlideHovered,
-                      child: MouseRegion(
-                        onEnter: (_) => setState(() => _isPrevHovered = true),
-                        onExit: (_) => setState(() => _isPrevHovered = false),
-                        child: InkWell(
-                          onTap: _onPrevPressed,
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: tWhite.withOpacity(0.15),
-                              border: Border.all(
-                                color:
-                                    _isPrevHovered
-                                        ? tOrange1
-                                        : tWhite.withOpacity(0.6),
-                                width: 1.5,
+              // Prev / Next arrows and the "scroll down" button are hover
+              // based, so they are not used on mobile (swipe + tap instead).
+              if (!mobile) ...[
+                // Left
+                Positioned(
+                  left: 16,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity:
+                          !_isCurrentVideoReady
+                              ? 0.0
+                              : (_isSliderPaused
+                                  ? 0.0
+                                  : (_showHeroControls ? 1.0 : 0.0)),
+
+                      child: IgnorePointer(
+                        ignoring: !_isCurrentVideoReady || !_showHeroControls,
+                        child: MouseRegion(
+                          onEnter: (_) => setState(() => _isPrevHovered = true),
+                          onExit: (_) => setState(() => _isPrevHovered = false),
+                          child: InkWell(
+                            onTap: _onPrevPressed,
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: tWhite.withOpacity(0.15),
+                                border: Border.all(
+                                  color:
+                                      _isPrevHovered
+                                          ? tOrange1
+                                          : tWhite.withOpacity(0.6),
+                                  width: 1.5,
+                                ),
                               ),
-                            ),
-                            child: Icon(
-                              CupertinoIcons.chevron_left,
-                              color: _isPrevHovered ? tOrange1 : tWhite,
-                              size: 18,
+                              child: Icon(
+                                CupertinoIcons.chevron_left,
+                                color: _isPrevHovered ? tOrange1 : tWhite,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
@@ -834,51 +803,52 @@ class _HomeSectionState extends State<HomeSection> {
                     ),
                   ),
                 ),
-              ),
 
-              // Right
-              Positioned(
-                right: 16,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity:
-                        !_isCurrentVideoReady
-                            ? 0.0
-                            : (_isSliderPaused
-                                ? 0.0
-                                : (_isSlideHovered ? 1.0 : 0.0)),
-                    child: IgnorePointer(
-                      ignoring:
-                          !_isCurrentVideoReady ||
-                          _isSliderPaused ||
-                          !_isSlideHovered,
-                      child: MouseRegion(
-                        onEnter: (_) => setState(() => _isNextHovered = true),
-                        onExit: (_) => setState(() => _isNextHovered = false),
-                        child: InkWell(
-                          onTap: _onNextPressed,
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: tWhite.withOpacity(0.15),
-                              border: Border.all(
-                                color:
-                                    _isNextHovered
-                                        ? tOrange1
-                                        : tWhite.withOpacity(0.6),
-                                width: 1.5,
+                // Right
+                Positioned(
+                  right: 16,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity:
+                          !_isCurrentVideoReady
+                              ? 0.0
+                              : (_isSliderPaused
+                                  ? 0.0
+                                  : (_showHeroControls ? 1.0 : 0.0)),
+
+                      child: IgnorePointer(
+                        ignoring:
+                            !_isCurrentVideoReady ||
+                            _isSliderPaused ||
+                            !_showHeroControls,
+                        child: MouseRegion(
+                          onEnter: (_) => setState(() => _isNextHovered = true),
+                          onExit: (_) => setState(() => _isNextHovered = false),
+                          child: InkWell(
+                            onTap: _onNextPressed,
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: tWhite.withOpacity(0.15),
+                                border: Border.all(
+                                  color:
+                                      _isNextHovered
+                                          ? tOrange1
+                                          : tWhite.withOpacity(0.6),
+                                  width: 1.5,
+                                ),
                               ),
-                            ),
-                            child: Icon(
-                              CupertinoIcons.chevron_right,
-                              color: _isNextHovered ? tOrange1 : tWhite,
-                              size: 18,
+                              child: Icon(
+                                CupertinoIcons.chevron_right,
+                                color: _isNextHovered ? tOrange1 : tWhite,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
@@ -886,35 +856,34 @@ class _HomeSectionState extends State<HomeSection> {
                     ),
                   ),
                 ),
-              ),
 
-              // Scroller (scroll down, only relevant while at hero)
-              Positioned(
-                right: 45,
-                bottom: 45,
-                child: ScrollerButton(
-                  isVisible: _isSlideHovered && _isCurrentVideoReady,
-                  // rotateIcon: true,
-                  onTap: () {
-                    if (!_scrollController.hasClients) return;
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                // Scroller (scroll down, only relevant while at hero)
+                Positioned(
+                  right: 45,
+                  bottom: 45,
+                  child: ScrollerButton(
+                    isVisible: _showHeroControls && _isCurrentVideoReady,
+                    onTap: () {
                       if (!_scrollController.hasClients) return;
 
-                      final double target = _getHeroHeight(context);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!_scrollController.hasClients) return;
 
-                      _scrollController.animateTo(
-                        target.clamp(
-                          0.0,
-                          _scrollController.position.maxScrollExtent,
-                        ),
-                        duration: const Duration(milliseconds: 900),
-                        curve: Curves.easeInOutCubic,
-                      );
-                    });
-                  },
+                        final double target = _getHeroHeight(context);
+
+                        _scrollController.animateTo(
+                          target.clamp(
+                            0.0,
+                            _scrollController.position.maxScrollExtent,
+                          ),
+                          duration: const Duration(milliseconds: 900),
+                          curve: Curves.easeInOutCubic,
+                        );
+                      });
+                    },
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -930,7 +899,14 @@ class _HomeSectionState extends State<HomeSection> {
     }
 
     final VideoPlayerController controller = _videoControllers[slideIndex];
-    final bool tablet = _isTablet;
+
+    // ---------- MOBILE ----------
+    if (isMobile) {
+      return _buildMobileSlide(slide, controller);
+    }
+
+    // ---------- TABLET / DESKTOP (unchanged) ----------
+
     return SizedBox(
       width: double.infinity,
       child: Stack(
@@ -960,47 +936,25 @@ class _HomeSectionState extends State<HomeSection> {
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                stops: tablet ? const [0.0, 0.65, 1.0] : const [0.0, 0.45, 1.0],
+                stops:
+                    isTablet ? const [0.0, 0.65, 1.0] : const [0.0, 0.45, 1.0],
               ),
             ),
           ),
           if (controller.value.isInitialized)
             Padding(
               padding: EdgeInsets.only(
-                left: tablet ? 48 : 110,
+                left: isTablet ? 48 : 110,
                 right: 40,
                 top: 0,
               ),
               child: Row(
                 children: [
-                  // HeroAnimatedText(
-                  //   isActive: widget.isActive,
-                  //   delay: 20,
-                  //   child: Column(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     children: [
-                  //       for (int i = 0; i < slide.stats.length; i++) ...[
-                  //         if (i != 0) const SizedBox(height: 36),
-                  //         _buildStatItem(
-                  //           slide.stats[i].icon,
-                  //           slide.stats[i].icon == "icons/device1.svg"
-                  //               ? "${_formatIndianNumber(_deviceCount)}+"
-                  //               : slide.stats[i].icon == "icons/badge.svg"
-                  //               ? "${DateTime.now().year - 2013}+"
-                  //               : slide.stats[i].value,
-                  //           slide.stats[i].label,
-                  //           animated:
-                  //               slide.stats[i].icon == "icons/device1.svg",
-                  //         ),
-                  //       ],
-                  //     ],
-                  //   ),
-                  // ),
-                  SizedBox(width: tablet ? 0 : 46),
+                  SizedBox(width: isTablet ? 0 : 46),
                   Expanded(
-                    flex: tablet ? 4 : 3,
+                    flex: isTablet ? 4 : 3,
                     child: Transform.translate(
-                      offset: Offset(0, tablet ? -50 : -28), //upper
+                      offset: Offset(0, isTablet ? -50 : -28), //upper
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1026,7 +980,7 @@ class _HomeSectionState extends State<HomeSection> {
                             child: RichText(
                               text: TextSpan(
                                 style: GoogleFonts.manrope(
-                                  fontSize: tablet ? 34 : 48,
+                                  fontSize: isTablet ? 34 : 48,
                                   fontWeight: FontWeight.w600,
                                   height: 1.15,
                                   color: tWhite,
@@ -1062,36 +1016,10 @@ class _HomeSectionState extends State<HomeSection> {
                               ),
                             ),
                           ),
-                          SizedBox(height: tablet ? 45 : 25),
+                          SizedBox(height: isTablet ? 45 : 25),
                           HeroAnimatedText(
                             isActive: widget.isActive,
                             delay: 920,
-                            // child: Row(
-                            //   mainAxisAlignment: MainAxisAlignment.start,
-                            //   children: [
-                            //     for (
-                            //       int i = 0;
-                            //       i < slide.stats.length;
-                            //       i++
-                            //     ) ...[
-                            //       if (i != 0) const SizedBox(width: 66),
-                            //       _buildStatItem(
-                            //         slide.stats[i].icon,
-                            //         // slide.stats[i].icon == "icons/device2.svg"
-                            //         //     ?
-                            //         // "${_formatIndianNumber(_deviceCount)}+"
-                            //         // :
-                            //         slide.stats[i].icon == "icons/badge2.svg"
-                            //             ? "${DateTime.now().year - 2013}+"
-                            //             : slide.stats[i].value,
-                            //         slide.stats[i].label,
-                            //         // animated:
-                            //         //     slide.stats[i].icon ==
-                            //         //     "icons/device2.svg",
-                            //       ),
-                            //     ],
-                            //   ],
-                            // ),
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
@@ -1105,7 +1033,7 @@ class _HomeSectionState extends State<HomeSection> {
                                     i++
                                   ) ...[
                                     if (i != 0)
-                                      SizedBox(width: tablet ? 28 : 66),
+                                      SizedBox(width: isTablet ? 28 : 66),
                                     _buildStatItem(
                                       slide.stats[i].icon,
                                       slide.stats[i].icon == "icons/badge2.svg"
@@ -1122,7 +1050,7 @@ class _HomeSectionState extends State<HomeSection> {
                       ),
                     ),
                   ),
-                  if (!tablet) const Expanded(flex: 2, child: SizedBox()),
+                  if (!isTablet) const Expanded(flex: 2, child: SizedBox()),
                 ],
               ),
             ),
@@ -1131,127 +1059,199 @@ class _HomeSectionState extends State<HomeSection> {
     );
   }
 
-  // Widget _buildStatItem(
-  //   String iconPath,
-  //   String value,
-  //   String label, {
-  //   bool animated = false,
-  // }) {
-  //   return SizedBox(
-  //     width: 200,
-  //     child: Container(
-  //       padding: const EdgeInsets.all(6),
-  //       decoration: BoxDecoration(
-  //         color: Colors.white.withOpacity(0.15),
-  //         borderRadius: BorderRadius.circular(20),
-  //         border: Border.all(color: Colors.white.withOpacity(0.20), width: 1.0),
-  //       ),
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         crossAxisAlignment: CrossAxisAlignment.center,
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Container(
-  //                 width: 60,
-  //                 height: 60,
-  //                 decoration: BoxDecoration(
-  //                   color: tOrange1,
-  //                   borderRadius: BorderRadius.circular(15),
-  //                 ),
-  //                 child: Center(
-  //                   child: SvgPicture.asset(
-  //                     iconPath,
-  //                     width: 30,
-  //                     height: 30,
-  //                     color: tWhite,
-  //                   ),
-  //                 ),
-  //               ),
-  //               SizedBox(width: 6),
-  //               Column(
-  //                 children: [
-  //                   animated
-  //                       ? RollingDigitText(
-  //                         text: value,
-  //                         style: GoogleFonts.manrope(
-  //                           fontSize: 20,
-  //                           fontWeight: FontWeight.w700,
-  //                           color: tWhite,
-  //                         ),
-  //                       )
-  //                       : Text(
-  //                         value,
-  //                         style: GoogleFonts.manrope(
-  //                           fontSize: 20,
-  //                           fontWeight: FontWeight.w700,
-  //                           color: tWhite,
-  //                         ),
-  //                       ),
-  //                   const SizedBox(height: 5),
-  //                   Text(
-  //                     label,
-  //                     textAlign: TextAlign.center,
-  //                     style: GoogleFonts.manrope(
-  //                       fontSize: 11,
-  //                       fontWeight: FontWeight.w600,
-  //                       color: tWhite.withOpacity(0.75),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  // Mobile hero slide: text stacked vertically, stats in a 3-column grid.
+  Widget _buildMobileSlide(
+    _HeroSlideData slide,
+    VideoPlayerController controller,
+  ) {
+    final double screenW = MediaQuery.of(context).size.width;
+
+    // Medium phones (~360) get slightly smaller type than large phones (~430).
+    final bool compact = screenW < 380;
+
+    const double hPad = 20;
+    const double statGap = 14;
+    final double statW = ((screenW - (hPad * 2) - (statGap * 2)) / 3)
+        .floorToDouble()
+        .clamp(60.0, double.infinity);
+
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          // Background video
+          if (controller.value.isInitialized)
+            Positioned.fill(
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: controller.value.size.width,
+                  height: controller.value.size.height,
+                  child: VideoPlayer(controller),
+                ),
+              ),
+            )
+          else
+            const Positioned.fill(child: HeroVideoShimmer()),
+
+          // Overlay — on a narrow screen the text covers the whole width,
+          // so the dark layer is spread over the full hero for readability.
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    tBlue2.withOpacity(0.88),
+                    tBlue2.withOpacity(0.72),
+                    tBlue2.withOpacity(0.88),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+
+          if (controller.value.isInitialized)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(hPad, 24, hPad, 48),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 220,
+                      child: Text(
+                        slide.label,
+                        style: GoogleFonts.manrope(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: tOrange1,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 520,
+                      child: RichText(
+                        text: TextSpan(
+                          style: GoogleFonts.manrope(
+                            fontSize: compact ? 25 : 30,
+                            fontWeight: FontWeight.w600,
+                            height: 1.2,
+                            color: tWhite,
+                          ),
+                          children: [
+                            TextSpan(text: "${slide.headingLine1}\n"),
+                            TextSpan(
+                              text: slide.headingLine2,
+                              style: GoogleFonts.manrope(
+                                color: tOrange1,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 720,
+                      child: Text(
+                        slide.description,
+                        style: GoogleFonts.manrope(
+                          fontSize: compact ? 13 : 14,
+                          color: tWhite.withOpacity(0.95),
+                          fontWeight: FontWeight.w500,
+                          height: 1.6,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 26),
+                    HeroAnimatedText(
+                      isActive: widget.isActive,
+                      delay: 920,
+                      child: Wrap(
+                        spacing: statGap,
+                        runSpacing: 20,
+                        children: [
+                          for (final stat in slide.stats)
+                            SizedBox(
+                              width: statW,
+                              child: _buildStatItem(
+                                stat.icon,
+                                stat.icon == "icons/badge2.svg"
+                                    ? "${DateTime.now().year - 2013}+"
+                                    : stat.value,
+                                stat.label,
+                                mobile: true,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatItem(
     String iconPath,
     String value,
     String label, {
     bool animated = false,
+    bool mobile = false,
   }) {
+    final TextStyle valueStyle = GoogleFonts.manrope(
+      fontSize: mobile ? 17 : 20,
+      fontWeight: FontWeight.w700,
+      color: tWhite,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 44,
-          height: 44,
+        SizedBox(
+          width: mobile ? 36 : 44,
+          height: mobile ? 36 : 44,
           child: SvgPicture.asset(
             iconPath,
-            width: 30,
-            height: 30,
+            width: mobile ? 26 : 30,
+            height: mobile ? 26 : 30,
             color: tOrange1,
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: mobile ? 8 : 10),
 
-        animated
-            ? RollingDigitText(
-              text: value,
-              style: GoogleFonts.manrope(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: tWhite,
-              ),
-            )
-            : Text(
-              value,
-              style: GoogleFonts.manrope(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: tWhite,
-              ),
-            ),
+        // On mobile the value is scaled down if it doesn't fit its column
+        // (e.g. "6,00,000+" on a ~360px wide phone).
+        if (mobile)
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(value, style: valueStyle),
+          )
+        else if (animated)
+          RollingDigitText(text: value, style: valueStyle)
+        else
+          Text(value, style: valueStyle),
 
         const SizedBox(height: 2),
         Text(
           label,
           style: GoogleFonts.manrope(
-            fontSize: 11,
+            fontSize: mobile ? 10.5 : 11,
             fontWeight: FontWeight.w600,
             color: tWhite.withOpacity(0.75),
           ),
