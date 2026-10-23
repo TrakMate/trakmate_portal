@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
@@ -229,6 +231,12 @@ class HeroHeaderShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mobile has its own stacked layout (same as the real header).
+    if (ResponsiveLayout.isMobile(context)) {
+      return _buildMobile(context);
+    }
+
+    // ───────── TABLET / DESKTOP (unchanged) ─────────
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 25),
@@ -300,6 +308,127 @@ class HeroHeaderShimmer extends StatelessWidget {
     );
   }
 
+  // ───────────────────────────────────────────────────────────
+  // MOBILE: image banner on top, text below, 2 x 2 intro cards
+  // ───────────────────────────────────────────────────────────
+  Widget _buildMobile(BuildContext context) {
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool compact = screenW < 380; // same rule as the real header
+
+    const double hPad = 20;
+    const double gap = 16;
+    final double contentW = screenW - (hPad * 2);
+    final double cardW = ((screenW - (hPad * 2) - gap) / 2).floorToDouble();
+
+    // real heading: font 25/30 x height 1.2 -> 30/36 px per line
+    final double headingH = compact ? 30 : 36;
+
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // image banner (same height as the real one)
+          ShimmerBox(height: screenW * 0.62),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(hPad, 16, hPad, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // label
+                const ShimmerBox(
+                  width: 110,
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                const SizedBox(height: 14),
+
+                // heading (2 lines)
+                ShimmerBox(
+                  width: contentW * 0.85,
+                  height: headingH - 4,
+                  borderRadius: const BorderRadius.all(Radius.circular(6)),
+                ),
+                const SizedBox(height: 8),
+                ShimmerBox(
+                  width: contentW * 0.6,
+                  height: headingH - 4,
+                  borderRadius: const BorderRadius.all(Radius.circular(6)),
+                ),
+                const SizedBox(height: 14),
+
+                // description (4 lines)
+                const ShimmerBox(
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                const SizedBox(height: 8),
+                const ShimmerBox(
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                const SizedBox(height: 8),
+                const ShimmerBox(
+                  height: 12,
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                ),
+                const SizedBox(height: 8),
+                ShimmerBox(
+                  width: contentW * 0.55,
+                  height: 12,
+                  borderRadius: const BorderRadius.all(Radius.circular(4)),
+                ),
+                const SizedBox(height: 28),
+
+                // 2 x 2 intro cards
+                Wrap(
+                  spacing: gap,
+                  runSpacing: 22,
+                  children: [
+                    for (int i = 0; i < 4; i++)
+                      SizedBox(width: cardW, child: _buildMobileIntroCard()),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileIntroCard() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShimmerBox(
+          width: 30,
+          height: 30,
+          borderRadius: BorderRadius.all(Radius.circular(6)),
+        ),
+        SizedBox(height: 10),
+        ShimmerBox(
+          width: 100,
+          height: 13,
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+        ),
+        SizedBox(height: 6),
+        ShimmerBox(
+          height: 11,
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+        ),
+        SizedBox(height: 5),
+        ShimmerBox(
+          width: 70,
+          height: 11,
+          borderRadius: BorderRadius.all(Radius.circular(4)),
+        ),
+      ],
+    );
+  }
+
+  // desktop / tablet intro card (unchanged)
   Widget _buildIntroCardShimmer() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -916,8 +1045,99 @@ class SpecsSlideShimmer extends StatelessWidget {
     );
   }
 
+  // MOBILE: image on top, ALL badges wrapped below it
+  // (mirrors _buildMobileSpecsSlide in the product details page)
+  Widget _buildMobile(BuildContext context) {
+    final double screenW = MediaQuery.of(context).size.width;
+    final double kb = screenW < 380 ? 0.62 : 0.72; // same as the real slide
+
+    return LayoutBuilder(
+      builder: (context, c) {
+        const double sidePad = 30;
+        final double contentW = math.max(c.maxWidth - sidePad * 2, 0);
+
+        return Padding(
+          // same clearances as the real mobile slide
+          padding: const EdgeInsets.fromLTRB(sidePad, 16, sidePad, 62),
+          child: Shimmer.fromColors(
+            baseColor: tGrey1.shade300,
+            highlightColor: tGrey1.shade100,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // product image placeholder
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: tWhite,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // badges, wrapped + centered, scaled down if they don't fit
+                Flexible(
+                  flex: 2,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: contentW,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.start,
+                        spacing: 8,
+                        runSpacing: 10,
+                        children: [
+                          for (int i = 0; i < badgeCount; i++)
+                            _mobileBadgePlaceholder(kb),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _mobileBadgePlaceholder(double kb) {
+    return SizedBox(
+      width: 132 * kb,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 96 * kb,
+            height: 96 * kb,
+            decoration: const BoxDecoration(
+              color: tWhite,
+              shape: BoxShape.circle,
+            ),
+          ),
+          SizedBox(height: 8 * kb),
+          Container(
+            width: 80 * kb,
+            height: 11,
+            decoration: BoxDecoration(
+              color: tWhite,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Mobile has its own layout (image on top, badges wrapped below).
+    if (ResponsiveLayout.isMobile(context)) return _buildMobile(context);
     final int topCount = topRowCount.clamp(0, badgeCount);
     final int colCount = badgeCount - topCount;
     final bool both = topCount > 0 && colCount > 0;
@@ -1026,7 +1246,7 @@ class SpecsSlideShimmer extends StatelessWidget {
 // }
 
 //hero slider shimmer (matches HeroSlider layout, no loader)
-//hero slider shimmer (grey sweep + visible text placeholders)
+//hero slider shimmer (matches HeroSlider layout, no loader)
 class HeroSliderShimmer extends StatelessWidget {
   const HeroSliderShimmer({super.key});
 
@@ -1043,6 +1263,138 @@ class HeroSliderShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (ResponsiveLayout.isMobile(context)) return _buildMobile(context);
+    if (ResponsiveLayout.isTablet(context)) return _buildTablet(context);
+    return _buildDesktop(context);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // MOBILE: image banner on top, label + heading below
+  // (mirrors HeroSlider._buildMobileSlide)
+  // ─────────────────────────────────────────────────────────
+  Widget _buildMobile(BuildContext context) {
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool compact = screenW < 380;
+
+    const double hPad = 20;
+    final double contentW = screenW - (hPad * 2);
+    final double lineH = compact ? 24 : 28; // heading line (font 25/30 x 1.2)
+
+    return SizedBox.expand(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // image banner (same height as the real one)
+          Shimmer.fromColors(
+            baseColor: tGrey1.shade300,
+            highlightColor: tGrey1.shade100,
+            direction: ShimmerDirection.ltr,
+            period: const Duration(milliseconds: 1600),
+            child: Container(
+              width: double.infinity,
+              height: screenW * 0.62,
+              color: tWhite,
+            ),
+          ),
+
+          // text placeholders
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(hPad, 14, hPad, 40),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Shimmer.fromColors(
+                  baseColor: tGrey1.shade300,
+                  highlightColor: tGrey1.shade100,
+                  direction: ShimmerDirection.ltr,
+                  period: const Duration(milliseconds: 1600),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _bar(110, 12, radius: 4), // label
+                      const SizedBox(height: 8),
+                      _bar(35, 3, radius: 10), // small underline
+                      const SizedBox(height: 14),
+                      _bar(contentW * 0.92, lineH), // heading line 1
+                      const SizedBox(height: 10),
+                      _bar(contentW * 0.70, lineH), // heading line 2
+                      const SizedBox(height: 10),
+                      _bar(contentW * 0.85, lineH), // heading line 3
+                      const SizedBox(height: 10),
+                      _bar(contentW * 0.50, lineH), // heading line 4
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // TABLET: full-bleed sweep, text bars scaled to the width
+  // ─────────────────────────────────────────────────────────
+  Widget _buildTablet(BuildContext context) {
+    return SizedBox.expand(
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final double contentW = (c.maxWidth - 160).clamp(200.0, 700.0);
+
+          return Stack(
+            children: [
+              // LAYER 1: grey background sweep
+              Positioned.fill(
+                child: Shimmer.fromColors(
+                  baseColor: tGrey1.shade300,
+                  highlightColor: tGrey1.shade100,
+                  direction: ShimmerDirection.ltr,
+                  period: const Duration(milliseconds: 1600),
+                  child: Container(color: tWhite),
+                ),
+              ),
+
+              // LAYER 2: text placeholders (font 35 x 1.15 ~ 40px lines)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 80),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Shimmer.fromColors(
+                    baseColor: tWhite.withOpacity(0.45),
+                    highlightColor: tWhite.withOpacity(0.85),
+                    direction: ShimmerDirection.ltr,
+                    period: const Duration(milliseconds: 1600),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _bar(120, 13, radius: 4), // label
+                        const SizedBox(height: 8),
+                        _bar(35, 3, radius: 10), // small underline
+                        const SizedBox(height: 16),
+                        _bar(contentW * 0.95, 36), // heading line 1
+                        const SizedBox(height: 12),
+                        _bar(contentW * 0.80, 36), // heading line 2
+                        const SizedBox(height: 12),
+                        _bar(contentW * 0.50, 36), // heading line 3
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // DESKTOP (unchanged)
+  // ─────────────────────────────────────────────────────────
+  Widget _buildDesktop(BuildContext context) {
     return SizedBox.expand(
       child: Stack(
         children: [
@@ -1059,9 +1411,7 @@ class HeroSliderShimmer extends StatelessWidget {
 
           // LAYER 2: text placeholders, lighter than the background
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 80,
-            ), // same as slide
+            padding: const EdgeInsets.symmetric(horizontal: 80),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Shimmer.fromColors(
@@ -1113,9 +1463,18 @@ class IndustriesShimmer extends StatelessWidget {
             child: Column(
               children: [
                 // square image placeholder (AspectRatio 1, same as real card)
-                AspectRatio(
-                  aspectRatio: 1,
+                // AspectRatio(
+                //   aspectRatio: 1,
+                //   child: Container(
+                //     decoration: BoxDecoration(
+                //       color: tWhite,
+                //       borderRadius: BorderRadius.circular(10),
+                //     ),
+                //   ),
+                // ),
+                Expanded(
                   child: Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: tWhite,
                       borderRadius: BorderRadius.circular(10),

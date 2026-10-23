@@ -264,64 +264,74 @@ class _AllNewsPageState extends State<AllNewsPage> {
             ],
           );
 
-          return Material(
-            color: isSelected ? tWhite : tTransparent,
-            child: InkWell(
-              mouseCursor:
-                  _noHover
-                      ? SystemMouseCursors.basic
-                      : SystemMouseCursors.click,
-              hoverColor: _noHover ? tTransparent : null,
-              onTap:
-                  () => setState(() {
-                    _selected = article;
-                    if (isMobile) _showDetail = true;
-                  }),
-              child: Container(
-                padding:
-                    isMobile
-                        ? const EdgeInsets.fromLTRB(14, 14, 14, 14)
-                        : const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(
-                      width: 3,
-                      color: isSelected ? tOrange1 : tTransparent,
+          return Padding(
+            // outer spacing: hover/selected highlight now sits inside the panel
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            child: Material(
+              color: isSelected ? tWhite : tTransparent,
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                mouseCursor:
+                    _noHover
+                        ? SystemMouseCursors.basic
+                        : SystemMouseCursors.click,
+                hoverColor: _noHover ? tTransparent : tBlue3.withOpacity(0.06),
+                onTap:
+                    () => setState(() {
+                      _selected = article;
+                      if (isMobile) _showDetail = true;
+                    }),
+                child: Container(
+                  padding:
+                      isMobile
+                          ? const EdgeInsets.fromLTRB(14, 14, 14, 14)
+                          : const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      left: BorderSide(
+                        width: 3,
+                        color: isSelected ? tOrange1 : tTransparent,
+                      ),
                     ),
                   ),
-                ),
-                child:
-                    isMobile
-                        // Mobile: small thumbnail on the left, text on the right
-                        ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: SizedBox(
-                                width: _isCompact ? 68 : 80,
-                                height: _isCompact ? 68 : 80,
-                                child: Image.asset(
-                                  article.image,
-                                  fit: BoxFit.cover,
-                                  errorBuilder:
-                                      (context, error, stackTrace) => Container(
-                                        color: tBlue3.withOpacity(0.1),
-                                        alignment: Alignment.center,
-                                        child: Icon(
-                                          Icons.image_not_supported_outlined,
-                                          size: 22,
-                                          color: tBlue3.withOpacity(0.4),
+                  child:
+                      isMobile
+                          ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: SizedBox(
+                                  width: _isCompact ? 68 : 80,
+                                  height: _isCompact ? 68 : 80,
+                                  child: Image.asset(
+                                    article.image,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) => Container(
+                                          color: tBlue3.withOpacity(0.1),
+                                          alignment: Alignment.center,
+                                          child: Icon(
+                                            Icons.image_not_supported_outlined,
+                                            size: 22,
+                                            color: tBlue3.withOpacity(0.4),
+                                          ),
                                         ),
-                                      ),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(child: textColumn),
-                          ],
-                        )
-                        : textColumn,
+                              const SizedBox(width: 12),
+                              Expanded(child: textColumn),
+                            ],
+                          )
+                          : textColumn,
+                ),
               ),
             ),
           );

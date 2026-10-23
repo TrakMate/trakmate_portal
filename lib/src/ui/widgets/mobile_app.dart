@@ -296,7 +296,7 @@ class _MobileServiceCard extends StatelessWidget {
       ),
       icon: const Icon(Icons.north_east, size: 14),
       label: Text(
-        'View App',
+        'Install App',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: GoogleFonts.manrope(
@@ -440,6 +440,10 @@ class _MobileServiceCard extends StatelessWidget {
 
 // =========================================================
 // FLOATING LOGO BADGE
+//
+// The badge has a FIXED width + height for each screen size, and the logo is
+// scaled to fit inside it. So every badge is exactly the same size, no matter
+// which logo (or logo shape) is inside.
 // =========================================================
 
 class _MobileBadge extends StatelessWidget {
@@ -452,9 +456,15 @@ class _MobileBadge extends StatelessWidget {
     final bool isMobile = ResponsiveLayout.isMobile(context);
     final bool small = _isSmallPhone(context);
 
+    // Fixed badge size per screen size.
+    final double badgeWidth = isMobile ? (small ? 104 : 116) : 140;
+    final double badgeHeight = isMobile ? 40 : 52;
+
     return Container(
+      width: badgeWidth,
+      height: badgeHeight,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? (small ? 14 : 20) : 40,
+        horizontal: isMobile ? 12 : 16,
         vertical: isMobile ? 6 : 8,
       ),
 
@@ -472,10 +482,10 @@ class _MobileBadge extends StatelessWidget {
         ],
       ),
 
-      child: SvgPicture.asset(
-        logo,
-        height: isMobile ? 30 : 40,
-        width: isMobile ? 50 : 60,
+      // SizedBox.expand forces the logo to fill the badge's inner area and
+      // BoxFit.contain scales it down to fit without distortion.
+      child: SizedBox.expand(
+        child: SvgPicture.asset(logo, fit: BoxFit.contain),
       ),
     );
   }

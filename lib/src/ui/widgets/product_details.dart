@@ -1879,7 +1879,7 @@ void showDataSheetRequestDialog(BuildContext context, String productTitle) {
     barrierDismissible: true,
     barrierLabel: 'Request Data Sheet',
     barrierColor: tBlack.withOpacity(0.58),
-    transitionDuration: const Duration(milliseconds: 500),
+    transitionDuration: const Duration(milliseconds: 550),
     pageBuilder: (context, animation, secondaryAnimation) {
       return _DataSheetRequestDialog(productTitle: productTitle);
     },
@@ -1898,7 +1898,7 @@ void showDataSheetRequestDialog(BuildContext context, String productTitle) {
       return FadeTransition(
         opacity: fadeAnimation,
         child: ScaleTransition(
-          scale: Tween<double>(begin: 0.78, end: 1.0).animate(scaleAnimation),
+          scale: Tween<double>(begin: 0.72, end: 1.0).animate(scaleAnimation),
           child: child,
         ),
       );
@@ -1920,7 +1920,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
     with SingleTickerProviderStateMixin {
   // Change the recipient here (one place only).
   // Testing: your gmail. Before going live: info@trakmate.co.in
-  static const String _toMail = 'pratheekshap837@gmail.com';
+  static const String _toMail = 'info@trakmate.co.in';
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -1931,7 +1931,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  bool _isSubmitHovered = false;
+  // bool _isSubmitHovered = false;
   String? _validationMessage;
 
   @override
@@ -1974,6 +1974,10 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
     super.dispose();
   }
 
+  void _clearError() {
+    if (_validationMessage != null) setState(() => _validationMessage = null);
+  }
+
   Future<void> _submit() async {
     final String name = _nameController.text.trim();
     final String phone = _phoneController.text.trim();
@@ -2002,9 +2006,9 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
         'I’m writing regarding the datasheet for ${widget.productTitle}.\n\n'
         '${message.isEmpty ? '' : '$message\n\n'}'
         'Please let me know if you need any additional information from my side.\n\n'
-        'Thanks & Regards,\n'
-        '$name\n'
-        '${phone.isEmpty ? '' : 'Phone: $phone\n'}';
+        'Thanks & Regards';
+    // '$name\n'
+    // '${phone.isEmpty ? '' : 'Phone: $phone\n'}';
 
     final Uri mailUri = Uri.parse(
       'mailto:$_toMail'
@@ -2040,7 +2044,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
             ),
             decoration: BoxDecoration(
               color: tWhite,
-              borderRadius: BorderRadius.circular(isMobile ? 20 : 24),
+              borderRadius: BorderRadius.circular(isMobile ? 20 : 22),
               boxShadow: [
                 BoxShadow(
                   color: tBlack.withOpacity(0.22),
@@ -2057,7 +2061,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
                     padding:
                         isMobile
                             ? const EdgeInsets.fromLTRB(20, 28, 20, 24)
-                            : const EdgeInsets.fromLTRB(42, 34, 42, 34),
+                            : const EdgeInsets.fromLTRB(34, 38, 34, 34),
                     child: FadeTransition(
                       opacity: _fadeAnimation,
                       child: SlideTransition(
@@ -2069,25 +2073,26 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
                 ),
 
                 // CLOSE BUTTON
+                // CLOSE BUTTON
                 Positioned(
-                  top: isMobile ? 12 : 16,
-                  right: isMobile ? 12 : 16,
+                  top: 14,
+                  right: 14,
                   child: Material(
                     color: tTransparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(50),
+                      borderRadius: BorderRadius.circular(30),
                       onTap: () => Navigator.of(context).pop(),
                       child: Container(
-                        width: isMobile ? 36 : 42,
-                        height: isMobile ? 36 : 42,
+                        width: 34,
+                        height: 34,
                         decoration: const BoxDecoration(
                           color: tBlue2,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.close_rounded,
                           color: tWhite,
-                          size: isMobile ? 20 : 24,
+                          size: 20,
                         ),
                       ),
                     ),
@@ -2106,158 +2111,105 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          // keeps the title clear of the close button on phones
           padding: EdgeInsets.only(right: isMobile ? 44 : 0),
           child: Text(
             'Request Data Sheet',
             style: GoogleFonts.manrope(
-              fontSize: isMobile ? 24 : 36,
+              fontSize: isMobile ? 24 : 30,
               fontWeight: FontWeight.w800,
               color: tBlue2,
-              height: 1.1,
+              height: 1.12,
             ),
           ),
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 7),
 
-        Container(
-          width: 80,
-          height: 4,
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
+          height: 3,
+          width: 65,
           decoration: BoxDecoration(
             color: tOrange1,
             borderRadius: BorderRadius.circular(10),
           ),
         ),
 
-        SizedBox(height: isMobile ? 14 : 16),
+        const SizedBox(height: 22),
 
         Text(
           'Fill in your details and we’ll share the data sheet for '
           '${widget.productTitle}.',
           style: GoogleFonts.manrope(
-            fontSize: isMobile ? 13.5 : 15,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: tBlack.withOpacity(0.50),
+            color: tBlack.withOpacity(0.48),
+            height: 1.55,
           ),
         ),
 
-        SizedBox(height: isMobile ? 20 : 28),
+        const SizedBox(height: 30),
 
-        _buildTextField(
+        HoverFormField(
           controller: _nameController,
-          label: 'Full Name',
+          label: 'Full Name *',
           hint: 'John Doe',
           icon: 'icons/person2.svg',
-          isRequired: true,
+          onChanged: _clearError,
         ),
-
-        SizedBox(height: isMobile ? 14 : 18),
-
-        _buildTextField(
+        const SizedBox(height: 14),
+        HoverFormField(
           controller: _emailController,
-          label: 'Email',
+          label: 'Email *',
           hint: 'you@example.com',
           icon: 'icons/mail.svg',
-          keyboardType: TextInputType.emailAddress,
-          isRequired: true,
+          // keyboardType: TextInputType.emailAddress,
+          onChanged: _clearError,
         ),
-
-        SizedBox(height: isMobile ? 14 : 18),
-
-        _buildTextField(
+        const SizedBox(height: 14),
+        HoverFormField(
           controller: _phoneController,
           label: 'Phone Number',
           hint: '+91 00000 00000',
           icon: 'icons/phone.svg',
-          keyboardType: TextInputType.phone,
-          isRequired: false,
+          // keyboardType: TextInputType.phone,
+          onChanged: _clearError,
+        ),
+        const SizedBox(height: 14),
+        HoverMessageField(
+          controller: _messageController,
+          label: 'Message',
+          fontSize: 13,
+          onChanged: _clearError,
         ),
 
-        SizedBox(height: isMobile ? 14 : 18),
-
-        _buildMessageField(isMobile),
-
-        const SizedBox(height: 8),
-
-        // Fixed-height slot so the button never shifts
+        // Error slot (same as Contact popup)
         SizedBox(
-          height: 18,
+          height: 28,
           child: Align(
             alignment: Alignment.centerLeft,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: _validationMessage != null ? 1.0 : 0.0,
-              child: Text(
-                _validationMessage ?? '',
-                style: GoogleFonts.manrope(
-                  fontSize: 12,
-                  color: tRed1,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+            child:
+                _validationMessage == null
+                    ? null
+                    : Text(
+                      _validationMessage!,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red,
+                      ),
+                    ),
           ),
         ),
 
-        SizedBox(height: isMobile ? 8 : 12),
+        const SizedBox(height: 24),
 
         Align(
-          alignment: isMobile ? Alignment.center : Alignment.centerRight,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            onEnter: (_) => setState(() => _isSubmitHovered = true),
-            onExit: (_) => setState(() => _isSubmitHovered = false),
-            child: GestureDetector(
-              onTap: _submit,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                // Full width on phones
-                width: isMobile ? double.infinity : null,
-                transform: Matrix4.translationValues(
-                  0,
-                  _isSubmitHovered ? -2 : 0,
-                  0,
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: isMobile ? 20 : 32,
-                  vertical: 15,
-                ),
-                decoration: BoxDecoration(
-                  color: tOrange1,
-                  borderRadius: BorderRadius.circular(9),
-                  boxShadow: [
-                    BoxShadow(
-                      color: tOrange1.withOpacity(
-                        _isSubmitHovered ? 0.30 : 0.16,
-                      ),
-                      blurRadius: _isSubmitHovered ? 20 : 12,
-                      offset: const Offset(0, 7),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'SUBMIT REQUEST',
-                      style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: tWhite,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: tWhite,
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          alignment: Alignment.bottomRight,
+          child: AnimatedSendButton(
+            label: 'SUBMIT REQUEST',
+            onPressed: _submit,
           ),
         ),
       ],
@@ -2271,9 +2223,9 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
           TextSpan(
             text: label,
             style: GoogleFonts.manrope(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: tBlack.withOpacity(0.80),
+              color: tBlack.withOpacity(0.70),
             ),
           ),
           if (isRequired)
@@ -2282,7 +2234,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
               style: GoogleFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: tRed1,
+                color: tBlack.withOpacity(0.70),
               ),
             ),
         ],
@@ -2304,14 +2256,14 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
         _buildLabel(label, isRequired),
         const SizedBox(height: 7),
         Container(
-          height: 52,
+          height: 48,
           decoration: BoxDecoration(
             color: tWhite,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(9),
           ),
           foregroundDecoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: tBlack.withOpacity(0.10), width: 1),
+            border: Border.all(color: tBlack.withOpacity(0.12), width: 1),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -2325,8 +2277,8 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
               },
               textAlignVertical: TextAlignVertical.center,
               style: GoogleFonts.manrope(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
                 color: tBlack,
               ),
               decoration: InputDecoration(
@@ -2356,7 +2308,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
                 ),
                 hintText: hint,
                 hintStyle: GoogleFonts.manrope(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w400,
                   color: tBlack.withOpacity(0.30),
                 ),

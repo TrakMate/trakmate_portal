@@ -1255,7 +1255,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
     required String icon,
     VoidCallback? onChanged,
   }) {
-    return _HoverFormField(
+    return HoverFormField(
       controller: controller,
       label: label,
       hint: hint,
@@ -1265,7 +1265,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   }
 
   Widget _buildMessageField({VoidCallback? onChanged}) {
-    return _HoverMessageField(
+    return HoverMessageField(
       controller: _messageController,
       onChanged: onChanged,
     );
@@ -1304,7 +1304,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
   }
 
   Widget _buildSendMessagesButton() {
-    return _AnimatedSendButton(
+    return AnimatedSendButton(
       onPressed: () async {
         final bool hasError =
             _nameController.text.trim().isEmpty ||
@@ -1463,7 +1463,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const _PopupSvgIcon(
+                    const PopupSvgIcon(
                       asset: 'icons/location.svg',
                       size: 14,
                       color: tBlue2,
@@ -1516,7 +1516,7 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
                         ),
                       ),
                       const SizedBox(width: 5),
-                      const _PopupSvgIcon(
+                      const PopupSvgIcon(
                         asset: 'icons/right_arrow.svg',
                         size: 12,
                         color: tWhite,
@@ -1533,12 +1533,12 @@ class _GoogleMapCardState extends State<_GoogleMapCard> {
   }
 }
 
-class _PopupSvgIcon extends StatelessWidget {
+class PopupSvgIcon extends StatelessWidget {
   final String asset;
   final double size;
   final Color? color;
 
-  const _PopupSvgIcon({required this.asset, this.size = 16, this.color});
+  const PopupSvgIcon({required this.asset, this.size = 16, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1643,7 +1643,7 @@ class _AnimatedContactInfoItemState extends State<_AnimatedContactInfoItem> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
-                child: _PopupSvgIcon(
+                child: PopupSvgIcon(
                   asset: widget.icon,
                   size: 23,
                   color: tBlue3,
@@ -1727,7 +1727,7 @@ class _AnimatedClickableContactInfoItemState
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
-                child: _PopupSvgIcon(
+                child: PopupSvgIcon(
                   asset: widget.icon,
                   size: 23,
                   color: tBlue3,
@@ -1767,14 +1767,14 @@ class _AnimatedClickableContactInfoItemState
   }
 }
 
-class _HoverFormField extends StatefulWidget {
+class HoverFormField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String hint;
   final String icon;
   final VoidCallback? onChanged;
 
-  const _HoverFormField({
+  const HoverFormField({
     required this.controller,
     required this.label,
     required this.hint,
@@ -1783,10 +1783,10 @@ class _HoverFormField extends StatefulWidget {
   });
 
   @override
-  State<_HoverFormField> createState() => _HoverFormFieldState();
+  State<HoverFormField> createState() => HoverFormFieldState();
 }
 
-class _HoverFormFieldState extends State<_HoverFormField> {
+class HoverFormFieldState extends State<HoverFormField> {
   bool _hovered = false;
 
   @override
@@ -1855,7 +1855,7 @@ class _HoverFormFieldState extends State<_HoverFormField> {
                     width: 46,
                     height: 48,
                     child: Center(
-                      child: _PopupSvgIcon(
+                      child: PopupSvgIcon(
                         asset: widget.icon,
                         size: 23,
                         color: tBlue3,
@@ -1883,17 +1883,23 @@ class _HoverFormFieldState extends State<_HoverFormField> {
   }
 }
 
-class _HoverMessageField extends StatefulWidget {
+class HoverMessageField extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback? onChanged;
-
-  const _HoverMessageField({required this.controller, this.onChanged});
+  final String label;
+  final double fontSize;
+  const HoverMessageField({
+    required this.controller,
+    this.onChanged,
+    this.label = 'Messages *',
+    this.fontSize = 11,
+  });
 
   @override
-  State<_HoverMessageField> createState() => _HoverMessageFieldState();
+  State<HoverMessageField> createState() => HoverMessageFieldState();
 }
 
-class _HoverMessageFieldState extends State<_HoverMessageField> {
+class HoverMessageFieldState extends State<HoverMessageField> {
   bool _hovered = false;
 
   @override
@@ -1945,7 +1951,10 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
-                style: GoogleFonts.manrope(fontSize: 11, color: tBlack),
+                style: GoogleFonts.manrope(
+                  fontSize: widget.fontSize,
+                  color: tBlack,
+                ),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: tWhite,
@@ -1970,16 +1979,19 @@ class _HoverMessageFieldState extends State<_HoverMessageField> {
   }
 }
 
-class _AnimatedSendButton extends StatefulWidget {
+class AnimatedSendButton extends StatefulWidget {
   final VoidCallback onPressed;
-
-  const _AnimatedSendButton({required this.onPressed});
+  final String label;
+  const AnimatedSendButton({
+    required this.onPressed,
+    this.label = 'SEND MESSAGE',
+  });
 
   @override
-  State<_AnimatedSendButton> createState() => _AnimatedSendButtonState();
+  State<AnimatedSendButton> createState() => AnimatedSendButtonState();
 }
 
-class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
+class AnimatedSendButtonState extends State<AnimatedSendButton> {
   bool _hovered = false;
 
   @override
@@ -2017,7 +2029,7 @@ class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'SEND MESSAGE',
+                widget.label,
                 style: GoogleFonts.manrope(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -2025,7 +2037,7 @@ class _AnimatedSendButtonState extends State<_AnimatedSendButton> {
                 ),
               ),
               const SizedBox(width: 10),
-              const _PopupSvgIcon(
+              const PopupSvgIcon(
                 asset: 'icons/right_arrow.svg',
                 size: 14,
                 color: tWhite,

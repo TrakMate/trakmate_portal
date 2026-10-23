@@ -285,6 +285,52 @@ class FooterSection extends StatelessWidget {
     );
   }
 
+  // Opens a placeholder page for Privacy Policy / Terms & Conditions.
+  void _openLegalPage(BuildContext context, String title) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 150),
+        pageBuilder:
+            (routeContext, __, ___) => Scaffold(
+              body: Stack(
+                children: [
+                  const Placeholder(),
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        tooltip: 'Back',
+                        onPressed: () => Navigator.of(routeContext).pop(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        transitionsBuilder:
+            (_, animation, __, child) =>
+                FadeTransition(opacity: animation, child: child),
+      ),
+    );
+  }
+
+  // Clickable text used for the legal links in all three bottom bars.
+  Widget _legalLink(String text, TextStyle style) {
+    return Builder(
+      builder:
+          (context) => MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _openLegalPage(context, text),
+              child: Text(text, style: style),
+            ),
+          ),
+    );
+  }
+
   Widget _desktopBottomBar() {
     final style = GoogleFonts.manrope(
       color: tWhite,
@@ -298,12 +344,13 @@ class FooterSection extends StatelessWidget {
           style: style,
         ),
         const Spacer(),
-        Text("Privacy Policy", style: style),
+        _legalLink("Privacy Policy", style),
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Text("|", style: style.copyWith(fontWeight: FontWeight.w600)),
         ),
-        Text("Terms & Conditions", style: style),
+        _legalLink("Terms & Conditions", style),
       ],
     );
   }
@@ -328,12 +375,12 @@ class FooterSection extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Privacy Policy", style: style),
+              _legalLink("Privacy Policy", style),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Text("|", style: style),
               ),
-              Text("Terms & Conditions", style: style),
+              _legalLink("Terms & Conditions", style),
             ],
           ),
         ],
@@ -362,12 +409,12 @@ class FooterSection extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Privacy Policy", style: style),
+              _legalLink("Privacy Policy", style),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text("|", style: style),
               ),
-              Text("Terms & Conditions", style: style),
+              _legalLink("Terms & Conditions", style),
             ],
           ),
         ],

@@ -765,17 +765,16 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           SizedBox(height: sectionGap),
           _buildProductsSection(),
           SizedBox(height: sectionGap),
-          OfficesSection(),
-          SizedBox(height: sectionGap),
+          // OfficesSection(),
+          // SizedBox(height: sectionGap),
           _buildClientsSection(),
         ],
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
   // INDUSTRIES
-  // ---------------------------------------------------------------------------
+
   Widget _buildIndustriesSection() {
     final bool mobile = isMobile;
 

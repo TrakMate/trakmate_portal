@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/pages/main_page.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
 
@@ -30,7 +31,7 @@ void showLoginDialog(BuildContext context) {
       barrierDismissible: true,
       barrierLabel: 'Access Website',
       barrierColor: tBlack.withOpacity(0.58),
-      transitionDuration: const Duration(milliseconds: 500),
+      transitionDuration: const Duration(milliseconds: 550),
 
       pageBuilder: (context, animation, secondaryAnimation) {
         return const _AccessWebsiteDialog();
@@ -52,7 +53,7 @@ void showLoginDialog(BuildContext context) {
         return FadeTransition(
           opacity: fadeAnimation,
           child: ScaleTransition(
-            scale: Tween<double>(begin: 0.78, end: 1.0).animate(scaleAnimation),
+            scale: Tween<double>(begin: 0.72, end: 1.0).animate(scaleAnimation),
             child: child,
           ),
         );
@@ -84,7 +85,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
   late Animation<Offset> _slideAnimation;
 
   // BUTTON HOVER
-  bool _isLoginHovered = false;
+  bool _isLoginHovered = false; //this
 
   String? _validationMessage;
 
@@ -133,6 +134,9 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
     super.dispose();
   }
 
+  void _clearError() {
+    if (_validationMessage != null) setState(() => _validationMessage = null);
+  }
   // =======================================================
   // BUILD
   // =======================================================
@@ -167,7 +171,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
             decoration: BoxDecoration(
               color: tWhite,
 
-              borderRadius: BorderRadius.circular(isMobile ? 20 : 24),
+              borderRadius: BorderRadius.circular(22),
 
               boxShadow: [
                 BoxShadow(
@@ -207,33 +211,26 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
                 ),
 
                 // CLOSE BUTTON
+                // CLOSE BUTTON
                 Positioned(
-                  top: isMobile ? 12 : 16,
-                  right: isMobile ? 12 : 16,
-
+                  top: 14,
+                  right: 14,
                   child: Material(
                     color: tTransparent,
-
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(50),
-
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-
+                      borderRadius: BorderRadius.circular(30),
+                      onTap: () => Navigator.of(context).pop(),
                       child: Container(
-                        width: isMobile ? 36 : 42,
-                        height: isMobile ? 36 : 42,
-
+                        width: 34,
+                        height: 34,
                         decoration: const BoxDecoration(
                           color: tBlue2,
                           shape: BoxShape.circle,
                         ),
-
-                        child: Icon(
+                        child: const Icon(
                           Icons.close_rounded,
                           color: tWhite,
-                          size: isMobile ? 20 : 24,
+                          size: 20,
                         ),
                       ),
                     ),
@@ -254,224 +251,118 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
   Widget _buildAccessForm(bool isMobile, bool isSmall) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: [
-        // TITLE
         Padding(
-          // keeps the title clear of the close button on phones
           padding: EdgeInsets.only(right: isMobile ? 40 : 0),
           child: Text(
             'Access Website',
-
             style: GoogleFonts.manrope(
-              fontSize: isMobile ? (isSmall ? 24 : 28) : 36,
+              fontSize: isMobile ? (isSmall ? 24 : 26) : 30,
               fontWeight: FontWeight.w800,
               color: tBlue2,
-              height: 1.1,
+              height: 1.12,
             ),
           ),
         ),
 
-        SizedBox(height: isMobile ? 8 : 10),
+        const SizedBox(height: 7),
 
-        // ORANGE LINE
         Container(
-          width: isMobile ? 64 : 80,
-          height: 4,
-
+          height: 3,
+          width: 65,
           decoration: BoxDecoration(
             color: tOrange1,
             borderRadius: BorderRadius.circular(10),
           ),
         ),
 
-        SizedBox(height: isMobile ? 12 : 16),
+        const SizedBox(height: 22),
 
-        // DESCRIPTION
         Text(
           'Please fill out your details to access the website',
-
           style: GoogleFonts.manrope(
-            fontSize: isMobile ? 13.5 : 15,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: tBlack.withOpacity(0.50),
+            color: tBlack.withOpacity(0.48),
+            height: 1.55,
           ),
         ),
 
-        SizedBox(height: isMobile ? 20 : 28),
+        const SizedBox(height: 30),
 
-        // FULL NAME
-        _buildTextField(
+        HoverFormField(
           controller: _fullNameController,
-          label: 'Full Name',
+          label: 'Full Name *',
           hint: 'John Doe',
           icon: 'icons/person2.svg',
-          isRequired: true,
-          isMobile: isMobile,
+          onChanged: _clearError,
         ),
-
-        SizedBox(height: isMobile ? 14 : 18),
-
-        // COMPANY (not required)
-        _buildTextField(
+        const SizedBox(height: 14),
+        HoverFormField(
           controller: _companyController,
           label: 'Company',
           hint: 'Your company name',
           icon: 'icons/career1.svg',
-          isRequired: false,
-          isMobile: isMobile,
+          onChanged: _clearError,
         ),
-
-        SizedBox(height: isMobile ? 14 : 18),
-
-        // CITY
-        _buildTextField(
+        const SizedBox(height: 14),
+        HoverFormField(
           controller: _cityController,
-          label: 'City',
+          label: 'City *',
           hint: 'Your city',
           icon: 'icons/location1.svg',
-          isRequired: true,
-          isMobile: isMobile,
+          onChanged: _clearError,
         ),
-
-        SizedBox(height: isMobile ? 14 : 18),
-
-        // EMAIL
-        _buildTextField(
+        const SizedBox(height: 14),
+        HoverFormField(
           controller: _emailController,
-          label: 'Email',
+          label: 'Email *',
           hint: 'you@example.com',
           icon: 'icons/mail.svg',
-          keyboardType: TextInputType.emailAddress,
-          isRequired: true,
-          isMobile: isMobile,
+          // keyboardType: TextInputType.emailAddress,
+          onChanged: _clearError,
         ),
-
-        SizedBox(height: isMobile ? 14 : 18),
-
-        // PHONE
-        _buildTextField(
+        const SizedBox(height: 14),
+        HoverFormField(
           controller: _phoneController,
-          label: 'Phone Number',
+          label: 'Phone Number *',
           hint: '+1 (555) 000-0000',
           icon: 'icons/phone.svg',
-          keyboardType: TextInputType.phone,
-          isRequired: true,
-          isMobile: isMobile,
+          // keyboardType: TextInputType.phone,
+          onChanged: _clearError,
         ),
 
-        const SizedBox(height: 8),
-
-        // Fixed-height slot: always reserves space so the button never shifts
+        // Error slot (same as Contact popup)
         SizedBox(
-          height: 18,
+          height: 28,
           child: Align(
             alignment: Alignment.centerLeft,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: _validationMessage != null ? 1.0 : 0.0,
-              child: Text(
-                _validationMessage ?? '',
-                style: GoogleFonts.manrope(
-                  fontSize: 12,
-                  color: tRed1,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+            child:
+                _validationMessage == null
+                    ? null
+                    : Text(
+                      _validationMessage!,
+                      style: GoogleFonts.manrope(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red,
+                      ),
+                    ),
           ),
         ),
 
-        SizedBox(height: isMobile ? 8 : 12),
+        const SizedBox(height: 24),
 
-        // ACCESS BUTTON
         Align(
-          alignment: isMobile ? Alignment.center : Alignment.centerRight,
-
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-
-            onEnter: (_) {
-              setState(() {
-                _isLoginHovered = true;
-              });
-            },
-
-            onExit: (_) {
-              setState(() {
-                _isLoginHovered = false;
-              });
-            },
-
-            child: GestureDetector(
-              onTap: _handleAccessWebsite,
-
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-
-                // Full width button on phones
-                width: isMobile ? double.infinity : null,
-
-                transform: Matrix4.translationValues(
-                  0,
-                  _isLoginHovered ? -2 : 0,
-                  0,
-                ),
-
-                padding: EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: isMobile ? 14 : 15,
-                ),
-
-                decoration: BoxDecoration(
-                  color: tOrange1,
-
-                  borderRadius: BorderRadius.circular(9),
-
-                  boxShadow: [
-                    BoxShadow(
-                      color: tOrange1.withOpacity(
-                        _isLoginHovered ? 0.30 : 0.16,
-                      ),
-
-                      blurRadius: _isLoginHovered ? 20 : 12,
-
-                      offset: const Offset(0, 7),
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-
-                  children: [
-                    Text(
-                      'ACCESS',
-                      style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: tWhite,
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: tWhite,
-                      size: 18,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          alignment: Alignment.bottomRight,
+          child: AnimatedSendButton(
+            label: 'ACCESS',
+            onPressed: _handleAccessWebsite,
           ),
         ),
       ],
     );
   }
-
   // TEXT FIELD
 
   Widget _buildTextField({
@@ -1064,6 +955,14 @@ class _WebServiceCard extends StatelessWidget {
 // FLOATING LOGO BADGE
 // =========================================================
 
+// =========================================================
+// FLOATING LOGO BADGE
+//
+// The badge has a FIXED width + height for each screen size, and the logo is
+// scaled to fit inside it. So every badge is exactly the same size, no matter
+// which logo (or logo shape) is inside.
+// =========================================================
+
 class _TrakmateBadge extends StatelessWidget {
   final String logo;
 
@@ -1074,9 +973,15 @@ class _TrakmateBadge extends StatelessWidget {
     final bool isMobile = ResponsiveLayout.isMobile(context);
     final bool small = _isSmallPhone(context);
 
+    // Fixed badge size per screen size.
+    final double badgeWidth = isMobile ? (small ? 104 : 116) : 140;
+    final double badgeHeight = isMobile ? 40 : 52;
+
     return Container(
+      width: badgeWidth,
+      height: badgeHeight,
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? (small ? 14 : 20) : 40,
+        horizontal: isMobile ? 12 : 16,
         vertical: isMobile ? 6 : 8,
       ),
 
@@ -1094,15 +999,14 @@ class _TrakmateBadge extends StatelessWidget {
         ],
       ),
 
-      child: SvgPicture.asset(
-        logo,
-        height: isMobile ? 30 : 40,
-        width: isMobile ? 50 : 60,
+      // SizedBox.expand forces the logo to fill the badge's inner area and
+      // BoxFit.contain scales it down to fit without distortion.
+      child: SizedBox.expand(
+        child: SvgPicture.asset(logo, fit: BoxFit.contain),
       ),
     );
   }
 }
-
 // =========================================================
 // LOGIN DIALOG (email + password)
 // =========================================================

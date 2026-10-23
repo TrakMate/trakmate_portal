@@ -83,12 +83,13 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
   ScrollPosition? _scrollPosition;
 
-  // Filter tabs bar: horizontal scrolling + "more tabs to the right" hint
-  // (the hint arrow is only shown on tablet / mobile).
+  // Filter tabs bar: horizontal scrolling + "more tabs" hints on both sides
+  // (the hint arrows are only shown on tablet / mobile).
   final ScrollController _tabsScrollController = ScrollController(
     initialScrollOffset: _lastTabsScrollOffset,
   );
   final ValueNotifier<bool> _tabsCanScrollRight = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _tabsCanScrollLeft = ValueNotifier<bool>(false);
 
   static const double _kStickyHeaderHeight = 84;
 
@@ -137,7 +138,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
-      title: 'TMD104',
+      title: 'TMD001',
       subtitle: 'Advanced GPS Tracker',
       category: 'Telematics',
       description:
@@ -151,6 +152,44 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           label: 'Real-time Alerts',
         ),
         ProductFeature(icon: Icons.location_on_outlined, label: 'Geo-fencing'),
+      ],
+    ),
+    ProductData(
+      image: 'images/tmd006_isometric.png',
+      image1: 'images/tmd006_isometric.png',
+      image2: 'images/tmd006_isometric.png',
+      image3: 'images/tmd006-back.png',
+      image4: 'images/tmd006-side.png',
+      image5: 'images/tmd006-bottom.png',
+      specBadges: ['icons/4gg1.svg', 'icons/ble1.svg'],
+      specsStyle: SpecsSlideStyle(
+        imagePadding: 118,
+        badgeWidth: 120,
+        badgeRightOffset: 100,
+        badgeHeight: 70,
+        badgeVerticalAlign: 0,
+        badgeGap: 25,
+      ),
+      badge: '4G',
+      badgeColor: tBlue3,
+      secondBadge: 'new',
+      secondBadgeColor: newbadge,
+      // thirdbadge: 'new',
+      // thirdbadgeColor: newbadge,
+      title: 'TMD006',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Telematics',
+      description:
+          '4G LTE Cat 1, CAN/BMS monitoring, datalogging, and driver behavior support.',
+      connectivity: ['4G', '2G'],
+      vehicleTypes: ['2 Wheeler'],
+      features: [
+        ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
+        ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
+        ProductFeature(
+          icon: Icons.directions_run_rounded,
+          label: 'Motion & More',
+        ),
       ],
     ),
     ProductData(
@@ -223,44 +262,6 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           label: 'Edge Computing',
         ),
         ProductFeature(icon: Icons.lock_outline, label: 'Secure MQTT'),
-      ],
-    ),
-    ProductData(
-      image: 'images/tmd006_isometric.png',
-      image1: 'images/tmd006_isometric.png',
-      image2: 'images/tmd006_isometric.png',
-      image3: 'images/tmd006-back.png',
-      image4: 'images/tmd006-side.png',
-      image5: 'images/tmd006-bottom.png',
-      specBadges: ['icons/4gg1.svg', 'icons/ble1.svg'],
-      specsStyle: SpecsSlideStyle(
-        imagePadding: 118,
-        badgeWidth: 120,
-        badgeRightOffset: 100,
-        badgeHeight: 70,
-        badgeVerticalAlign: 0,
-        badgeGap: 25,
-      ),
-      badge: '4G',
-      badgeColor: tBlue3,
-      secondBadge: '2G',
-      secondBadgeColor: tOrange1,
-      thirdbadge: 'new',
-      thirdbadgeColor: newbadge,
-      title: 'TMD006',
-      subtitle: 'Advanced GPS Tracker',
-      category: 'Telematics',
-      description:
-          '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
-      connectivity: ['4G', '2G'],
-      vehicleTypes: ['2 Wheeler'],
-      features: [
-        ProductFeature(icon: Icons.thermostat_outlined, label: 'Temperature'),
-        ProductFeature(icon: Icons.water_drop_outlined, label: 'Humidity'),
-        ProductFeature(
-          icon: Icons.directions_run_rounded,
-          label: 'Motion & More',
-        ),
       ],
     ),
 
@@ -963,6 +964,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     productFilterCloseSignal.removeListener(_handleExternalFilterClose);
     _tabsScrollController.dispose();
     _tabsCanScrollRight.dispose();
+    _tabsCanScrollLeft.dispose();
     // Make sure the scroll listener doesn't outlive this State.
     _scrollPosition?.removeListener(_onAncestorScroll);
     _filterMenuOverlay?.remove();
@@ -1210,27 +1212,53 @@ class _BuildProductSectionState extends State<BuildProductSection> {
             ),
           );
 
-          // Desktop: no scroll hint, exactly as before.
+          // Desktop: no scroll hints, exactly as before.
           if (!(isMobile || isTablet)) return scroller;
 
-          // Tablet + mobile: scroll hint arrow at the right end of the bar.
+          // Tablet + mobile: scroll hint arrows at both ends of the bar.
+          // Left arrow shows only after the bar has been scrolled; right
+          // arrow shows only while there are more tabs to the right.
           return Stack(
             children: [
               NotificationListener<ScrollMetricsNotification>(
                 onNotification: (n) {
                   _tabsCanScrollRight.value = n.metrics.extentAfter > 1;
+                  _tabsCanScrollLeft.value = n.metrics.extentBefore > 1;
                   return false;
                 },
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (n) {
                     if (n.metrics.axis == Axis.horizontal) {
                       _tabsCanScrollRight.value = n.metrics.extentAfter > 1;
+                      _tabsCanScrollLeft.value = n.metrics.extentBefore > 1;
                     }
                     return false;
                   },
                   child: scroller,
                 ),
               ),
+
+              // LEFT hint
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _tabsCanScrollLeft,
+                  builder: (context, canScroll, _) {
+                    return IgnorePointer(
+                      ignoring: !canScroll,
+                      child: AnimatedOpacity(
+                        opacity: canScroll ? 1 : 0,
+                        duration: const Duration(milliseconds: 200),
+                        child: _buildTabsScrollHint(left: true),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // RIGHT hint
               Positioned(
                 right: 0,
                 top: 0,
@@ -1243,7 +1271,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                       child: AnimatedOpacity(
                         opacity: canScroll ? 1 : 0,
                         duration: const Duration(milliseconds: 200),
-                        child: _buildTabsScrollHint(),
+                        child: _buildTabsScrollHint(left: false),
                       ),
                     );
                   },
@@ -1256,16 +1284,17 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     );
   }
 
-  // Small arrow (with a soft white fade behind it) shown at the right end of
-  // the filter tabs on tablet / mobile. Tap = scroll the tabs to the right.
-  Widget _buildTabsScrollHint() {
+  // Small arrow (with a soft white fade behind it) shown at the left or right
+  // end of the filter tabs on tablet / mobile. Tap = scroll the tabs by one
+  // step in that direction.
+  Widget _buildTabsScrollHint({required bool left}) {
     return Container(
       width: 44,
-      alignment: Alignment.centerRight,
+      alignment: left ? Alignment.centerLeft : Alignment.centerRight,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+          begin: left ? Alignment.centerRight : Alignment.centerLeft,
+          end: left ? Alignment.centerLeft : Alignment.centerRight,
           colors: [tWhite.withOpacity(0), tWhite, tWhite],
           stops: const [0.0, 0.55, 1.0],
         ),
@@ -1279,7 +1308,8 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           onTap: () {
             if (!_tabsScrollController.hasClients) return;
             final position = _tabsScrollController.position;
-            final double target = (_tabsScrollController.offset + 180).clamp(
+            final double delta = left ? -180 : 180;
+            final double target = (_tabsScrollController.offset + delta).clamp(
               0.0,
               position.maxScrollExtent,
             );
@@ -1289,10 +1319,14 @@ class _BuildProductSectionState extends State<BuildProductSection> {
               curve: Curves.easeOut,
             );
           },
-          child: const SizedBox(
+          child: SizedBox(
             width: 26,
             height: 26,
-            child: Icon(Icons.chevron_right_rounded, size: 20, color: tWhite),
+            child: Icon(
+              left ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
+              size: 20,
+              color: tWhite,
+            ),
           ),
         ),
       ),

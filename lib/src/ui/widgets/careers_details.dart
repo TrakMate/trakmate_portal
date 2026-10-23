@@ -298,6 +298,13 @@ class _CareersPageState extends State<CareersPage> {
   String? _draggingTarget;
   bool _uploadHovered = false;
   bool _heroImageLoading = true;
+
+  // ── Location dropdown (custom overlay that opens BELOW the field) ──
+  final LayerLink _locationLink = LayerLink();
+  final GlobalKey _locationFieldKey = GlobalKey();
+  OverlayEntry? _locationOverlay;
+  bool _locationOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -321,6 +328,8 @@ class _CareersPageState extends State<CareersPage> {
 
   @override
   void dispose() {
+    _locationOverlay?.remove();
+    _locationOverlay = null;
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -369,6 +378,95 @@ class _CareersPageState extends State<CareersPage> {
     setState(() {
       _expandedJob = _expandedJob == job.title ? null : job.title;
     });
+  }
+
+  // ───────────────────── LOCATION DROPDOWN LOGIC ─────────────────────
+  void _toggleLocationMenu() {
+    if (_locationOpen) {
+      _closeLocationMenu();
+    } else {
+      _openLocationMenu();
+    }
+  }
+
+  void _closeLocationMenu() {
+    _locationOverlay?.remove();
+    _locationOverlay = null;
+    if (mounted && _locationOpen) {
+      setState(() => _locationOpen = false);
+    }
+  }
+
+  void _openLocationMenu() {
+    final box = _locationFieldKey.currentContext?.findRenderObject();
+    if (box is! RenderBox) return;
+    final double width = box.size.width;
+
+    _locationOverlay = OverlayEntry(
+      builder: (overlayContext) {
+        return Stack(
+          children: [
+            // Transparent barrier: tapping anywhere outside closes the menu.
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _closeLocationMenu,
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _locationLink,
+              showWhenUnlinked: false,
+              targetAnchor: Alignment.bottomLeft,
+              followerAnchor: Alignment.topLeft,
+              offset: const Offset(0, 6), // gap below the field
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: SizedBox(width: width, child: _buildLocationMenu()),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    Overlay.of(context).insert(_locationOverlay!);
+    setState(() => _locationOpen = true);
+  }
+
+  /// The floating card (rounded, white, soft shadow) with the options.
+  Widget _buildLocationMenu() {
+    return Material(
+      color: tTransparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: tWhite,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: tBlueLight.withOpacity(0.55)),
+          boxShadow: [
+            BoxShadow(
+              color: tBlack.withOpacity(0.12),
+              blurRadius: 22,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children:
+              _locations.map((l) {
+                return _LocationMenuItem(
+                  label: l,
+                  selected: l == _selectedLocation,
+                  onTap: () {
+                    setState(() => _selectedLocation = l);
+                    _closeLocationMenu();
+                  },
+                );
+              }).toList(),
+        ),
+      ),
+    );
   }
 
   Future<void> _pickCv({String? jobTitle}) async {
@@ -887,47 +985,58 @@ class _CareersPageState extends State<CareersPage> {
         ],
       ),
     );
-    final location = Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: tWhite,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: tBlueLight.withOpacity(0.8)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.location_on_outlined, size: 19, color: tBlue4),
-          const SizedBox(width: 10),
-          Expanded(
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _selectedLocation,
-                isExpanded: true,
-                icon: const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 20,
-                  color: tBlue4,
-                ),
-                dropdownColor: tWhite,
-                style: GoogleFonts.manrope(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: tBlack,
-                ),
-                items:
-                    _locations
-                        .map((l) => DropdownMenuItem(value: l, child: Text(l)))
-                        .toList(),
-                onChanged: (v) {
-                  if (v != null) setState(() => _selectedLocation = v);
-                },
+
+    // Location field: tapping it opens the custom menu right BELOW the field.
+    final location = CompositedTransformTarget(
+      link: _locationLink,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          key: _locationFieldKey,
+          behavior: HitTestBehavior.opaque,
+          onTap: _toggleLocationMenu,
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: tWhite,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: _locationOpen ? tBlueDark : tBlueLight.withOpacity(0.8),
               ),
             ),
+            child: Row(
+              children: [
+                const Icon(Icons.location_on_outlined, size: 19, color: tBlue4),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _selectedLocation,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: tBlack,
+                    ),
+                  ),
+                ),
+                AnimatedRotation(
+                  turns: _locationOpen ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 20,
+                    color: tBlue4,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
+
     if (!wide) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1949,6 +2058,63 @@ class _CareersPageState extends State<CareersPage> {
                   button,
                 ],
               ),
+    );
+  }
+}
+
+/// One row inside the location dropdown (text only, no icons).
+/// Highlights on hover; the selected row is bold + blue.
+class _LocationMenuItem extends StatefulWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _LocationMenuItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  State<_LocationMenuItem> createState() => _LocationMenuItemState();
+}
+
+class _LocationMenuItemState extends State<_LocationMenuItem> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color:
+                _hovered
+                    ? tBlueSky1
+                    : (widget.selected
+                        ? tBlueDark.withOpacity(0.06)
+                        : tTransparent),
+            borderRadius: BorderRadius.circular(9),
+          ),
+          child: Text(
+            widget.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.manrope(
+              fontSize: 13,
+              fontWeight: widget.selected ? FontWeight.w700 : FontWeight.w500,
+              color: widget.selected ? tBlueDark : tBlack,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
