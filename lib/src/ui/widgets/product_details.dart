@@ -21,15 +21,15 @@ class _SpecBadgeInfo {
 
 // Key = the asset path used in specBadges. Edit titles/tints here.
 const Map<String, _SpecBadgeInfo> _kSpecBadgeInfo = {
-  'icons/4gg1.svg': _SpecBadgeInfo('4G+2G', Color(0xFFE3EAF5)),
-  'icons/4gg.svg': _SpecBadgeInfo('4G', Color(0xFFE3EAF5)),
-  'icons/evv1.svg': _SpecBadgeInfo('EV Compatible', Color(0xFFDDF1DD)),
-  'icons/ble1.svg': _SpecBadgeInfo('Bluetooth Connectivity', Color(0xFFDCE9FA)),
-  'icons/wifi1.svg': _SpecBadgeInfo('Wi-Fi', Color(0xFFE3EAF5)),
-  'icons/linux1.svg': _SpecBadgeInfo('Linux OS', Color(0xFFF1EBDD)),
-  'icons/android1.svg': _SpecBadgeInfo('Android OS', Color(0xFFDDF1DD)),
-  'icons/hd1.svg': _SpecBadgeInfo('HD Display', Color(0xFFE3EAF5)),
-  'icons/ethernet1.svg': _SpecBadgeInfo('Ethernet', Color(0xFFE3EAF5)),
+  'icons/4gg1.svg': _SpecBadgeInfo('4G+2G', tBadgeBlue),
+  'icons/4gg.svg': _SpecBadgeInfo('4G', tBadgeBlue),
+  'icons/evv1.svg': _SpecBadgeInfo('EV Compatible', tBadgeGreen),
+  'icons/ble1.svg': _SpecBadgeInfo('Bluetooth Connectivity', tBadgeSky),
+  'icons/wifi1.svg': _SpecBadgeInfo('Wi-Fi', tBadgeBlue),
+  'icons/linux1.svg': _SpecBadgeInfo('Linux OS', tBadgeBeige),
+  'icons/android1.svg': _SpecBadgeInfo('Android OS', tBadgeGreen),
+  'icons/hd1.svg': _SpecBadgeInfo('HD Display', tBadgeBlue),
+  'icons/ethernet1.svg': _SpecBadgeInfo('Ethernet', tBadgeBlue),
 };
 // Icon size inside the circle, as a fraction of the circle.
 // 1.0 = fills the whole circle, 0.6 = 60%. Default is 0.8 (same as padding 0.1).
@@ -657,31 +657,44 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
+  // MOBILE + TABLET layout.
+  // The "Back to Products" button sits OUTSIDE the scroll view, so it stays
+  // pinned at the top while the rest of the page scrolls underneath it.
   Widget _buildCompactLayout() {
     final bool mobile = _isMobile;
 
-    return SingleChildScrollView(
-      controller: _rightScrollController,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // STICKY BACK BUTTON (not part of the scrollable content)
+        _buildBackButton(),
 
-        children: [
-          _buildBackButton(),
+        SizedBox(height: mobile ? 8 : 12),
 
-          SizedBox(height: mobile ? 14 : 22),
+        // Everything else scrolls
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _rightScrollController,
 
-          _buildLeftProductArea(flexibleImage: false),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
 
-          SizedBox(height: mobile ? 24 : 35),
+              children: [
+                _buildLeftProductArea(flexibleImage: false),
 
-          _buildRightInformationArea(),
+                SizedBox(height: mobile ? 24 : 35),
 
-          SizedBox(height: mobile ? 24 : 35),
+                _buildRightInformationArea(),
 
-          _buildTalkToTeamSection(),
-        ],
-      ),
+                SizedBox(height: mobile ? 24 : 35),
+
+                _buildTalkToTeamSection(),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -2197,7 +2210,7 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
                       style: GoogleFonts.manrope(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: Colors.red,
+                        color: tRed1,
                       ),
                     ),
           ),

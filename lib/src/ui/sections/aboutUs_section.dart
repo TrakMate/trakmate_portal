@@ -1,8 +1,5 @@
-import 'dart:async';
 import 'dart:ui' show PathMetric;
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
@@ -15,6 +12,7 @@ import 'package:trakmate_portal/src/ui/widgets/news_card.dart';
 import 'package:trakmate_portal/src/ui/widgets/our_journey.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 import '../widgets/footer_section.dart';
@@ -31,6 +29,9 @@ class AboutusSection extends StatefulWidget {
 class _AboutusSectionState extends State<AboutusSection> {
   bool _heroImageLoading = true;
   bool _teamImagesLoading = true;
+
+  /// CVs are mailed to this address (same address as the Careers page).
+  static const String _careersEmail = 'keerthiprasad267@gmail.com';
 
   // Breakpoints come from ResponsiveLayout:
   //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
@@ -66,20 +67,6 @@ class _AboutusSectionState extends State<AboutusSection> {
   };
 
   String? _pendingScrollKey;
-  // Selected CV file (PDF, DOC, or DOCX; maximum 5 MB).
-  PlatformFile? _selectedCv;
-  bool _isPickingCv = false;
-  // True while a file is being dragged over the CV upload box.
-  bool _isDraggingCv = false;
-  String? _cvToastMessage;
-  bool _cvToastIsSuccess = true;
-  Timer? _cvToastTimer;
-
-  // ---------- Careers colors (all taken from colors.dart) ----------
-  static const Color _cNavy = tBlue2; // headings / job titles
-  static const Color _cBlue = tBlue1; // accents, eyebrow lines, buttons
-  // Body-text grey: softened tBlackLight (closest to the design's slate grey)
-  final Color _cGrey = tBlackLight.withOpacity(0.7);
 
   // ---------- Careers data ----------
   // One colour (`accent`) per job: the light background of the icon box and of
@@ -178,23 +165,23 @@ class _AboutusSectionState extends State<AboutusSection> {
       logoHeight: 42,
       logoWidth: 42,
     ),
-    _CertData(
-      logo: 'icons/iso.svg',
-      code: '14001:2015',
-      label: 'Environmental Management',
-      logoHeight: 42,
-      logoWidth: 42,
-    ),
-    _CertData(
-      logo: 'icons/iso.svg',
-      code: '45001:2018',
-      label: 'Occupational Health & Safety',
-      logoHeight: 42,
-      logoWidth: 42,
-    ),
+    // _CertData(
+    //   logo: 'icons/iso.svg',
+    //   code: '14001:2015',
+    //   label: 'Environmental Management',
+    //   logoHeight: 42,
+    //   logoWidth: 42,
+    // ),
+    // _CertData(
+    //   logo: 'icons/iso.svg',
+    //   code: '45001:2018',
+    //   label: 'Occupational Health & Safety',
+    //   logoHeight: 42,
+    //   logoWidth: 42,
+    // ),
     _CertData(
       logo: 'icons/rohs2.svg',
-      code: 'ROHS',
+      code: 'ROHS Products',
       label: 'Vehicle Tracking & Telematics',
       logoHeight: 46,
       logoWidth: 46,
@@ -379,27 +366,146 @@ class _AboutusSectionState extends State<AboutusSection> {
     _runPendingScroll();
   }
 
-  void _showCvToast(String message, {bool isSuccess = true}) {
-    _cvToastTimer?.cancel();
-    if (!mounted) return;
-
-    setState(() {
-      _cvToastMessage = message;
-      _cvToastIsSuccess = isSuccess;
-    });
-
-    _cvToastTimer = Timer(const Duration(seconds: 4), () {
-      if (!mounted) return;
-      setState(() => _cvToastMessage = null);
-    });
-  }
-
   @override
   void dispose() {
     SectionScrollBus.instance.pendingKey.removeListener(_onScrollRequest);
     _scrollController.dispose();
-    _cvToastTimer?.cancel();
     super.dispose();
+  }
+
+  // =====================================================================
+  //                 CV BY MAIL (same as the Careers page)
+  // =====================================================================
+
+  /// Opens the visitor's mail app / webmail straight away with the careers
+  /// address, subject and body pre-filled (same approach as the Careers
+  /// page). A mailto link cannot carry attachments, so the visitor attaches
+  /// the CV in the mail window.
+  Future<void> _openCvMail({String? jobTitle}) async {
+    final String mailSubject =
+        jobTitle != null ? 'Application for $jobTitle' : 'CV Submission';
+
+    final String body =
+        'Hi TrakMate,\n\n'
+        '${jobTitle != null ? 'I would like to apply for the $jobTitle position.' : 'I would like to share my CV for future opportunities.'}\n\n'
+        'Please find my CV attached.\n\n'
+        // '(Please attach your CV in PDF, DOC or DOCX format to this mail before sending.)\n\n'
+        'Thanks & Regards,\n';
+
+    final Uri mailUri = Uri.parse(
+      'mailto:$_careersEmail'
+      '?subject=${Uri.encodeComponent(mailSubject)}'
+      '&body=${Uri.encodeComponent(body)}',
+    );
+
+    // Ask first. The mail app only opens after the visitor taps "Okay".
+    final bool? proceed = await _showCvDialog(
+      title: 'Attach your CV',
+      message:
+          'Your email app will open with the details filled in. '
+          'Please attach your CV (PDF, DOC or DOCX) to the email and send it to our careers team.',
+    );
+    if (proceed != true || !mounted) return;
+
+    try {
+      // '_self' keeps your website in the same tab; mailto never navigates away.
+      await launchUrl(mailUri, webOnlyWindowName: '_self');
+    } catch (_) {
+      await _showCvDialog(
+        title: 'Could not open mail',
+        message:
+            'We could not open your email app. Please email your CV to $_careersEmail.',
+        showCancel: false,
+      );
+    }
+  }
+
+  /// Confirmation dialog. Returns true when the visitor taps "Okay",
+  /// false / null on Cancel or when dismissed.
+  Future<bool?> _showCvDialog({
+    required String title,
+    required String message,
+    bool showCancel = true,
+  }) async {
+    if (!mounted) return null;
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: tWhite,
+          surfaceTintColor: tTransparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          title: Text(
+            title,
+            style: GoogleFonts.manrope(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: tBlue4,
+            ),
+          ),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Text(
+              message,
+              style: GoogleFonts.manrope(
+                fontSize: 13.5,
+                height: 1.5,
+                color: tBlue4.withOpacity(0.8),
+              ),
+            ),
+          ),
+          actions: [
+            if (showCancel)
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: tBlue4.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+              ),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: tBlueDark,
+                  foregroundColor: tWhite,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Okay',
+                  style: GoogleFonts.manrope(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: tWhite,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -519,7 +625,7 @@ class _AboutusSectionState extends State<AboutusSection> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(isMobile ? 20 : 26),
         boxShadow: [
-          BoxShadow(color: _cBlue.withOpacity(0.10), spreadRadius: 1),
+          BoxShadow(color: tBlue1.withOpacity(0.10), spreadRadius: 1),
         ],
       ),
       child: ClipRRect(
@@ -578,14 +684,14 @@ class _AboutusSectionState extends State<AboutusSection> {
           // eyebrow label with line
           Row(
             children: [
-              Container(width: 28, height: 2, color: _cBlue),
+              Container(width: 28, height: 2, color: tBlue1),
               const SizedBox(width: 12),
               Text(
                 'CURRENT OPENINGS',
                 style: GoogleFonts.manrope(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: _cGrey,
+                  color: tBlackLight.withOpacity(0.7),
                   letterSpacing: 3,
                 ),
               ),
@@ -618,7 +724,7 @@ class _AboutusSectionState extends State<AboutusSection> {
               fontSize: 13,
               height: 1.5,
               fontWeight: FontWeight.w500,
-              color: _cGrey,
+              color: tBlackLight.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 18),
@@ -639,12 +745,12 @@ class _AboutusSectionState extends State<AboutusSection> {
                 ).push(MaterialPageRoute(builder: (_) => const CareersPage()));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _cBlue,
+                backgroundColor: tBlue1,
                 foregroundColor: tWhite,
                 elevation: 0,
                 padding: EdgeInsets.symmetric(
-                  horizontal: 26,
-                  vertical: isMobile ? 16 : 18,
+                  horizontal: 20,
+                  vertical: isMobile ? 16 : 14,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -717,7 +823,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                       style: GoogleFonts.manrope(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: _cNavy,
+                        color: tBlue2,
                       ),
                     ),
                     const SizedBox(height: 7),
@@ -726,7 +832,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                         Icon(
                           Icons.location_on_outlined,
                           size: 15,
-                          color: _cGrey,
+                          color: tBlackLight.withOpacity(0.7),
                         ),
                         const SizedBox(width: 5),
                         Flexible(
@@ -737,7 +843,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                             style: GoogleFonts.manrope(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: _cGrey,
+                              color: tBlackLight.withOpacity(0.7),
                             ),
                           ),
                         ),
@@ -745,13 +851,13 @@ class _AboutusSectionState extends State<AboutusSection> {
                         Container(
                           width: 1,
                           height: 12,
-                          color: _cGrey.withOpacity(0.5),
+                          color: tBlackLight.withOpacity(0.7).withOpacity(0.5),
                         ),
                         const SizedBox(width: 9),
                         Icon(
                           Icons.work_outline_rounded,
                           size: 15,
-                          color: _cGrey,
+                          color: tBlackLight.withOpacity(0.7),
                         ),
                         const SizedBox(width: 5),
                         Text(
@@ -759,7 +865,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                           style: GoogleFonts.manrope(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: _cGrey,
+                            color: tBlackLight.withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -799,14 +905,14 @@ class _AboutusSectionState extends State<AboutusSection> {
     Widget meta(IconData icon, String text) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: _cGrey),
+        Icon(icon, size: 14, color: tBlackLight.withOpacity(0.7)),
         const SizedBox(width: 4),
         Text(
           text,
           style: GoogleFonts.manrope(
             fontSize: 11.5,
             fontWeight: FontWeight.w500,
-            color: _cGrey,
+            color: tBlackLight.withOpacity(0.7),
           ),
         ),
       ],
@@ -855,7 +961,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                       style: GoogleFonts.manrope(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: _cNavy,
+                        color: tBlue2,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -967,11 +1073,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                       return const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black54,
-                          Colors.black,
-                        ],
+                        colors: [tTransparent, tBlack1, tBlack],
                         stops: [0.0, 0.18, 0.40],
                       ).createShader(rect);
                     },
@@ -1006,14 +1108,14 @@ class _AboutusSectionState extends State<AboutusSection> {
                   children: [
                     Row(
                       children: [
-                        Container(width: 28, height: 2, color: _cBlue),
+                        Container(width: 28, height: 2, color: tBlue1),
                         const SizedBox(width: 12),
                         Text(
                           'CAREERS AT TRAKMATE',
                           style: GoogleFonts.manrope(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: _cGrey,
+                            color: tBlackLight.withOpacity(0.7),
                             letterSpacing: 3,
                           ),
                         ),
@@ -1047,24 +1149,14 @@ class _AboutusSectionState extends State<AboutusSection> {
                           fontSize: 14,
                           height: 1.55,
                           fontWeight: FontWeight.w500,
-                          color: _cGrey,
+                          color: tBlackLight.withOpacity(0.7),
                         ),
                       ),
                     ),
                     const Spacer(),
                     SizedBox(
                       width: w * 0.37,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (_cvToastMessage != null) ...[
-                            _buildCvToast(),
-                            const SizedBox(height: 10),
-                          ],
-                          _buildCvUploadBox(width: w * 0.37),
-                        ],
-                      ),
+                      child: _buildCvUploadBox(width: w * 0.37),
                     ),
                   ],
                 ),
@@ -1102,7 +1194,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                 return const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.black, Colors.black, Colors.transparent],
+                  colors: [tBlack, tBlack, tTransparent],
                   stops: [0.0, 0.6, 1.0],
                 ).createShader(rect);
               },
@@ -1131,7 +1223,7 @@ class _AboutusSectionState extends State<AboutusSection> {
               children: [
                 Row(
                   children: [
-                    Container(width: 24, height: 2, color: _cBlue),
+                    Container(width: 24, height: 2, color: tBlue1),
                     const SizedBox(width: 10),
                     Flexible(
                       child: Text(
@@ -1139,7 +1231,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                         style: GoogleFonts.manrope(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
-                          color: _cGrey,
+                          color: tBlackLight.withOpacity(0.7),
                           letterSpacing: 2.5,
                         ),
                       ),
@@ -1169,14 +1261,10 @@ class _AboutusSectionState extends State<AboutusSection> {
                     fontSize: 13.5,
                     height: 1.55,
                     fontWeight: FontWeight.w500,
-                    color: _cGrey,
+                    color: tBlackLight.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 20),
-                if (_cvToastMessage != null) ...[
-                  _buildCvToast(),
-                  const SizedBox(height: 10),
-                ],
                 _buildCvUploadBox(width: double.infinity),
               ],
             ),
@@ -1186,178 +1274,15 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
-  Future<void> _pickCvFile() async {
-    if (_isPickingCv) return;
-
-    setState(() => _isPickingCv = true);
-
-    try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx'],
-        allowMultiple: false,
-        withData: true,
-      );
-
-      if (!mounted) return;
-      if (result == null || result.files.isEmpty) return;
-
-      final PlatformFile file = result.files.single;
-      const int maxFileSize = 5 * 1024 * 1024;
-
-      if (file.size > maxFileSize) {
-        _showCvToast('File size must not exceed 5 MB.', isSuccess: false);
-        return;
-      }
-
-      final String extension = file.extension?.toLowerCase() ?? '';
-      if (!['pdf', 'doc', 'docx'].contains(extension)) {
-        _showCvToast(
-          'Please select a PDF, DOC, or DOCX file.',
-          isSuccess: false,
-        );
-        return;
-      }
-
-      setState(() => _selectedCv = file);
-      _showCvToast('CV selected successfully.');
-    } catch (e) {
-      if (!mounted) return;
-      debugPrint('Unable to select CV: $e');
-      _showCvToast(
-        'Unable to select the file. Please try again.',
-        isSuccess: false,
-      );
-    } finally {
-      if (mounted) setState(() => _isPickingCv = false);
-    }
-  }
-
-  // Handles a file dropped onto the CV upload box. Applies the same rules as
-  // _pickCvFile (PDF, DOC or DOCX only, max 5 MB).
-  Future<void> _handleDroppedCv(DropDoneDetails details) async {
-    if (_isPickingCv) return;
-    if (details.files.isEmpty) return;
-
-    try {
-      final dropped = details.files.first;
-      const int maxFileSize = 5 * 1024 * 1024;
-
-      final String name = dropped.name;
-      final String extension =
-          name.contains('.') ? name.split('.').last.toLowerCase() : '';
-
-      if (!['pdf', 'doc', 'docx'].contains(extension)) {
-        _showCvToast(
-          'Please select a PDF, DOC, or DOCX file.',
-          isSuccess: false,
-        );
-        return;
-      }
-
-      final int size = await dropped.length();
-      if (!mounted) return;
-
-      if (size > maxFileSize) {
-        _showCvToast('File size must not exceed 5 MB.', isSuccess: false);
-        return;
-      }
-
-      final bytes = await dropped.readAsBytes();
-      if (!mounted) return;
-
-      setState(() {
-        _selectedCv = PlatformFile(name: name, size: size, bytes: bytes);
-      });
-      _showCvToast('CV selected successfully.');
-    } catch (e) {
-      if (!mounted) return;
-      debugPrint('Unable to read dropped CV: $e');
-      _showCvToast(
-        'Unable to select the file. Please try again.',
-        isSuccess: false,
-      );
-    }
-  }
-
-  Widget _buildCvToast() {
-    final Color accent = _cvToastIsSuccess ? const Color(0xFF23865A) : tRed;
-    final IconData icon =
-        _cvToastIsSuccess ? Icons.check_circle_rounded : Icons.error_rounded;
-
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 180),
-        opacity: _cvToastMessage == null ? 0 : 1,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: tWhite,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: accent.withOpacity(0.24)),
-            boxShadow: [
-              BoxShadow(
-                color: tBlue2.withOpacity(0.10),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(icon, color: accent, size: 19),
-              const SizedBox(width: 9),
-              Expanded(
-                child: Text(
-                  _cvToastMessage ?? '',
-                  style: GoogleFonts.manrope(
-                    color: _cNavy,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    height: 1.35,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              InkWell(
-                onTap: () {
-                  _cvToastTimer?.cancel();
-                  setState(() => _cvToastMessage = null);
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: Icon(Icons.close_rounded, size: 15, color: _cGrey),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _removeCvFile() {
-    setState(() => _selectedCv = null);
-  }
-
+  /// "Upload / Submit your CV" box – same behaviour as the Careers page:
+  /// tapping it shows the "Attach your CV" dialog and then opens the mail app
+  /// (no file picker / drag and drop).
   Widget _buildCvUploadBox({required double width}) {
-    final bool hasSelectedFile = _selectedCv != null;
-
-    return DropTarget(
-      onDragEntered: (_) => setState(() => _isDraggingCv = true),
-      onDragExited: (_) => setState(() => _isDraggingCv = false),
-      onDragDone: (details) {
-        setState(() => _isDraggingCv = false);
-        _handleDroppedCv(details);
-      },
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: CustomPaint(
         painter: _DashedBorderPainter(
-          color: tBlue1.withOpacity(_isDraggingCv ? 1.0 : 0.6),
+          color: tBlue1.withOpacity(0.6),
           radius: 16,
           dashWidth: 5,
           dashGap: 4,
@@ -1368,105 +1293,42 @@ class _AboutusSectionState extends State<AboutusSection> {
           height: 100,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
-            color: tWhite.withOpacity(_isDraggingCv ? 0.75 : 0.35),
+            color: tWhite.withOpacity(0.35),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Material(
-            color: Colors.transparent,
+            color: tTransparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
-              onTap: _isPickingCv ? null : _pickCvFile,
-              child:
-                  hasSelectedFile
-                      ? Row(
-                        children: [
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.description_rounded,
-                            size: 30,
-                            color: tBlue1.withOpacity(0.9),
-                          ),
-                          const SizedBox(width: 9),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _selectedCv!.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: _cNavy,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  '${(_selectedCv!.size / (1024 * 1024)).toStringAsFixed(2)} MB · Tap to replace',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                    color: _cGrey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Remove selected CV',
-                            onPressed: _removeCvFile,
-                            visualDensity: VisualDensity.compact,
-                            icon: const Icon(Icons.close_rounded, size: 19),
-                            color: Colors.redAccent,
-                          ),
-                        ],
-                      )
-                      : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (_isPickingCv)
-                            SizedBox(
-                              width: 30,
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  tBlue1,
-                                ),
-                              ),
-                            )
-                          else
-                            Icon(
-                              Icons.cloud_upload_rounded,
-                              size: 38,
-                              color: tBlue1.withOpacity(0.8),
-                            ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _isPickingCv
-                                ? 'Opening file picker...'
-                                : 'Upload / Submit your CV',
-                            style: GoogleFonts.manrope(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: _cNavy,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'PDF, DOC or DOCX (Max 5 MB)',
-                            style: GoogleFonts.manrope(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w500,
-                              color: _cGrey,
-                            ),
-                          ),
-                        ],
-                      ),
+              onTap: () => _openCvMail(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.cloud_upload_rounded,
+                    size: 38,
+                    color: tBlue1.withOpacity(0.8),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Upload / Submit your CV',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: tBlue2,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Opens your mail – attach your CV there',
+                    style: GoogleFonts.manrope(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w500,
+                      color: tBlackLight.withOpacity(0.7),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1478,7 +1340,7 @@ class _AboutusSectionState extends State<AboutusSection> {
   void _showAllOpeningsDialog() {
     showDialog(
       context: context,
-      barrierColor: _cNavy.withOpacity(0.45),
+      barrierColor: tBlue2.withOpacity(0.45),
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: tWhite,
@@ -1519,14 +1381,14 @@ class _AboutusSectionState extends State<AboutusSection> {
                           children: [
                             Row(
                               children: [
-                                Container(width: 28, height: 2, color: _cBlue),
+                                Container(width: 28, height: 2, color: tBlue1),
                                 const SizedBox(width: 12),
                                 Text(
                                   'CURRENT OPENINGS',
                                   style: GoogleFonts.manrope(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: _cGrey,
+                                    color: tBlackLight.withOpacity(0.7),
                                     letterSpacing: 3,
                                   ),
                                 ),
@@ -1538,13 +1400,13 @@ class _AboutusSectionState extends State<AboutusSection> {
                                 style: GoogleFonts.manrope(
                                   fontSize: isMobile ? 22 : 26,
                                   fontWeight: FontWeight.w800,
-                                  color: _cNavy,
+                                  color: tBlue2,
                                 ),
                                 children: [
                                   const TextSpan(text: 'All open '),
                                   const TextSpan(
                                     text: 'positions',
-                                    style: TextStyle(color: _cBlue),
+                                    style: TextStyle(color: tBlue1),
                                   ),
                                 ],
                               ),
@@ -1555,7 +1417,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                               style: GoogleFonts.manrope(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w500,
-                                color: _cGrey,
+                                color: tBlackLight.withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -1563,7 +1425,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                       ),
                       IconButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
-                        icon: const Icon(Icons.close_rounded, color: _cNavy),
+                        icon: const Icon(Icons.close_rounded, color: tBlue2),
                         splashRadius: 20,
                       ),
                     ],
@@ -1586,7 +1448,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                       return Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: _cBlue.withOpacity(0.10)),
+                          border: Border.all(color: tBlue1.withOpacity(0.10)),
                         ),
                         child: _buildJobCard(
                           _allJobs[index],
@@ -1617,7 +1479,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                                 style: GoogleFonts.manrope(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: _cGrey,
+                                  color: tBlackLight.withOpacity(0.7),
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -1632,7 +1494,7 @@ class _AboutusSectionState extends State<AboutusSection> {
                                   style: GoogleFonts.manrope(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: _cGrey,
+                                    color: tBlackLight.withOpacity(0.7),
                                   ),
                                 ),
                               ),
@@ -1653,8 +1515,8 @@ class _AboutusSectionState extends State<AboutusSection> {
     return OutlinedButton(
       onPressed: () => Navigator.of(dialogContext).pop(),
       style: OutlinedButton.styleFrom(
-        foregroundColor: _cBlue,
-        side: const BorderSide(color: _cBlue),
+        foregroundColor: tBlue1,
+        side: const BorderSide(color: tBlue1),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -1663,7 +1525,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         style: GoogleFonts.manrope(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: _cBlue,
+          color: tBlue1,
         ),
       ),
     );
@@ -1673,9 +1535,36 @@ class _AboutusSectionState extends State<AboutusSection> {
   /// Tablet: 3 per row.  Mobile: 2 per row.
   Widget _achievementsLayout(List<Widget> children) {
     if (!isTablet && !isMobile) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: children,
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          // Wide enough: the original desktop layout, completely untouched.
+          if (constraints.maxWidth >= 1300) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: children,
+            );
+          }
+
+          // Narrower desktop (e.g. Surface Pro landscape, ~1100-1500px):
+          // each item gets an equal slot and scales down only if it needs to.
+          final items = [
+            for (int i = 0; i < children.length; i += 2) children[i],
+          ];
+          return Row(
+            children: [
+              for (int i = 0; i < items.length; i++) ...[
+                if (i > 0) _divider(margin: 12),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.center,
+                    child: items[i],
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
       );
     }
     // children = [item, divider, item, divider, ...] -> keep only the items
@@ -1988,7 +1877,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           stops: [0.0, 0.6, 1.0],
         ).createShader(rect);
       },
@@ -2021,7 +1910,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         return const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [Colors.transparent, Colors.black54, Colors.black],
+          colors: [tTransparent, tBlack2, tBlack],
           stops: [0.0, 0.30, 0.55],
         ).createShader(rect);
       },
@@ -2050,7 +1939,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           stops: [0.0, 0.80, 1.0],
         ).createShader(rect);
       },
@@ -2268,9 +2157,9 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
   }
 
-  Widget _divider() {
+  Widget _divider({double margin = 30}) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
+      margin: EdgeInsets.symmetric(horizontal: margin),
       width: 2,
       height: 65,
       decoration: BoxDecoration(
@@ -2471,8 +2360,8 @@ class _AboutusSectionState extends State<AboutusSection> {
     // tOrange1 on the first arrow, fading gradually towards the last one.
     const double maxFade = 0.50; // 0 = no fade, higher = lighter last arrow
     final double t = count > 1 ? index / (count - 1) : 0.0;
-    final Color base = Color.lerp(tOrange1, Colors.white, t * maxFade)!;
-    final Color shade = Color.lerp(base, Colors.black, 0.10)!;
+    final Color base = Color.lerp(tOrange1, tWhite, t * maxFade)!;
+    final Color shade = Color.lerp(base, tBlack, 0.10)!;
 
     return CustomPaint(
       painter: _StoryChevronPainter(top: base, bottom: shade, notch: notch),
@@ -2481,12 +2370,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              s.icon,
-              width: 36,
-              height: 36,
-              color: Colors.white,
-            ),
+            SvgPicture.asset(s.icon, width: 36, height: 36, color: tWhite),
             const SizedBox(height: 10),
             Text(
               s.title,
@@ -2494,7 +2378,7 @@ class _AboutusSectionState extends State<AboutusSection> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
-                color: Colors.white,
+                color: tWhite,
                 fontSize: 14,
                 height: 1.2,
                 fontWeight: FontWeight.w800,
@@ -2507,7 +2391,7 @@ class _AboutusSectionState extends State<AboutusSection> {
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
-                color: Colors.white.withOpacity(0.92),
+                color: tWhite.withOpacity(0.92),
                 fontSize: 11,
                 height: 1.4,
                 fontWeight: FontWeight.w500,
@@ -2551,33 +2435,68 @@ class _AboutusSectionState extends State<AboutusSection> {
     );
 
     final double cardGap = isMobile ? 10 : (isTablet ? 16 : 20);
-    final Widget cards = Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(
-          child: buildTeamProfileCard(
-            image: "images/img2.jpg",
-            name: "NL Srinivas",
-            designation: "Co-Founder & CEO",
+
+    // Smallest width a card may shrink to. Below this the row scrolls.
+    // Chosen so the current 3 cards fit on every screen.
+    final double minCardWidth = isMobile ? 88 : (isTablet ? 190 : 185);
+
+    // To add a leader later, just add one more entry here.
+    final List<Map<String, String>> leaders = [
+      {
+        'image': 'images/img2.jpg',
+        'name': 'NL Srinivas',
+        'designation': 'Co-Founder & CEO',
+      },
+      {
+        'image': 'images/img1.jpg',
+        'name': 'M Pramod',
+        'designation': 'Co-Founder & COO',
+      },
+      {
+        'image': 'images/img2.jpg',
+        'name': 'S Srinivasa',
+        'designation': 'Co-Founder & CTO',
+      },
+    ];
+
+    final Widget cards = LayoutBuilder(
+      builder: (context, constraints) {
+        final int n = leaders.length;
+        final double needed = n * minCardWidth + (n - 1) * cardGap;
+
+        Widget card(Map<String, String> l) => buildTeamProfileCard(
+          image: l['image']!,
+          name: l['name']!,
+          designation: l['designation']!,
+        );
+
+        // Fits: exactly the same layout as before, no scrolling.
+        if (constraints.maxWidth >= needed) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              for (int i = 0; i < n; i++) ...[
+                if (i > 0) SizedBox(width: cardGap),
+                Expanded(child: card(leaders[i])),
+              ],
+            ],
+          );
+        }
+
+        // Does not fit: cards keep the minimum width and the row scrolls.
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: Row(
+            children: [
+              for (int i = 0; i < n; i++) ...[
+                if (i > 0) SizedBox(width: cardGap),
+                SizedBox(width: minCardWidth, child: card(leaders[i])),
+              ],
+            ],
           ),
-        ),
-        SizedBox(width: cardGap),
-        Expanded(
-          child: buildTeamProfileCard(
-            image: "images/img1.jpg",
-            name: "M Pramod",
-            designation: "Co-Founder & COO",
-          ),
-        ),
-        SizedBox(width: cardGap),
-        Expanded(
-          child: buildTeamProfileCard(
-            image: "images/img2.jpg",
-            name: "S Srinivasa",
-            designation: "Co-Founder & CTO",
-          ),
-        ),
-      ],
+        );
+      },
     );
 
     return Container(
@@ -3103,7 +3022,7 @@ class _AboutusSectionState extends State<AboutusSection> {
           LayoutBuilder(
             builder: (context, c) {
               const double gap = 16;
-              final int columns = isMobile ? 2 : 3;
+              final int columns = isMobile ? 2 : 4;
               final double w = ((c.maxWidth - gap * (columns - 1)) / columns)
                   .clamp(0.0, double.infinity);
               return Wrap(
@@ -3565,7 +3484,7 @@ class _StoryChevronPainter extends CustomPainter {
           ..close();
 
     // soft shadow
-    canvas.drawShadow(path, Colors.black.withOpacity(0.35), 6, false);
+    canvas.drawShadow(path, tBlack.withOpacity(0.35), 6, false);
 
     // vertical gradient: lighter top, darker bottom
     final Paint fill =

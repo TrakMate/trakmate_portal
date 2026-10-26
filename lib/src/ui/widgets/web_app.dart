@@ -345,7 +345,7 @@ class _AccessWebsiteDialogState extends State<_AccessWebsiteDialog>
                       style: GoogleFonts.manrope(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: Colors.red,
+                        color: tRed1,
                       ),
                     ),
           ),
@@ -600,7 +600,7 @@ class WebApp extends StatelessWidget {
 
                       // CARD 2
                       _WebServiceCardData(
-                        image: 'images/fleet_management2.png',
+                        image: 'images/fleet_management4.png',
                         logo: 'icons/trakmate_logo.svg',
                         title: 'Fleet Management',
                         description:
@@ -716,8 +716,8 @@ class _CardGrid extends StatelessWidget {
 
             return _WebServiceCard(
               width: cardWidth,
-              // Phones: height wraps the content. Tablet/desktop: fixed 500.
-              height: isMobile ? null : 500,
+              // Height wraps the content on every screen size.
+              height: null,
               data: cards[index],
               accentColor: accent,
             );
@@ -779,7 +779,7 @@ class _WebServiceCard extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: tOrange1.withOpacity(0.9),
         foregroundColor: tWhite,
-        overlayColor: isTablet ? Colors.transparent : null,
+        overlayColor: isTablet ? tTransparent : null,
         elevation: 0,
         padding: EdgeInsets.symmetric(vertical: btnVPad),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -802,7 +802,7 @@ class _WebServiceCard extends StatelessWidget {
       },
       style: OutlinedButton.styleFrom(
         foregroundColor: tBlue3,
-        overlayColor: isTablet ? Colors.transparent : null,
+        overlayColor: isTablet ? tTransparent : null,
         side: BorderSide(color: tBlack.withOpacity(.15)),
         padding: EdgeInsets.symmetric(vertical: btnVPad),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

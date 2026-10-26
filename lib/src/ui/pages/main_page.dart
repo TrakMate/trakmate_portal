@@ -574,14 +574,36 @@ class _MainPageState extends State<MainPage> {
   //     ),
   //   );
   // }
+  //here
   Widget _buildDrawer() {
-    Widget navTile(String text, int index) {
+    // Surface Pro / large small-screen tablets only (900 - 1099 wide).
+    // Everything below 900 keeps the current sizes.
+    final double screenW = MediaQuery.of(context).size.width;
+    final bool bigTab = screenW >= 900 && screenW < 1100;
+
+    final double mainFont = bigTab ? 19 : 15;
+    final double subFont = bigTab ? 17 : 14;
+    final double mainIcon = bigTab ? 28 : 20; //grouptile+navtile icon
+    final double subIcon = bigTab ? 23 : 18; //listtile icon
+
+    Widget navTile(String text, int index, String icon) {
       final bool selected = selectedIndex == index;
       return ListTile(
+        horizontalTitleGap: bigTab ? 16 : 12,
+        minLeadingWidth: bigTab ? 30 : 24,
+        contentPadding:
+            bigTab
+                ? const EdgeInsets.symmetric(horizontal: 24, vertical: 4)
+                : null,
+        leading: PopupSvgIcon(
+          asset: icon,
+          size: mainIcon,
+          color: selected ? tOrange1 : tBlack,
+        ),
         title: Text(
           text,
           style: GoogleFonts.manrope(
-            fontSize: 15,
+            fontSize: mainFont,
             fontWeight: FontWeight.w700,
             color: selected ? tOrange1 : tBlack,
           ),
@@ -596,14 +618,28 @@ class _MainPageState extends State<MainPage> {
       );
     }
 
-    Widget groupTile(String title, bool selected, List<NavDropdownItem> items) {
+    Widget groupTile(
+      String title,
+      bool selected,
+      List<NavDropdownItem> items,
+      String icon,
+    ) {
       return ExpansionTile(
         shape: const Border(),
         collapsedShape: const Border(),
+        tilePadding:
+            bigTab
+                ? const EdgeInsets.symmetric(horizontal: 24, vertical: 4)
+                : null,
+        leading: PopupSvgIcon(
+          asset: icon,
+          size: mainIcon,
+          color: selected ? tOrange1 : tBlack,
+        ),
         title: Text(
           title,
           style: GoogleFonts.manrope(
-            fontSize: 15,
+            fontSize: mainFont,
             fontWeight: FontWeight.w700,
             color: selected ? tOrange1 : tBlack,
           ),
@@ -611,11 +647,21 @@ class _MainPageState extends State<MainPage> {
         children: [
           for (final item in items)
             ListTile(
-              contentPadding: const EdgeInsets.only(left: 36, right: 16),
+              contentPadding: EdgeInsets.only(
+                left: bigTab ? 56 : 36,
+                right: bigTab ? 24 : 16,
+              ),
+              horizontalTitleGap: bigTab ? 14 : 12,
+              minLeadingWidth: bigTab ? 26 : 20,
+              leading: PopupSvgIcon(
+                asset: item.icon,
+                size: subIcon,
+                color: tBlack,
+              ),
               title: Text(
                 item.label,
                 style: GoogleFonts.manrope(
-                  fontSize: 14,
+                  fontSize: subFont,
                   fontWeight: FontWeight.w600,
                   color: tBlack,
                 ),
@@ -633,31 +679,38 @@ class _MainPageState extends State<MainPage> {
     }
 
     return Drawer(
+      width: bigTab ? 380 : null, // null = Flutter default (304)
       backgroundColor: tWhite,
-      surfaceTintColor: Colors.transparent,
+      surfaceTintColor: tTransparent,
       child: Theme(
         data: Theme.of(context).copyWith(
           splashFactory: NoSplash.splashFactory,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          focusColor: Colors.transparent,
+          splashColor: tTransparent,
+          highlightColor: tTransparent,
+          focusColor: tTransparent,
           hoverColor: tBlue3.withOpacity(0.06),
-          dividerColor: Colors.transparent,
+          dividerColor: tTransparent,
         ),
         child: SafeArea(
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
-              navTile('Home', 0),
-              navTile('Engineering', 1),
-              navTile('Manufacturing', 2),
+              navTile('Home', 0, 'icons/home.svg'),
+              navTile('Engineering', 1, 'icons/product_engineering1.svg'),
+              navTile('Manufacturing', 2, 'icons/manufacturing.svg'),
               groupTile(
                 'Products & Solutions',
                 selectedIndex == 3,
                 _productMenuItems,
+                'icons/product.svg',
               ),
-              navTile('News & Blogs', 4),
-              groupTile('About Us', selectedIndex == 5, _aboutUsMenuItems),
+              navTile('News & Blogs', 4, 'icons/news_media.svg'),
+              groupTile(
+                'About Us',
+                selectedIndex == 5,
+                _aboutUsMenuItems,
+                'icons/team.svg',
+              ),
             ],
           ),
         ),
@@ -1232,7 +1285,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
                       style: GoogleFonts.manrope(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: Colors.red,
+                        color: tRed,
                       ),
                     ),
           ),

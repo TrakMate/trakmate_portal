@@ -230,7 +230,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           stops: [0.0, 0.6, 1.0],
         ).createShader(rect);
       },
@@ -263,7 +263,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         return const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [Colors.transparent, Colors.black54, Colors.black],
+          colors: [tTransparent, tBlack2, tBlack],
           stops: [0.0, 0.30, 0.55],
         ).createShader(rect);
       },
@@ -292,7 +292,7 @@ class _EngineeringSectionState extends State<EngineeringSection> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           stops: [0.0, 0.80, 1.0],
         ).createShader(rect);
       },

@@ -184,9 +184,7 @@ class _HorizontalTimeline extends StatelessWidget {
   }
 }
 
-// =====================================================================
 //                    TABLET: VERTICAL (rotated zig-zag)
-// =====================================================================
 class _VerticalTimeline extends StatelessWidget {
   final List<_JourneyItem> items;
   const _VerticalTimeline({required this.items});
@@ -275,9 +273,8 @@ class _VerticalTimeline extends StatelessWidget {
   }
 }
 
-// =====================================================================
 //                    MOBILE: SINGLE COLUMN TIMELINE
-// =====================================================================
+
 class _MobileTimeline extends StatelessWidget {
   final List<_JourneyItem> items;
   const _MobileTimeline({required this.items});
@@ -352,9 +349,7 @@ class _MobileTimeline extends StatelessWidget {
   }
 }
 
-// =====================================================================
-//                            SHARED PIECES
-// =====================================================================
+//  SHARED PIECES
 enum _PointerDir { none, up, down, left, right }
 
 class _JourneyCard extends StatelessWidget {
@@ -418,11 +413,7 @@ class _JourneyCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const RadialGradient(
-                    colors: [
-                      Color(0xFFFFFFFF),
-                      Color(0xFFF1F7FF),
-                      Color(0xFFE6F1FF),
-                    ],
+                    colors: [tWhite, tBlueMist1, tBlueMist2],
                     stops: [0.0, 0.65, 1.0],
                   ),
                   border: Border.all(
@@ -436,7 +427,7 @@ class _JourneyCard extends StatelessWidget {
                       spreadRadius: small ? 1 : 3,
                     ),
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.9),
+                      color: tWhite.withOpacity(0.9),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -573,9 +564,7 @@ class _JourneyNode extends StatelessWidget {
           height: size - 12,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [Color(0xFF3488FF), Color(0xFF1263E8)],
-            ),
+            gradient: RadialGradient(colors: [tBlue1, tBlue]),
           ),
         ),
       ),

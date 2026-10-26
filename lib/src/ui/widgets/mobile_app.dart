@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 
@@ -83,6 +84,8 @@ class MobileApp extends StatelessWidget {
                         title: 'TrakFleet',
                         description:
                             'Track vehicles, trips and alerts on the go with a fast, simple mobile experience built for your fleet.',
+                        playStoreUrl:
+                            'https://play.google.com/store/apps/details?id=in.gov.uidai.pehchaan&hl=en_IN',
                       ),
 
                       // CARD 2
@@ -92,6 +95,8 @@ class MobileApp extends StatelessWidget {
                         title: 'Fleet Management',
                         description:
                             'Secure cloud-connected mobile apps with centralized data and easy access from anywhere.',
+                        playStoreUrl:
+                            'https://play.google.com/store/apps/details?id=YOUR.TRAKFLEET.PACKAGE.ID',
                       ),
                     ],
                   ),
@@ -161,12 +166,13 @@ class _MobileServiceCardData {
   final String logo;
   final String title;
   final String description;
-
+  final String playStoreUrl;
   const _MobileServiceCardData({
     required this.image,
     required this.logo,
     required this.title,
     required this.description,
+    required this.playStoreUrl,
   });
 }
 
@@ -203,8 +209,8 @@ class _MobileCardGrid extends StatelessWidget {
 
             return _MobileServiceCard(
               width: cardWidth,
-              // Phones: height wraps the content. Tablet/desktop: fixed 500.
-              height: phone ? null : 500,
+              // Height wraps the content on every screen size.
+              height: null,
               data: cards[index],
               accentColor: accent,
             );
@@ -266,7 +272,7 @@ class _MobileServiceCard extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: tOrange1.withOpacity(0.9),
         foregroundColor: tWhite,
-        overlayColor: isTablet ? Colors.transparent : null,
+        overlayColor: isTablet ? tTransparent : null,
         elevation: 0,
         padding: EdgeInsets.symmetric(vertical: btnVPad),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -284,12 +290,10 @@ class _MobileServiceCard extends StatelessWidget {
     );
 
     final Widget appButton = OutlinedButton.icon(
-      onPressed: () {
-        _showAccessDialog(context);
-      },
+      onPressed: () => _openPlayStore(data.playStoreUrl),
       style: OutlinedButton.styleFrom(
         foregroundColor: tBlue3,
-        overlayColor: isTablet ? Colors.transparent : null,
+        overlayColor: isTablet ? tTransparent : null,
         side: BorderSide(color: tBlack.withOpacity(.15)),
         padding: EdgeInsets.symmetric(vertical: btnVPad),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -490,7 +494,21 @@ class _MobileBadge extends StatelessWidget {
     );
   }
 }
+// =========================================================
+// OPEN PLAY STORE
+// =========================================================
 
+Future<void> _openPlayStore(String url) async {
+  try {
+    final bool opened = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened) debugPrint('Could not open: $url');
+  } catch (e) {
+    debugPrint('Could not open Play Store: $e');
+  }
+}
 // =========================================================
 // ACCESS DIALOG
 // =========================================================

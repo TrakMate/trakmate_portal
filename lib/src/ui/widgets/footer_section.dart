@@ -195,7 +195,7 @@ class FooterSection extends StatelessWidget {
             _social('icons/linkedin.svg'),
             _social('icons/facebook.svg'),
             _social('icons/whatsapp.svg'),
-            _social('icons/youtube.svg'),
+            // _social('icons/youtube.svg'),
           ],
         ),
       ],

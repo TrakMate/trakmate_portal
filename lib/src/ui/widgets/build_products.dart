@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
@@ -249,6 +249,41 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
       title: 'TMD024',
+      subtitle: 'Advanced GPS Tracker',
+      category: 'Telematics',
+      description:
+          '4G LTE Cat 1 with 2G fallback, CAN/BMS monitoring, datalogging, and driver behavior support.',
+      connectivity: ['4G', '2G'],
+      vehicleTypes: ['3 Wheeler', '4 Wheeler'],
+      features: [
+        ProductFeature(icon: Icons.hub_outlined, label: 'Multi-Protocol'),
+        ProductFeature(
+          icon: Icons.developer_board_outlined,
+          label: 'Edge Computing',
+        ),
+        ProductFeature(icon: Icons.lock_outline, label: 'Secure MQTT'),
+      ],
+    ),
+
+    ProductData(
+      image: 'images/tmdnew_isometric.png',
+      image1: 'images/tmdnew_isometric.png',
+      image2: 'images/tmdnew_top.png',
+      image3: 'images/tmdnew_back.png',
+      image4: 'images/tmdnew_part.png',
+      image7: 'images/tmdnew_part1.png',
+      // specsStyle: SpecsSlideStyle(
+      //   imagePadding: 108,
+      //   badgeWidth: 120,
+      //   badgeRightOffset: 120,
+      //   badgeGap: 25,
+      // ),
+      // specBadges: ['icons/4gg1.svg', 'icons/evv1.svg', 'icons/ble1.svg'],
+      badge: '4G',
+      badgeColor: tBlue3,
+      secondBadge: '2G',
+      secondBadgeColor: tOrange1,
+      title: 'TMDNEW',
       subtitle: 'Advanced GPS Tracker',
       category: 'Telematics',
       description:
@@ -1083,6 +1118,23 @@ class _BuildProductSectionState extends State<BuildProductSection> {
     });
   }
 
+  // Desktop card rows need 75 + 4*330 + 3*16 = 1443px, plus 40px page
+  // padding on each side = 1523px.
+  static const double _kMinContentWidth = 1523;
+
+  // Only on desktop and only when the screen is narrower than needed,
+  // the content slides sideways. Otherwise it is returned unchanged.
+  Widget _scrollIfNeeded(double screenW, Widget child) {
+    if (isMobile || isTablet || screenW >= _kMinContentWidth) {
+      return child;
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
+      child: SizedBox(width: _kMinContentWidth, child: child),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // final bool mobile = _isMobile;
@@ -1135,18 +1187,23 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           ],
         ),
 
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: _hPad),
-          child: Column(
-            children: [
-              _buildProductRangeHeader(),
-              SizedBox(height: isMobile ? 20 : 28),
-              _buildProductsGrid(),
-              SizedBox(height: isMobile ? 24 : 55),
-            ],
+        // Only the heading + product cards slide sideways (when needed).
+        _scrollIfNeeded(
+          screenW,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: _hPad),
+            child: Column(
+              children: [
+                _buildProductRangeHeader(),
+                SizedBox(height: isMobile ? 20 : 28),
+                _buildProductsGrid(),
+                SizedBox(height: isMobile ? 24 : 55),
+              ],
+            ),
           ),
         ),
 
+        // Trust bar and everything below: never scrolls sideways.
         Padding(
           padding: EdgeInsets.symmetric(horizontal: _hPad),
           child: _buildTrustBar(),
@@ -2245,7 +2302,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
                       vertical: 14,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
@@ -2614,8 +2671,9 @@ class _ProductCardState extends State<_ProductCard> {
   bool get _isTouch =>
       ResponsiveLayout.isMobile(context) || ResponsiveLayout.isTablet(context);
 
+  bool get _noHover => _isTouch || MediaQuery.of(context).size.width < 1523;
   void _setHovering(bool value) {
-    if (_isTouch) return;
+    if (_noHover) return;
     if (_hovering == value) return;
 
     setState(() {
@@ -2635,7 +2693,7 @@ class _ProductCardState extends State<_ProductCard> {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          hoverColor: _isTouch ? Colors.transparent : null,
+          hoverColor: _noHover ? tTransparent : null,
           mouseCursor:
               _isTouch ? SystemMouseCursors.basic : SystemMouseCursors.click,
           onTap: () {

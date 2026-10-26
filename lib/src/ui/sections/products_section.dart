@@ -168,7 +168,7 @@ class _ProductsSectionState extends State<ProductsSection> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           stops: [0.0, 0.6, 1.0],
         ).createShader(rect);
       },
@@ -191,7 +191,7 @@ class _ProductsSectionState extends State<ProductsSection> {
         return const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [Colors.transparent, Colors.black54, Colors.black],
+          colors: [tTransparent, tBlack2, tBlack],
           // 0.00 -> 0.55 is the blend zone. Bigger last value = softer,
           // longer blend. Smaller = sharper edge.
           stops: [0.0, 0.30, 0.55],
@@ -212,7 +212,7 @@ class _ProductsSectionState extends State<ProductsSection> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           // Fully visible until 80% height, then fades out.
           stops: [0.0, 0.80, 1.0],
         ).createShader(rect);

@@ -12,12 +12,6 @@ import 'package:url_launcher/url_launcher.dart';
 ///
 /// Replace the sample branch details and map links below with your real data.
 /// The image paths currently use images/company.png for all three branches.
-const Color _teal = tBlue3;
-const Color _navy = tBlue2;
-const Color _ink = Color(0xFF102A78);
-const Color _muted = Color(0xFF526783);
-const Color _sectionTop = Color(0xFFF8FCFF);
-const Color _sectionBottom = Color(0xFFF0F8FC);
 
 class _OfficeData {
   final String photo;
@@ -150,7 +144,7 @@ class OfficesSection extends StatelessWidget {
                       fontSize: 12,
                       height: 1.2,
                       fontWeight: FontWeight.w500,
-                      color: _muted,
+                      color: tMuted,
                     ),
                   ),
                 ),
@@ -274,14 +268,14 @@ class _OfficeCardState extends State<_OfficeCard> {
         curve: Curves.easeOutCubic,
         transform: Matrix4.translationValues(0, active ? -3 : 0, 0),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.97),
+          color: tWhite.withOpacity(0.97),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: active ? _teal.withOpacity(0.38) : const Color(0xFFEAF1F6),
+            color: active ? tBlue3.withOpacity(0.38) : const Color(0xFFEAF1F6),
           ),
           boxShadow: [
             BoxShadow(
-              color: _navy.withOpacity(active ? 0.12 : 0.065),
+              color: tBlue2.withOpacity(active ? 0.12 : 0.065),
               blurRadius: active ? 24 : 15,
               offset: Offset(0, active ? 9 : 5),
             ),
@@ -314,7 +308,7 @@ class _OfficeCardState extends State<_OfficeCard> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.manrope(
-                                color: _ink,
+                                color: tInk,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
                                 height: 1.2,
@@ -326,7 +320,7 @@ class _OfficeCardState extends State<_OfficeCard> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.manrope(
-                                color: _muted,
+                                color: tMuted,
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -360,39 +354,45 @@ class _OfficeCardState extends State<_OfficeCard> {
         fit: StackFit.expand,
         children: [
           Container(
-            color: const Color(0xFFDDEEF8),
+            color: Color.alphaBlend(tBlue1.withValues(alpha: 0.128), tWhite),
             child: Image.asset(
               office.photo,
               fit: BoxFit.cover,
               cacheWidth: 800,
               errorBuilder:
-                  (_, __, ___) => const DecoratedBox(
+                  (_, __, ___) => DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [_navy, Color(0xFF148FA3)],
+                        colors: [
+                          tBlue2,
+                          Color.alphaBlend(
+                            tBlueSky.withValues(alpha: 0.7),
+                            tBlue2,
+                          ),
+                        ],
                       ),
                     ),
                     child: Center(
                       child: Icon(
                         Icons.apartment_rounded,
                         size: 48,
-                        color: Colors.white70,
+                        color: tWhite.withOpacity(0.7),
                       ),
                     ),
                   ),
             ),
           ),
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0x180B286C),
-                  Color(0x000B286C),
-                  Color(0x500B286C),
+                  tNavyShade.withValues(alpha: 0.094),
+                  tNavyShade.withValues(alpha: 0.0),
+                  tNavyShade.withValues(alpha: 0.314),
                 ],
               ),
             ),
@@ -453,7 +453,7 @@ class _OfficeCardState extends State<_OfficeCard> {
             iconPath,
             width: 16,
             height: 16,
-            colorFilter: const ColorFilter.mode(_teal, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(tBlue3, BlendMode.srcIn),
           ),
         ),
         const SizedBox(width: 9),
@@ -478,7 +478,7 @@ class _OfficeCardState extends State<_OfficeCard> {
     return Align(
       alignment: Alignment.center,
       child: Material(
-        color: Colors.transparent,
+        color: tTransparent,
         child: InkWell(
           onTap: _openDirections,
           borderRadius: BorderRadius.circular(8),
@@ -534,11 +534,16 @@ class _OfficeBackgroundDecoration extends StatelessWidget {
 class _OfficeBackgroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final pale = Paint()..color = const Color(0xFFE0F3FC).withOpacity(0.72);
-    final lighter = Paint()..color = Colors.white.withOpacity(0.65);
+    final pale =
+        Paint()
+          ..color = Color.alphaBlend(tBlue1.withValues(alpha: 0.12), tWhite);
+    final lighter = Paint()..color = tWhite.withOpacity(0.65);
     final stroke =
         Paint()
-          ..color = const Color(0xFFBCE6F7).withOpacity(0.45)
+          ..color = Color.alphaBlend(
+            tBlue1.withValues(alpha: 0.26),
+            tWhite,
+          ).withValues(alpha: 0.45)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.2;
 
@@ -568,7 +573,12 @@ class _OfficeBackgroundPainter extends CustomPainter {
     );
     canvas.drawArc(leftArc, -1.2, 2.1, false, stroke..strokeWidth = 18);
 
-    final dots = Paint()..color = const Color(0xFFCBEAF8).withOpacity(0.7);
+    final dots =
+        Paint()
+          ..color = Color.alphaBlend(
+            tBlue1.withValues(alpha: 0.20),
+            tWhite,
+          ).withValues(alpha: 0.7);
     for (final point in <Offset>[
       Offset(size.width * 0.22, size.height * 0.22),
       Offset(size.width * 0.78, size.height * 0.14),

@@ -56,7 +56,9 @@ const tBlue3 = Color(0xFF0E2D99);
 const tBlue4 = Color(0xFF101B72);
 const tBlue5 = Color(0xFF263FA8);
 const tBlue6 = Color(0xFF3154B8);
-
+const tInk = Color(0xFF102A78);
+const tBlueMist1 = Color(0xFFF1F7FF);
+const tBlueMist2 = Color(0xFFE6F1FF);
 const tBlueDark = Color(0xFF176EF9);
 const tBlueLight = Color(0xFFd0d9ff);
 const tBlueSky = Color(0xFF00C1D9);
@@ -113,6 +115,7 @@ const tBlueGradient5 = LinearGradient(
 const tBlack = Color(0xFF000815);
 const tBlack1 = Color(0xFF062021);
 const tBlackLight = Color(0xFF1C2129);
+const tBlack2 = Colors.black54;
 
 const tGreen = Color(0xFF66CC00);
 const tGreen1 = Color(0xFF233b3b);
@@ -208,7 +211,7 @@ const tGreyGradient = LinearGradient(
 
 const tGrey = Color(0xFFACA7A7);
 const tGrey1 = Colors.grey;
-
+const tMuted = Color(0xFF526783);
 const tTransparent = Colors.transparent;
 
 const background = Color.fromARGB(255, 8, 9, 14);
@@ -220,7 +223,12 @@ const primary = Color(0xff2F6BFF);
 const secondary = Color(0xff4AA3FF);
 
 const border = Color(0xff1B2940);
-
+const tNavyShade = Color(0xFF0B286C);
 const newbadge = Color(0xFF16A34A);
 
 const ipbadge = Color(0xFF9333EA);
+// Spec badge backgrounds
+const tBadgeBlue = Color(0xFFE3EAF5); // 4G, 4G+2G, Wi-Fi, HD Display, Ethernet
+const tBadgeSky = Color(0xFFDCE9FA); // Bluetooth
+const tBadgeGreen = Color(0xFFDDF1DD); // EV Compatible, Android OS
+const tBadgeBeige = Color(0xFFF1EBDD);   // Linux OS

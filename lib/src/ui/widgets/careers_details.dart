@@ -1,22 +1,71 @@
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:svg_flutter/svg_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../utils/colors.dart';
 
-/// Careers page – hero, filters, current openings timeline and "Submit your CV".
-///
-/// Requires in pubspec.yaml:
-///   file_picker: ^8.0.0
-///   google_fonts: ^6.0.0
-///   go_router
-/// Assets should be registered in pubspec.yaml (for example, `images/`).
-/// Configure images when creating this page:
-/// CareersPage(heroImageAsset: 'images/careers_hero.png',
-///             secondaryImageAsset: 'images/desk.png')
+class _Svg {
+  _Svg._();
+
+  // Job icons (one per opening)
+  static const String jobEmbeddedEngineer = 'icons/embedded1.svg';
+  static const String jobSeniorEmbeddedEngineer = 'icons/embedded_systems.svg';
+  static const String jobProductionManager = 'icons/product_engineering.svg';
+  static const String jobAndroidHmiDeveloper = 'icons/android_developer2.svg';
+  static const String jobHrManager = 'icons/hr_manager.svg';
+
+  // Hero
+  static const String heroErrorBlended = 'icons/image_remove.svg';
+  static const String heroErrorMobile = 'icons/image_remove.svg';
+
+  // Filter row
+  static const String filterSearch = 'icons/search2.svg';
+  static const String filterLocationPin = 'icons/location1.svg';
+
+  // Job meta row
+  static const String metaLocation = 'icons/location1.svg';
+  static const String metaJobType = 'icons/clock.svg';
+  static const String metaExperience = 'icons/calender.svg';
+
+  // Apply button inside details panel
+  static const String applyUpload = 'icons/cloud_upload.svg';
+
+  // "Don't see a suitable role?" card
+  static const String planeSend = 'icons/paper_plane.svg';
+  static const String uploadBoxCloud = 'icons/cloud_upload.svg';
+
+  // Why join cards
+  static const String whyMeaningfulWork = 'icons/innovation.svg';
+  static const String whySupportiveTeam = 'icons/team.svg';
+  static const String whyContinuousGrowth = 'icons/growth2.svg';
+  static const String whyWorkLifeBalance = 'icons/heart1.svg';
+
+  // Follow us on LinkedIn card
+  static const String linkedInMail = 'icons/linkedin2.svg';
+  static const String linkedInOpenNew = 'icons/click_here.svg';
+}
+
+class _SvgIcon extends StatelessWidget {
+  final String asset;
+  final double size;
+  final Color? color;
+  const _SvgIcon(this.asset, {required this.size, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      asset,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      colorFilter:
+          color == null ? null : ColorFilter.mode(color!, BlendMode.srcIn),
+    );
+  }
+}
 
 class CareersPage extends StatefulWidget {
   final String heroImageAsset;
@@ -39,7 +88,7 @@ class _Job {
   final String description;
   final List<String> responsibilities;
   final List<String> requirements;
-  final IconData icon;
+  final String iconAsset; // SVG asset path
   const _Job({
     required this.title,
     required this.category,
@@ -49,12 +98,17 @@ class _Job {
     required this.description,
     required this.responsibilities,
     required this.requirements,
-    required this.icon,
+    required this.iconAsset,
   });
 }
 
 class _CareersPageState extends State<CareersPage> {
-  static const int _maxCvBytes = 5 * 1024 * 1024;
+  /// CVs are mailed to this address. Change it here whenever you like.
+  static const String _careersEmail = 'keerthiprasad267@gmail.com';
+
+  /// Company LinkedIn page opened by the "Click here" button.
+  static const String _linkedInUrl =
+      'https://www.linkedin.com/company/trakmate-design-solutions-private-limited/home/';
 
   // Breakpoints come from ResponsiveLayout:
   //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
@@ -64,53 +118,46 @@ class _CareersPageState extends State<CareersPage> {
   // Horizontal page padding
   double get _pad => isMobile ? 16 : (isTablet ? 24 : 40);
 
-  static const List<String> _tabs = [
-    'All Roles',
-    'Engineering',
-    'Product',
-    'Design',
-    'Operations',
-    'Business',
-    'Mechanical',
-  ];
+  // Filter tabs – must match the `category` values used in _jobs below.
+  static const List<String> _tabs = ['All Roles', 'Engineering', 'Operations'];
+
   static const List<String> _locations = ['All Locations', 'Bengaluru, India'];
-  // NOTE: responsibilities / requirements below are placeholder content –
-  // replace them with your real job descriptions.
+
   static const List<_Job> _jobs = [
     _Job(
-      title: 'Flutter Developer',
+      title: 'Embedded Engineer',
       category: 'Engineering',
       location: 'Bengaluru, India',
       type: 'Full Time',
-      experience: '2 - 5 Yrs',
+      experience: '0 - 3 Yrs',
       description:
-          'Work on our cross-platform fleet management applications and help build scalable, high-performance mobile experiences.',
+          'Build and test firmware for our telematics devices and learn hands-on with real connected-vehicle hardware.',
       responsibilities: [
-        'Build and maintain cross-platform apps using Flutter and Dart.',
-        'Integrate REST APIs, WebSockets and real-time vehicle data.',
-        'Write clean, testable code and take part in code reviews.',
-        'Work with design and backend teams to ship features on time.',
+        'Develop and test firmware for telematics devices in C / C++.',
+        'Work with GPS, GSM / LTE and sensor modules.',
+        'Debug hardware and firmware issues using lab tools.',
+        'Support field testing and device validation.',
       ],
       requirements: [
-        '2 - 5 years of hands-on experience with Flutter and Dart.',
-        'Good understanding of state management (Provider, Bloc or Riverpod).',
-        'Experience with maps, tracking or IoT applications is a plus.',
-        'Apps published on the Play Store or App Store.',
+        '0 - 3 years of experience in embedded systems development.',
+        'Good knowledge of C / C++ and microcontroller fundamentals.',
+        'Familiarity with UART, SPI, I2C protocols.',
+        'Freshers with strong embedded projects are welcome.',
       ],
-      icon: Icons.code_rounded,
+      iconAsset: _Svg.jobEmbeddedEngineer,
     ),
     _Job(
-      title: 'Embedded Systems Engineer',
+      title: 'Senior Embedded Engineer',
       category: 'Engineering',
       location: 'Bengaluru, India',
       type: 'Full Time',
       experience: '3 - 6 Yrs',
       description:
-          'Design and develop next-generation telematics hardware and contribute to innovative IoT solutions.',
+          'Lead the design and development of next-generation telematics firmware and contribute to innovative IoT solutions.',
       responsibilities: [
-        'Develop and maintain firmware for telematics devices in C / C++.',
+        'Own firmware architecture and development for telematics devices.',
         'Work with GPS, GSM / LTE, CAN and sensor modules.',
-        'Debug hardware and firmware issues using lab tools.',
+        'Review code and mentor junior embedded engineers.',
         'Support field testing and device certification.',
       ],
       requirements: [
@@ -119,163 +166,73 @@ class _CareersPageState extends State<CareersPage> {
         'Experience with UART, SPI, I2C and CAN protocols.',
         'Telematics or automotive background is a plus.',
       ],
-      icon: Icons.settings_outlined,
+      iconAsset: _Svg.jobSeniorEmbeddedEngineer,
     ),
     _Job(
-      title: 'Product Manager',
-      category: 'Product',
+      title: 'Production Manager',
+      category: 'Operations',
       location: 'Bengaluru, India',
       type: 'Full Time',
       experience: '4 - 7 Yrs',
       description:
-          'Drive product strategy and work closely with engineering, design and customers to build impactful solutions.',
+          'Plan and manage day-to-day production so our devices are built on time, to quality and within cost.',
       responsibilities: [
-        'Define the product roadmap and write clear requirements.',
-        'Work closely with engineering and design to deliver features.',
-        'Analyse usage data and customer feedback to prioritise work.',
-        'Coordinate releases and communicate with stakeholders.',
+        'Plan and oversee production schedules and daily output.',
+        'Ensure quality standards and process compliance on the line.',
+        'Coordinate with procurement, design and quality teams.',
+        'Manage production staff, productivity and shop-floor safety.',
       ],
       requirements: [
-        '4 - 7 years of experience in product management.',
-        'Strong communication and stakeholder management skills.',
-        'Data-driven approach to decision making.',
-        'Experience with B2B, SaaS or IoT products is a plus.',
+        '4 - 7 years of experience in production or manufacturing management.',
+        'Experience in electronics or automotive manufacturing is a plus.',
+        'Strong leadership and problem-solving skills.',
+        'Knowledge of lean manufacturing and quality systems.',
       ],
-      icon: Icons.bar_chart_rounded,
+      iconAsset: _Svg.jobProductionManager,
     ),
     _Job(
-      title: 'Backend Developer',
+      title: 'Android HMI Developer',
       category: 'Engineering',
       location: 'Bengaluru, India',
       type: 'Full Time',
-      experience: '3 - 6 Yrs',
+      experience: '2 - 4 Yrs',
       description:
-          'Build and maintain scalable backend services and data pipelines for our connected vehicle platform.',
+          'Build smooth, intuitive Android apps for our fleet management and vehicle tracking products.',
       responsibilities: [
-        'Design and build APIs and microservices.',
-        'Develop data pipelines for high-volume telemetry data.',
-        'Improve performance, reliability and security of services.',
-        'Monitor and maintain production systems.',
+        'Build and maintain Android applications using Kotlin / Java.',
+        'Integrate REST APIs and real-time vehicle data.',
+        'Write clean, testable code and take part in code reviews.',
+        'Work with design and backend teams to ship features on time.',
       ],
       requirements: [
-        '3 - 6 years of backend development experience.',
-        'Proficiency in Node.js, Java, Python or Go.',
-        'Experience with SQL / NoSQL databases and message queues.',
-        'Working knowledge of AWS, GCP or Azure.',
+        '2 - 4 years of hands-on experience in Android development.',
+        'Strong knowledge of Kotlin, Jetpack and MVVM architecture.',
+        'Experience with maps, tracking or IoT applications is a plus.',
+        'Apps published on the Play Store.',
       ],
-      icon: Icons.storage_rounded,
+      iconAsset: _Svg.jobAndroidHmiDeveloper,
     ),
     _Job(
-      title: 'Hardware Design Engineer',
-      category: 'Engineering',
-      location: 'Bengaluru, India',
-      type: 'Full Time',
-      experience: '3 - 7 Yrs',
-      description:
-          'Work on hardware design, validation and certification for our telematics devices.',
-      responsibilities: [
-        'Create schematics and PCB layouts for telematics devices.',
-        'Validate and test hardware designs in the lab.',
-        'Support EMI / EMC and regulatory certification.',
-        'Work with vendors and manufacturing partners.',
-      ],
-      requirements: [
-        '3 - 7 years of hardware design experience.',
-        'Hands-on with Altium, KiCad or similar EDA tools.',
-        'Good understanding of power and RF design.',
-        'Comfortable debugging with oscilloscopes and analysers.',
-      ],
-      icon: Icons.memory_rounded,
-    ),
-    _Job(
-      title: 'UI / UX Designer',
-      category: 'Design',
+      title: 'HR Manager',
+      category: 'Operations',
       location: 'Bengaluru, India',
       type: 'Full Time',
       experience: '2 - 5 Yrs',
       description:
-          'Craft clear, intuitive interfaces for our fleet and vehicle tracking products across web and mobile.',
+          'Lead hiring, onboarding and people practices to help our team grow and thrive.',
       responsibilities: [
-        'Design user flows, wireframes and interactive prototypes.',
-        'Maintain and grow our design system.',
-        'Run user research and usability testing.',
-        'Collaborate with developers to ship pixel-perfect UI.',
+        'Manage end-to-end recruitment and onboarding.',
+        'Maintain HR policies, records and compliance.',
+        'Handle employee engagement, performance and grievance processes.',
+        'Partner with team leads on workforce planning.',
       ],
       requirements: [
-        '2 - 5 years of UI / UX design experience.',
-        'Strong command of Figma.',
-        'A portfolio showing web and mobile work.',
-        'Good eye for typography, spacing and colour.',
+        '2 - 5 years of experience in HR or talent management.',
+        'Strong communication and interpersonal skills.',
+        'Knowledge of HR policies and labour compliance.',
+        'Experience in a technology or manufacturing company is a plus.',
       ],
-      icon: Icons.brush_outlined,
-    ),
-
-    // ───────────── MECHANICAL ─────────────
-    _Job(
-      title: 'Mechanical Design Engineer – Devices',
-      category: 'Mechanical',
-      location: 'Bengaluru, India',
-      type: 'Full Time',
-      experience: '3 - 6 Yrs',
-      description:
-          'Design robust, manufacturable enclosures and mechanical assemblies for our telematics and tracking devices.',
-      responsibilities: [
-        'Design device enclosures, brackets, seals and mounting mechanisms in 3D CAD.',
-        'Run tolerance stack-ups, thermal and ingress-protection (IP) checks.',
-        'Work with electronics teams on PCB fit, connector placement and heat dissipation.',
-        'Support prototyping, DFM / DFA reviews and vendor tooling discussions.',
-      ],
-      requirements: [
-        '3 - 6 years of experience in mechanical product design.',
-        'Proficiency in SolidWorks, Creo, CATIA or similar CAD tools.',
-        'Good knowledge of plastic injection moulding and sheet metal design.',
-        'Experience with automotive or consumer electronics enclosures is a plus.',
-      ],
-      icon: Icons.precision_manufacturing_outlined,
-    ),
-    _Job(
-      title: 'Instrument Cluster Mechanical Engineer',
-      category: 'Mechanical',
-      location: 'Bengaluru, India',
-      type: 'Full Time',
-      experience: '3 - 7 Yrs',
-      description:
-          'Own the mechanical design of vehicle instrument clusters, from housing and display assembly to dial and bezel integration.',
-      responsibilities: [
-        'Design cluster housings, bezels, lenses, light guides and display mounting.',
-        'Handle stepper-motor gauge, pointer and dial mechanics.',
-        'Ensure vibration, sealing and thermal performance in the vehicle environment.',
-        'Coordinate with suppliers on tooling, materials and assembly processes.',
-      ],
-      requirements: [
-        '3 - 7 years of experience in automotive or consumer product mechanical design.',
-        'Strong command of 3D CAD and GD&T.',
-        'Understanding of plastics, adhesives, gaskets and optical parts.',
-        'Instrument cluster or dashboard component experience is a plus.',
-      ],
-      icon: Icons.speed_rounded,
-    ),
-    _Job(
-      title: 'Mechanical Validation & Reliability Engineer',
-      category: 'Mechanical',
-      location: 'Bengaluru, India',
-      type: 'Full Time',
-      experience: '2 - 5 Yrs',
-      description:
-          'Plan and run mechanical and environmental validation so our devices and clusters survive real road conditions.',
-      responsibilities: [
-        'Prepare and execute vibration, shock, thermal cycling and ingress tests.',
-        'Analyse failures and work with design teams on corrective actions.',
-        'Create test plans and reports aligned with automotive standards.',
-        'Maintain test fixtures and coordinate with external test labs.',
-      ],
-      requirements: [
-        '2 - 5 years of experience in mechanical testing or reliability engineering.',
-        'Familiarity with AIS / IEC / ISO environmental test standards.',
-        'Hands-on with test chambers, shakers and measurement equipment.',
-        'Basic CAD or FEA exposure is a plus.',
-      ],
-      icon: Icons.build_circle_outlined,
+      iconAsset: _Svg.jobHrManager,
     ),
   ];
   final ScrollController _scrollController = ScrollController();
@@ -285,17 +242,10 @@ class _CareersPageState extends State<CareersPage> {
   int _selectedTab = 0;
   String _selectedLocation = _locations.first;
   String _query = '';
-  PlatformFile? _cvFile; // used by the "Don't see a suitable role?" card
-
-  /// CV chosen for each specific opening (key = job title).
-  final Map<String, PlatformFile> _jobCvFiles = {};
 
   /// Title of the opening whose details are currently expanded (null = none).
   String? _expandedJob;
 
-  /// Which drop zone a file is currently being dragged over:
-  /// 'general' for the "Don't see a suitable role?" box, or a job title.
-  String? _draggingTarget;
   bool _uploadHovered = false;
   bool _heroImageLoading = true;
 
@@ -469,70 +419,144 @@ class _CareersPageState extends State<CareersPage> {
     );
   }
 
-  Future<void> _pickCv({String? jobTitle}) async {
+  /// Opens the visitor's mail app / webmail straight away with the careers
+  /// address, subject and body pre-filled (same approach as the Get in Touch
+  /// dialog). A mailto link cannot carry attachments, so the visitor attaches
+  /// the CV in the mail window.
+  Future<void> _openCvMail({String? jobTitle}) async {
+    final String mailSubject =
+        jobTitle != null ? 'Application for $jobTitle' : 'CV Submission';
+
+    final String body =
+        'Hi TrakMate,\n\n'
+        '${jobTitle != null ? 'I would like to apply for the $jobTitle position.' : 'I would like to share my CV for future opportunities.'}\n\n'
+        'Please find my CV attached.\n\n'
+        // '(Please attach your CV in PDF, DOC or DOCX format to this mail before sending.)\n\n'
+        'Thanks & Regards,\n';
+
+    final Uri mailUri = Uri.parse(
+      'mailto:$_careersEmail'
+      '?subject=${Uri.encodeComponent(mailSubject)}'
+      '&body=${Uri.encodeComponent(body)}',
+    );
+
+    // Ask first. The mail app only opens after the visitor taps "Okay".
+    final bool? proceed = await _showCvDialog(
+      title: 'Attach your CV',
+      message:
+          'Your email app will open with the details filled in. '
+          'Please attach your CV (PDF, DOC or DOCX) to the email and send it to our careers team.',
+    );
+    if (proceed != true || !mounted) return;
+
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: const ['pdf', 'doc', 'docx'],
-        withData: true,
-      );
-      if (result == null || result.files.isEmpty) return;
-      final file = result.files.first;
-      if (file.size > _maxCvBytes) {
-        _toast('File is too large. Maximum allowed size is 5 MB.');
-        return;
-      }
-      setState(() {
-        if (jobTitle != null) {
-          _jobCvFiles[jobTitle] = file; // CV for a specific opening
-        } else {
-          _cvFile = file; // general CV card
-        }
-      });
-      _toast('CV selected: ${file.name}');
-      // TODO: upload file.bytes / file.path to your backend here
-      // (send jobTitle along when it is not null).
+      // '_self' keeps your website in the same tab; mailto never navigates away.
+      await launchUrl(mailUri, webOnlyWindowName: '_self');
     } catch (_) {
-      _toast('Could not open the file picker. Please try again.');
+      await _showCvDialog(
+        title: 'Could not open mail',
+        message:
+            'We could not open your email app. Please email your CV to $_careersEmail.',
+        showCancel: false,
+      );
     }
   }
 
-  /// Handles a CV file dropped onto an upload area. Same rules as [_pickCv]:
-  /// PDF, DOC or DOCX only, maximum 5 MB.
-  Future<void> _handleDroppedCv(
-    DropDoneDetails details, {
-    String? jobTitle,
+  /// Confirmation dialog (replaces the snack bar). Returns true when the
+  /// visitor taps "Okay", false / null on Cancel or when dismissed.
+  Future<bool?> _showCvDialog({
+    required String title,
+    required String message,
+    bool showCancel = true,
   }) async {
-    if (details.files.isEmpty) return;
+    if (!mounted) return null;
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: tWhite,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          title: Text(
+            title,
+            style: GoogleFonts.manrope(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: tBlue4,
+            ),
+          ),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 360),
+            child: Text(
+              message,
+              style: GoogleFonts.manrope(
+                fontSize: 13.5,
+                height: 1.5,
+                color: tBlue4.withOpacity(0.8),
+              ),
+            ),
+          ),
+          actions: [
+            if (showCancel)
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: tBlue4.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+              ),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: tBlueDark,
+                  foregroundColor: tWhite,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Okay',
+                  style: GoogleFonts.manrope(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: tWhite,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Opens the company LinkedIn page in a new tab.
+  Future<void> _openLinkedIn() async {
+    final Uri url = Uri.parse(_linkedInUrl);
     try {
-      final dropped = details.files.first;
-      final String name = dropped.name;
-      final String ext =
-          name.contains('.') ? name.split('.').last.toLowerCase() : '';
-      if (!['pdf', 'doc', 'docx'].contains(ext)) {
-        _toast('Please select a PDF, DOC or DOCX file.');
-        return;
-      }
-      final int size = await dropped.length();
-      if (size > _maxCvBytes) {
-        _toast('File is too large. Maximum allowed size is 5 MB.');
-        return;
-      }
-      final bytes = await dropped.readAsBytes();
-      if (!mounted) return;
-      final file = PlatformFile(name: name, size: size, bytes: bytes);
-      setState(() {
-        if (jobTitle != null) {
-          _jobCvFiles[jobTitle] = file; // CV for a specific opening
-        } else {
-          _cvFile = file; // general CV card
-        }
-      });
-      _toast('CV selected: ${file.name}');
-      // TODO: upload file.bytes to your backend here
-      // (send jobTitle along when it is not null).
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (_) {
-      _toast('Could not read the dropped file. Please try again.');
+      _toast('Could not open LinkedIn. Please try again.');
     }
   }
 
@@ -747,8 +771,8 @@ class _CareersPageState extends State<CareersPage> {
           return Container(
             color: tBlue2,
             alignment: Alignment.center,
-            child: Icon(
-              Icons.image_not_supported_outlined,
+            child: _SvgIcon(
+              _Svg.heroErrorMobile,
               size: 48,
               color: tWhite.withOpacity(0.55),
             ),
@@ -782,8 +806,8 @@ class _CareersPageState extends State<CareersPage> {
           return Container(
             color: tBlack.withOpacity(0.05),
             alignment: Alignment.center,
-            child: Icon(
-              Icons.image_not_supported_outlined,
+            child: _SvgIcon(
+              _Svg.heroErrorBlended,
               size: 50,
               color: tWhite.withOpacity(0.6),
             ),
@@ -967,7 +991,7 @@ class _CareersPageState extends State<CareersPage> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.search_rounded, size: 20, color: tBlue4),
+          const _SvgIcon(_Svg.filterSearch, size: 20, color: tBlue4),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -1007,7 +1031,7 @@ class _CareersPageState extends State<CareersPage> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.location_on_outlined, size: 19, color: tBlue4),
+                const _SvgIcon(_Svg.filterLocationPin, size: 19, color: tBlue4),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -1149,19 +1173,20 @@ class _CareersPageState extends State<CareersPage> {
     return Container(
       width: size,
       height: size,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: tBlueDark.withOpacity(0.12),
       ),
-      child: Icon(job.icon, size: size * 0.45, color: tBlueDark),
+      child: _SvgIcon(job.iconAsset, size: size * 0.45, color: tBlueDark),
     );
   }
 
   Widget _metaRow(_Job job) {
-    Widget item(IconData icon, String text) => Row(
+    Widget item(String asset, String text) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 15, color: tBlue4.withOpacity(0.6)),
+        _SvgIcon(asset, size: 15, color: tBlue4.withOpacity(0.6)),
         const SizedBox(width: 6),
         Text(
           text,
@@ -1176,9 +1201,9 @@ class _CareersPageState extends State<CareersPage> {
       spacing: isMobile ? 16 : 22,
       runSpacing: 6,
       children: [
-        item(Icons.location_on_outlined, job.location),
-        item(Icons.work_outline_rounded, job.type),
-        item(Icons.bar_chart_rounded, job.experience),
+        item(_Svg.metaLocation, job.location),
+        item(_Svg.metaJobType, job.type),
+        item(_Svg.metaExperience, job.experience),
       ],
     );
   }
@@ -1271,31 +1296,7 @@ class _CareersPageState extends State<CareersPage> {
                                             onTap: () {},
                                             child: MouseRegion(
                                               cursor: SystemMouseCursors.basic,
-                                              child: DropTarget(
-                                                onDragEntered:
-                                                    (_) => setState(
-                                                      () =>
-                                                          _draggingTarget =
-                                                              job.title,
-                                                    ),
-                                                onDragExited:
-                                                    (_) => setState(
-                                                      () =>
-                                                          _draggingTarget =
-                                                              null,
-                                                    ),
-                                                onDragDone: (details) {
-                                                  setState(
-                                                    () =>
-                                                        _draggingTarget = null,
-                                                  );
-                                                  _handleDroppedCv(
-                                                    details,
-                                                    jobTitle: job.title,
-                                                  );
-                                                },
-                                                child: _buildDetailsPanel(job),
-                                              ),
+                                              child: _buildDetailsPanel(job),
                                             ),
                                           )
                                           : const SizedBox(
@@ -1324,9 +1325,6 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   Widget _buildDetailsPanel(_Job job) {
-    final PlatformFile? appliedFile = _jobCvFiles[job.title];
-    final bool uploaded = appliedFile != null;
-
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 16),
@@ -1334,12 +1332,7 @@ class _CareersPageState extends State<CareersPage> {
       decoration: BoxDecoration(
         color: tBlueSky1,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color:
-              _draggingTarget == job.title
-                  ? tBlueDark
-                  : tBlueLight.withOpacity(0.7),
-        ),
+        border: Border.all(color: tBlueLight.withOpacity(0.7)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1348,21 +1341,13 @@ class _CareersPageState extends State<CareersPage> {
           const SizedBox(height: 18),
           _detailSection('Requirements', job.requirements, tOrange1),
           const SizedBox(height: 20),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child:
-                uploaded
-                    ? _buildUploadedButton(job, appliedFile)
-                    : _buildApplyButton(job),
-          ),
+          _buildApplyButton(job),
         ],
       ),
     );
   }
 
-  /// Default state: "Apply with CV".
+  /// "Apply with CV" – opens the mail app straight away (no file picker).
   Widget _buildApplyButton(_Job job) {
     return Align(
       key: const ValueKey('apply'),
@@ -1370,7 +1355,7 @@ class _CareersPageState extends State<CareersPage> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: () => _pickCv(jobTitle: job.title),
+          onTap: () => _openCvMail(jobTitle: job.title),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
             decoration: BoxDecoration(
@@ -1380,11 +1365,7 @@ class _CareersPageState extends State<CareersPage> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.cloud_upload_outlined,
-                  size: 18,
-                  color: tWhite,
-                ),
+                const _SvgIcon(_Svg.applyUpload, size: 18, color: tWhite),
                 const SizedBox(width: 10),
                 Text(
                   'Apply with CV',
@@ -1399,91 +1380,6 @@ class _CareersPageState extends State<CareersPage> {
           ),
         ),
       ),
-    );
-  }
-
-  /// After a file is picked: "CV Uploaded" + file name, with Change / Remove.
-  Widget _buildUploadedButton(_Job job, PlatformFile file) {
-    return Wrap(
-      key: const ValueKey('uploaded'),
-      spacing: 14,
-      runSpacing: 10,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Container(
-          constraints: const BoxConstraints(maxWidth: 300),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
-          decoration: BoxDecoration(
-            color: tBlueDark.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: tBlueDark, width: 1.4),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.check_circle_rounded,
-                size: 20,
-                color: tBlueDark,
-              ),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CV Uploaded',
-                      style: GoogleFonts.manrope(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: tBlueDark,
-                      ),
-                    ),
-                    Text(
-                      file.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
-                        fontSize: 11,
-                        color: tBlue4.withOpacity(0.65),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => _pickCv(jobTitle: job.title),
-            child: Text(
-              'Change',
-              style: GoogleFonts.manrope(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: tBlueDark,
-              ),
-            ),
-          ),
-        ),
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => setState(() => _jobCvFiles.remove(job.title)),
-            child: Text(
-              'Remove',
-              style: GoogleFonts.manrope(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: tOrange1,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1557,6 +1453,7 @@ class _CareersPageState extends State<CareersPage> {
           duration: const Duration(milliseconds: 220),
           width: circle,
           height: circle,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: expanded ? tOrange1 : tOrange1.withOpacity(0.12),
@@ -1594,6 +1491,9 @@ class _CareersPageState extends State<CareersPage> {
 
   /// Card 1 – "Don't see a suitable role?" + dashed upload box.
   Widget _buildSubmitCvCard() {
+    final double planeW = isMobile ? 70 : 90;
+    final double planeH = isMobile ? 50 : 60;
+
     return Container(
       key: _submitCvKey,
       padding: EdgeInsets.all(isMobile ? 18 : 22),
@@ -1634,10 +1534,31 @@ class _CareersPageState extends State<CareersPage> {
                 right: 0,
                 top: -8,
                 child: SizedBox(
-                  width: isMobile ? 70 : 90,
-                  height: isMobile ? 50 : 60,
-                  child: CustomPaint(
-                    painter: _PlanePathPainter(color: tOrange1),
+                  width: planeW,
+                  height: planeH,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Dashed flight path
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _PlanePathPainter(color: tOrange1),
+                        ),
+                      ),
+                      // Plane (SVG) at the end of the path
+                      Positioned(
+                        left: planeW * 0.78,
+                        top: 0,
+                        child: Transform.rotate(
+                          angle: 0.07,
+                          child: const _SvgIcon(
+                            _Svg.planeSend,
+                            size: 28,
+                            color: tOrange1,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -1653,31 +1574,22 @@ class _CareersPageState extends State<CareersPage> {
             ),
           ),
           const SizedBox(height: 18),
-          DropTarget(
-            onDragEntered: (_) => setState(() => _draggingTarget = 'general'),
-            onDragExited: (_) => setState(() => _draggingTarget = null),
-            onDragDone: (details) {
-              setState(() => _draggingTarget = null);
-              _handleDroppedCv(details);
-            },
-            child: _buildUploadBox(),
-          ),
+          _buildUploadBox(),
         ],
       ),
     );
   }
 
+  /// "Upload Your CV" box – opens the mail app straight away (no file picker).
   Widget _buildUploadBox() {
-    final hasFile = _cvFile != null;
-    final bool dragging = _draggingTarget == 'general';
-    final bool active = _uploadHovered || dragging;
+    final bool active = _uploadHovered;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _uploadHovered = true),
       onExit: (_) => setState(() => _uploadHovered = false),
       child: GestureDetector(
-        onTap: () => _pickCv(),
+        onTap: () => _openCvMail(),
         // Whole box grows slightly on hover.
         child: AnimatedScale(
           scale: active ? 1.02 : 1.0,
@@ -1717,6 +1629,7 @@ class _CareersPageState extends State<CareersPage> {
                       Container(
                         width: 52,
                         height: 52,
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Color.lerp(
@@ -1727,10 +1640,8 @@ class _CareersPageState extends State<CareersPage> {
                         ),
                         child: Transform.translate(
                           offset: Offset(0, -3 * t),
-                          child: Icon(
-                            hasFile
-                                ? Icons.description_outlined
-                                : Icons.cloud_upload_outlined,
+                          child: _SvgIcon(
+                            _Svg.uploadBoxCloud,
                             size: 26,
                             color: Color.lerp(tBlueDark, tWhite, t),
                           ),
@@ -1743,7 +1654,7 @@ class _CareersPageState extends State<CareersPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              hasFile ? _cvFile!.name : 'Upload Your CV',
+                              'Upload Your CV',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.manrope(
@@ -1754,11 +1665,7 @@ class _CareersPageState extends State<CareersPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              hasFile
-                                  ? 'Tap to replace your CV'
-                                  : (dragging
-                                      ? 'Drop your file here'
-                                      : 'PDF, DOC or DOCX (Max 5 MB)'),
+                              'Opens your mail – attach your CV there',
                               style: GoogleFonts.manrope(
                                 fontSize: 11.5,
                                 color: tBlue4.withOpacity(0.6),
@@ -1767,32 +1674,18 @@ class _CareersPageState extends State<CareersPage> {
                           ],
                         ),
                       ),
-                      if (hasFile)
-                        InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: () => setState(() => _cvFile = null),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 18,
-                              color: tOrange1,
-                            ),
-                          ),
-                        ),
                       // Arrow slides in from the left on hover.
-                      if (!hasFile)
-                        Opacity(
-                          opacity: t,
-                          child: Transform.translate(
-                            offset: Offset(8 * (1 - t), 0),
-                            child: Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 18,
-                              color: tBlueDark,
-                            ),
+                      Opacity(
+                        opacity: t,
+                        child: Transform.translate(
+                          offset: Offset(8 * (1 - t), 0),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
+                            color: tBlueDark,
                           ),
                         ),
+                      ),
                     ],
                   ),
                 ),
@@ -1808,25 +1701,25 @@ class _CareersPageState extends State<CareersPage> {
   /// On mobile the 4 tiles are stacked in a single column.
   Widget _buildWhyJoinCard() {
     final Widget meaningful = _whyTile(
-      icon: Icons.lightbulb_outline_rounded,
+      iconAsset: _Svg.whyMeaningfulWork,
       color: tOrange1,
       title: 'Meaningful Work',
       text: 'Solve real-world challenges in connected mobility.',
     );
     final Widget supportive = _whyTile(
-      icon: Icons.groups_outlined,
+      iconAsset: _Svg.whySupportiveTeam,
       color: tBlueDark,
       title: 'Supportive Team',
       text: 'Collaborative, inclusive and driven by growth.',
     );
     final Widget growth = _whyTile(
-      icon: Icons.bar_chart_rounded,
+      iconAsset: _Svg.whyContinuousGrowth,
       color: tBlueDark,
       title: 'Continuous Growth',
       text: 'Learn, upskill and take on new challenges.',
     );
     final Widget balance = _whyTile(
-      icon: Icons.favorite_border_rounded,
+      iconAsset: _Svg.whyWorkLifeBalance,
       color: tOrange1,
       title: 'Work-Life Balance',
       text: 'Flexibility and a healthy work environment.',
@@ -1899,7 +1792,7 @@ class _CareersPageState extends State<CareersPage> {
   }
 
   Widget _whyTile({
-    required IconData icon,
+    required String iconAsset,
     required Color color,
     required String title,
     required String text,
@@ -1918,11 +1811,12 @@ class _CareersPageState extends State<CareersPage> {
           Container(
             width: 40,
             height: 40,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: color.withOpacity(0.13),
             ),
-            child: Icon(icon, size: 20, color: color),
+            child: _SvgIcon(iconAsset, size: 20, color: color),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1954,14 +1848,15 @@ class _CareersPageState extends State<CareersPage> {
     );
   }
 
-  /// Card 3 – "Stay Informed" with Get Job Alerts button (orange).
+  /// Card 3 – "Follow us on LinkedIn" (orange).
   /// On mobile the button drops below the text and goes full width.
   Widget _buildStayInformedCard() {
     final Widget iconBox = Container(
       width: 52,
       height: 52,
+      alignment: Alignment.center,
       decoration: BoxDecoration(shape: BoxShape.circle, color: tWhite),
-      child: Icon(Icons.mail_outline_rounded, size: 26, color: tOrange1),
+      child: const _SvgIcon(_Svg.linkedInMail, size: 26, color: tOrange1),
     );
 
     final Widget textBlock = Column(
@@ -1970,7 +1865,7 @@ class _CareersPageState extends State<CareersPage> {
         Row(
           children: [
             Text(
-              'Stay Informed',
+              'Follow us on LinkedIn',
               style: GoogleFonts.manrope(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w800,
@@ -1998,7 +1893,7 @@ class _CareersPageState extends State<CareersPage> {
     final Widget button = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: _getJobAlerts,
+        onTap: _openLinkedIn,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
@@ -2010,10 +1905,10 @@ class _CareersPageState extends State<CareersPage> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.notifications_none_rounded, size: 16, color: tOrange1),
+              const _SvgIcon(_Svg.linkedInOpenNew, size: 16, color: tOrange1),
               const SizedBox(width: 6),
               Text(
-                'Get Job Alerts',
+                'Click here',
                 style: GoogleFonts.manrope(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -2178,7 +2073,8 @@ class _DashedRRectPainter extends CustomPainter {
       old.color != color || old.radius != radius;
 }
 
-/// Paper plane with a dashed flight path.
+/// Dashed flight path for the paper plane. The plane itself is now an SVG
+/// widget (see _Svg.planeSend) placed on top of this painter.
 class _PlanePathPainter extends CustomPainter {
   final Color color;
   const _PlanePathPainter({required this.color});
@@ -2211,23 +2107,6 @@ class _PlanePathPainter extends CustomPainter {
         d += 10;
       }
     }
-    final tp = TextPainter(
-      text: TextSpan(
-        text: String.fromCharCode(Icons.send_rounded.codePoint),
-        style: TextStyle(
-          fontSize: 30,
-          fontFamily: Icons.send_rounded.fontFamily,
-          package: Icons.send_rounded.fontPackage,
-          color: color,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    canvas.save();
-    canvas.translate(size.width * 0.78, size.height * 0.0);
-    canvas.rotate(-0.6);
-    tp.paint(canvas, Offset.zero);
-    canvas.restore();
   }
 
   @override

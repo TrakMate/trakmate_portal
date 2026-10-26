@@ -340,7 +340,7 @@ class _HeroSliderState extends State<HeroSlider> {
                 return const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.black, Colors.black, Colors.transparent],
+                  colors: [tBlack, tBlack, tTransparent],
                   stops: [0.0, 0.6, 1.0],
                 ).createShader(rect);
               },

@@ -127,7 +127,6 @@ class _Marketing3PWidgetState extends State<Marketing3PWidget> {
 }
 
 class _Marketing3PPainter extends CustomPainter {
-  static const Color white = Colors.white;
   // final Paint _paint = Paint()..isAntiAlias = true;
   final Map<String, PictureInfo> svgs;
 
@@ -345,7 +344,7 @@ class _Marketing3PPainter extends CustomPainter {
       center,
       radius - 14,
       Paint()
-        ..color = white
+        ..color = tWhite
         ..strokeWidth = 3
         ..style = PaintingStyle.stroke,
     );

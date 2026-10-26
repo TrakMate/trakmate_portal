@@ -637,13 +637,21 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
   }
 
   Widget _ctaButton() {
+    // Smaller button only on desktop. Tablet and mobile keep the original size.
+    final bool desktop = !isTablet && !isMobile;
+
     return ElevatedButton(
       onPressed: () => showGetInTouchDialog(context),
       style: ElevatedButton.styleFrom(
         backgroundColor: tOrange1,
         foregroundColor: tWhite,
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+        padding:
+            desktop
+                ? const EdgeInsets.symmetric(horizontal: 16, vertical: 10)
+                : const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(desktop ? 8 : 9),
+        ),
         elevation: 0,
       ),
       child: Row(
@@ -652,12 +660,12 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
           Text(
             'Talk to Our Experts',
             style: GoogleFonts.manrope(
-              fontSize: 13,
+              fontSize: desktop ? 12 : 13,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(width: 8),
-          const Icon(Icons.arrow_forward_rounded, size: 15),
+          SizedBox(width: desktop ? 6 : 8),
+          Icon(Icons.arrow_forward_rounded, size: desktop ? 14 : 15),
         ],
       ),
     );
@@ -675,13 +683,17 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
               .floorToDouble()
               .clamp(90.0, 150.0);
 
+          // Mobile display order: swap the 2nd-row cards (index 2 and 3)
+          const List<int> mobileOrder = [0, 1, 3, 2];
+
           return Wrap(
             alignment: WrapAlignment.center,
             spacing: gap,
             runSpacing: gap,
             children: [
-              for (int i = 0; i < items.length && i < 4; i++)
-                _buildCtaCard(items[i], background: colors[i], size: size),
+              for (final int i in mobileOrder)
+                if (i < items.length)
+                  _buildCtaCard(items[i], background: colors[i], size: size),
             ],
           );
         },
@@ -689,12 +701,16 @@ class _BuildEngineeringSectionState extends State<BuildEngineeringSection> {
     }
 
     if (isTablet) {
+      // Tablet display order: swap the last two cards (index 2 and 3)
+      const List<int> tabletOrder = [0, 1, 3, 2];
+
       return Wrap(
         spacing: 12,
         runSpacing: 12,
         children: [
-          for (int i = 0; i < items.length && i < 4; i++)
-            _buildCtaCard(items[i], background: colors[i]),
+          for (final int i in tabletOrder)
+            if (i < items.length)
+              _buildCtaCard(items[i], background: colors[i]),
         ],
       );
     }

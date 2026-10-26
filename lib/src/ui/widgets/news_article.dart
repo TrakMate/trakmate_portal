@@ -33,7 +33,7 @@ class NewsArticle {
 Future<void> showNewsArticleDialog(BuildContext context, NewsArticle article) {
   return showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.55),
+    barrierColor: tBlack.withOpacity(0.55),
     builder: (_) => NewsArticleDialog(article: article),
   );
 }
@@ -57,7 +57,7 @@ class NewsArticleDialog extends StatelessWidget {
             : const EdgeInsets.fromLTRB(40, 28, 40, 32);
 
     return Dialog(
-      backgroundColor: Colors.transparent,
+      backgroundColor: tTransparent,
       insetPadding:
           isMobile
               ? const EdgeInsets.symmetric(horizontal: 12, vertical: 20)
@@ -188,7 +188,7 @@ class NewsArticleDialog extends StatelessWidget {
                   top: 10,
                   right: 10,
                   child: Material(
-                    color: Colors.black.withOpacity(0.45),
+                    color: tBlack.withOpacity(0.45),
                     shape: const CircleBorder(),
                     child: InkWell(
                       customBorder: const CircleBorder(),
