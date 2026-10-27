@@ -476,7 +476,7 @@ class _CareersPageState extends State<CareersPage> {
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: tWhite,
-          surfaceTintColor: Colors.transparent,
+          surfaceTintColor: tTransparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -759,7 +759,7 @@ class _CareersPageState extends State<CareersPage> {
         return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.black, Colors.black, Colors.transparent],
+          colors: [tBlack, tBlack, tTransparent],
           stops: [0.0, 0.6, 1.0],
         ).createShader(rect);
       },
@@ -792,7 +792,7 @@ class _CareersPageState extends State<CareersPage> {
         return const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [Colors.transparent, Colors.black54, Colors.black],
+          colors: [tTransparent, tBlack2, tBlack],
           // 0.00 → 0.55 is the blend zone. Make 0.55 bigger for a softer,
           // longer blend; smaller for a sharper edge.
           stops: [0.0, 0.30, 0.55],

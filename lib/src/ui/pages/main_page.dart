@@ -23,7 +23,10 @@ import '../sections/products_section.dart';
 import 'package:trakmate_portal/src/ui/widgets/product_filter_controller.dart';
 import 'package:trakmate_portal/src/ui/widgets/nav_dropdown_menu.dart';
 
-void showGetInTouchDialog(BuildContext context) {
+void showGetInTouchDialog(
+  BuildContext context, {
+  String recipientEmail = 'info@trakmate.co.in',
+}) {
   productFilterCloseSignal.value++;
 
   Future.delayed(const Duration(milliseconds: 180), () {
@@ -36,7 +39,7 @@ void showGetInTouchDialog(BuildContext context) {
       barrierColor: tBlack.withOpacity(0.58),
       transitionDuration: const Duration(milliseconds: 550),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return const _GetInTouchDialog();
+        return _GetInTouchDialog(recipientEmail: recipientEmail);
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         final Animation<double> scaleAnimation = CurvedAnimation(
@@ -756,6 +759,67 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildGetInTouchButton() {
+    final double w = MediaQuery.of(context).size.width;
+
+    // Size steps by screen width.
+    // Desktop (>= 1100) keeps the original look.
+    final double hPad;
+    final double vPad;
+    final double font;
+    final double icon;
+    final double gap;
+    final double radius;
+
+    if (w < 360) {
+      // small phones (iPhone SE, Galaxy S small, 320-359)
+      hPad = 10;
+      vPad = 6;
+      font = 11.5;
+      icon = 15;
+      gap = 5;
+      radius = 4;
+    } else if (w < 400) {
+      // medium phones (360-399: Pixel, Galaxy S, iPhone 12 mini, etc.)
+      hPad = 12;
+      vPad = 6.5;
+      font = 12.5;
+      icon = 17;
+      gap = 6;
+      radius = 5;
+    } else if (w < 700) {
+      // large phones (400-699: iPhone 16 / Plus / Pro Max, foldables)
+      hPad = 14;
+      vPad = 7;
+      font = 13;
+      icon = 19;
+      gap = 8;
+      radius = 5;
+    } else if (w < 900) {
+      // small tablets (iPad mini, portrait tablets)
+      hPad = 18;
+      vPad = 8.5;
+      font = 14;
+      icon = 21;
+      gap = 9;
+      radius = 6;
+    } else if (w < 1100) {
+      // large tablets (iPad Air/Pro, Surface Pro)
+      hPad = 20;
+      vPad = 9.5;
+      font = 15;
+      icon = 22;
+      gap = 10;
+      radius = 6;
+    } else {
+      // desktop: unchanged
+      hPad = 16;
+      vPad = 7;
+      font = 14;
+      icon = 22;
+      gap = 10;
+      radius = 5;
+    }
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -763,26 +827,29 @@ class _MainPageState extends State<MainPage> {
           showGetInTouchDialog(context);
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+          padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
           decoration: BoxDecoration(
             gradient: tOrangeGradient2,
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: BorderRadius.circular(radius),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'Get in Touch',
+                maxLines: 1,
+                softWrap: false,
                 style: GoogleFonts.manrope(
                   color: tWhite,
-                  fontSize: 14,
+                  fontSize: font,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: gap),
               SvgPicture.asset(
                 'icons/right_arrow.svg',
-                width: 22,
-                height: 22,
+                width: icon,
+                height: icon,
                 colorFilter: const ColorFilter.mode(tWhite, BlendMode.srcIn),
               ),
             ],
@@ -794,7 +861,8 @@ class _MainPageState extends State<MainPage> {
 }
 
 class _GetInTouchDialog extends StatefulWidget {
-  const _GetInTouchDialog();
+  final String recipientEmail;
+  const _GetInTouchDialog({required this.recipientEmail});
 
   @override
   State<_GetInTouchDialog> createState() => _GetInTouchDialogState();
@@ -1102,7 +1170,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         _buildClickableContactInfoItem(
           icon: 'icons/mail.svg',
           title: 'Email',
-          values: ['info@trakmate.co.in'],
+          values: [widget.recipientEmail],
           scheme: 'mailto',
         ),
 
@@ -1347,7 +1415,7 @@ class _GetInTouchDialogState extends State<_GetInTouchDialog>
         '${phone.isEmpty ? '' : '$phone\n'}';
 
     final Uri mailUri = Uri.parse(
-      'mailto:info@trakmate.co.in'
+      'mailto:${widget.recipientEmail}'
       '?subject=${Uri.encodeComponent(mailSubject)}'
       '&body=${Uri.encodeComponent(body)}',
     );

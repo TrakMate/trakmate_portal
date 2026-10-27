@@ -286,7 +286,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
           .toList();
   final List<_ProductItemData> _products = const [
     _ProductItemData(
-      image: "images/tmd104(a).png",
+      image: "images/tmd104b.png",
       name: "TMD104",
       subtitle: "Advanced GPS Tracker",
     ),

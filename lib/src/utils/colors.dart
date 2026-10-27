@@ -231,4 +231,52 @@ const ipbadge = Color(0xFF9333EA);
 const tBadgeBlue = Color(0xFFE3EAF5); // 4G, 4G+2G, Wi-Fi, HD Display, Ethernet
 const tBadgeSky = Color(0xFFDCE9FA); // Bluetooth
 const tBadgeGreen = Color(0xFFDDF1DD); // EV Compatible, Android OS
-const tBadgeBeige = Color(0xFFF1EBDD);   // Linux OS
+const tBadgeBeige = Color(0xFFF1EBDD); // Linux OS
+
+// ---------------------------------------------------------------------------
+// About Us page - "Our Story" arrow steps
+// (each step has a main colour and a darker shade)
+// ---------------------------------------------------------------------------
+const tStoryYellow = Color(0xFFFFCF48); // Foundation & Vision
+const tStoryYellowDark = Color(0xFFF4BE3F);
+const tStoryGreen = Color(0xFF99CC33); // Innovation & Expansion
+const tStoryGreenDark = Color(0xFF98C230);
+const tStoryTeal = Color(0xFF30B5C8); // Connected Growth
+const tStoryTealDark = Color(0xFF24A8B5);
+const tStoryRed = Color(0xFFE84C47); // Global Reach
+const tStoryRedDark = Color(0xFFD93533);
+const tStoryPurple = Color(0xFFA33572); // Future & Evolution
+const tStoryPurpleDark = Color(0xFF962D6C);
+
+// ---------------------------------------------------------------------------
+// Timeline pieces shared by the About Us page (pointer painter) and the
+// Our Journey page (cards + pointers)
+// ---------------------------------------------------------------------------
+const tTimelineCard = Color(0xFFF8FBFF); // card / pointer fill
+const tTimelinePointerBorder = Color(0xFF8FC0FF); // pointer slanted edges
+
+// ---------------------------------------------------------------------------
+// Our Journey page
+// ---------------------------------------------------------------------------
+// Card
+const tJourneyCardBorder = Color(0xFFB9D9FF);
+const tJourneyShadowBlue = Color(0xFF66AFFF); // big card shadow
+const tJourneyShadowBlueSoft = Color(0xFF4C9AFF); // small card shadow
+
+// Icon circle inside the card
+const tJourneyIconRing = Color(0xFFD4E9FF); // outer circle border
+const tJourneyIconGlow = Color(0xFF5B9CFF); // outer circle glow
+const tJourneyIconInner = Color(
+  0xFFF7FBFF,
+); // inner circle fill (also node fill)
+const tJourneyIconInnerBorder = Color(0xFFE0EEFF);
+const tJourneyIcon = Color(0xFF2474EA); // svg icon colour
+
+// Card text
+const tJourneyYear = Color(0xFF1263E8);
+const tJourneyTitle = Color(0xFF10284E);
+const tJourneyDescription = Color(0xFF617797);
+
+// Timeline node (dot on the line)
+const tJourneyNodeBorder = Color(0xFFA8CFFF);
+const tJourneyNodeGlow = Color(0xFF3C8DFF);

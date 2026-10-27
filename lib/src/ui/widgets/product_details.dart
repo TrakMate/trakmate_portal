@@ -319,16 +319,29 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // MOBILE specs slide: product image on top, ALL badges wrapped below it.
-  // The badge block scales down automatically if it can't fit.
+  // MOBILE specs slide: product image on top, badges below in rows of 3
+  // (e.g. 6 badges -> 2 rows of 3). Badge size is calculated from the
+  // available width so 3 always fit side by side.
   Widget _buildMobileSpecsSlide(String productImage) {
-    final double screenW = MediaQuery.of(context).size.width;
-    final double kb = screenW < 380 ? 0.62 : 0.72;
+    const int perRow = 3;
+    const double hGap = 6; // horizontal gap between badges
+    const double vGap = 10; // vertical gap between rows
 
     return LayoutBuilder(
       builder: (context, c) {
         const double sidePad = 30; // keeps clear of the arrow buttons
         final double contentW = math.max(c.maxWidth - sidePad * 2, 0);
+
+        // Scale so that `perRow` badges (132 wide at full size) + gaps
+        // fit exactly in contentW.
+        final double kb = ((contentW - hGap * (perRow - 1)) / (perRow * 132))
+            .clamp(0.4, 0.85);
+
+        // Split badges into rows of 3
+        final List<List<String>> rows = [];
+        for (int i = 0; i < product.specBadges.length; i += perRow) {
+          rows.add(product.specBadges.skip(i).take(perRow).toList());
+        }
 
         return Padding(
           // bottom keeps everything clear of the thumbnails
@@ -359,14 +372,26 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   alignment: Alignment.topCenter,
                   child: SizedBox(
                     width: contentW,
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      spacing: 8,
-                      runSpacing: 10,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        for (final String badge in product.specBadges)
-                          _buildSpecBadgeItem(badge, kb),
+                        for (int r = 0; r < rows.length; r++)
+                          Padding(
+                            padding: EdgeInsets.only(top: r == 0 ? 0 : vGap),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (int i = 0; i < rows[r].length; i++)
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      left: i == 0 ? 0 : hGap,
+                                    ),
+                                    child: _buildSpecBadgeItem(rows[r][i], kb),
+                                  ),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -1932,8 +1957,8 @@ class _DataSheetRequestDialog extends StatefulWidget {
 class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
     with SingleTickerProviderStateMixin {
   // Change the recipient here (one place only).
-  // Testing: your gmail. Before going live: info@trakmate.co.in
-  static const String _toMail = 'info@trakmate.co.in';
+
+  static const String _toMail = 'sales@trakmate.co.in';
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();

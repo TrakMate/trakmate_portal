@@ -92,7 +92,7 @@ class MobileApp extends StatelessWidget {
                       _MobileServiceCardData(
                         image: 'images/mobile_appp1.png',
                         logo: 'icons/trakmate_logo.svg',
-                        title: 'Fleet Management',
+                        title: 'TrakBlue',
                         description:
                             'Secure cloud-connected mobile apps with centralized data and easy access from anywhere.',
                         playStoreUrl:

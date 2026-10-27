@@ -283,7 +283,7 @@ class _BuildProductSectionState extends State<BuildProductSection> {
       badgeColor: tBlue3,
       secondBadge: '2G',
       secondBadgeColor: tOrange1,
-      title: 'TMDNEW',
+      title: 'TMD026',
       subtitle: 'Advanced GPS Tracker',
       category: 'Telematics',
       description:
@@ -2197,7 +2197,11 @@ class _BuildProductSectionState extends State<BuildProductSection> {
           SizedBox(
             width: isMobile ? double.infinity : null,
             child: ElevatedButton(
-              onPressed: () => showGetInTouchDialog(context),
+              onPressed:
+                  () => showGetInTouchDialog(
+                    context,
+                    recipientEmail: 'sales@trakmate.co.in',
+                  ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: tBlue1,
                 foregroundColor: tWhite,
@@ -2292,7 +2296,10 @@ class _BuildProductSectionState extends State<BuildProductSection> {
 
                 ElevatedButton(
                   onPressed: () {
-                    showGetInTouchDialog(context);
+                    showGetInTouchDialog(
+                      context,
+                      recipientEmail: 'sales@trakmate.co.in',
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: tBlue1,

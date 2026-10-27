@@ -2262,36 +2262,36 @@ class _AboutusSectionState extends State<AboutusSection> {
         icon: 'icons/innovation.svg',
         title: 'Foundation & Vision',
         description: 'Where our journey began.',
-        color: Color(0xFFFFCF48),
-        darkColor: Color(0xFFF4BE3F),
+        color: tStoryYellow,
+        darkColor: tStoryYellowDark,
       ),
       _StoryStep(
         icon: 'icons/impact.svg',
         title: 'Innovation & Expansion',
         description: 'Growing our capabilities through new ideas.',
-        color: Color(0xFF99CC33),
-        darkColor: Color(0xFF98C230),
+        color: tStoryGreen,
+        darkColor: tStoryGreenDark,
       ),
       _StoryStep(
         icon: 'icons/collaboration.svg',
         title: 'Connected Growth',
         description: 'Building stronger solutions and partnerships.',
-        color: Color(0xFF30B5C8),
-        darkColor: Color(0xFF24A8B5),
+        color: tStoryTeal,
+        darkColor: tStoryTealDark,
       ),
       _StoryStep(
         icon: 'icons/globe.svg',
         title: 'Global Reach',
         description: 'Expanding our presence across new markets.',
-        color: Color(0xFFE84C47),
-        darkColor: Color(0xFFD93533),
+        color: tStoryRed,
+        darkColor: tStoryRedDark,
       ),
       _StoryStep(
         icon: 'icons/manufacture.svg',
         title: 'Future & Evolution',
         description: 'Continuously shaping what comes next.',
-        color: Color(0xFFA33572),
-        darkColor: Color(0xFF962D6C),
+        color: tStoryPurple,
+        darkColor: tStoryPurpleDark,
       ),
     ];
 
@@ -3304,7 +3304,7 @@ class _StoryTimelinePointerPainter extends CustomPainter {
 
   _StoryTimelinePointerPainter({
     required this.isAbove,
-    this.fillColor = const Color(0xFFF8FBFF),
+    this.fillColor = tTimelineCard,
   });
 
   @override
@@ -3313,7 +3313,7 @@ class _StoryTimelinePointerPainter extends CustomPainter {
 
     final Paint borderPaint =
         Paint()
-          ..color = const Color(0xFF8FC0FF)
+          ..color = tTimelinePointerBorder
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.6
           ..strokeJoin = StrokeJoin.round;

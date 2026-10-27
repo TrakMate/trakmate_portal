@@ -369,7 +369,7 @@ class _JourneyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color cardColor = Color(0xFFF8FBFF);
+    const Color cardColor = tTimelineCard;
     final bool small = iconSize < 70;
 
     return Stack(
@@ -386,18 +386,18 @@ class _JourneyCard extends StatelessWidget {
             color: cardColor,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: const Color(0xFFB9D9FF).withOpacity(0.65),
+              color: tJourneyCardBorder.withOpacity(0.65),
               width: 1.4,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF66AFFF).withOpacity(0.18),
+                color: tJourneyShadowBlue.withOpacity(0.18),
                 blurRadius: 20,
                 spreadRadius: 1,
                 offset: const Offset(0, 6),
               ),
               BoxShadow(
-                color: const Color(0xFF4C9AFF).withOpacity(0.10),
+                color: tJourneyShadowBlueSoft.withOpacity(0.10),
                 blurRadius: 10,
                 spreadRadius: 1,
                 offset: const Offset(0, 3),
@@ -416,13 +416,10 @@ class _JourneyCard extends StatelessWidget {
                     colors: [tWhite, tBlueMist1, tBlueMist2],
                     stops: [0.0, 0.65, 1.0],
                   ),
-                  border: Border.all(
-                    color: const Color(0xFFD4E9FF),
-                    width: 1.5,
-                  ),
+                  border: Border.all(color: tJourneyIconRing, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF5B9CFF).withOpacity(0.16),
+                      color: tJourneyIconGlow.withOpacity(0.16),
                       blurRadius: small ? 10 : 15,
                       spreadRadius: small ? 1 : 3,
                     ),
@@ -437,9 +434,9 @@ class _JourneyCard extends StatelessWidget {
                   margin: EdgeInsets.all(small ? 5 : 6),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFF7FBFF),
+                    color: tJourneyIconInner,
                     border: Border.all(
-                      color: const Color(0xFFE0EEFF),
+                      color: tJourneyIconInnerBorder,
                       width: 1,
                     ),
                   ),
@@ -449,7 +446,7 @@ class _JourneyCard extends StatelessWidget {
                       width: small ? 26 : 36,
                       height: small ? 26 : 36,
                       fit: BoxFit.contain,
-                      color: const Color(0xFF2474EA),
+                      color: tJourneyIcon,
                     ),
                   ),
                 ),
@@ -465,7 +462,7 @@ class _JourneyCard extends StatelessWidget {
                       Text(
                         item.year,
                         style: GoogleFonts.manrope(
-                          color: const Color(0xFF1263E8),
+                          color: tJourneyYear,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                           height: 1.0,
@@ -477,7 +474,7 @@ class _JourneyCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.manrope(
-                          color: const Color(0xFF10284E),
+                          color: tJourneyTitle,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           height: 1.15,
@@ -489,7 +486,7 @@ class _JourneyCard extends StatelessWidget {
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.manrope(
-                          color: const Color(0xFF617797),
+                          color: tJourneyDescription,
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
                           height: 1.45,
@@ -548,11 +545,11 @@ class _JourneyNode extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFFF7FBFF),
-        border: Border.all(color: const Color(0xFFA8CFFF), width: 2),
+        color: tJourneyIconInner,
+        border: Border.all(color: tJourneyNodeBorder, width: 2),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3C8DFF).withOpacity(0.25),
+            color: tJourneyNodeGlow.withOpacity(0.25),
             blurRadius: 14,
             spreadRadius: 2,
           ),
@@ -583,7 +580,7 @@ class _PointerPainter extends CustomPainter {
     final Paint fillPaint = Paint()..color = fillColor;
     final Paint borderPaint =
         Paint()
-          ..color = const Color(0xFF8FC0FF)
+          ..color = tTimelinePointerBorder
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.6
           ..strokeJoin = StrokeJoin.round;
