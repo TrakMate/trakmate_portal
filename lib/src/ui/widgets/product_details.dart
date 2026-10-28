@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -1711,7 +1710,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
         onTap: () {
           // CONTACT ACTION
-          showGetInTouchDialog(context);
+          showGetInTouchDialog(context, recipientEmail: 'sales@trakmate.co.in');
         },
 
         child: Container(
@@ -2406,4 +2405,54 @@ class _DataSheetRequestDialogState extends State<_DataSheetRequestDialog>
       ],
     );
   }
+}
+
+Route<void> _productRoute(ProductData product) {
+  return PageRouteBuilder<void>(
+    transitionDuration: const Duration(milliseconds: 320),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (_, __, ___) => ProductDetailsPage(product: product),
+    transitionsBuilder: (_, animation, __, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeIn,
+      );
+      return FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.03),
+            end: Offset.zero,
+          ).animate(curved),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+/// Pre-loads the first image, THEN opens the page, so there is no
+/// blank frame / pop-in while the transition plays.
+Future<void> openProductDetails(
+  BuildContext context,
+  ProductData product,
+) async {
+  final navigator = Navigator.of(context);
+
+  try {
+    final String first =
+        (product.image1 != null && product.image1!.isNotEmpty)
+            ? product.image1!
+            : product.image;
+    await precacheImage(
+      AssetImage(first),
+      context,
+    ).timeout(const Duration(milliseconds: 800)); // never block the tap
+  } catch (_) {}
+
+  if (!context.mounted) return;
+  await navigator.push(
+    _productRoute(product),
+  ); // completes when user comes back
 }

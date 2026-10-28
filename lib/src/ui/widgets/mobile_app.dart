@@ -7,9 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 
-// =========================================================
 // RESPONSIVE HELPERS (mobile only, tablet/desktop untouched)
-// =========================================================
 
 /// Large + small phones.
 bool _isPhone(BuildContext context) => MediaQuery.of(context).size.width < 600;
@@ -18,9 +16,7 @@ bool _isPhone(BuildContext context) => MediaQuery.of(context).size.width < 600;
 bool _isSmallPhone(BuildContext context) =>
     MediaQuery.of(context).size.width < 360;
 
-// =========================================================
 // MOBILE APP PAGE  (same UI as WebApp)
-// =========================================================
 
 class MobileApp extends StatelessWidget {
   const MobileApp({super.key});
@@ -113,9 +109,7 @@ class MobileApp extends StatelessWidget {
   }
 }
 
-// =========================================================
 // BACK BUTTON
-// =========================================================
 
 Widget _buildBackButton(BuildContext context) {
   final bool isTablet = ResponsiveLayout.isTablet(context);

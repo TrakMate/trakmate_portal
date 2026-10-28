@@ -119,7 +119,18 @@ class _CareersPageState extends State<CareersPage> {
   double get _pad => isMobile ? 16 : (isTablet ? 24 : 40);
 
   // Filter tabs – must match the `category` values used in _jobs below.
-  static const List<String> _tabs = ['All Roles', 'Engineering', 'Operations'];
+  // Tabs with no matching job (Product, Design, Business, Mechanical) show
+  // an "no current openings" note until jobs are added for them.
+  static const List<String> _tabs = [
+    'All Roles',
+    'Engineering',
+    'Operations',
+    'Product',
+    'Design',
+    // 'Operations',
+    'Business',
+    'Mechanical',
+  ];
 
   static const List<String> _locations = ['All Locations', 'Bengaluru, India'];
 
@@ -1137,6 +1148,17 @@ class _CareersPageState extends State<CareersPage> {
       ),
     );
 
+    // Empty-state note:
+    //  • a category tab with no jobs (and no search text) → "no current openings"
+    //  • otherwise (search / location gave nothing)      → "no openings match"
+    final bool searching = _query.trim().isNotEmpty;
+    final bool emptyCategory = !searching && _selectedTab != 0;
+    final String emptyMessage =
+        emptyCategory
+            ? 'No current openings in ${_tabs[_selectedTab]}.\n'
+                'Share your CV below and we’ll reach out when a matching role opens up.'
+            : 'No openings match your search.';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1155,8 +1177,13 @@ class _CareersPageState extends State<CareersPage> {
             padding: const EdgeInsets.symmetric(vertical: 40),
             child: Center(
               child: Text(
-                'No openings match your search.',
-                style: GoogleFonts.manrope(fontSize: 14, color: tGrey1),
+                emptyMessage,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.manrope(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: tGrey1,
+                ),
               ),
             ),
           )
@@ -1856,7 +1883,7 @@ class _CareersPageState extends State<CareersPage> {
       height: 52,
       alignment: Alignment.center,
       decoration: BoxDecoration(shape: BoxShape.circle, color: tWhite),
-      child: const _SvgIcon(_Svg.linkedInMail, size: 26, color: tOrange1),
+      child: const _SvgIcon(_Svg.linkedInMail, size: 26, color: tBlue3),
     );
 
     final Widget textBlock = Column(

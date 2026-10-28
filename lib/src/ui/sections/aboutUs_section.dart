@@ -182,7 +182,7 @@ class _AboutusSectionState extends State<AboutusSection> {
     _CertData(
       logo: 'icons/rohs2.svg',
       code: 'ROHS Products',
-      label: 'Vehicle Tracking & Telematics',
+      label: 'Sustainable Product Certification',
       logoHeight: 46,
       logoWidth: 46,
     ),
@@ -1632,7 +1632,7 @@ class _AboutusSectionState extends State<AboutusSection> {
         _divider(),
         buildAchievementsCard(
           icon: 'icons/delivery.svg',
-          title: '150+',
+          title: '35+',
           subtitle: 'Products Delivered',
         ),
         _divider(),

@@ -41,7 +41,7 @@ class _SolutionsHubPageState extends State<SolutionsHubPage> {
     // MOBILE APPS
     SolutionDetailsData(
       backgroundImage: 'images/mobileapps2.png',
-      icon: 'icons/mobile.svg',
+      icon: 'icons/mobile1.svg',
       iconBackgroundColor: tOrange1,
       eyebrow: 'MOBILE APPLICATIONS',
       title: 'Mobile Apps',
@@ -78,7 +78,7 @@ class _SolutionsHubPageState extends State<SolutionsHubPage> {
     // WEB APPS
     SolutionDetailsData(
       backgroundImage: 'images/webapps2.png',
-      icon: 'icons/laptop.svg',
+      icon: 'icons/laptop1.svg',
       iconBackgroundColor: tBlue3,
       eyebrow: 'WEB APPLICATIONS',
       title: 'Web Apps',

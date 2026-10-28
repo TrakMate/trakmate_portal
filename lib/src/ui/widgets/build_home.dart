@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:trakmate_portal/src/ui/widgets/build_products.dart';
 import 'package:trakmate_portal/src/ui/widgets/office_section.dart';
+import 'package:trakmate_portal/src/ui/widgets/product_details.dart';
 import 'package:trakmate_portal/src/ui/widgets/shimmer_effect.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
@@ -287,7 +289,7 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
   final List<_ProductItemData> _products = const [
     _ProductItemData(
       image: "images/tmd104b.png",
-      name: "TMD104",
+      name: "TMD001",
       subtitle: "Advanced GPS Tracker",
     ),
     _ProductItemData(
@@ -508,6 +510,23 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
+  }
+
+  bool _openingProduct =
+      false; // blocks double-taps (a common cause of glitches)
+
+  Future<void> _openProduct(_ProductItemData item) async {
+    if (_openingProduct) return;
+
+    final ProductData? product = findProductByTitle(item.name);
+    if (product == null) {
+      widget.onNavigate?.call(3); // fallback: go to the Products tab
+      return;
+    }
+
+    _openingProduct = true;
+    await openProductDetails(context, product);
+    _openingProduct = false;
   }
 
   // ---- Mobile products: one card at a time, always centered ----
@@ -998,93 +1017,100 @@ class _IndustriesProductsSectionState extends State<IndustriesProductsSection>
     final double imgW = isMobile ? 140 : 170;
     final double imgH = isMobile ? 110 : 130;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: tWhite,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: tBlue3.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _openProduct(product),
+        child: Container(
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: tBlue3.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: EdgeInsets.all(isMobile ? 14 : 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Center(
-                child: Image(
-                  image: _productProviders[index],
-                  fit: BoxFit.contain,
-                  width: imgW,
-                  height: imgH,
-                  gaplessPlayback: true,
-                  frameBuilder: (
-                    context,
-                    child,
-                    frame,
-                    wasSynchronouslyLoaded,
-                  ) {
-                    if (wasSynchronouslyLoaded) return child;
-                    return SizedBox(
+          padding: EdgeInsets.all(isMobile ? 14 : 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Center(
+                    child: Image(
+                      image: _productProviders[index],
+                      fit: BoxFit.contain,
                       width: imgW,
                       height: imgH,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (frame == null)
-                            const ShimmerBox(
-                              height: double.infinity,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(8),
+                      gaplessPlayback: true,
+                      frameBuilder: (
+                        context,
+                        child,
+                        frame,
+                        wasSynchronouslyLoaded,
+                      ) {
+                        if (wasSynchronouslyLoaded) return child;
+                        return SizedBox(
+                          width: imgW,
+                          height: imgH,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              if (frame == null)
+                                const ShimmerBox(
+                                  height: double.infinity,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8),
+                                  ),
+                                ),
+                              AnimatedOpacity(
+                                opacity: frame == null ? 0 : 1,
+                                duration: const Duration(milliseconds: 300),
+                                child: child,
                               ),
-                            ),
-                          AnimatedOpacity(
-                            opacity: frame == null ? 0 : 1,
-                            duration: const Duration(milliseconds: 300),
-                            child: child,
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                  errorBuilder:
-                      (context, error, stackTrace) =>
-                          Container(color: tBlue3.withOpacity(0.1)),
+                        );
+                      },
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              Container(color: tBlue3.withOpacity(0.1)),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(
+                product.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                  color: tBlue2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                product.subtitle,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w500,
+                  color: tBlue2.withOpacity(0.8),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            product.name,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-              color: tBlue2,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            product.subtitle,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w500,
-              color: tBlue2.withOpacity(0.8),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

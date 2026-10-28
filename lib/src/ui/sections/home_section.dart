@@ -74,7 +74,7 @@ class _HomeSectionState extends State<HomeSection> {
     ),
     _StatData(
       icon: "icons/delivery3.svg",
-      value: "150+",
+      value: "35+",
       label: "Projects Delivered",
     ),
     _StatData(
@@ -102,7 +102,7 @@ class _HomeSectionState extends State<HomeSection> {
     ),
     _StatData(
       icon: "icons/delivery3.svg",
-      value: "150+",
+      value: "35+",
       label: "Projects Delivered",
     ),
     _StatData(
@@ -156,7 +156,7 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine1: "Built for Scale.",
       headingLine2: "Delivered with Precision.",
       description:
-          'With clients across 6+ countries and 150+ products delivered, TrakMate is a technology partner businesses rely on globally.',
+          'With clients across 6+ countries and 35+ products delivered, TrakMate is a technology partner businesses rely on globally.',
       stats: _statsRest,
     ),
   ];

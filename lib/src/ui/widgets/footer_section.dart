@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 import 'package:trakmate_portal/src/ui/pages/main_page.dart';
+import 'package:trakmate_portal/src/ui/pages/privacy_policy.dart';
+import 'package:trakmate_portal/src/ui/pages/refund_policy.dart';
+import 'package:trakmate_portal/src/ui/pages/terms_condition.dart';
 import 'package:trakmate_portal/src/ui/widgets/nav_footer.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -193,9 +196,9 @@ class FooterSection extends StatelessWidget {
         Row(
           children: [
             _social('icons/linkedin.svg'),
-            _social('icons/facebook.svg'),
+            // _social('icons/facebook.svg'),
             _social('icons/whatsapp.svg'),
-            // _social('icons/youtube.svg'),
+            _social('icons/youtube.svg'),
           ],
         ),
       ],
@@ -285,28 +288,34 @@ class FooterSection extends StatelessWidget {
     );
   }
 
-  // Opens a placeholder page for Privacy Policy / Terms & Conditions.
-  void _openLegalPage(BuildContext context, String title) {
+  // Opens one of the legal pages (each link passes its own page widget).
+  // The page is wrapped in a scrollable Scaffold with a back button on top.
+  void _openLegalPage(BuildContext context, Widget page) {
     Navigator.of(context).push(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 200),
         reverseTransitionDuration: const Duration(milliseconds: 150),
         pageBuilder:
             (routeContext, __, ___) => Scaffold(
-              body: Stack(
-                children: [
-                  const Placeholder(),
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        tooltip: 'Back',
-                        onPressed: () => Navigator.of(routeContext).pop(),
+              backgroundColor: tWhite,
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          color: tBlue3,
+                          tooltip: 'Back',
+                          onPressed: () => Navigator.of(routeContext).pop(),
+                        ),
                       ),
-                    ),
+                      page,
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
         transitionsBuilder:
@@ -317,17 +326,39 @@ class FooterSection extends StatelessWidget {
   }
 
   // Clickable text used for the legal links in all three bottom bars.
-  Widget _legalLink(String text, TextStyle style) {
+  Widget _legalLink(String text, TextStyle style, Widget page) {
     return Builder(
       builder:
           (context) => MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => _openLegalPage(context, text),
+              onTap: () => _openLegalPage(context, page),
               child: Text(text, style: style),
             ),
           ),
+    );
+  }
+
+  // Privacy Policy | Terms & Conditions | Refund Policy
+  // Each link opens its own page. Wraps onto a new line if space is tight.
+  Widget _legalLinks(TextStyle style, {double gap = 15}) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: 8,
+      children: [
+        _legalLink("Privacy Policy", style, const PrivacyPolicyPage()),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: gap),
+          child: Text("|", style: style.copyWith(fontWeight: FontWeight.w600)),
+        ),
+        _legalLink("Terms & Conditions", style, const TermsConditionPage()),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: gap),
+          child: Text("|", style: style.copyWith(fontWeight: FontWeight.w600)),
+        ),
+        _legalLink("Refund Policy", style, const RefundPolicyPage()),
+      ],
     );
   }
 
@@ -344,13 +375,7 @@ class FooterSection extends StatelessWidget {
           style: style,
         ),
         const Spacer(),
-        _legalLink("Privacy Policy", style),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Text("|", style: style.copyWith(fontWeight: FontWeight.w600)),
-        ),
-        _legalLink("Terms & Conditions", style),
+        _legalLinks(style),
       ],
     );
   }
@@ -372,17 +397,7 @@ class FooterSection extends StatelessWidget {
             "© ${DateTime.now().year} Trakmate Design Solutions Pvt Ltd. All Rights Reserved.",
             style: style,
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _legalLink("Privacy Policy", style),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Text("|", style: style),
-              ),
-              _legalLink("Terms & Conditions", style),
-            ],
-          ),
+          _legalLinks(style),
         ],
       ),
     );
@@ -406,17 +421,7 @@ class FooterSection extends StatelessWidget {
             style: style,
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _legalLink("Privacy Policy", style),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text("|", style: style),
-              ),
-              _legalLink("Terms & Conditions", style),
-            ],
-          ),
+          _legalLinks(style, gap: 10),
         ],
       ),
     );
