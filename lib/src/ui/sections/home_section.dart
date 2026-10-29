@@ -33,7 +33,7 @@ class _HeroSlideData {
   final String headingLine1;
   final String headingLine2;
   final String description;
-  final List<_StatData> stats;
+  // final List<_StatData> stats;
 
   const _HeroSlideData({
     required this.video,
@@ -41,7 +41,7 @@ class _HeroSlideData {
     required this.headingLine1,
     required this.headingLine2,
     required this.description,
-    required this.stats,
+    // required this.stats,
   });
 }
 
@@ -83,7 +83,7 @@ class _HomeSectionState extends State<HomeSection> {
       label: "Happy Clients",
     ),
     _StatData(
-      icon: "icons/worldglobe1.svg",
+      icon: "icons/worldglobe.svg",
       value: "6+",
       label: "Countries Served",
     ),
@@ -94,7 +94,8 @@ class _HomeSectionState extends State<HomeSection> {
     ),
   ];
 
-  static const List<_StatData> _statsRest = [
+  // Same stats on every slide.
+  static const List<_StatData> _stats = [
     _StatData(
       icon: "icons/badge2.svg",
       value: "12+",
@@ -121,7 +122,6 @@ class _HomeSectionState extends State<HomeSection> {
       label: "Device Installed",
     ),
   ];
-
   final List<_HeroSlideData> _slides = const [
     _HeroSlideData(
       video: "video/v1.mp4",
@@ -130,7 +130,6 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Charging a Sustainable Tomorrow.",
       description:
           'TrakMate’s smart fleet solutions connect vehicles, capture real-time data, and deliver actionable insights to help businesses monitor, manage, and optimize their fleets.',
-      stats: _statsFirst,
     ),
     _HeroSlideData(
       video: "video/v2.mp4",
@@ -139,7 +138,6 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Smarter Asset Management.",
       description:
           'TrakMate connects your assets, captures valuable data, and turns it into actionable insights—giving businesses the knowledge they need, when they need it.',
-      stats: _statsRest,
     ),
     _HeroSlideData(
       video: "video/v3.mp4",
@@ -148,7 +146,6 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Build for Tomorrow.",
       description:
           'From connected technologies and embedded systems to product engineering and manufacturing, TrakMate delivers solutions built for performance, reliability and long-term growth.',
-      stats: _statsRest,
     ),
     _HeroSlideData(
       video: "video/v4.mp4",
@@ -157,7 +154,6 @@ class _HomeSectionState extends State<HomeSection> {
       headingLine2: "Delivered with Precision.",
       description:
           'With clients across 6+ countries and 35+ products delivered, TrakMate is a technology partner businesses rely on globally.',
-      stats: _statsRest,
     ),
   ];
 
@@ -1027,19 +1023,15 @@ class _HomeSectionState extends State<HomeSection> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  for (
-                                    int i = 0;
-                                    i < slide.stats.length;
-                                    i++
-                                  ) ...[
+                                  for (int i = 0; i < _stats.length; i++) ...[
                                     if (i != 0)
                                       SizedBox(width: isTablet ? 28 : 66),
                                     _buildStatItem(
-                                      slide.stats[i].icon,
-                                      slide.stats[i].icon == "icons/badge2.svg"
+                                      _stats[i].icon,
+                                      _stats[i].icon == "icons/badge2.svg"
                                           ? "${DateTime.now().year - 2013}+"
-                                          : slide.stats[i].value,
-                                      slide.stats[i].label,
+                                          : _stats[i].value,
+                                      _stats[i].label,
                                     ),
                                   ],
                                 ],
@@ -1181,7 +1173,7 @@ class _HomeSectionState extends State<HomeSection> {
                         spacing: statGap,
                         runSpacing: 20,
                         children: [
-                          for (final stat in slide.stats)
+                          for (final stat in _stats)
                             SizedBox(
                               width: statW,
                               child: _buildStatItem(

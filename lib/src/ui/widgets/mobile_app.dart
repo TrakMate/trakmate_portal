@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 
@@ -80,8 +79,6 @@ class MobileApp extends StatelessWidget {
                         title: 'TrakFleet',
                         description:
                             'Track vehicles, trips and alerts on the go with a fast, simple mobile experience built for your fleet.',
-                        playStoreUrl:
-                            'https://play.google.com/store/apps/details?id=in.gov.uidai.pehchaan&hl=en_IN',
                       ),
 
                       // CARD 2
@@ -91,8 +88,6 @@ class MobileApp extends StatelessWidget {
                         title: 'TrakBlue',
                         description:
                             'Secure cloud-connected mobile apps with centralized data and easy access from anywhere.',
-                        playStoreUrl:
-                            'https://play.google.com/store/apps/details?id=YOUR.TRAKFLEET.PACKAGE.ID',
                       ),
                     ],
                   ),
@@ -160,13 +155,12 @@ class _MobileServiceCardData {
   final String logo;
   final String title;
   final String description;
-  final String playStoreUrl;
+
   const _MobileServiceCardData({
     required this.image,
     required this.logo,
     required this.title,
     required this.description,
-    required this.playStoreUrl,
   });
 }
 
@@ -283,8 +277,9 @@ class _MobileServiceCard extends StatelessWidget {
       ),
     );
 
+    // INSTALL APP -> opens the QR dialog (no Play Store)
     final Widget appButton = OutlinedButton.icon(
-      onPressed: () => _openPlayStore(data.playStoreUrl),
+      onPressed: () => _showQrDialog(context, data.title),
       style: OutlinedButton.styleFrom(
         foregroundColor: tBlue3,
         overlayColor: isTablet ? tTransparent : null,
@@ -488,19 +483,199 @@ class _MobileBadge extends StatelessWidget {
     );
   }
 }
+
 // =========================================================
-// OPEN PLAY STORE
+// QR INSTALL DIALOG
 // =========================================================
 
-Future<void> _openPlayStore(String url) async {
-  try {
-    final bool opened = await launchUrl(
-      Uri.parse(url),
-      mode: LaunchMode.externalApplication,
+void _showQrDialog(BuildContext context, String title) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Install App',
+    barrierColor: tBlack.withOpacity(0.58),
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return _QrInstallDialog(title: title);
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final scale = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutBack,
+        reverseCurve: Curves.easeInCubic,
+      );
+      final fade = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeIn,
+      );
+
+      return FadeTransition(
+        opacity: fade,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.85, end: 1.0).animate(scale),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+class _QrInstallDialog extends StatelessWidget {
+  final String title;
+
+  const _QrInstallDialog({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final Size screen = MediaQuery.of(context).size;
+    final bool isMobile = screen.width < 650;
+    final bool isSmall = screen.width < 360;
+
+    final double dialogWidth =
+        isMobile ? screen.width * (isSmall ? 0.92 : 0.88) : 420;
+
+    // Size of the empty QR area
+    final double qrSize = (dialogWidth - 80).clamp(160.0, 240.0);
+
+    return Center(
+      child: Material(
+        color: tTransparent,
+        child: Container(
+          width: dialogWidth,
+          constraints: BoxConstraints(maxHeight: screen.height * 0.92),
+          decoration: BoxDecoration(
+            color: tWhite,
+            borderRadius: BorderRadius.circular(isMobile ? 20 : 24),
+            boxShadow: [
+              BoxShadow(
+                color: tBlack.withOpacity(0.22),
+                blurRadius: 35,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 22 : 36,
+                    isMobile ? 28 : 34,
+                    isMobile ? 22 : 36,
+                    isMobile ? 26 : 32,
+                  ),
+                  // FIX: full-width box so everything centers in the dialog
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // TITLE
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isMobile ? 30 : 36,
+                          ),
+                          child: Text(
+                            'Install $title',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.manrope(
+                              fontSize: isMobile ? 22 : 26,
+                              fontWeight: FontWeight.w800,
+                              color: tBlue2,
+                              height: 1.15,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // ORANGE LINE
+                        Container(
+                          width: 56,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: tOrange1,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // INSTRUCTION TEXT
+                        Text(
+                          'Scan the QR code image to get the APK',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.manrope(
+                            fontSize: isMobile ? 13.5 : 15,
+                            height: 1.5,
+                            fontWeight: FontWeight.w500,
+                            color: tBlack.withOpacity(0.55),
+                          ),
+                        ),
+
+                        SizedBox(height: isMobile ? 20 : 24),
+
+                        // QR IMAGE SPACE (empty for now)
+                        Container(
+                          width: qrSize,
+                          height: qrSize,
+                          decoration: BoxDecoration(
+                            color: tWhite,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: tBlack.withOpacity(0.10),
+                              width: 1,
+                            ),
+                          ),
+                          // TODO: add the QR image here, for example:
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Image.asset(
+                              'images/qr.png',
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.none,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // CLOSE BUTTON
+              Positioned(
+                top: isMobile ? 12 : 16,
+                right: isMobile ? 12 : 16,
+                child: Material(
+                  color: tTransparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(50),
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: isMobile ? 36 : 42,
+                      height: isMobile ? 36 : 42,
+                      decoration: const BoxDecoration(
+                        color: tBlue2,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        color: tWhite,
+                        size: isMobile ? 20 : 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-    if (!opened) debugPrint('Could not open: $url');
-  } catch (e) {
-    debugPrint('Could not open Play Store: $e');
   }
 }
 // =========================================================

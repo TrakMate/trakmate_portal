@@ -259,7 +259,7 @@ class _CareersPageState extends State<CareersPage> {
 
   bool _uploadHovered = false;
   bool _heroImageLoading = true;
-
+  bool _caveatFontLoading = true;
   // ── Location dropdown (custom overlay that opens BELOW the field) ──
   final LayerLink _locationLink = LayerLink();
   final GlobalKey _locationFieldKey = GlobalKey();
@@ -270,6 +270,7 @@ class _CareersPageState extends State<CareersPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _preloadHeroImage());
+    _preloadCaveatFont();
   }
 
   Future<void> _preloadHeroImage() async {
@@ -282,9 +283,23 @@ class _CareersPageState extends State<CareersPage> {
     } catch (e) {
       // debugPrint('Error preloading careers hero image: $e');
     }
-    await Future.delayed(const Duration(seconds: 3)); //fr testing
+    // await Future.delayed(const Duration(seconds: 3)); //fr testing
     if (!mounted) return;
     setState(() => _heroImageLoading = false);
+  }
+
+  /// Waits until the Caveat font is downloaded so the
+  /// "Don't see a suitable role?" heading never shows a fallback font.
+  Future<void> _preloadCaveatFont() async {
+    try {
+      await GoogleFonts.pendingFonts([
+        GoogleFonts.caveat(fontWeight: FontWeight.w700),
+      ]).timeout(const Duration(seconds: 10)); // never stay stuck on shimmer
+    } catch (e) {
+      // font failed or timed out: show the card anyway
+    }
+    if (!mounted) return;
+    setState(() => _caveatFontLoading = false);
   }
 
   @override
@@ -1502,7 +1517,7 @@ class _CareersPageState extends State<CareersPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _heroImageLoading
+        (_heroImageLoading || _caveatFontLoading)
             ? const ShimmerBox(
               height: 350,
               borderRadius: BorderRadius.all(Radius.circular(18)),
@@ -1926,20 +1941,20 @@ class _CareersPageState extends State<CareersPage> {
           decoration: BoxDecoration(
             color: tWhite,
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: tOrange1, width: 1.4),
+            border: Border.all(color: tBlue2, width: 1.4),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const _SvgIcon(_Svg.linkedInOpenNew, size: 16, color: tOrange1),
+              const _SvgIcon(_Svg.linkedInOpenNew, size: 16, color: tBlue2),
               const SizedBox(width: 6),
               Text(
                 'Click here',
                 style: GoogleFonts.manrope(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: tOrange1,
+                  color: tBlue2,
                 ),
               ),
             ],

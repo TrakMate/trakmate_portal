@@ -40,7 +40,7 @@ class _SolutionsHubPageState extends State<SolutionsHubPage> {
   final List<SolutionDetailsData> _solutions = <SolutionDetailsData>[
     // MOBILE APPS
     SolutionDetailsData(
-      backgroundImage: 'images/mobileapps2.png',
+      backgroundImage: 'images/mobileapps4.webp',
       icon: 'icons/mobile1.svg',
       iconBackgroundColor: tOrange1,
       eyebrow: 'MOBILE APPLICATIONS',
