@@ -1,11 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/utils/colors.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
 
-// =============================================================================
-// Data classes used by the Terms / Privacy / Refund pages
-// =============================================================================
+// Data classes used by the Terms / Privacy / Refund pages (unchanged)
 
 class LegalBullet {
   final String lead; // optional bold lead-in
@@ -14,9 +14,9 @@ class LegalBullet {
 }
 
 class LegalContactLine {
-  final IconData icon;
+  final String svgAsset;
   final String text;
-  const LegalContactLine(this.icon, this.text);
+  const LegalContactLine(this.svgAsset, this.text);
 }
 
 class LegalSection {
@@ -37,14 +37,13 @@ class LegalSection {
   });
 }
 
-// =============================================================================
-// Shared full-width layout
-//   slim header band -> sections in rows of two (1 | 2, 3 | 4, ...)
-//   Both cards in a row always have the same height, so there are no gaps.
-//   A last, unpaired section spans the full width.
-// =============================================================================
+// Full-screen layout
+//   top bar (back + title)
+//   left menu (Home + sections, fixed)  |  right scrollable content
+//
+//   Mobile: the left menu becomes a horizontal chip row above the content.
 
-class LegalPageLayout extends StatelessWidget {
+class LegalPageLayout extends StatefulWidget {
   final String title;
   final String subtitle;
   final String effectiveDate;
@@ -60,403 +59,447 @@ class LegalPageLayout extends StatelessWidget {
     required this.sections,
   });
 
-  static const List<Color> _accents = [tOrange1, tBlue3];
+  @override
+  State<LegalPageLayout> createState() => _LegalPageLayoutState();
+}
 
-  // Breakpoints come from ResponsiveLayout:
-  //   mobile  < 700   |   tablet 700 - 1099   |   desktop >= 1100
+class _LegalPageLayoutState extends State<LegalPageLayout> {
+  // 0 = Home (welcome + all sections), 1..n = a single section
+  int _selected = 0;
+  final GlobalKey _rootKey = GlobalKey();
+  double _topOffset = 0; // distance from the top of the screen to this page
+  double _lastScreenH = -1;
+
+  void _measureTop() {
+    final ctx = _rootKey.currentContext;
+    if (ctx == null) return;
+    final box = ctx.findRenderObject() as RenderBox?;
+    if (box == null || !box.attached) return;
+    final double top = box.localToGlobal(Offset.zero).dy;
+    if ((top - _topOffset).abs() > 0.5) {
+      setState(() => _topOffset = top < 0 ? 0 : top);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isMobile = ResponsiveLayout.isMobile(context);
     final bool isTablet = ResponsiveLayout.isTablet(context);
-    final double hPad = isMobile ? 16 : (isTablet ? 24 : 40);
 
-    return Container(
-      width: double.infinity,
-      color: const Color(0xFFF6F8FC),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    final double screenH = MediaQuery.of(context).size.height;
+
+    // Re-measure on first build and whenever the window height changes.
+    if (screenH != _lastScreenH) {
+      _lastScreenH = screenH;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _measureTop();
+      });
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Bounded height from the parent -> use it.
+        // Unbounded (inside a scroll view) -> screen height minus whatever
+        // sits above this page (the portal's back-arrow header).
+        final double avail = screenH - _topOffset;
+        final double height =
+            constraints.hasBoundedHeight
+                ? constraints.maxHeight
+                : (avail < 320 ? 320.0 : avail);
+
+        final Widget page = SizedBox(
+          key: _rootKey,
+          width: double.infinity,
+          height: height,
+          child: Container(
+            color: tWhite,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildTopBar(context, isMobile),
+                const Divider(height: 1, thickness: 1, color: tBlueMist2),
+                if (isMobile) _buildChipMenu(),
+                Expanded(
+                  child:
+                      isMobile
+                          ? _buildContent(isMobile, isTablet)
+                          : Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                width: isTablet ? 230 : 300,
+                                child: _buildSideMenu(isTablet),
+                              ),
+                              const VerticalDivider(
+                                width: 1,
+                                thickness: 1,
+                                color: tBlueMist2,
+                              ),
+                              Expanded(
+                                child: _buildContent(isMobile, isTablet),
+                              ),
+                            ],
+                          ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        // Desktop / tablet: stop wheel scroll from leaking to the parent page.
+        // The right panel's own scrollable handles the event first when it can
+        // scroll; when it can't (at the top or end), this absorbs it so the
+        // whole page (and the left menu) never moves.
+        if (isMobile) return page;
+
+        return Listener(
+          onPointerSignal: (event) {
+            if (event is PointerScrollEvent) {
+              GestureBinding.instance.pointerSignalResolver.register(
+                event,
+                (_) {},
+              );
+            }
+          },
+          child: page,
+        );
+      },
+    );
+  }
+
+  // TOP BAR  ( <  Title )
+
+  Widget _buildTopBar(BuildContext context, bool isMobile) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 12 : 24,
+        vertical: isMobile ? 12 : 16,
+      ),
+      child: Row(
         children: [
-          _buildHeader(isMobile, hPad),
-          Padding(
-            padding: EdgeInsets.fromLTRB(hPad, isMobile ? 16 : 22, hPad, 32),
-            child: _buildBody(isMobile),
+          // InkWell(
+          //   borderRadius: BorderRadius.circular(20),
+          //   onTap: () => Navigator.of(context).maybePop(),
+          //   child: const Padding(
+          //     padding: EdgeInsets.all(4),
+          //     child: Icon(Icons.chevron_left_rounded, size: 28, color: tBlack),
+          //   ),
+          // ),
+          // const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              widget.title,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                fontSize: isMobile ? 15 : 17,
+                fontWeight: FontWeight.w700,
+                color: tBlack,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // HEADER BAND
-  // ---------------------------------------------------------------------------
-  Widget _buildHeader(bool isMobile, double hPad) {
+  // LEFT MENU (desktop / tablet) - fixed, never scrolls
+
+  List<String> get _menuLabels => [
+    "Home",
+    ...widget.sections.map((s) => s.title),
+  ];
+
+  Widget _buildSideMenu(bool isTablet) {
+    final labels = _menuLabels;
+
+    final Widget menu = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (int i = 0; i < labels.length; i++)
+          InkWell(
+            onTap: () => setState(() => _selected = i),
+            child: Container(
+              color: i == _selected ? tGrey1.withOpacity(0.2) : tTransparent,
+              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
+              child: Text(
+                labels[i],
+                style: GoogleFonts.manrope(
+                  fontSize: 15.5,
+                  fontWeight:
+                      i == _selected ? FontWeight.w700 : FontWeight.w500,
+                  color: tBlack,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+
+    // Tablet: scrollable menu. Desktop: fixed.
+    return isTablet ? SingleChildScrollView(child: menu) : menu;
+  }
+
+  // CHIP MENU (mobile)
+  Widget _buildChipMenu() {
+    final labels = _menuLabels;
+    return Container(
+      height: 52,
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: tBlueMist2)),
+      ),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        itemCount: labels.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final bool active = i == _selected;
+          return GestureDetector(
+            onTap: () => setState(() => _selected = i),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: active ? tOrange1 : tGrey1.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Text(
+                labels[i],
+                style: GoogleFonts.manrope(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: active ? tWhite : tBlack,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // RIGHT CONTENT (scrollable)
+  Widget _buildContent(bool isMobile, bool isTablet) {
+    final TextStyle body = GoogleFonts.manrope(
+      fontSize: isMobile ? 13 : 15,
+      fontWeight: FontWeight.w500,
+      color: tBlackLight,
+      height: 1.6,
+    );
+
+    final double pad = isMobile ? 16 : (isTablet ? 24 : 32);
+
+    final List<Widget> children = [];
+
+    if (_selected == 0) {
+      children.add(_buildWelcomeBox(isMobile));
+      for (final s in widget.sections) {
+        children.add(const SizedBox(height: 28));
+        children.add(_buildSection(s, body, isMobile));
+      }
+    } else {
+      children.add(
+        _buildSection(widget.sections[_selected - 1], body, isMobile),
+      );
+    }
+
+    return SingleChildScrollView(
+      key: ValueKey(_selected), // resets scroll position when switching
+      padding: EdgeInsets.fromLTRB(pad, pad, pad, 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildWelcomeBox(bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(
-        hPad,
-        isMobile ? 18 : 24,
-        hPad,
-        isMobile ? 20 : 26,
-      ),
-      decoration: const BoxDecoration(
+      padding: EdgeInsets.all(isMobile ? 14 : 20),
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [tBlue2, tBlue3],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+          colors: [tOrange1.withOpacity(0.1), tOrange1.withOpacity(0.05)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "LEGAL",
+            "Welcome!",
             style: GoogleFonts.manrope(
-              fontSize: isMobile ? 11.5 : 12.5,
-              fontWeight: FontWeight.w700,
-              color: tOrange1,
-              letterSpacing: 1.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: GoogleFonts.manrope(
-              fontSize: isMobile ? 22 : 30,
+              fontSize: isMobile ? 14.5 : 16,
               fontWeight: FontWeight.w800,
-              color: tWhite,
-              height: 1.2,
+              color: tRed,
             ),
           ),
           const SizedBox(height: 6),
+          Text(
+            widget.subtitle,
+            style: GoogleFonts.manrope(
+              fontSize: isMobile ? 12.5 : 14,
+              fontWeight: FontWeight.w700,
+              color: tBlack,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            widget.intro,
+            style: GoogleFonts.manrope(
+              fontSize: isMobile ? 12.5 : 14,
+              fontWeight: FontWeight.w500,
+              color: tMuted,
+              height: 1.55,
+            ),
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.event_available_rounded,
                 size: 14,
-                color: tWhite.withOpacity(0.8),
+                color: tOrange1,
               ),
               const SizedBox(width: 6),
               Text(
-                "Effective Date: $effectiveDate",
+                "Effective Date: ${widget.effectiveDate}",
                 style: GoogleFonts.manrope(
-                  fontSize: isMobile ? 11.5 : 12.5,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: tWhite.withOpacity(0.85),
+                  color: tGrey1,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            intro,
-            style: GoogleFonts.manrope(
-              fontSize: isMobile ? 12.5 : 13.5,
-              fontWeight: FontWeight.w500,
-              color: tWhite.withOpacity(0.9),
-              height: 1.6,
-            ),
-          ),
         ],
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // BODY
-  //   mobile : one card per row
-  //   others : two cards per row, equal height (1 | 2, 3 | 4, ...)
-  //            the last card spans the full width when it has no partner
-  // ---------------------------------------------------------------------------
-  Widget _buildBody(bool isMobile) {
-    if (isMobile) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (int i = 0; i < sections.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildCard(sections[i], i, isMobile: true, wide: false),
-            ),
-        ],
-      );
-    }
-
-    final List<Widget> rows = [];
-    for (int i = 0; i < sections.length; i += 2) {
-      final bool hasPair = i + 1 < sections.length;
-
-      rows.add(
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child:
-              hasPair
-                  ? IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: _buildCard(
-                            sections[i],
-                            i,
-                            isMobile: false,
-                            wide: false,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildCard(
-                            sections[i + 1],
-                            i + 1,
-                            isMobile: false,
-                            wide: false,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  // Unpaired last section: full width, no empty half
-                  : _buildCard(sections[i], i, isMobile: false, wide: true),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: rows,
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // SECTION CARD
-  // ---------------------------------------------------------------------------
-  TextStyle _bodyStyle(bool isMobile) => GoogleFonts.manrope(
-    fontSize: isMobile ? 12.5 : 13.5,
-    fontWeight: FontWeight.w500,
-    color: tBlack,
-    height: 1.65,
-  );
-
-  Widget _buildCard(
-    LegalSection s,
-    int index, {
-    required bool isMobile,
-    required bool wide,
-  }) {
-    final Color accent = _accents[index % _accents.length];
-    final TextStyle body = _bodyStyle(isMobile);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: tWhite,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: tBlue3.withOpacity(0.08), width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: tBlue3.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            height: 3,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [accent, accent.withOpacity(0.3)],
-              ),
-            ),
-          ),
-          // Header band: soft tint behind the heading
-          Container(
-            color: accent.withOpacity(0.05),
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 14 : 18,
-              vertical: isMobile ? 10 : 12,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  child: Center(
-                    child: Text(
-                      s.number,
-                      style: GoogleFonts.manrope(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
-                        color: tWhite,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    s.title,
-                    style: GoogleFonts.manrope(
-                      fontSize: isMobile ? 14.5 : 15.5,
-                      fontWeight: FontWeight.w700,
-                      color: tBlue2,
-                      height: 1.25,
-                    ),
-                  ),
-                ),
-                Text(
-                  s.number.padLeft(2, '0'),
-                  style: GoogleFonts.manrope(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    color: accent.withOpacity(0.16),
-                    height: 1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Content (the card itself is stretched to the row height by the Row)
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              isMobile ? 14 : 18,
-              isMobile ? 12 : 14,
-              isMobile ? 14 : 18,
-              isMobile ? 12 : 16,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...s.paragraphs.map(
-                  (p) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(p, style: body),
-                  ),
-                ),
-                ...s.bullets.map(
-                  (b) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, right: 10),
-                          child: Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: accent,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child:
-                              b.lead.isEmpty
-                                  ? Text(b.text, style: body)
-                                  : Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: "${b.lead}: ",
-                                          style: body.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: tBlue2,
-                                          ),
-                                        ),
-                                        TextSpan(text: b.text, style: body),
-                                      ],
-                                    ),
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (s.footer.isNotEmpty)
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    decoration: BoxDecoration(
-                      color: accent.withOpacity(0.07),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border(left: BorderSide(color: accent, width: 3)),
-                    ),
-                    child: Text(
-                      s.footer,
-                      style: body.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: tBlue2,
-                      ),
-                    ),
-                  ),
-                if (s.contacts.isNotEmpty)
-                  _buildContacts(s, accent, body, wide),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Contact lines: stacked inside a half-width card, side by side when the
-  // card spans the full width (so the last section doesn't look empty).
-  Widget _buildContacts(
-    LegalSection s,
-    Color accent,
-    TextStyle body,
-    bool wide,
-  ) {
-    Widget line(LegalContactLine c) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 3, right: 10),
-            child: Icon(c.icon, size: 16, color: accent),
-          ),
-          Flexible(
-            child: SelectableText(
-              c.text,
-              style: body.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (wide) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Wrap(
-          spacing: 36,
-          runSpacing: 10,
-          children: s.contacts.map(line).toList(),
-        ),
-      );
-    }
-
+  Widget _buildSection(LegalSection s, TextStyle body, bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          s.contacts
-              .map(
-                (c) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: line(c),
+      children: [
+        Text(
+          "${s.number}. ${s.title}",
+          style: GoogleFonts.manrope(
+            fontSize: isMobile ? 14.5 : 16.5,
+            fontWeight: FontWeight.w800,
+            color: tBlack,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...s.paragraphs.map(
+          (p) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(p, style: body),
+          ),
+        ),
+        ...s.bullets.map(
+          (b) => Padding(
+            padding: const EdgeInsets.only(bottom: 6, left: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 9, right: 10),
+                  child: Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: tOrange1,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              )
-              .toList(),
+                Expanded(
+                  child:
+                      b.lead.isEmpty
+                          ? Text(b.text, style: body)
+                          : Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "${b.lead}: ",
+                                  style: body.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: tBlack,
+                                  ),
+                                ),
+                                TextSpan(text: b.text, style: body),
+                              ],
+                            ),
+                          ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (s.footer.isNotEmpty)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 6),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            decoration: BoxDecoration(
+              color: tOrange1.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(8),
+              border: const Border(left: BorderSide(color: tOrange1, width: 3)),
+            ),
+            child: Text(
+              s.footer,
+              style: body.copyWith(fontWeight: FontWeight.w600, color: tBlack),
+            ),
+          ),
+        if (s.contacts.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:
+                  s.contacts
+                      .map(
+                        (c) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 3,
+                                  right: 10,
+                                ),
+                                child: SvgPicture.asset(
+                                  c.svgAsset,
+                                  width: 16,
+                                  height: 16,
+                                  // Remove colorFilter if you want the SVG's original colors
+                                  colorFilter: const ColorFilter.mode(
+                                    tOrange1,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: SelectableText(
+                                  c.text,
+                                  style: body.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ),
+      ],
     );
   }
 }

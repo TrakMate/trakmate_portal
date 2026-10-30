@@ -123,15 +123,12 @@ class PrivacyPolicyPage extends StatelessWidget {
           paragraphs: ["For privacy-related questions or requests:"],
           contacts: [
             LegalContactLine(
-              Icons.business_rounded,
+              "icons/city.svg",
               "Trakmate Design Solutions Pvt. Ltd.",
             ),
+            LegalContactLine("icons/mail.svg", "Email: info@trakmate.co.in"),
             LegalContactLine(
-              Icons.mail_outline_rounded,
-              "Email: [Insert official privacy/contact email]",
-            ),
-            LegalContactLine(
-              Icons.location_on_outlined,
+              "icons/location.svg",
               "Address: [Insert registered office address]",
             ),
           ],

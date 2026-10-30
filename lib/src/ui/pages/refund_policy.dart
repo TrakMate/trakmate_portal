@@ -80,16 +80,15 @@ class RefundPolicyPage extends StatelessWidget {
           title: "Contact Us",
           contacts: [
             LegalContactLine(
-              Icons.business_rounded,
+              "icons/city.svg",
               "Trakmate Design Solutions Pvt. Ltd.",
             ),
+            LegalContactLine("icons/mail.svg", "Email: info@trakmate.co.in"),
             LegalContactLine(
-              Icons.mail_outline_rounded,
-              "Email: [Insert official support email]",
-            ),
-            LegalContactLine(
-              Icons.location_on_outlined,
-              "Address: [Insert registered office address]",
+              "icons/location.svg",
+              "Address: TrakMate Design Solutions Pvt Ltd.\n"
+                  "17G/46-3 and 17G/46-3-1,\n"
+                  "1st & 2nd floor, MEI Road, Industrial Suburb, Yeshwanthpura,\n Bengaluru -560022",
             ),
           ],
         ),

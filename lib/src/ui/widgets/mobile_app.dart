@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:trakmate_portal/src/ui/widgets/footer_section.dart';
 import 'package:trakmate_portal/src/utils/responsive.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../utils/colors.dart';
 
@@ -74,20 +75,28 @@ class MobileApp extends StatelessWidget {
                     cards: const [
                       // CARD 1
                       _MobileServiceCardData(
-                        image: 'images/mobile_app5.png',
+                        image: 'images/trakFleet.png',
                         logo: 'icons/trakfleet_web_logo.svg',
                         title: 'TrakFleet',
                         description:
                             'Track vehicles, trips and alerts on the go with a fast, simple mobile experience built for your fleet.',
+                        appStoreUrl:
+                            'https://apps.apple.com/app/YOUR-TRAKFLEET-LINK',
+                        playStoreUrl:
+                            'https://play.google.com/store/apps/details?id=YOUR.TRAKFLEET.ID',
                       ),
 
                       // CARD 2
                       _MobileServiceCardData(
-                        image: 'images/mobile_appp1.png',
+                        image: 'images/trakBlue.png',
                         logo: 'icons/trakmate_logo.svg',
                         title: 'TrakBlue',
                         description:
                             'Secure cloud-connected mobile apps with centralized data and easy access from anywhere.',
+                        appStoreUrl:
+                            'https://apps.apple.com/app/YOUR-TRAKBLUE-LINK',
+                        playStoreUrl:
+                            'https://play.google.com/store/apps/details?id=YOUR.TRAKBLUE.ID',
                       ),
                     ],
                   ),
@@ -155,12 +164,16 @@ class _MobileServiceCardData {
   final String logo;
   final String title;
   final String description;
+  final String appStoreUrl;
+  final String playStoreUrl;
 
   const _MobileServiceCardData({
     required this.image,
     required this.logo,
     required this.title,
     required this.description,
+    required this.appStoreUrl,
+    required this.playStoreUrl,
   });
 }
 
@@ -277,9 +290,15 @@ class _MobileServiceCard extends StatelessWidget {
       ),
     );
 
-    // INSTALL APP -> opens the QR dialog (no Play Store)
+    // INSTALL APP -> opens the QR dialog with this app's store links
     final Widget appButton = OutlinedButton.icon(
-      onPressed: () => _showQrDialog(context, data.title),
+      onPressed:
+          () => _showQrDialog(
+            context,
+            data.title,
+            data.appStoreUrl,
+            data.playStoreUrl,
+          ),
       style: OutlinedButton.styleFrom(
         foregroundColor: tBlue3,
         overlayColor: isTablet ? tTransparent : null,
@@ -485,10 +504,20 @@ class _MobileBadge extends StatelessWidget {
 }
 
 // =========================================================
-// QR INSTALL DIALOG
+// QR INSTALL DIALOG  (QR card + App Store / Google Play cards)
 // =========================================================
 
-void _showQrDialog(BuildContext context, String title) {
+Future<void> _openStoreUrl(String url) async {
+  final uri = Uri.parse(url);
+  await launchUrl(uri, mode: LaunchMode.externalApplication);
+}
+
+void _showQrDialog(
+  BuildContext context,
+  String title,
+  String appStoreUrl,
+  String playStoreUrl,
+) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -496,7 +525,11 @@ void _showQrDialog(BuildContext context, String title) {
     barrierColor: tBlack.withOpacity(0.58),
     transitionDuration: const Duration(milliseconds: 350),
     pageBuilder: (context, animation, secondaryAnimation) {
-      return _QrInstallDialog(title: title);
+      return _QrInstallDialog(
+        title: title,
+        appStoreUrl: appStoreUrl,
+        playStoreUrl: playStoreUrl,
+      );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       final scale = CurvedAnimation(
@@ -523,8 +556,14 @@ void _showQrDialog(BuildContext context, String title) {
 
 class _QrInstallDialog extends StatelessWidget {
   final String title;
+  final String appStoreUrl;
+  final String playStoreUrl;
 
-  const _QrInstallDialog({required this.title});
+  const _QrInstallDialog({
+    required this.title,
+    required this.appStoreUrl,
+    required this.playStoreUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -532,11 +571,9 @@ class _QrInstallDialog extends StatelessWidget {
     final bool isMobile = screen.width < 650;
     final bool isSmall = screen.width < 360;
 
+    // Wider on desktop/tablet so the QR and the store cards sit side by side.
     final double dialogWidth =
-        isMobile ? screen.width * (isSmall ? 0.92 : 0.88) : 420;
-
-    // Size of the empty QR area
-    final double qrSize = (dialogWidth - 80).clamp(160.0, 240.0);
+        isMobile ? screen.width * (isSmall ? 0.92 : 0.88) : 640;
 
     return Center(
       child: Material(
@@ -566,7 +603,6 @@ class _QrInstallDialog extends StatelessWidget {
                     isMobile ? 22 : 36,
                     isMobile ? 26 : 32,
                   ),
-                  // FIX: full-width box so everything centers in the dialog
                   child: SizedBox(
                     width: double.infinity,
                     child: Column(
@@ -606,7 +642,7 @@ class _QrInstallDialog extends StatelessWidget {
 
                         // INSTRUCTION TEXT
                         Text(
-                          'Scan the QR code image to get the APK',
+                          'Scan the QR code or pick your store to get the app',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.manrope(
                             fontSize: isMobile ? 13.5 : 15,
@@ -618,27 +654,11 @@ class _QrInstallDialog extends StatelessWidget {
 
                         SizedBox(height: isMobile ? 20 : 24),
 
-                        // QR IMAGE SPACE (empty for now)
-                        Container(
-                          width: qrSize,
-                          height: qrSize,
-                          decoration: BoxDecoration(
-                            color: tWhite,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: tBlack.withOpacity(0.10),
-                              width: 1,
-                            ),
-                          ),
-                          // TODO: add the QR image here, for example:
-                          child: Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: Image.asset(
-                              'images/qr.png',
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.none,
-                            ),
-                          ),
+                        // QR + STORE CARDS PANEL
+                        _InstallPanel(
+                          isMobile: isMobile,
+                          appStoreUrl: appStoreUrl,
+                          playStoreUrl: playStoreUrl,
                         ),
                       ],
                     ),
@@ -678,6 +698,230 @@ class _QrInstallDialog extends StatelessWidget {
     );
   }
 }
+
+// =========================================================
+// LIGHT GREY PANEL  (QR on the left, store cards on the right)
+// Phones / narrow dialogs: the QR sits on top, cards below.
+// =========================================================
+
+class _InstallPanel extends StatelessWidget {
+  final bool isMobile;
+  final String appStoreUrl;
+  final String playStoreUrl;
+
+  const _InstallPanel({
+    required this.isMobile,
+    required this.appStoreUrl,
+    required this.playStoreUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 14 : 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFEFEF),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool sideBySide = constraints.maxWidth >= 380;
+
+          final Widget qr = _QrCard(
+            size: sideBySide ? 190 : constraints.maxWidth.clamp(150.0, 210.0),
+          );
+
+          final Widget cards = Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _StoreCard(
+                url: appStoreUrl,
+                smallText: 'Download on the',
+                bigText: 'App Store',
+                // Your SVG is black, so it is tinted white here.
+                icon: SvgPicture.asset(
+                  'icons/apple.svg',
+                  width: 30,
+                  height: 30,
+                  colorFilter: const ColorFilter.mode(tWhite, BlendMode.srcIn),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _StoreCard(
+                url: playStoreUrl,
+                smallText: 'GET IT ON',
+                bigText: 'Google Play',
+                // Keeps its original colors (no colorFilter).
+                icon: SvgPicture.asset(
+                  'icons/playstore.svg',
+                  width: 28,
+                  height: 28,
+                ),
+              ),
+            ],
+          );
+
+          if (sideBySide) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [qr, const SizedBox(width: 24), Expanded(child: cards)],
+            );
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [qr, const SizedBox(height: 18), cards],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// QR CARD  (grey frame, white QR box, "Download App" label)
+
+class _QrCard extends StatelessWidget {
+  final double size;
+
+  const _QrCard({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+      decoration: BoxDecoration(
+        color: tOrange1.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                color: tWhite,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Image.asset(
+                'images/qr.png',
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Download App',
+            style: GoogleFonts.manrope(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: tWhite,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =========================================================
+// STORE CARD  (black, clickable, opens the store URL)
+// =========================================================
+
+class _StoreCard extends StatefulWidget {
+  final String url;
+  final String smallText;
+  final String bigText;
+  final Widget icon;
+
+  const _StoreCard({
+    required this.url,
+    required this.smallText,
+    required this.bigText,
+    required this.icon,
+  });
+
+  @override
+  State<_StoreCard> createState() => _StoreCardState();
+}
+
+class _StoreCardState extends State<_StoreCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: () => _openStoreUrl(widget.url),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          height: 62,
+          transform: Matrix4.translationValues(0, _hovered ? -2 : 0, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: tBlack,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: tWhite.withOpacity(0.25), width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: tBlack.withOpacity(_hovered ? 0.28 : 0.14),
+                blurRadius: _hovered ? 16 : 10,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              widget.icon,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.smallText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w500,
+                        color: tWhite,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.bigText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.manrope(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                        color: tWhite,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // =========================================================
 // ACCESS DIALOG
 // =========================================================
